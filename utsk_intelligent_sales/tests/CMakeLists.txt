@@ -1,27 +1,36 @@
 cmake_minimum_required(VERSION 3.16)
 
-set(GTEST_ROOT "/usr/src/gtest")
-set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${GTEST_ROOT})
+# Ищем заголовки GTest
+find_path(GTEST_INCLUDE_DIR gtest/gtest.h
+    PATHS /usr/include /usr/local/include /usr/src/gtest/include
+)
 
-find_package(GTest QUIET)
+# Ищем библиотеки
+find_library(GTEST_LIBRARY gtest
+    PATHS /usr/lib /usr/local/lib /usr/lib/x86_64-linux-gnu
+)
+find_library(GTEST_MAIN_LIBRARY gtest_main
+    PATHS /usr/lib /usr/local/lib /usr/lib/x86_64-linux-gnu
+)
 
-if(NOT GTest_FOUND)
-    set(GTEST_INCLUDE_DIR /usr/include)
-    set(GTEST_LIBRARY /usr/lib/x86_64-linux-gnu/libgtest.a)
-    set(GTEST_MAIN_LIBRARY /usr/lib/x86_64-linux-gnu/libgtest_main.a)
-    
-    add_library(GTest::GTest UNKNOWN IMPORTED)
-    set_target_properties(GTest::GTest PROPERTIES
-        IMPORTED_LOCATION ${GTEST_LIBRARY}
-        INTERFACE_INCLUDE_DIRECTORIES ${GTEST_INCLUDE_DIR}
-    )
-    add_library(GTest::Main UNKNOWN IMPORTED)
-    set_target_properties(GTest::Main PROPERTIES
-        IMPORTED_LOCATION ${GTEST_MAIN_LIBRARY}
-        INTERFACE_INCLUDE_DIRECTORIES ${GTEST_INCLUDE_DIR}
-    )
-    message(STATUS "GTest: using ${GTEST_LIBRARY}")
+if(NOT GTEST_INCLUDE_DIR OR NOT GTEST_LIBRARY)
+    message(FATAL_ERROR "GTest not found. Include: ${GTEST_INCLUDE_DIR}, Lib: ${GTEST_LIBRARY}")
 endif()
+
+message(STATUS "GTest include: ${GTEST_INCLUDE_DIR}")
+message(STATUS "GTest library: ${GTEST_LIBRARY}")
+
+# Создаём imported target
+add_library(GTest::GTest UNKNOWN IMPORTED)
+set_target_properties(GTest::GTest PROPERTIES
+    IMPORTED_LOCATION ${GTEST_LIBRARY}
+    INTERFACE_INCLUDE_DIRECTORIES ${GTEST_INCLUDE_DIR}
+)
+add_library(GTest::Main UNKNOWN IMPORTED)
+set_target_properties(GTest::Main PROPERTIES
+    IMPORTED_LOCATION ${GTEST_MAIN_LIBRARY}
+    INTERFACE_INCLUDE_DIRECTORIES ${GTEST_INCLUDE_DIR}
+)
 
 find_package(nlohmann_json REQUIRED)
 find_package(PkgConfig REQUIRED)
