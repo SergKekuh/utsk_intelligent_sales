@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: utsk_db
+    environment:
+      POSTGRES_DB: bd_intelligent_sales
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-root}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    container_name: utsk_app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      UTSK_DB_HOST: postgres
+      UTSK_DB_PORT: 5432
+      UTSK_DB_NAME: bd_intelligent_sales
+      UTSK_DB_USER: postgres
+      UTSK_DB_PASSWORD: ${DB_PASSWORD:-root}
+    stdin_open: true
+    tty: true
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: utsk_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@utsk.ua}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+    ports:
+      - "8080:80"
+    depends_on:
+      - postgres
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+
+volumes:
+  pg_data:
+  pgadmin_data:

@@ -1,0 +1,484 @@
+-- =========================================================================
+-- БАЗА ДАННЫХ UTSK: BD_INTELLIGENT_SALES (Версия 7.1 - Идеальная)
+-- Описание: Полная архитектура с RFM-аналитикой, сегментацией, 
+-- Модулем Умных Рекомендаций v2, Цифровым следом, A/B тестами 
+-- и ML-модулем самообучения (учет отказов менеджеров).
+-- =========================================================================
+
+-- -------------------------------------------------------------------------
+-- ШАГ 1: ОЧИСТКА (Удаляет старые таблицы при пересоздании)
+-- -------------------------------------------------------------------------
+DROP VIEW IF EXISTS v_smart_recommendations CASCADE;
+DROP VIEW IF EXISTS v_manager_dashboard CASCADE;
+DROP VIEW IF EXISTS v_sales_full CASCADE;
+
+DROP TABLE IF EXISTS manager_rejections_log CASCADE;
+DROP TABLE IF EXISTS ab_tests CASCADE;
+DROP TABLE IF EXISTS sales_lines CASCADE;
+DROP TABLE IF EXISTS documents CASCADE;
+DROP TABLE IF EXISTS product_scoring CASCADE;
+DROP TABLE IF EXISTS product_cross_sells CASCADE;
+DROP TABLE IF EXISTS production_lead_times CASCADE;
+DROP TABLE IF EXISTS website_behavior_log CASCADE;
+DROP TABLE IF EXISTS status_change_log CASCADE;
+DROP TABLE IF EXISTS product_aliases CASCADE;
+DROP TABLE IF EXISTS products CASCADE;
+DROP TABLE IF EXISTS clients CASCADE;
+DROP TABLE IF EXISTS status_rules CASCADE;
+DROP TABLE IF EXISTS activity_directions CASCADE;
+
+DROP FUNCTION IF EXISTS update_updated_at_column() CASCADE;
+DROP FUNCTION IF EXISTS calculate_client_status(VARCHAR) CASCADE;
+DROP FUNCTION IF EXISTS calculate_client_direction(VARCHAR) CASCADE;
+DROP FUNCTION IF EXISTS log_status_change() CASCADE;
+DROP FUNCTION IF EXISTS update_client_analytics(VARCHAR) CASCADE;
+DROP FUNCTION IF EXISTS penalize_rejected_product() CASCADE;
+DROP FUNCTION IF EXISTS reward_added_product(VARCHAR, VARCHAR) CASCADE;
+
+-- -------------------------------------------------------------------------
+-- ШАГ 2: ВСПОМОГАТЕЛЬНАЯ ФУНКЦИЯ (Триггер updated_at)
+-- -------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- -------------------------------------------------------------------------
+-- ШАГ 3: СПРАВОЧНИКИ (Словари системы)
+-- -------------------------------------------------------------------------
+
+-- 3.1 Направления деятельности (Трубные сегменты)
+CREATE TABLE activity_directions (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL UNIQUE,
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+COMMENT ON TABLE activity_directions IS 'Справочник: Трубные сегменты рынка (ЖКХ, Нефтегаз, Стройка)';
+
+INSERT INTO activity_directions (name, description) VALUES
+('Сельское хозяйство', 'Агросектор: теплицы, ангары, фермы'),
+('Строительство', 'Строительные металлоконструкции, сваи, каркасы зданий, проф. труба'),
+('Промышленность / Нефтегаз', 'Магистральные, толстостенные и бесшовные трубы'),
+('ЖКХ и Водоканалы', 'Закупка труб ВГП, задвижек, фитингов для коммунальных нужд'),
+('Дорожное строительство', 'Мосты, ограждения, дорожные конструкции'),
+('Трейдер', 'Перепродавец металлопроката, торговая компания'),
+('Конечный потребитель', 'Использует продукцию для собственных нужд'),
+('Трейдер с производством', 'Перепродажа + собственная переработка/производство'),
+('Универсальный/Смешанное', 'Смешанные закупки, невозможно определить однозначно');
+
+-- 3.2 Правила статусов (RFM-матрица)
+CREATE TABLE status_rules (
+    id SERIAL PRIMARY KEY,
+    status_name VARCHAR(50) NOT NULL UNIQUE,
+    min_current_year INT,
+    max_current_year INT,
+    min_prev_year INT,
+    max_prev_year INT,
+    min_days_since_last_purchase INT,
+    min_days_between_purchases INT,
+    priority INT NOT NULL,
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+COMMENT ON TABLE status_rules IS 'Свод законов: Правила присвоения RFM-статусов (без спам-рассылок)';
+
+INSERT INTO status_rules (
+    status_name, min_current_year, max_current_year, min_prev_year, max_prev_year, 
+    min_days_since_last_purchase, priority, description
+) VALUES
+('Новые', 1, 1, 0, 0, NULL, 10, '1 накладная в текущем году, 0 в прошлом. Требуется подтверждение'),
+('Разовые', 1, 1, 1, 9999, 365, 15, '1 накладная в текущем, были покупки в прошлом'),
+('Повторные', 2, 3, 0, 0, NULL, 20, '2-3 накладные в текущем году, 0 в прошлом'),
+('Ежеквартальные', 4, 10, NULL, NULL, NULL, 30, '4-10 накладных в текущем году'),
+('Ежемесячные', 11, 40, NULL, NULL, NULL, 40, '11-40 накладных в текущем году'),
+('Еженедельные', 41, 170, NULL, NULL, NULL, 50, '41-170 накладных в текущем году'),
+('Ежедневные', 171, 9999, NULL, NULL, NULL, 60, 'Более 170 накладных в текущем году. VIP'),
+('Спящие', 0, 0, 1, 9999, 180, 70, 'Нет заказов более 180 дней'),
+('Ушедшие', 0, 0, 1, 9999, 365, 80, 'Нет заказов более 365 дней');
+
+-- -------------------------------------------------------------------------
+-- ШАГ 4: ОСНОВНЫЕ ТАБЛИЦЫ (Сущности)
+-- -------------------------------------------------------------------------
+
+-- 4.1 Номенклатура (Продукция)
+CREATE TABLE products (
+    code VARCHAR(50) PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    anchor_direction_id INT REFERENCES activity_directions(id) ON DELETE SET NULL,
+    is_auto_tagged BOOLEAN DEFAULT FALSE,
+    material_grade VARCHAR(50),
+    is_new_arrival BOOLEAN DEFAULT FALSE,
+    in_stock_balance DECIMAL(15,3) DEFAULT 0.00,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 4.2 Синонимы номенклатуры
+CREATE TABLE product_aliases (
+    id SERIAL PRIMARY KEY,
+    product_code VARCHAR(50) NOT NULL REFERENCES products(code) ON DELETE CASCADE,
+    alias_text VARCHAR(255) NOT NULL UNIQUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 4.3 Контрагенты (Главная аналитическая таблица)
+CREATE TABLE clients (
+    code VARCHAR(50) PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    client_type VARCHAR(50),
+    current_status_id INT REFERENCES status_rules(id) ON DELETE SET NULL,
+    status_history JSONB DEFAULT '[]'::jsonb,
+    last_status_push_to_crm TIMESTAMP,
+    first_purchase_date DATE,
+    last_purchase_date DATE,
+    activity_direction_id INT REFERENCES activity_directions(id) ON DELETE SET NULL,
+    direction_confidence DECIMAL(5,2) CHECK (direction_confidence >= 0 AND direction_confidence <= 100),
+    is_direction_manual BOOLEAN DEFAULT FALSE,
+    requires_survey BOOLEAN DEFAULT FALSE,
+    survey_completed_at TIMESTAMP,
+    survey_completed_by VARCHAR(100),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+COMMENT ON TABLE clients IS 'Личное дело: Статусы и направления (Тихая аналитика)';
+
+-- -------------------------------------------------------------------------
+-- ШАГ 5: ТРАНЗАКЦИОННЫЕ ТАБЛИЦЫ
+-- -------------------------------------------------------------------------
+
+-- 5.1 Документы (Накладные)
+CREATE TABLE documents (
+    id BIGINT PRIMARY KEY,
+    client_code VARCHAR(50) NOT NULL REFERENCES clients(code) ON DELETE CASCADE,
+    invoice_date DATE NOT NULL,
+    total_amount DECIMAL(15, 2) DEFAULT 0.00 CHECK (total_amount >= 0),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 5.2 Строки документов (Отгрузки)
+CREATE TABLE sales_lines (
+    id BIGSERIAL PRIMARY KEY,
+    document_id BIGINT NOT NULL REFERENCES documents(id) ON DELETE CASCADE,
+    product_code VARCHAR(50) NOT NULL REFERENCES products(code) ON DELETE RESTRICT,
+    quantity DECIMAL(15, 3) NOT NULL CHECK (quantity > 0),
+    amount DECIMAL(15, 2) NOT NULL DEFAULT 0.00 CHECK (amount >= 0),
+    recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- -------------------------------------------------------------------------
+-- ШАГ 6: ТАБЛИЦЫ АНАЛИТИКИ И РЕКОМЕНДАЦИЙ (v7.1)
+-- -------------------------------------------------------------------------
+
+-- 6.1 Скоринг товаров (Самообучение ML) с проверками CHECK
+CREATE TABLE product_scoring (
+    id BIGSERIAL PRIMARY KEY,
+    client_code VARCHAR(50) NOT NULL REFERENCES clients(code) ON DELETE CASCADE,
+    product_code VARCHAR(50) NOT NULL REFERENCES products(code) ON DELETE CASCADE,
+    base_score INT DEFAULT 10 CHECK (base_score >= 0 AND base_score <= 100),
+    positive_reinforcement INT DEFAULT 0,
+    negative_reinforcement INT DEFAULT 0,
+    current_weight INT GENERATED ALWAYS AS (base_score + positive_reinforcement - negative_reinforcement) STORED,
+    is_blocked BOOLEAN DEFAULT FALSE,
+    blocked_until DATE,
+    segment_agro_weight INT DEFAULT 0,
+    segment_build_weight INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(client_code, product_code),
+    CONSTRAINT chk_current_weight CHECK (base_score + positive_reinforcement - negative_reinforcement >= -100 AND base_score + positive_reinforcement - negative_reinforcement <= 1000)
+);
+
+-- 6.2 Жесткие связи товаров (Cross-sells / Фитинги)
+CREATE TABLE product_cross_sells (
+    id SERIAL PRIMARY KEY,
+    main_product_code VARCHAR(50) REFERENCES products(code) ON DELETE CASCADE,
+    related_product_code VARCHAR(50) REFERENCES products(code) ON DELETE CASCADE,
+    relation_type VARCHAR(50), 
+    UNIQUE(main_product_code, related_product_code)
+);
+COMMENT ON TABLE product_cross_sells IS 'Шпаргалка: Сопутствующие фитинги (Труба -> Фланец/Отвод)';
+
+-- 6.3 Сроки производства
+CREATE TABLE production_lead_times (
+    id SERIAL PRIMARY KEY,
+    product_code VARCHAR(50) NOT NULL REFERENCES products(code) ON DELETE CASCADE,
+    from_blank_days INT,
+    from_sheet_days INT,
+    transit_days INT,
+    alternative_blank_code VARCHAR(50) REFERENCES products(code),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 6.4 Цифровой след (Активность на сайте)
+CREATE TABLE website_behavior_log (
+    id BIGSERIAL PRIMARY KEY,
+    client_code VARCHAR(50) NOT NULL REFERENCES clients(code) ON DELETE CASCADE,
+    product_category VARCHAR(100),
+    product_code VARCHAR(50) REFERENCES products(code) ON DELETE SET NULL,
+    action_type VARCHAR(50),
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+COMMENT ON TABLE website_behavior_log IS 'Радар интересов: Цифровой след активности клиента';
+COMMENT ON COLUMN website_behavior_log.product_code IS 'Конкретный товар, который смотрел клиент';
+
+-- 6.5 Кладбище идей (Отказы менеджеров)
+CREATE TABLE manager_rejections_log (
+    id BIGSERIAL PRIMARY KEY,
+    client_code VARCHAR(50) NOT NULL REFERENCES clients(code) ON DELETE CASCADE,
+    product_code VARCHAR(50) NOT NULL REFERENCES products(code) ON DELETE CASCADE,
+    manager_login VARCHAR(100),
+    reject_reason TEXT,
+    document_id BIGINT REFERENCES documents(id) ON DELETE SET NULL,
+    rejected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+COMMENT ON TABLE manager_rejections_log IS 'Кладбище идей: Товары, удаленные менеджерами из рекомендаций';
+
+-- 6.6 A/B Тестирование (Полигон)
+CREATE TABLE ab_tests (
+    id SERIAL PRIMARY KEY,
+    test_name VARCHAR(100) NOT NULL,
+    variant CHAR(1) NOT NULL CHECK (variant IN ('A', 'B', 'C')),
+    content JSONB NOT NULL,
+    impressions INT DEFAULT 0 CHECK (impressions >= 0),
+    clicks INT DEFAULT 0 CHECK (clicks >= 0),
+    add_to_cart INT DEFAULT 0 CHECK (add_to_cart >= 0),
+    
+    ctr DECIMAL(5,2) GENERATED ALWAYS AS (
+        CASE WHEN impressions > 0 
+        THEN ROUND((clicks::DECIMAL / impressions * 100)::NUMERIC, 2) 
+        ELSE 0 END
+    ) STORED,
+    
+    conversion_rate DECIMAL(5,2) GENERATED ALWAYS AS (
+        CASE WHEN impressions > 0 
+        THEN ROUND((add_to_cart::DECIMAL / impressions * 100)::NUMERIC, 2) 
+        ELSE 0 END
+    ) STORED,
+    
+    is_active BOOLEAN DEFAULT TRUE,
+    start_date DATE DEFAULT CURRENT_DATE,
+    end_date DATE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+COMMENT ON TABLE ab_tests IS 'Полигон: A/B тестирование баннеров и офферов на сайте';
+
+-- 6.7 Лог изменений статусов (Аудит)
+CREATE TABLE status_change_log (
+    id BIGSERIAL PRIMARY KEY,
+    client_code VARCHAR(50) NOT NULL REFERENCES clients(code) ON DELETE CASCADE,
+    old_status_id INT REFERENCES status_rules(id),
+    new_status_id INT REFERENCES status_rules(id),
+    changed_by VARCHAR(50) NOT NULL,
+    change_reason TEXT,
+    documents_count_current_year INT,
+    documents_count_prev_year INT,
+    changed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- -------------------------------------------------------------------------
+-- ШАГ 7: ИНДЕКСЫ
+-- -------------------------------------------------------------------------
+CREATE INDEX idx_documents_client_date ON documents(client_code, invoice_date);
+CREATE INDEX idx_documents_invoice_date ON documents(invoice_date);
+CREATE INDEX idx_sales_lines_doc_prod ON sales_lines(document_id, product_code);
+CREATE INDEX idx_sales_lines_product ON sales_lines(product_code);
+CREATE INDEX idx_clients_last_purchase ON clients(last_purchase_date);
+CREATE INDEX idx_clients_current_status ON clients(current_status_id);
+CREATE INDEX idx_clients_status_history ON clients USING GIN (status_history);
+CREATE INDEX idx_product_scoring_client ON product_scoring(client_code);
+CREATE INDEX idx_product_scoring_weight ON product_scoring(current_weight) WHERE current_weight > 0;
+CREATE INDEX idx_website_behavior_client ON website_behavior_log(client_code, timestamp DESC);
+CREATE INDEX idx_website_behavior_product ON website_behavior_log(product_code);
+CREATE INDEX idx_website_behavior_category ON website_behavior_log(product_category);
+CREATE INDEX idx_rejections_client ON manager_rejections_log(client_code, rejected_at DESC);
+CREATE INDEX idx_rejections_product ON manager_rejections_log(product_code);
+CREATE INDEX idx_ab_tests_active ON ab_tests(is_active) WHERE is_active = TRUE;
+
+-- -------------------------------------------------------------------------
+-- ШАГ 8: ТРИГГЕРЫ UPDATED_AT
+-- -------------------------------------------------------------------------
+CREATE TRIGGER trg_activity_directions_upd BEFORE UPDATE ON activity_directions FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER trg_status_rules_upd BEFORE UPDATE ON status_rules FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER trg_products_upd BEFORE UPDATE ON products FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER trg_clients_upd BEFORE UPDATE ON clients FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER trg_product_scoring_upd BEFORE UPDATE ON product_scoring FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER trg_ab_tests_upd BEFORE UPDATE ON ab_tests FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- -------------------------------------------------------------------------
+-- ШАГ 9: ФУНКЦИИ РАСЧЕТА И ML-ТРИГГЕРЫ
+-- -------------------------------------------------------------------------
+
+-- 9.1 Расчет статуса клиента
+CREATE OR REPLACE FUNCTION calculate_client_status(p_client_code VARCHAR) RETURNS INT AS $$
+DECLARE
+    v_current_year_count INT;
+    v_prev_year_count INT;
+    v_days_since_last INT;
+    v_status_id INT;
+    v_rule RECORD;
+BEGIN
+    SELECT COUNT(*) INTO v_current_year_count FROM documents WHERE client_code = p_client_code AND EXTRACT(YEAR FROM invoice_date) = EXTRACT(YEAR FROM CURRENT_DATE);
+    SELECT COUNT(*) INTO v_prev_year_count FROM documents WHERE client_code = p_client_code AND EXTRACT(YEAR FROM invoice_date) = EXTRACT(YEAR FROM CURRENT_DATE) - 1;
+    SELECT (CURRENT_DATE - MAX(invoice_date))::INT INTO v_days_since_last FROM documents WHERE client_code = p_client_code;
+    
+    FOR v_rule IN SELECT * FROM status_rules ORDER BY priority LOOP
+        IF (v_rule.min_current_year IS NULL OR v_current_year_count >= v_rule.min_current_year) AND (v_rule.max_current_year IS NULL OR v_current_year_count <= v_rule.max_current_year) AND (v_rule.min_prev_year IS NULL OR v_prev_year_count >= v_rule.min_prev_year) AND (v_rule.max_prev_year IS NULL OR v_prev_year_count <= v_rule.max_prev_year) AND (v_rule.min_days_since_last_purchase IS NULL OR v_days_since_last >= v_rule.min_days_since_last_purchase) THEN
+             v_status_id := v_rule.id;
+             EXIT;
+        END IF;
+    END LOOP;
+    RETURN v_status_id;
+END;
+$$ LANGUAGE plpgsql;
+
+-- 9.2 Расчет направления клиента
+CREATE OR REPLACE FUNCTION calculate_client_direction(p_client_code VARCHAR) RETURNS TABLE(direction_id INT, confidence DECIMAL) AS $$
+BEGIN
+    RETURN QUERY
+    WITH direction_totals AS (
+        SELECT COALESCE(p.anchor_direction_id, 9) AS dir_id, SUM(sl.amount) AS total FROM sales_lines sl
+        JOIN documents d ON sl.document_id = d.id JOIN products p ON sl.product_code = p.code
+        WHERE d.client_code = p_client_code GROUP BY dir_id
+    ),
+    total_sum AS (SELECT SUM(total) AS grand_total FROM direction_totals)
+    SELECT dt.dir_id, ROUND((dt.total / ts.grand_total * 100)::NUMERIC, 2) FROM direction_totals dt, total_sum ts ORDER BY dt.total DESC LIMIT 1;
+END;
+$$ LANGUAGE plpgsql;
+
+-- 9.3 Логирование смены статуса
+CREATE OR REPLACE FUNCTION log_status_change() RETURNS TRIGGER AS $$
+BEGIN
+    IF (OLD.current_status_id IS DISTINCT FROM NEW.current_status_id) THEN
+        INSERT INTO status_change_log (client_code, old_status_id, new_status_id, changed_by, change_reason)
+        VALUES (NEW.code, OLD.current_status_id, NEW.current_status_id, 'SYSTEM', 'Автоматический пересчет');
+        NEW.status_history = NEW.status_history || jsonb_build_object('date', CURRENT_TIMESTAMP, 'old_status', OLD.current_status_id, 'new_status', NEW.current_status_id);
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+CREATE TRIGGER trg_log_status_change BEFORE UPDATE ON clients FOR EACH ROW EXECUTE FUNCTION log_status_change();
+
+-- 9.4 Обновление аналитики
+CREATE OR REPLACE FUNCTION update_client_analytics(p_client_code VARCHAR DEFAULT NULL) RETURNS VOID AS $$
+DECLARE
+    v_client RECORD;
+    v_dir RECORD;
+BEGIN
+    FOR v_client IN SELECT code FROM clients WHERE (p_client_code IS NULL OR code = p_client_code) LOOP
+        UPDATE clients SET
+            first_purchase_date = (SELECT MIN(invoice_date) FROM documents WHERE client_code = v_client.code),
+            last_purchase_date = (SELECT MAX(invoice_date) FROM documents WHERE client_code = v_client.code),
+            current_status_id = calculate_client_status(v_client.code),
+            requires_survey = CASE WHEN calculate_client_status(v_client.code) = (SELECT id FROM status_rules WHERE status_name = 'Новые') THEN TRUE ELSE FALSE END
+        WHERE code = v_client.code;
+        
+        FOR v_dir IN SELECT * FROM calculate_client_direction(v_client.code) LOOP
+            UPDATE clients SET activity_direction_id = v_dir.direction_id, direction_confidence = v_dir.confidence WHERE code = v_client.code AND is_direction_manual = FALSE;
+        END LOOP;
+    END LOOP;
+END;
+$$ LANGUAGE plpgsql;
+
+-- 9.5 ML Штраф за отказ (Кладбище идей)
+CREATE OR REPLACE FUNCTION penalize_rejected_product() RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO product_scoring (client_code, product_code, negative_reinforcement)
+    VALUES (NEW.client_code, NEW.product_code, 3)
+    ON CONFLICT (client_code, product_code) 
+    DO UPDATE SET 
+        negative_reinforcement = product_scoring.negative_reinforcement + 3,
+        updated_at = CURRENT_TIMESTAMP;
+    
+    UPDATE product_scoring 
+    SET is_blocked = TRUE, blocked_until = CURRENT_DATE + INTERVAL '30 days'
+    WHERE client_code = NEW.client_code AND product_code = NEW.product_code AND current_weight < 0;
+    
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_penalize_rejection AFTER INSERT ON manager_rejections_log
+    FOR EACH ROW EXECUTE FUNCTION penalize_rejected_product();
+
+-- 9.6 ML Поощрение за продажу
+CREATE OR REPLACE FUNCTION reward_added_product(p_client_code VARCHAR, p_product_code VARCHAR) RETURNS VOID AS $$
+BEGIN
+    INSERT INTO product_scoring (client_code, product_code, positive_reinforcement)
+    VALUES (p_client_code, p_product_code, 5)
+    ON CONFLICT (client_code, product_code) 
+    DO UPDATE SET 
+        positive_reinforcement = product_scoring.positive_reinforcement + 5,
+        is_blocked = FALSE, blocked_until = NULL, updated_at = CURRENT_TIMESTAMP;
+END;
+$$ LANGUAGE plpgsql;
+
+-- -------------------------------------------------------------------------
+-- ШАГ 10: УМНЫЕ ПРЕДСТАВЛЕНИЯ (VIEWS)
+-- -------------------------------------------------------------------------
+
+-- 10.1 Модуль рекомендаций v2 (Исключает "отвергнутые" товары)
+CREATE OR REPLACE VIEW v_smart_recommendations AS
+-- БЛОК 1: История покупок
+SELECT c.code AS client_code, p.code AS product_code, p.name AS product_name, 'Часто покупаете' AS recommendation_reason, 1 AS priority, p.in_stock_balance
+FROM clients c 
+JOIN (SELECT d.client_code, sl.product_code, COUNT(*) as buy_count FROM sales_lines sl JOIN documents d ON sl.document_id = d.id GROUP BY d.client_code, sl.product_code) AS history ON c.code = history.client_code
+JOIN products p ON history.product_code = p.code 
+LEFT JOIN manager_rejections_log mrl ON c.code = mrl.client_code AND p.code = mrl.product_code AND mrl.rejected_at > CURRENT_DATE - INTERVAL '30 days'
+WHERE p.in_stock_balance > 0 AND mrl.id IS NULL 
+UNION ALL
+-- БЛОК 2: Новинки по направлению
+SELECT c.code, p.code, p.name, 'Новинка в вашем сегменте', 2, p.in_stock_balance
+FROM clients c 
+JOIN products p ON c.activity_direction_id = p.anchor_direction_id 
+LEFT JOIN manager_rejections_log mrl ON c.code = mrl.client_code AND p.code = mrl.product_code AND mrl.rejected_at > CURRENT_DATE - INTERVAL '30 days'
+WHERE p.is_new_arrival = TRUE AND p.in_stock_balance > 0 AND mrl.id IS NULL
+UNION ALL
+-- БЛОК 3: Cross-sells (Сопутка)
+SELECT DISTINCT c.code, p_related.code, p_related.name, 'С ' || p_main.name || ' обычно берут', 3, p_related.in_stock_balance
+FROM clients c 
+JOIN documents d ON c.code = d.client_code JOIN sales_lines sl ON d.id = sl.document_id
+JOIN products p_main ON sl.product_code = p_main.code
+JOIN product_cross_sells pcs ON sl.product_code = pcs.main_product_code JOIN products p_related ON pcs.related_product_code = p_related.code
+LEFT JOIN manager_rejections_log mrl ON c.code = mrl.client_code AND p_related.code = mrl.product_code AND mrl.rejected_at > CURRENT_DATE - INTERVAL '30 days'
+WHERE p_related.in_stock_balance > 0 AND mrl.id IS NULL
+UNION ALL
+-- БЛОК 4: На основе цифрового следа
+SELECT DISTINCT c.code, p.code, p.name, 'Вы недавно интересовались', 4, p.in_stock_balance
+FROM clients c
+JOIN website_behavior_log wbl ON c.code = wbl.client_code
+JOIN products p ON (wbl.product_code = p.code OR p.anchor_direction_id = (SELECT id FROM activity_directions WHERE name = wbl.product_category LIMIT 1))
+LEFT JOIN manager_rejections_log mrl ON c.code = mrl.client_code AND p.code = mrl.product_code AND mrl.rejected_at > CURRENT_DATE - INTERVAL '30 days'
+WHERE wbl.timestamp > CURRENT_DATE - INTERVAL '7 days' AND p.in_stock_balance > 0 AND mrl.id IS NULL
+ORDER BY priority, in_stock_balance DESC;
+
+-- 10.2 Дашборд менеджера
+CREATE OR REPLACE VIEW v_manager_dashboard AS
+SELECT 
+    c.code, c.name, c.client_type, sr.status_name AS current_status, c.first_purchase_date, c.last_purchase_date, 
+    (CURRENT_DATE - c.last_purchase_date)::INT AS days_since_last, ad.name AS activity_direction, 
+    c.direction_confidence, c.requires_survey, c.survey_completed_at, 
+    (SELECT COUNT(*) FROM documents WHERE client_code = c.code) AS total_docs, 
+    (SELECT COALESCE(SUM(total_amount), 0) FROM documents WHERE client_code = c.code) AS total_revenue
+FROM clients c LEFT JOIN status_rules sr ON c.current_status_id = sr.id LEFT JOIN activity_directions ad ON c.activity_direction_id = ad.id;
+
+-- -------------------------------------------------------------------------
+-- ГОТОВО
+-- -------------------------------------------------------------------------
+DO $$
+BEGIN
+    RAISE NOTICE '========================================';
+    RAISE NOTICE 'База данных UTSK v7.1 успешно создана!';
+    RAISE NOTICE 'Добавлено: A/B тесты, Кладбище идей, ML-триггеры.';
+    RAISE NOTICE '========================================';
+END $$;

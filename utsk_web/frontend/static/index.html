@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UTSK Intelligent Sales</title>
+    <style>
+        :root {
+            --bg-primary: #1a1a2e; --bg-secondary: #16213e; --bg-card: #0f3460;
+            --accent: #e94560; --accent-hover: #ff6b81;
+            --text-primary: #ffffff; --text-secondary: #a0aec0;
+            --success: #4caf50; --warning: #ff9800; --danger: #f44336;
+            --info: #2196f3; --border: #2a3a5c;
+            --sidebar-width: 220px; --header-height: 50px; --statusbar-height: 30px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', 'Calibri', 'Arial', sans-serif; background: #0a0a1a; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        .app-window { width: 1200px; height: 750px; background: var(--bg-primary); border-radius: 12px; display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px var(--border); overflow: hidden; resize: both; min-width: 900px; min-height: 550px; }
+        .titlebar { height: var(--header-height); background: var(--bg-secondary); display: flex; align-items: center; padding: 0 15px; border-bottom: 1px solid var(--border); user-select: none; }
+        .titlebar-logo { font-size: 18px; font-weight: 700; color: var(--accent); margin-right: 15px; }
+        .titlebar-title { font-size: 14px; color: var(--text-secondary); flex: 1; }
+        .titlebar-controls { display: flex; gap: 8px; }
+        .titlebar-btn { width: 14px; height: 14px; border-radius: 50%; cursor: pointer; transition: opacity 0.2s; }
+        .titlebar-btn:hover { opacity: 0.8; }
+        .titlebar-btn.minimize { background: var(--warning); }
+        .titlebar-btn.maximize { background: var(--success); }
+        .titlebar-btn.close { background: var(--danger); }
+        .main-content { flex: 1; display: flex; overflow: hidden; }
+        .sidebar { width: var(--sidebar-width); background: var(--bg-secondary); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 15px 0; overflow-y: auto; }
+        .sidebar-section { padding: 8px 20px; font-size: 10px; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 1.5px; margin-top: 15px; }
+        .sidebar-item { padding: 12px 20px; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; gap: 12px; font-size: 14px; transition: all 0.2s; border-left: 3px solid transparent; margin: 2px 0; }
+        .sidebar-item:hover { background: rgba(233,69,96,0.1); color: var(--text-primary); }
+        .sidebar-item.active { background: rgba(233,69,96,0.15); color: var(--accent); border-left-color: var(--accent); font-weight: 600; }
+        .workspace { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .toolbar { height: 45px; background: var(--bg-secondary); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 20px; gap: 12px; }
+        .toolbar-btn { padding: 8px 16px; background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-size: 13px; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
+        .toolbar-btn:hover { background: var(--border); border-color: var(--accent); }
+        .toolbar-btn.primary { background: var(--accent); border-color: var(--accent); font-weight: 600; }
+        .toolbar-btn.primary:hover { background: var(--accent-hover); }
+        .toolbar-search { flex: 1; max-width: 300px; padding: 8px 14px; background: var(--bg-primary); border: 1px solid var(--border); border-radius: 6px; color: var(--text-primary); font-size: 13px; outline: none; }
+        .toolbar-search:focus { border-color: var(--accent); }
+        .toolbar-spacer { flex: 1; }
+        .content-area { flex: 1; padding: 20px; overflow-y: auto; display: flex; gap: 20px; flex-wrap: wrap; align-content: flex-start; }
+        .kpi-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 20px; min-width: 200px; flex: 1; max-width: 280px; transition: transform 0.2s, box-shadow 0.2s; }
+        .kpi-card:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+        .kpi-label { font-size: 12px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .kpi-value { font-size: 32px; font-weight: 700; color: var(--text-primary); margin-bottom: 5px; }
+        .kpi-trend { font-size: 12px; color: var(--success); }
+        .kpi-trend.down { color: var(--danger); }
+        .table-container { width: 100%; background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+        .table-header { background: var(--bg-secondary); padding: 15px 20px; font-weight: 600; color: var(--text-primary); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .table-controls { display: flex; gap: 10px; }
+        .table-controls select, .table-controls input { padding: 6px 12px; background: var(--bg-primary); border: 1px solid var(--border); border-radius: 5px; color: var(--text-primary); font-size: 12px; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: rgba(15,52,96,0.5); color: var(--text-secondary); padding: 12px 15px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; text-align: left; font-weight: 600; }
+        td { padding: 12px 15px; color: var(--text-primary); font-size: 13px; border-bottom: 1px solid rgba(42,58,92,0.3); }
+        tr:hover td { background: rgba(233,69,96,0.05); }
+        .status-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+        .status-new { background: rgba(33,150,243,0.2); color: #64b5f6; }
+        .status-monthly { background: rgba(76,175,80,0.2); color: #81c784; }
+        .status-sleeping { background: rgba(255,152,0,0.2); color: #ffb74d; }
+        .form-container { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 25px; width: 100%; }
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; color: var(--text-secondary); font-size: 13px; margin-bottom: 8px; font-weight: 500; }
+        .form-input { width: 100%; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border); border-radius: 6px; color: var(--text-primary); font-size: 14px; outline: none; }
+        .form-input:focus { border-color: var(--accent); }
+        .btn { padding: 10px 24px; border-radius: 6px; border: none; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .btn-primary { background: var(--accent); color: white; }
+        .btn-primary:hover { background: var(--accent-hover); }
+        .btn-secondary { background: var(--border); color: var(--text-primary); }
+        .btn-secondary:hover { background: #3a4a6c; }
+        .statusbar { height: var(--statusbar-height); background: var(--bg-secondary); border-top: 1px solid var(--border); display: flex; align-items: center; padding: 0 20px; gap: 25px; font-size: 12px; color: var(--text-secondary); }
+        .statusbar-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); box-shadow: 0 0 6px var(--success); }
+        ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: var(--bg-primary); } ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    </style>
+</head>
+<body>
+
+<div class="app-window">
+    <div class="titlebar">
+        <span class="titlebar-logo">◆</span>
+        <span class="titlebar-title">UTSK Intelligent Sales v1.0.0</span>
+        <div class="titlebar-controls">
+            <div class="titlebar-btn minimize"></div>
+            <div class="titlebar-btn maximize"></div>
+            <div class="titlebar-btn close"></div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="sidebar">
+            <div class="sidebar-section">Главное</div>
+            <div class="sidebar-item active" data-page="dashboard"><span>📊</span> Дашборд</div>
+
+            <div class="sidebar-section">Клиенты</div>
+            <div class="sidebar-item" data-page="clients"><span>👥</span> Все клиенты</div>
+            <div class="sidebar-item" data-page="survey"><span>⚠️</span> Требуют опроса</div>
+            <div class="sidebar-item" data-page="status"><span>🏷️</span> По статусам</div>
+
+            <div class="sidebar-section">Товары</div>
+            <div class="sidebar-item" data-page="products"><span>📦</span> Справочник товаров</div>
+            <div class="sidebar-item" data-page="recommendations"><span>💡</span> Рекомендации</div>
+
+            <div class="sidebar-section">Система</div>
+            <div class="sidebar-item" data-page="settings"><span>⚙️</span> Настройки</div>
+        </div>
+
+        <div class="workspace">
+            <div class="toolbar">
+                <button class="toolbar-btn primary" onclick="refreshCurrentPage()">🔄 Обновить</button>
+                <span class="toolbar-spacer"></span>
+                <input type="text" class="toolbar-search" id="searchInput" placeholder="🔍 Поиск...">
+            </div>
+
+            <!-- Дашборд -->
+            <div class="content-area" id="content-dashboard">
+                <div class="kpi-card"><div class="kpi-label">Всего клиентов</div><div class="kpi-value" id="kpi_clients">—</div></div>
+                <div class="kpi-card"><div class="kpi-label">Активных (30 дн)</div><div class="kpi-value" id="kpi_active">—</div></div>
+                <div class="kpi-card"><div class="kpi-label">Общая выручка</div><div class="kpi-value" id="kpi_revenue">—</div></div>
+                <div class="table-container">
+                    <div class="table-header">📋 Клиенты</div>
+                    <div id="dashboard_clients_table"></div>
+                </div>
+            </div>
+
+            <!-- Все клиенты -->
+            <div class="content-area" id="content-clients" style="display: none;">
+                <div class="table-container"><div class="table-header">👥 Все клиенты</div><div id="all_clients_table"></div></div>
+            </div>
+
+            <!-- Требуют опроса -->
+            <div class="content-area" id="content-survey" style="display: none;">
+                <div class="table-container"><div class="table-header">⚠️ Требуют опроса</div><div id="survey_table"></div></div>
+            </div>
+
+            <!-- По статусам -->
+            <div class="content-area" id="content-status" style="display: none;">
+                <div class="table-container"><div class="table-header">🏷️ Распределение по статусам</div><div id="status_table"></div></div>
+            </div>
+
+            <!-- Товары -->
+            <div class="content-area" id="content-products" style="display: none;">
+                <div class="table-container"><div class="table-header">📦 Справочник товаров</div><div id="products_table"></div></div>
+            </div>
+
+            <!-- Рекомендации -->
+            <div class="content-area" id="content-recommendations" style="display: none;">
+                <div class="form-container">
+                    <h3 style="color: var(--text-primary); margin-bottom: 20px;">💡 Подбор рекомендаций</h3>
+                    <div class="form-group">
+                        <label class="form-label">Код клиента</label>
+                        <input type="text" class="form-input" id="recClientCode" placeholder="36, 530, 10024...">
+                    </div>
+                    <button class="btn btn-primary" onclick="loadRecommendations()">🔍 Показать рекомендации</button>
+                </div>
+                <div class="table-container" style="margin-top: 20px;">
+                    <div class="table-header">🎯 <span id="recClientName">Рекомендации</span></div>
+                    <div id="recommendations_table"></div>
+                </div>
+            </div>
+
+            <!-- Настройки -->
+            <div class="content-area" id="content-settings" style="display: none;">
+                <div class="form-container">
+                    <h3 style="color: var(--text-primary); margin-bottom: 20px;">⚙️ Настройки подключения</h3>
+                    <div class="form-group"><label class="form-label">База данных</label><input type="text" class="form-input" value="bd_intelligent_sales" disabled></div>
+                    <div class="form-group"><label class="form-label">Пользователь</label><input type="text" class="form-input" value="postgres" disabled></div>
+                    <div class="form-group"><label class="form-label">Хост</label><input type="text" class="form-input" value="localhost:5432" disabled></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="statusbar">
+        <span><span class="statusbar-dot"></span> Подключено: bd_intelligent_sales</span>
+        <span>👤 postgres@localhost:5432</span>
+        <span style="margin-left: auto;" id="currentTime">—</span>
+    </div>
+</div>
+
+<script>
+    const TOKEN = new URLSearchParams(window.location.search).get('token') || '';
+    let currentPage = 'dashboard';
+
+    // ====== API ЗАПРОСЫ ======
+    async function api(url) {
+        const res = await fetch(url + (url.includes('?') ? '&' : '?') + 'token=' + TOKEN);
+        return res.json();
+    }
+
+    // ====== ДАШБОРД ======
+    async function loadDashboard() {
+        const data = await api('/api/dashboard');
+        document.getElementById('kpi_clients').textContent = data.total_clients;
+        document.getElementById('kpi_active').textContent = data.active_30d;
+        document.getElementById('kpi_revenue').textContent = (data.total_revenue / 1_000_000).toFixed(1) + 'M';
+
+        const clients = await api('/api/clients?limit=10');
+        let html = '<table><tr><th>Код</th><th>Название</th><th>Статус</th><th>Последняя покупка</th></tr>';
+        clients.forEach(c => {
+            html += `<tr><td>${c.code}</td><td>${c.name}</td><td><span class="status-badge status-monthly">${c.status || '-'}</span></td><td>${c.last_purchase_date || '-'}</td></tr>`;
+        });
+        html += '</table>';
+        document.getElementById('dashboard_clients_table').innerHTML = html;
+    }
+
+    // ====== ВСЕ КЛИЕНТЫ ======
+    async function loadAllClients() {
+        const clients = await api('/api/clients?limit=100');
+        let html = '<table><tr><th>Код</th><th>Название</th><th>Статус</th></tr>';
+        clients.forEach(c => {
+            html += `<tr><td>${c.code}</td><td>${c.name}</td><td>${c.status || '-'}</td></tr>`;
+        });
+        html += '</table>';
+        document.getElementById('all_clients_table').innerHTML = html;
+    }
+
+    // ====== ТРЕБУЮТ ОПРОСА ======
+    async function loadSurvey() {
+        const clients = await api('/api/clients?limit=50');
+        const survey = clients.filter(c => c.status === 'Новые');
+        let html = '<table><tr><th>Код</th><th>Название</th></tr>';
+        survey.forEach(c => {
+            html += `<tr><td>${c.code}</td><td>${c.name}</td></tr>`;
+        });
+        html += '</table>';
+        document.getElementById('survey_table').innerHTML = html || '<p style="color:var(--text-secondary);padding:20px;">Нет клиентов, требующих опроса</p>';
+    }
+
+    // ====== ПО СТАТУСАМ ======
+    async function loadStatuses() {
+        const statuses = await api('/api/statuses');
+        let html = '<table><tr><th>Статус</th><th>Количество</th></tr>';
+        statuses.forEach(s => {
+            html += `<tr><td>${s.status_name}</td><td>${s.count}</td></tr>`;
+        });
+        html += '</table>';
+        document.getElementById('status_table').innerHTML = html;
+    }
+
+    // ====== ТОВАРЫ ======
+    async function loadProducts() {
+        const products = await api('/api/products?limit=50');
+        let html = '<table><tr><th>Код</th><th>Название</th><th>Остаток</th></tr>';
+        products.forEach(p => {
+            html += `<tr><td>${p.code}</td><td>${p.name}</td><td>${p.in_stock_balance || 0}</td></tr>`;
+        });
+        html += '</table>';
+        document.getElementById('products_table').innerHTML = html;
+    }
+
+    // ====== РЕКОМЕНДАЦИИ ======
+    async function loadRecommendations() {
+        const code = document.getElementById('recClientCode').value;
+        if (!code) return;
+        const data = await api('/api/recommendations/' + code);
+        document.getElementById('recClientName').textContent = 'Рекомендации для: ' + data.client_name;
+        
+        let html = '<table><tr><th>#</th><th>Код</th><th>Товар</th><th>Причина</th><th>Остаток</th></tr>';
+        if (data.recommendations) {
+            data.recommendations.forEach((r, i) => {
+                html += `<tr><td>${i+1}</td><td>${r.code}</td><td>${r.name}</td><td>${r.reason}</td><td>${r.in_stock_balance}</td></tr>`;
+            });
+        }
+        html += '</table>';
+        document.getElementById('recommendations_table').innerHTML = html;
+    }
+
+    // ====== НАВИГАЦИЯ ======
+    document.querySelectorAll('.sidebar-item').forEach(item => {
+        item.addEventListener('click', function() {
+            document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+            this.classList.add('active');
+            document.querySelectorAll('.content-area').forEach(c => c.style.display = 'none');
+            
+            currentPage = this.getAttribute('data-page');
+            const content = document.getElementById('content-' + currentPage);
+            if (content) content.style.display = 'flex';
+            
+            // Загрузка данных для страницы
+            if (currentPage === 'clients') loadAllClients();
+            if (currentPage === 'survey') loadSurvey();
+            if (currentPage === 'status') loadStatuses();
+            if (currentPage === 'products') loadProducts();
+        });
+    });
+
+    // ====== ПОИСК ======
+    document.getElementById('searchInput').addEventListener('input', async function() {
+        const query = this.value;
+        if (currentPage === 'dashboard' || currentPage === 'clients') {
+            const clients = await api('/api/clients?search=' + query + '&limit=20');
+            let html = '<table><tr><th>Код</th><th>Название</th><th>Статус</th></tr>';
+            clients.forEach(c => {
+                html += `<tr><td>${c.code}</td><td>${c.name}</td><td>${c.status || '-'}</td></tr>`;
+            });
+            html += '</table>';
+            if (currentPage === 'dashboard') document.getElementById('dashboard_clients_table').innerHTML = html;
+            if (currentPage === 'clients') document.getElementById('all_clients_table').innerHTML = html;
+        }
+    });
+
+    function refreshCurrentPage() {
+        if (currentPage === 'dashboard') loadDashboard();
+        if (currentPage === 'clients') loadAllClients();
+        if (currentPage === 'survey') loadSurvey();
+        if (currentPage === 'status') loadStatuses();
+        if (currentPage === 'products') loadProducts();
+    }
+
+    // ====== ЧАСЫ ======
+    function updateTime() {
+        document.getElementById('currentTime').textContent = '📅 ' + new Date().toLocaleString('ru-RU');
+    }
+    setInterval(updateTime, 1000);
+    updateTime();
+
+    // Старт
+    loadDashboard();
+</script>
+</body>
+</html>

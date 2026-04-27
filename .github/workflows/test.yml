@@ -1,0 +1,70 @@
+name: Run Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-web:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: root
+          POSTGRES_DB: bd_intelligent_sales
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    
+    - name: Install dependencies
+      run: |
+        cd utsk_web
+        python -m venv venv
+        source venv/bin/activate
+        pip install -r backend/requirements.txt
+        pip install pytest httpx
+    
+    - name: Run tests
+      env:
+        DATABASE_URL: postgresql://postgres:root@localhost:5432/bd_intelligent_sales
+      run: |
+        cd utsk_web
+        source venv/bin/activate
+        python -m pytest tests/ -v
+
+  test-cpp:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install C++ dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y cmake g++ libpqxx-dev nlohmann-json3-dev
+    
+    - name: Build C++ project
+      run: |
+        cd utsk_intelligent_sales
+        cmake -B build -DCMAKE_BUILD_TYPE=Release
+        cmake --build build -j $(nproc)
+    
+    - name: Verify binary exists
+      run: |
+        test -f utsk_intelligent_sales/build/utsk_console && echo "✅ Binary exists"

@@ -1,0 +1,41 @@
+# Сборка
+build/
+cmake-build-*/
+*.o
+*.obj
+*.out
+*.exe
+utsk_console
+utsk_gui
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Конфиги с паролями
+**/db_config.json
+*.secret
+.env
+
+# Логи
+*.log
+logs/
+
+# Docker
+docker/.env
+
+# Системные файлы
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# SQL файлы (опционально — если не хотите хранить в Git)
+# sql/*.sql

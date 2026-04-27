@@ -1,0 +1,58 @@
+# Сборка
+build/
+cmake-build-*/
+out/
+*.o
+*.obj
+*.a
+*.so
+*.dylib
+*.dll
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.user
+*.kdev4
+
+# Бинарники
+*.exe
+*.out
+*.app
+utsk_console
+utsk_gui
+utsk_intelligent_sales
+
+# Конфиги с паролями
+config/db_config.json
+*.secret
+*.private
+.env
+
+# Логи
+*.log
+logs/
+
+# Системные файлы
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Qt
+moc_*.cpp
+moc_*.h
+ui_*.h
+qrc_*.cpp
+*.qm
+Makefile
+*.pro.user
+*.pro.user.*
+
+# Doxygen
+docs/generated/
+
+# Docker
+docker/.env
