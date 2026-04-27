@@ -18,31 +18,44 @@ jobs:
           POSTGRES_DB: bd_intelligent_sales
         ports:
           - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - uses: actions/checkout@v4
       
       - name: Install deps
         run: |
           sudo apt update
-          sudo apt install -y cmake g++ pkg-config libpqxx-dev nlohmann-json3-dev libgtest-dev
+          sudo apt install -y cmake g++ pkg-config libpqxx-dev nlohmann-json3-dev libgtest-dev postgresql-client
       
       - name: Build GTest
         run: |
           cd /usr/src/gtest
           sudo cmake CMakeLists.txt
           sudo make -j$(nproc)
-          echo "=== Checking GTest build ==="
-          find /usr/src/gtest -name "*.a" -ls
-          ls -la lib/ 2>/dev/null || echo "No lib/ directory"
+          sudo cp lib/libgtest.a lib/libgtest_main.a /usr/lib/x86_64-linux-gnu/
+          echo "✅ GTest installed"
       
       - name: Init DB schema
         env:
           PGPASSWORD: root
         run: |
-          psql -h localhost -U postgres -d bd_intelligent_sales << 'SQL'
-          CREATE TABLE IF NOT EXISTS clients (code VARCHAR(50) PRIMARY KEY, name VARCHAR(255) NOT NULL);
-          INSERT INTO clients VALUES ('36', 'Test') ON CONFLICT DO NOTHING;
-          SQL
+          echo "=== Creating tables ==="
+          psql -h localhost -U postgres -d bd_intelligent_sales -c "
+            CREATE TABLE IF NOT EXISTS clients (
+                code VARCHAR(50) PRIMARY KEY,
+                name VARCHAR(255) NOT NULL
+            );
+          "
+          psql -h localhost -U postgres -d bd_intelligent_sales -c "
+            INSERT INTO clients VALUES ('36', 'Test Client') ON CONFLICT DO NOTHING;
+          "
+          echo "=== Verifying ==="
+          psql -h localhost -U postgres -d bd_intelligent_sales -c "SELECT COUNT(*) FROM clients;"
+          echo "✅ Schema ready"
       
       - name: Build and Test
         working-directory: utsk_intelligent_sales
