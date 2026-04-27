@@ -1,35 +1,33 @@
 cmake_minimum_required(VERSION 3.16)
 
-# Ищем GTest — сначала стандартный способ, затем ручной
-find_package(GTest QUIET)
+# Ручной поиск GTest
+find_path(GTEST_INCLUDE_DIR gtest/gtest.h
+    PATHS /usr/include /usr/local/include /usr/src/gtest/include
+)
+find_library(GTEST_LIBRARY gtest
+    PATHS /usr/lib /usr/local/lib /usr/lib/x86_64-linux-gnu /usr/src/gtest/lib
+)
+find_library(GTEST_MAIN_LIBRARY gtest_main
+    PATHS /usr/lib /usr/local/lib /usr/lib/x86_64-linux-gnu /usr/src/gtest/lib
+)
 
-if(NOT GTest_FOUND)
-    message(STATUS "GTest not found, trying manual setup...")
+if(NOT GTEST_LIBRARY)
+    message(STATUS "GTest libraries not found, building from source...")
     
-    # Ручной поиск
-    find_path(GTEST_INCLUDE_DIR gtest/gtest.h
-        PATHS /usr/include /usr/local/include
-    )
-    find_library(GTEST_LIBRARY gtest
-        PATHS /usr/lib /usr/local/lib /usr/lib/x86_64-linux-gnu
-    )
-    find_library(GTEST_MAIN_LIBRARY gtest_main
-        PATHS /usr/lib /usr/local/lib /usr/lib/x86_64-linux-gnu
+    # Скачиваем и собираем GTest
+    include(ExternalProject)
+    ExternalProject_Add(
+        googletest
+        GIT_REPOSITORY https://github.com/google/googletest.git
+        GIT_TAG v1.14.0
+        CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=/tmp/gtest
+        UPDATE_COMMAND ""
+        INSTALL_COMMAND ""
     )
     
-    if(GTEST_INCLUDE_DIR AND GTEST_LIBRARY)
-        message(STATUS "GTest found manually:")
-        message(STATUS "  Include: ${GTEST_INCLUDE_DIR}")
-        message(STATUS "  Library: ${GTEST_LIBRARY}")
-        
-        add_library(GTest::GTest UNKNOWN IMPORTED)
-        set_target_properties(GTest::GTest PROPERTIES
-            IMPORTED_LOCATION ${GTEST_LIBRARY}
-            INTERFACE_INCLUDE_DIRECTORIES ${GTEST_INCLUDE_DIR}
-        )
-    else()
-        message(FATAL_ERROR "GTest not found! Install: sudo apt install libgtest-dev")
-    endif()
+    set(GTEST_INCLUDE_DIR /tmp/gtest/include)
+    set(GTEST_LIBRARY /tmp/gtest/lib/libgtest.a)
+    set(GTEST_MAIN_LIBRARY /tmp/gtest/lib/libgtest_main.a)
 endif()
 
 find_package(nlohmann_json REQUIRED)
@@ -58,5 +56,3 @@ target_link_libraries(utsk_tests
 )
 
 target_compile_options(utsk_tests PRIVATE -Wno-deprecated-declarations)
-
-# Не используем gtest_discover_tests — просто собираем

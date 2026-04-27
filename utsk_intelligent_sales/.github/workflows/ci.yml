@@ -26,19 +26,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: Install C++ dependencies
+      - name: Install dependencies
         run: |
           sudo apt update
           sudo apt install -y cmake g++ pkg-config libpqxx-dev nlohmann-json3-dev libgtest-dev
       
-      - name: Compile and install GTest
+      - name: Build GTest
         run: |
           cd /usr/src/gtest
           sudo cmake CMakeLists.txt
           sudo make
           sudo cp lib/libgtest.a /usr/lib/x86_64-linux-gnu/
           sudo cp lib/libgtest_main.a /usr/lib/x86_64-linux-gnu/
-          echo "✅ GTest compiled and installed"
       
       - name: Build and Test C++
         working-directory: utsk_intelligent_sales
@@ -51,7 +50,7 @@ jobs:
 
   test-web:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
       
@@ -60,12 +59,9 @@ jobs:
         with:
           python-version: '3.12'
       
-      - name: Install and Test Web
+      - name: Install and Run Auth Tests Only
         working-directory: utsk_web
         run: |
-          python -m venv venv
-          source venv/bin/activate
-          pip install -r backend/requirements.txt
+          pip install fastapi uvicorn sqlalchemy psycopg2-binary
           pip install pytest httpx
-          python -m pytest tests/ -v --tb=short -k "test_auth or test_index"
-        # Запускаем только тесты, не требующие БД
+          python -m pytest tests/ -v --tb=short -k "auth or index"
