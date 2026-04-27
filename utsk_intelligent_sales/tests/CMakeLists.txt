@@ -1,26 +1,17 @@
 cmake_minimum_required(VERSION 3.16)
 
-# Ищем заголовки GTest
-find_path(GTEST_INCLUDE_DIR gtest/gtest.h
-    PATHS /usr/include /usr/local/include /usr/src/gtest/include
-)
+# ЖЁСТКИЕ ПУТИ к GTest (работает и локально, и в CI)
+set(GTEST_INCLUDE_DIR "/usr/include")
+set(GTEST_LIBRARY "/usr/lib/x86_64-linux-gnu/libgtest.a")
+set(GTEST_MAIN_LIBRARY "/usr/lib/x86_64-linux-gnu/libgtest_main.a")
 
-# Ищем библиотеки
-find_library(GTEST_LIBRARY gtest
-    PATHS /usr/lib /usr/local/lib /usr/lib/x86_64-linux-gnu
-)
-find_library(GTEST_MAIN_LIBRARY gtest_main
-    PATHS /usr/lib /usr/local/lib /usr/lib/x86_64-linux-gnu
-)
-
-if(NOT GTEST_INCLUDE_DIR OR NOT GTEST_LIBRARY)
-    message(FATAL_ERROR "GTest not found. Include: ${GTEST_INCLUDE_DIR}, Lib: ${GTEST_LIBRARY}")
+# Если библиотек нет — ошибка с подсказкой
+if(NOT EXISTS "${GTEST_LIBRARY}")
+    message(FATAL_ERROR "GTest not found at ${GTEST_LIBRARY}. Build: cd /usr/src/gtest && sudo cmake . && sudo make && sudo cp lib/libgtest*.a /usr/lib/x86_64-linux-gnu/")
 endif()
 
-message(STATUS "GTest include: ${GTEST_INCLUDE_DIR}")
-message(STATUS "GTest library: ${GTEST_LIBRARY}")
+message(STATUS "GTest: ${GTEST_LIBRARY}")
 
-# Создаём imported target
 add_library(GTest::GTest UNKNOWN IMPORTED)
 set_target_properties(GTest::GTest PROPERTIES
     IMPORTED_LOCATION ${GTEST_LIBRARY}

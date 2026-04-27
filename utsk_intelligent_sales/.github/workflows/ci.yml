@@ -3,11 +3,14 @@ name: UTSK CI/CD Pipeline
 on:
   push:
     branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
 
 jobs:
   test-cpp:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    
     services:
       postgres:
         image: postgres:15
@@ -16,36 +19,33 @@ jobs:
           POSTGRES_DB: bd_intelligent_sales
         ports:
           - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - uses: actions/checkout@v4
       
-      - name: Install deps
+      - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install -y cmake g++ pkg-config libpqxx-dev nlohmann-json3-dev libgtest-dev postgresql-client
+          # libgtest-dev ОБЯЗАТЕЛЕН — без него нет исходников GTest
+          sudo apt install -y cmake g++ pkg-config libpqxx-dev nlohmann-json3-dev libgtest-dev
       
-      - name: Build GTest
+      - name: Build GTest from source
         run: |
           cd /usr/src/gtest
           sudo cmake CMakeLists.txt
           sudo make -j$(nproc)
-          # Проверяем, где реально лежат библиотеки
-          echo "=== Searching for libgtest ==="
-          find /usr -name "libgtest*.a" 2>/dev/null
-          # Копируем в стандартное место
-          sudo find /usr/src/gtest -name "libgtest.a" -exec cp {} /usr/lib/x86_64-linux-gnu/ \;
-          sudo find /usr/src/gtest -name "libgtest_main.a" -exec cp {} /usr/lib/x86_64-linux-gnu/ \;
+          # Копируем библиотеки в стандартное место
+          sudo cp lib/libgtest.a /usr/lib/x86_64-linux-gnu/
+          sudo cp lib/libgtest_main.a /usr/lib/x86_64-linux-gnu/
+          # Проверяем
           ls -la /usr/lib/x86_64-linux-gnu/libgtest*.a
       
-      - name: Init DB
-        env:
-          PGPASSWORD: root
-        run: |
-          psql -h localhost -U postgres -d bd_intelligent_sales -c "CREATE TABLE IF NOT EXISTS clients (code VARCHAR(50), name VARCHAR(255))"
-          psql -h localhost -U postgres -d bd_intelligent_sales -c "INSERT INTO clients VALUES ('36','Test') ON CONFLICT DO NOTHING"
-          psql -h localhost -U postgres -d bd_intelligent_sales -c "SELECT COUNT(*) FROM clients"
-      
-      - name: Build and Test
+      - name: Build and Test UTSK
         working-directory: utsk_intelligent_sales
         env:
           PGHOST: localhost
