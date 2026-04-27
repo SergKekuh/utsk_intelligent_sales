@@ -1,11 +1,9 @@
 cmake_minimum_required(VERSION 3.16)
 
-# ЖЁСТКИЕ ПУТИ к GTest (работает и локально, и в CI)
 set(GTEST_INCLUDE_DIR "/usr/include")
 set(GTEST_LIBRARY "/usr/lib/x86_64-linux-gnu/libgtest.a")
 set(GTEST_MAIN_LIBRARY "/usr/lib/x86_64-linux-gnu/libgtest_main.a")
 
-# Если библиотек нет — ошибка с подсказкой
 if(NOT EXISTS "${GTEST_LIBRARY}")
     message(FATAL_ERROR "GTest not found at ${GTEST_LIBRARY}. Build: cd /usr/src/gtest && sudo cmake . && sudo make && sudo cp lib/libgtest*.a /usr/lib/x86_64-linux-gnu/")
 endif()
