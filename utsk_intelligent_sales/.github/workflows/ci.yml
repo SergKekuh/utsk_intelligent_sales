@@ -25,23 +25,18 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y cmake g++ pkg-config libpqxx-dev nlohmann-json3-dev libgtest-dev
-          # Собираем GTest
           cd /usr/src/gtest
           sudo cmake CMakeLists.txt
           sudo make
-          # Устанавливаем в систему
-          sudo make install 2>/dev/null || sudo cp lib/libgtest.a lib/libgtest_main.a /usr/local/lib/
-          sudo cp include/gtest /usr/local/include/ -r 2>/dev/null || true
-          echo "✅ GTest ready"
+          ls -la lib/
+          echo "✅ GTest built"
       
       - name: Init DB schema
         env:
           PGPASSWORD: root
         run: |
           psql -h localhost -U postgres -d bd_intelligent_sales << 'SQL'
-          CREATE TABLE IF NOT EXISTS clients (
-              code VARCHAR(50) PRIMARY KEY, name VARCHAR(255) NOT NULL
-          );
+          CREATE TABLE IF NOT EXISTS clients (code VARCHAR(50) PRIMARY KEY, name VARCHAR(255) NOT NULL);
           INSERT INTO clients VALUES ('36', 'Test') ON CONFLICT DO NOTHING;
           SQL
       
