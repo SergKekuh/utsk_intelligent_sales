@@ -12,7 +12,6 @@ def setup_database():
     """Создаёт тестовые таблицы перед всеми тестами"""
     engine = create_engine(DATABASE_URL)
     
-    # engine.begin() гарантирует COMMIT в SQLAlchemy 2.0
     with engine.begin() as conn:
         conn.execute(text("""
             CREATE TABLE IF NOT EXISTS clients (
@@ -57,8 +56,10 @@ def setup_database():
             )
         """))
         
-        conn.execute(text("INSERT INTO clients (code, name) VALUES ('36', 'Test Client') ON CONFLICT DO NOTHING"))
+        # Тестовые данные
         conn.execute(text("INSERT INTO status_rules (id, status_name, priority) VALUES (1, 'Новые', 10) ON CONFLICT DO NOTHING"))
+        # ✅ КЛИЕНТ ПРИВЯЗАН К СТАТУСУ current_status_id = 1
+        conn.execute(text("INSERT INTO clients (code, name, current_status_id) VALUES ('36', 'Test Client', 1) ON CONFLICT (code) DO UPDATE SET current_status_id = 1"))
         conn.execute(text("INSERT INTO documents (id, client_code, invoice_date, total_amount) VALUES (1, '36', '2026-01-01', 1000) ON CONFLICT DO NOTHING"))
         conn.execute(text("INSERT INTO products (code, name) VALUES ('0001', 'Test Product') ON CONFLICT DO NOTHING"))
         conn.execute(text("INSERT INTO sales_lines (document_id, product_code, amount) VALUES (1, '0001', 500) ON CONFLICT DO NOTHING"))
