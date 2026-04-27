@@ -1,0 +1,1378 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UTSK Intelligent Sales — План разработки v7.1</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --block-steel: #f1f5f9;
+            --block-blue: #e0f2fe;
+            --block-green: #d1fae5;
+            --block-purple: #f3e8ff;
+            --block-amber: #fef3c7;
+            --text-steel: #334155;
+            --text-blue: #0369a1;
+            --text-green: #047857;
+            --text-purple: #6b21a8;
+            --text-amber: #92400e;
+            --bg-canvas: #dbeafe;
+            --bg-app: #ffffff;
+            --bg-sidebar: #f8fafc;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --bg-card: #f8fafc;
+            --border-light: #e2e8f0;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px;
+            background: linear-gradient(135deg, #e2e8f0 0%, #dbeafe 100%);
+            line-height: 1.8;
+            color: var(--text-main);
+            font-size: 18px;
+        }
+
+        .container {
+            background-color: var(--bg-app);
+            padding: 45px 55px;
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(15, 23, 42, 0.1);
+        }
+
+        /* Back link */
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 12px 24px;
+            background: var(--block-steel);
+            color: var(--text-main);
+            text-decoration: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .back-link:hover { background: #e2e8f0; }
+
+        /* Headings */
+        h1 {
+            color: var(--text-main);
+            border-bottom: 3px solid var(--border-light);
+            padding-bottom: 20px;
+            margin-top: 0;
+            font-size: 40px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        h1 small {
+            font-size: 20px;
+            color: var(--text-muted);
+            font-weight: 400;
+            margin-left: 12px;
+        }
+
+        h2 {
+            color: var(--text-main);
+            margin-top: 55px;
+            margin-bottom: 25px;
+            border-left: 6px solid #6366f1;
+            padding-left: 25px;
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+
+        h3 {
+            color: var(--text-main);
+            margin-top: 40px;
+            margin-bottom: 20px;
+            font-size: 27px;
+            font-weight: 700;
+            border-bottom: 2px solid var(--border-light);
+            padding-bottom: 12px;
+            letter-spacing: -0.2px;
+        }
+
+        h4 {
+            color: var(--text-steel);
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 23px;
+            font-weight: 700;
+        }
+
+        p, li {
+            font-size: 18px;
+            color: var(--text-steel);
+            line-height: 1.9;
+        }
+
+        p strong, li strong {
+            color: var(--text-main);
+            font-weight: 700;
+        }
+
+        /* Part badge */
+        .part-badge {
+            display: inline-block;
+            background: #6366f1;
+            color: white;
+            padding: 7px 20px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            margin-right: 12px;
+            letter-spacing: 0.3px;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0 30px 0;
+            font-size: 17px;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--border-light);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        th {
+            background: var(--bg-card);
+            color: var(--text-steel);
+            font-weight: 700;
+            padding: 17px 16px;
+            text-align: left;
+            font-size: 16px;
+            border-bottom: 2px solid var(--border-light);
+            letter-spacing: 0.3px;
+        }
+
+        td {
+            padding: 15px 16px;
+            border-bottom: 1px solid var(--border-light);
+            vertical-align: top;
+            color: var(--text-main);
+            font-size: 17px;
+        }
+
+        tr:last-child td { border-bottom: none; }
+        tr:nth-child(even) { background-color: #f8fafc; }
+        tr:hover td { background-color: #e0f2fe; }
+
+        /* Code */
+        code {
+            background-color: #f1f5f9;
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-family: 'JetBrains Mono', 'Consolas', 'Courier New', monospace;
+            font-size: 16px;
+            color: #6366f1;
+            border: 1px solid #e2e8f0;
+            font-weight: 500;
+        }
+
+        /* Stats box (like db_reference) */
+        .stats-box {
+            background: linear-gradient(135deg, #dbeafe 0%, #e0f2fe 100%);
+            border: 2px solid #93c5fd;
+            color: var(--text-main);
+            padding: 30px 35px;
+            border-radius: 20px;
+            margin: 30px 0 40px 0;
+        }
+        .stats-box h3 {
+            font-size: 25px;
+            margin-top: 0;
+            border: none;
+            padding-bottom: 10px;
+            color: var(--text-blue);
+        }
+        .stats-box table {
+            background: transparent;
+            margin: 0;
+            border: none;
+            box-shadow: none;
+            font-size: 19px;
+        }
+        .stats-box td {
+            border: none;
+            padding: 12px 24px 12px 0;
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+        .stats-box tr:nth-child(even) { background: transparent; }
+
+        /* Section TOC */
+        .section-toc {
+            background: var(--bg-card);
+            padding: 30px 40px;
+            border-radius: 16px;
+            margin: 35px 0;
+            columns: 2;
+            column-gap: 40px;
+            border: 1px solid var(--border-light);
+        }
+        .section-toc a {
+            color: var(--text-steel);
+            text-decoration: none;
+            display: block;
+            padding: 8px 0;
+            font-size: 17px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .section-toc a:hover { color: #6366f1; }
+
+        /* Explanatory box */
+        .explanation-box {
+            background: var(--bg-card);
+            border-left: 6px solid #6366f1;
+            padding: 25px 30px;
+            border-radius: 0 16px 16px 0;
+            margin: 25px 0;
+            border: 1px solid var(--border-light);
+            border-left: 6px solid #6366f1;
+        }
+        .explanation-box h4 {
+            color: #4338ca;
+            margin-bottom: 12px;
+            font-size: 22px;
+            margin-top: 0;
+        }
+
+        .business-value {
+            background: #d1fae5;
+            border: 1px solid #a7f3d0;
+            padding: 20px 25px;
+            border-radius: 14px;
+            margin: 18px 0;
+        }
+        .business-value strong {
+            display: block;
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: #065f46;
+        }
+        .business-value ul {
+            margin: 8px 0 0 20px;
+            padding: 0;
+        }
+        .business-value li {
+            font-size: 18px;
+            line-height: 1.9;
+            color: var(--text-steel);
+        }
+
+        .technical-detail {
+            background: #fff7ed;
+            border: 1px solid #fed7aa;
+            padding: 20px 25px;
+            border-radius: 14px;
+            margin: 18px 0;
+        }
+        .technical-detail strong {
+            display: block;
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: #c2410c;
+        }
+        .technical-detail ol, .technical-detail ul {
+            margin: 8px 0 0 20px;
+            padding: 0;
+        }
+        .technical-detail li {
+            font-size: 18px;
+            line-height: 1.9;
+            color: var(--text-steel);
+        }
+
+        /* Note (like db_reference) */
+        .note {
+            background: #fef3c7;
+            border-left: 5px solid #f59e0b;
+            padding: 22px 28px;
+            margin: 25px 0;
+            border-radius: 0 16px 16px 0;
+            color: var(--text-main);
+            font-size: 17px;
+        }
+        .note strong { font-size: 19px; }
+
+        /* ER Diagram styles (adapted) */
+        .er-diagram {
+            background: var(--bg-card);
+            padding: 45px 35px;
+            border-radius: 24px;
+            margin: 35px 0;
+            border: 2px solid var(--border-light);
+        }
+        .er-level {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .er-table {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+            padding: 22px 26px;
+            min-width: 220px;
+            max-width: 280px;
+            border-left: 6px solid;
+            transition: transform 0.2s;
+            color: var(--text-main);
+        }
+        .er-table:hover { transform: translateY(-3px); box-shadow: 0 8px 22px rgba(0,0,0,0.10); }
+        .er-table.reference { border-left-color: #f59e0b; }
+        .er-table.entity { border-left-color: #10b981; }
+        .er-table.transaction { border-left-color: #ef4444; }
+        .er-table.analytics { border-left-color: #8b5cf6; }
+        .er-table.audit { border-left-color: #f97316; }
+        .er-table h4 { font-size: 18px; margin: 0 0 10px 0; display: flex; align-items: center; gap: 8px; }
+        .er-table p { font-size: 16px; margin: 5px 0; color: var(--text-steel); line-height: 1.7; }
+
+        .arrow-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 15px;
+            font-weight: 600;
+            color: #6366f1;
+        }
+        .arrow-symbol { font-size: 30px; line-height: 1; }
+        .arrow-label {
+            background: #dbeafe;
+            padding: 6px 16px;
+            border-radius: 14px;
+            color: #1e40af;
+            font-size: 15px;
+            font-weight: 600;
+            margin-top: 5px;
+        }
+
+        .er-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+            justify-content: center;
+            margin-top: 40px;
+            padding-top: 25px;
+            border-top: 2px solid #e2e8f0;
+            font-size: 16px;
+            font-weight: 500;
+        }
+        .legend-dot {
+            width: 18px;
+            height: 18px;
+            border-radius: 6px;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        .legend-dot.ref { background: #fef3c7; border: 2px solid #f59e0b; }
+        .legend-dot.entity { background: #d1fae5; border: 2px solid #10b981; }
+        .legend-dot.trans { background: #fee2e2; border: 2px solid #ef4444; }
+        .legend-dot.ml { background: #f3e8ff; border: 2px solid #8b5cf6; }
+        .legend-dot.audit { background: #fff7ed; border: 2px solid #f97316; }
+
+        /* Tags */
+        .tag {
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            margin-right: 8px;
+            letter-spacing: 0.3px;
+        }
+        .tag-new    { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+        .tag-edit   { background: #fff7ed; color: #c2410c; border: 1px solid #fdba74; }
+        .tag-link   { background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
+
+        .connection-tag {
+            background: white;
+            border: 2px dashed #6366f1;
+            border-radius: 25px;
+            padding: 10px 20px;
+            font-size: 16px;
+            color: #1e40af;
+            font-weight: 500;
+        }
+
+        /* File tree */
+        .file-tree {
+            background: var(--bg-card);
+            border-left: 6px solid #6366f1;
+            padding: 20px 30px;
+            border-radius: 0 16px 16px 0;
+            font-family: 'JetBrains Mono', 'Consolas', monospace;
+            line-height: 2.0;
+            margin: 20px 0;
+            font-size: 16px;
+            color: var(--text-steel);
+        }
+
+        /* Checklist */
+        .checklist {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            padding: 25px 35px;
+            border-radius: 18px;
+            margin: 25px 0;
+        }
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 9px 0;
+            font-size: 18px;
+        }
+        .checklist-item input[type="checkbox"] {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            accent-color: #10b981;
+        }
+
+        /* Summary box (dark gradient) */
+        .summary-box {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            padding: 35px 40px;
+            border-radius: 22px;
+            margin: 40px 0 20px;
+        }
+        .summary-box h3 {
+            color: white;
+            border: none;
+            font-size: 26px;
+            margin-top: 0;
+        }
+        .summary-box table {
+            background: transparent;
+            color: white;
+            margin: 0;
+            border: none;
+            box-shadow: none;
+        }
+        .summary-box td {
+            border: none;
+            padding: 12px 24px 12px 0;
+            font-size: 18px;
+            color: white;
+            font-weight: 500;
+        }
+        .summary-box tr:nth-child(even) { background: transparent; }
+
+        /* Progress */
+        .progress-container {
+            margin: 30px 0;
+        }
+        .progress-bar {
+            background: #e2e8f0;
+            height: 34px;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid #cbd5e1;
+        }
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #10b981, #34d399);
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 18px;
+            color: white;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .footer {
+            margin-top: 60px;
+            text-align: center;
+            color: #94a3b8;
+            font-size: 16px;
+            border-top: 2px solid #f1f5f9;
+            padding-top: 30px;
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+        @media print {
+            body { background: white; }
+            .container { box-shadow: none; padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+<a href="index.html" class="back-link">← Назад к дашборду</a>
+
+<h1>🚀 UTSK Intelligent Sales — План разработки <small>v7.1</small></h1>
+<p style="font-size: 20px; color: var(--text-muted); margin-top: -5px;">
+    <strong>Система:</strong> bd_intelligent_sales | 
+    <strong>Товаров:</strong> 3,190 | 
+    <strong>Клиентов:</strong> 556 | 
+    <strong>Выручка в БД:</strong> ~210 млн грн
+</p>
+
+<!-- ====================================================================== -->
+<!-- ОГЛАВЛЕНИЕ                                                             -->
+<!-- ====================================================================== -->
+<div class="section-toc">
+    <a href="#part01">🗄️ Часть 0.1: SQL 1 — Структура БД</a>
+    <a href="#part02">🆕 Часть 0.2: SQL 2 — Размеры труб</a>
+    <a href="#part1">📁 Часть 1: Организация и Git</a>
+    <a href="#part2">⚙️ Часть 2: Система сборки (CMake)</a>
+    <a href="#part3">📦 Часть 3: Зависимости</a>
+    <a href="#part4">🗄️ Часть 4: Ядро — работа с БД</a>
+    <a href="#part5">📊 Часть 5: Модели данных</a>
+    <a href="#part6">🔧 Часть 6: Сервисный слой</a>
+    <a href="#part65">💡 Часть 6.5: Сервис рекомендаций</a>
+    <a href="#part7">🖥️ Часть 7: UI (Консоль + GUI)</a>
+    <a href="#part75">🌐 Часть 7.5: Web-интерфейс</a>
+    <a href="#part8">✅ Часть 8: Тесты, CI/CD, Docker</a>
+    <a href="#summary">📋 Сводная таблица</a>
+    <a href="#checklist">☑️ Чек-лист выполнения</a>
+</div>
+
+<!-- ====================================================================== -->
+<!-- ЧАСТЬ 0.1: SQL 1 -->
+<!-- ====================================================================== -->
+<h2 id="part01"><span class="part-badge">Часть 0.1</span> SQL 1 — Структура базы данных</h2>
+
+<div class="explanation-box">
+    <h4>🎯 Для чего это делается и что сделано</h4>
+    <p><strong>Проблема, которую решаем:</strong> До начала проекта вся информация о клиентах, товарах и продажах хранилась разрозненно — в бумажных отчётах, Excel-файлах, в учётной системе 1С. Менеджер тратил 10-15 минут, чтобы собрать данные по одному клиенту: найти его прошлые заказы, понять, что он обычно покупает, какой у него статус.</p>
+    <p><strong>Что сделано:</strong> Создана единая база данных из 14 таблиц, куда загружены реальные сведения: 556 клиентов, более 3 тысяч товаров, почти 3 тысячи документов о продажах на сумму 210 млн грн. Все таблицы связаны между собой — система «понимает», какой клиент что купил, когда и на какую сумму.</p>
+    
+    <div class="business-value">
+        <strong>💼 Ценность для бизнеса</strong>
+        <ul>
+            <li><strong>Экономия времени менеджера:</strong> полная история клиента доступна за 2 секунды вместо 15 минут поиска</li>
+            <li><strong>Автоматическое определение статуса клиента:</strong> система сама помечает, кто «активный», кто «спящий», а кто «ушедший»</li>
+            <li><strong>Основа для будущей автоматизации:</strong> рекомендации, дашборды и отчёты работают на этих данных</li>
+        </ul>
+    </div>
+
+    <div class="technical-detail">
+        <strong>🔧 Как это устроено (простыми словами)</strong>
+        <ul>
+            <li><strong>Справочники</strong> — таблицы-словари: направления деятельности (Агро, Строй, ЖКХ...) и правила расчёта статусов клиентов</li>
+            <li><strong>Основные сущности</strong> — товары (трубы, фитинги, отводы) и клиенты с их характеристиками</li>
+            <li><strong>Транзакции</strong> — документы о продажах и строки в них (какой товар, сколько, на какую сумму)</li>
+            <li><strong>ML-блок</strong> — таблицы для «умных» функций: кросс-продажи (что с чем покупают), самообучение рекомендаций, учёт отказов</li>
+            <li><strong>Представления (Views)</strong> — готовые витрины данных: рекомендации для менеджера и дашборд с ключевыми показателями</li>
+        </ul>
+    </div>
+</div>
+
+<div class="stats-box">
+    <h3>📊 Статистика базы данных</h3>
+    <table>
+        <tr>
+            <td><strong>Всего таблиц:</strong></td><td>14</td>
+            <td><strong>Представлений (Views):</strong></td><td>2</td>
+        </tr>
+        <tr>
+            <td><strong>Функций:</strong></td><td>7</td>
+            <td><strong>Триггеров:</strong></td><td>7</td>
+        </tr>
+        <tr>
+            <td><strong>Индексов:</strong></td><td>16</td>
+            <td><strong>Связей FOREIGN KEY:</strong></td><td>21</td>
+        </tr>
+    </table>
+</div>
+
+<!-- ER Diagram (simplified for plan) -->
+<div class="er-diagram">
+    <h3>🗂 БЛОК 1: СПРАВОЧНИКИ</h3>
+    <div class="er-level">
+        <div class="er-table reference">
+            <h4>📋 1. activity_directions</h4>
+            <p><strong>PK</strong> <code>id</code></p>
+            <p><code>name</code> — направление</p>
+            <p style="color: var(--text-muted);">Агро, Строй, ЖКХ, Трейдер (9)</p>
+        </div>
+        <div class="er-table reference">
+            <h4>📋 2. status_rules</h4>
+            <p><strong>PK</strong> <code>id</code></p>
+            <p><code>status_name</code></p>
+            <p style="color: var(--text-muted);">RFM-матрица, 9 статусов</p>
+        </div>
+    </div>
+
+    <div class="er-level" style="margin: 12px 0;">
+        <div class="arrow-item"><span class="arrow-symbol">⬇</span><span class="arrow-label">FK</span></div>
+    </div>
+
+    <h3>🏢 БЛОК 2: ОСНОВНЫЕ СУЩНОСТИ</h3>
+    <div class="er-level">
+        <div class="er-table entity">
+            <h4>📦 3. products</h4>
+            <p><strong>PK</strong> <code>code</code></p>
+            <p><code>name</code>, <code>material_grade</code></p>
+            <p style="color: var(--text-muted);">3,190 товаров</p>
+        </div>
+        <div class="er-table entity">
+            <h4>📝 4. product_aliases</h4>
+            <p><strong>FK</strong> <code>product_code</code></p>
+            <p style="color: var(--text-muted);">Очистка названий 1С</p>
+        </div>
+        <div class="er-table entity">
+            <h4>👤 5. clients</h4>
+            <p><strong>PK</strong> <code>code</code></p>
+            <p><strong>FK</strong> <code>current_status_id</code></p>
+            <p style="color: var(--text-muted);">556 клиентов</p>
+        </div>
+    </div>
+
+    <div class="er-level" style="margin: 12px 0;">
+        <div class="arrow-item"><span class="arrow-symbol">⬇</span><span class="arrow-label">FK</span></div>
+    </div>
+
+    <h3>🛒 БЛОК 3: ТРАНЗАКЦИИ</h3>
+    <div class="er-level">
+        <div class="er-table transaction">
+            <h4>📄 6. documents</h4>
+            <p><strong>PK</strong> <code>id</code></p>
+            <p><strong>FK</strong> <code>client_code</code></p>
+            <p style="color: var(--text-muted);">2,696 документов</p>
+        </div>
+        <div class="er-table transaction">
+            <h4>🛒 7. sales_lines</h4>
+            <p><strong>FK</strong> <code>document_id</code></p>
+            <p><strong>FK</strong> <code>product_code</code></p>
+            <p style="color: var(--text-muted);">Строки отгрузок</p>
+        </div>
+    </div>
+
+    <div class="er-level" style="margin: 12px 0;">
+        <div class="arrow-item"><span class="arrow-symbol">⬇</span><span class="arrow-label">FK + JOIN</span></div>
+    </div>
+
+    <h3>🧠 БЛОК 4: ML, АНАЛИТИКА</h3>
+    <div class="er-level">
+        <div class="er-table analytics">
+            <h4>🔗 8. product_cross_sells</h4>
+            <p>main → related</p>
+            <p style="color: var(--text-muted);">Труба → Фитинг</p>
+        </div>
+        <div class="er-table analytics">
+            <h4>🤖 9. product_scoring</h4>
+            <p><code>current_weight</code></p>
+            <p style="color: var(--text-muted);">+5 / -3 балла</p>
+        </div>
+        <div class="er-table analytics">
+            <h4>👣 10. website_behavior_log</h4>
+            <p><code>action_type</code></p>
+            <p style="color: var(--text-muted);">Цифровой след</p>
+        </div>
+        <div class="er-table analytics">
+            <h4>❌ 11. manager_rejections_log</h4>
+            <p><code>reject_reason</code></p>
+            <p style="color: var(--text-muted);">Учёт отказов</p>
+        </div>
+    </div>
+    <div class="er-level" style="margin-top: 18px;">
+        <div class="er-table analytics">
+            <h4>⏱️ 12. production_lead_times</h4>
+            <p><code>from_blank_days</code></p>
+            <p style="color: var(--text-muted);">Калькулятор сроков</p>
+        </div>
+        <div class="er-table analytics">
+            <h4>🧪 13. ab_tests</h4>
+            <p><code>variant</code> (A/B/C)</p>
+            <p style="color: var(--text-muted);">A/B тесты</p>
+        </div>
+        <div class="er-table audit">
+            <h4>📝 14. status_change_log</h4>
+            <p><strong>FK</strong> client, status</p>
+            <p style="color: var(--text-muted);">Аудит статусов</p>
+        </div>
+    </div>
+
+    <div class="er-level" style="margin: 12px 0;">
+        <div class="arrow-item"><span class="arrow-symbol">⬇</span><span class="arrow-label">SELECT + JOIN</span></div>
+    </div>
+
+    <h3>🔮 БЛОК 5: ПРЕДСТАВЛЕНИЯ (Views)</h3>
+    <div class="er-level">
+        <div class="er-table" style="border-left-color: #6366f1;">
+            <h4>💡 v_smart_recommendations</h4>
+            <p>Движок рекомендаций</p>
+            <p style="color: var(--text-muted);">Топ-5 товаров для КП</p>
+        </div>
+        <div class="er-table" style="border-left-color: #6366f1;">
+            <h4>📊 v_manager_dashboard</h4>
+            <p>Рабочий стол менеджера</p>
+            <p style="color: var(--text-muted);">Единая витрина данных</p>
+        </div>
+    </div>
+
+    <div class="er-legend">
+        <span><span class="legend-dot ref"></span> Справочники</span>
+        <span><span class="legend-dot entity"></span> Сущности</span>
+        <span><span class="legend-dot trans"></span> Транзакции</span>
+        <span><span class="legend-dot ml"></span> ML и Аналитика</span>
+        <span><span class="legend-dot audit"></span> Аудит</span>
+    </div>
+</div>
+
+<div class="note">
+    <strong>✅ Статус:</strong> База данных создана и заполнена реальными данными из 1С.<br>
+    <strong>📄 Полный справочник:</strong> <code>db_reference.html</code>
+</div>
+
+<h3>✅ Чек-лист: SQL 1</h3>
+<div class="checklist">
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> Создана БД bd_intelligent_sales</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> Созданы 14 таблиц (Блоки 1-4)</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> Созданы 2 представления (Блок 5)</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> Созданы 7 функций</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> Созданы 7 триггеров</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> Созданы 16 индексов</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> 21 связь FOREIGN KEY</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> Импортированы клиенты (556), товары (3,190)</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> Импортированы документы (2,696) и sales_lines</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> Заполнены total_amount (210 млн грн)</div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- ЧАСТЬ 0.2: SQL 2 -->
+<!-- ====================================================================== -->
+<h2 id="part02"><span class="part-badge">Часть 0.2</span> SQL 2 — Расширение БД (рекомендации по размерам)</h2>
+
+<div class="explanation-box">
+    <h4>🎯 Для чего это делается и что сделано</h4>
+    <p><strong>Проблема, которую решаем:</strong> Компания продаёт несколько тысяч видов труб разных размеров. Менеджер физически не может помнить все размеры и их соответствия. Если клиент купил трубу 120×80×6 мм, менеджер вряд ли предложит ему похожую трубу 120×80×8 мм (толще стенка — выше цена — больше маржа).</p>
+    <p><strong>Что сделано:</strong> Мы «научили» базу данных понимать размеры труб прямо из названий. Создана функция, которая автоматически извлекает диаметр, толщину стенки, размеры профиля. По этим размерам система находит похожие трубы и рекомендует их менеджеру.</p>
+    
+    <div class="business-value">
+        <strong>💼 Ценность для бизнеса</strong>
+        <ul>
+            <li><strong>Увеличение среднего чека:</strong> система предлагает усиленную версию трубы (толще стенка — дороже товар)</li>
+            <li><strong>Менеджер не обязан быть «ходячим справочником»:</strong> ему не нужно помнить сотни размеров — система подсказывает</li>
+            <li><strong>Клиент получает предложение «как для себя»:</strong> ему рекомендуют именно то, что подходит под его задачи</li>
+        </ul>
+    </div>
+
+    <div class="technical-detail">
+        <strong>🔧 Как это устроено (простыми словами)</strong>
+        <ol>
+            <li><strong>Парсинг названий:</strong> программа «читает» название «Труба проф. 120×80×6» и понимает: ширина 120 мм, высота 80 мм, стенка 6 мм</li>
+            <li><strong>Расчёт веса:</strong> по формуле вычисляется вес одного метра трубы</li>
+            <li><strong>Поиск соседей:</strong> создана таблица связей, где для каждой трубы указаны её «ближайшие родственники» по размерам</li>
+            <li><strong>Генерация рекомендаций:</strong> когда менеджер открывает карточку клиента, система показывает: «Клиент брал 120×80×6 — предложите 120×80×8»</li>
+        </ol>
+    </div>
+</div>
+
+<h3>📐 Пример работы</h3>
+<div class="note">
+    <strong>Пример:</strong> Клиент купил <code>Труба проф. 120×80×6</code> → система предлагает <code>Труба проф. 120×80×8</code> (та же ширина, толще стенка) и <code>Труба проф. 140×80×6</code> (похожий профиль).
+</div>
+
+<!-- ER for extension -->
+<div class="er-diagram">
+    <h3>📊 Что добавлено в таблицу products</h3>
+    <div class="er-level">
+        <div class="er-table" style="border-left-color: #9ca3af;">
+            <h4>📦 products (ДО)</h4>
+            <p><code>code</code>, <code>name</code></p>
+            <p><code>material_grade</code></p>
+            <p><code>in_stock_balance</code></p>
+            <p style="color: var(--text-muted);">~3,190 товаров</p>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;">
+            <span style="font-size:34px;color:#6366f1;">➕</span>
+            <span style="font-size:14px;">10 полей</span>
+        </div>
+        <div class="er-table" style="border-left-color: #6366f1;">
+            <h4>📦 products (ПОСЛЕ)</h4>
+            <p><span class="tag tag-edit">размеры</span> <code>diameter</code></p>
+            <p><span class="tag tag-edit">размеры</span> <code>wall_thickness</code></p>
+            <p><span class="tag tag-edit">размеры</span> <code>profile_width</code></p>
+            <p><span class="tag tag-edit">размеры</span> <code>profile_height</code></p>
+            <p><span class="tag tag-new">даты</span> <code>first_purchase_date</code></p>
+            <p><span class="tag tag-new">даты</span> <code>last_purchase_date</code></p>
+        </div>
+    </div>
+
+    <div class="er-level" style="margin: 12px 0;">
+        <div class="arrow-item"><span class="arrow-symbol">⬇</span><span class="arrow-label">parse_pipe_attributes()</span></div>
+    </div>
+
+    <h3>🆕 Новая таблица: product_similarities</h3>
+    <div class="er-level">
+        <div class="er-table" style="border-left-color: #10b981;">
+            <h4>🆕 product_similarities</h4>
+            <p><strong>PK</strong> <code>id</code></p>
+            <p><strong>FK</strong> source → products</p>
+            <p><strong>FK</strong> similar → products</p>
+            <p><code>similarity_score</code> (0-100%)</p>
+            <p><code>match_type</code>:</p>
+            <p style="padding-left: 12px;">same_diameter, same_wall, upgrade, downgrade</p>
+        </div>
+    </div>
+
+    <h3>🔄 Поток данных</h3>
+    <div class="er-level">
+        <div class="connection-tag">1️⃣ Клиент купил → sales_lines</div>
+        <div style="font-size: 28px; color: #6366f1;">→</div>
+        <div class="connection-tag">2️⃣ Ищем похожие → product_similarities</div>
+        <div style="font-size: 28px; color: #6366f1;">→</div>
+        <div class="connection-tag">3️⃣ Рекомендация на экране</div>
+    </div>
+</div>
+
+<h3>📄 SQL-скрипты (порядок выполнения)</h3>
+<table>
+    <tr><th>№</th><th>Файл</th><th>Назначение</th></tr>
+    <tr><td>1</td><td><code>01_extend_products.sql</code></td><td>Добавление колонок размеров и дат в products</td></tr>
+    <tr><td>2</td><td><code>02_parse_function.sql</code></td><td>Функция парсинга названий труб</td></tr>
+    <tr><td>3</td><td><code>03_fill_dimensions.sql</code></td><td>Заполнение размеров + даты покупок</td></tr>
+    <tr><td>4</td><td><code>04_similarities.sql</code></td><td>Таблица связей + генерация</td></tr>
+    <tr><td>5</td><td><code>05_import_1c_csv.sql</code></td><td>Импорт остатков из 1С</td></tr>
+</table>
+
+<div class="note">
+    <strong>⚠️ Порядок важен!</strong> Скрипты выполняются строго по номерам 1→5.
+</div>
+
+<h3>✅ Чек-лист: SQL 2</h3>
+<div class="checklist">
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> 01_extend_products.sql — 10 колонок добавлены</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> 02_parse_function.sql — функция парсинга создана</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> 03_fill_dimensions.sql — размеры извлечены</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> 04_similarities.sql — таблица связей создана</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> 05_import_1c_csv.sql — CSV импортирован</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> JS-парсер 1С → CSV работает</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> Рекомендации показывают похожие размеры</div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- ЧАСТЬ 1 -->
+<!-- ====================================================================== -->
+<h2 id="part1"><span class="part-badge">Часть 1</span> Организация проекта и Git</h2>
+
+<div class="explanation-box">
+    <h4>🎯 Для чего это делается и что сделано</h4>
+    <p><strong>Проблема:</strong> Если код программы хранится только на одном компьютере — это риск. Поломка жёсткого диска, вирус, случайное удаление файла — и весь проект потерян. Если над проектом будут работать несколько человек — им нужно общее хранилище и понятная структура файлов.</p>
+    <p><strong>Что сделано:</strong>
+        <br>• Создана чёткая структура папок (как в хорошей библиотеке — у каждой книги своё место)
+        <br>• Проект загружен на GitHub — защищённые сервера, доступные из любой точки мира
+        <br>• Настроена система Git — «машина времени», которая запоминает каждое изменение. Если что-то сломалось — всегда можно вернуться к вчерашней версии
+    </p>
+
+    <div class="business-value">
+        <strong>💼 Ценность для бизнеса</strong>
+        <ul>
+            <li><strong>Сохранность кода:</strong> проект не пропадёт — хранится на серверах GitHub с тройным резервированием</li>
+            <li><strong>История изменений:</strong> всегда видно, кто, когда и зачем внёс правки</li>
+            <li><strong>Быстрое подключение:</strong> новый разработчик клонирует проект за 2 минуты</li>
+        </ul>
+    </div>
+</div>
+
+<h3>📁 Структура каталогов</h3>
+<div class="file-tree">
+    utsk_intelligent_sales/<br>
+    ├── .git/                    ← история версий<br>
+    ├── .gitignore               ← что не загружать на сервер<br>
+    ├── README.md                ← описание проекта<br>
+    ├── CMakeLists.txt           ← инструкция по сборке<br>
+    ├── config/<br>
+    │   └── db_config.json       ← настройки подключения<br>
+    ├── include/                 ← заголовочные файлы<br>
+    ├── src/                     ← исходный код<br>
+    ├── tests/                   ← автотесты<br>
+    ├── utsk_web/                ← веб-интерфейс<br>
+    ├── SQL/                     ← скрипты БД<br>
+    └── docs/                    ← документация
+</div>
+
+<h3>✅ Чек-лист Части 1</h3>
+<div class="checklist">
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> Структура папок создана</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> .gitignore создан</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> Git инициализирован</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> Репозиторий на GitHub</div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- ЧАСТЬ 2 -->
+<!-- ====================================================================== -->
+<h2 id="part2"><span class="part-badge">Часть 2</span> Система сборки (CMake)</h2>
+
+<div class="explanation-box">
+    <h4>🎯 Для чего это делается и что сделано</h4>
+    <p><strong>Проблема:</strong> Программа на C++ состоит из десятков файлов. Чтобы превратить их в работающее приложение, нужен «сборщик». Раньше на разных компьютерах (Windows, Linux) сборка настраивалась вручную — это долго и легко ошибиться.</p>
+    <p><strong>Что сделано:</strong> Создан файл CMakeLists.txt — универсальный рецепт сборки. Одна команда — и программа готова к запуску на любой операционной системе.</p>
+
+    <div class="business-value">
+        <strong>💼 Ценность для бизнеса</strong>
+        <ul>
+            <li><strong>Экономия времени:</strong> сборка проекта одной командой вместо 30+ минут ручной настройки</li>
+            <li><strong>Переносимость:</strong> работает одинаково на компьютере разработчика, на сервере, в облаке</li>
+            <li><strong>Новый сотрудник запускает проект за 5 минут</strong></li>
+        </ul>
+    </div>
+</div>
+
+<h3>✅ Чек-лист Части 2</h3>
+<div class="checklist">
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> CMakeLists.txt создан</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> Проект конфигурируется</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> Сборка проходит успешно</div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- ЧАСТЬ 3 -->
+<!-- ====================================================================== -->
+<h2 id="part3"><span class="part-badge">Часть 3</span> Управление зависимостями</h2>
+
+<div class="explanation-box">
+    <h4>🎯 Для чего это делается и что сделано</h4>
+    <p><strong>Проблема:</strong> Программа использует готовые библиотеки (например, для соединения с базой данных PostgreSQL, для работы с JSON-файлами). Это как детали конструктора — если взять не те версии, ничего не соберётся.</p>
+    <p><strong>Что сделано:</strong> Проверены, установлены и подключены три ключевые библиотеки: libpqxx (связь с базой данных), nlohmann_json (чтение настроек), Qt6 (графический интерфейс). Система сама проверяет, всё ли на месте.</p>
+
+    <div class="business-value">
+        <strong>💼 Ценность для бизнеса</strong>
+        <ul>
+            <li><strong>Стабильность:</strong> используются проверенные версии библиотек — меньше ошибок</li>
+            <li><strong>Автоматическая проверка:</strong> система сборки сразу скажет, если чего-то не хватает</li>
+        </ul>
+    </div>
+</div>
+
+<h3>✅ Чек-лист Части 3</h3>
+<div class="checklist">
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> libpqxx установлена</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> nlohmann_json установлена</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> Qt6 установлен</div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- ЧАСТЬ 4 -->
+<!-- ====================================================================== -->
+<h2 id="part4"><span class="part-badge">Часть 4</span> Ядро — работа с БД</h2>
+
+<div class="explanation-box">
+    <h4>🎯 Для чего это делается и что сделано</h4>
+    <p><strong>Проблема:</strong> Нужен надёжный «мост» между кодом программы и базой данных PostgreSQL. Если соединение нестабильно — менеджер видит ошибку вместо данных.</p>
+    <p><strong>Что сделано:</strong> Создан модуль (класс Database), который:
+        <br>• Открывает соединение с базой при старте программы
+        <br>• Автоматически переподключается при сбое сети
+        <br>• Читает настройки (пароль, адрес сервера) из конфигурационного файла db_config.json — чтобы не «зашивать» их в код
+    </p>
+
+    <div class="business-value">
+        <strong>💼 Ценность для бизнеса</strong>
+        <ul>
+            <li><strong>Менеджер не видит технических ошибок:</strong> программа сама переподключается при сбое</li>
+            <li><strong>Легко перенастроить:</strong> достаточно изменить db_config.json — не нужно переписывать код</li>
+        </ul>
+    </div>
+</div>
+
+<h3>✅ Чек-лист Части 4</h3>
+<div class="checklist">
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> Database.hpp/cpp реализованы</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> Config.hpp/cpp реализованы</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> db_config.json создан</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> Подключение к БД работает</div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- ЧАСТЬ 5 -->
+<!-- ====================================================================== -->
+<h2 id="part5"><span class="part-badge">Часть 5</span> Модели данных</h2>
+
+<div class="explanation-box">
+    <h4>🎯 Для чего это делается и что сделано</h4>
+    <p><strong>Проблема:</strong> База данных хранит информацию в виде строк и чисел. Чтобы программа могла с ними работать, нужно превратить эти «сырые» данные в понятные объекты: «Клиент» (с названием, кодом, статусом), «Товар» (с артикулом, размером, ценой), «Документ продажи».</p>
+    <p><strong>Что сделано:</strong> Созданы классы-модели: Client, Product, Document, SaleLine и другие. Каждый класс отвечает за свою сущность и знает, как правильно прочитать её из базы данных.</p>
+
+    <div class="business-value">
+        <strong>💼 Ценность для бизнеса</strong>
+        <ul>
+            <li><strong>Читаемый код:</strong> вместо загадочных запросов — «Клиент.Название», «Товар.ВесМетра»</li>
+            <li><strong>Меньше ошибок:</strong> программа проверяет типы данных — нельзя перепутать число со строкой</li>
+            <li><strong>Легко добавлять новые поля</strong> в будущем</li>
+        </ul>
+    </div>
+</div>
+
+<h3>✅ Чек-лист Части 5</h3>
+<div class="checklist">
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> Client, Product, Document, SaleLine</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> StatusRule, ActivityDirection</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> Методы fromRow() реализованы</div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- ЧАСТЬ 6 -->
+<!-- ====================================================================== -->
+<h2 id="part6"><span class="part-badge">Часть 6</span> Сервисный слой</h2>
+
+<div class="explanation-box">
+    <h4>🎯 Для чего это делается и что сделано</h4>
+    <p><strong>Проблема:</strong> Менеджерам нужны готовые инструменты для работы, а не «сырые» запросы к базе: «найди клиента по ИНН», «покажи все продажи за март», «кто из клиентов перестал покупать».</p>
+    <p><strong>Что сделано:</strong> Созданы три сервиса:
+        <br>• <strong>ClientService</strong> — поиск клиентов, расчёт статусов, история покупок
+        <br>• <strong>ProductService</strong> — каталог товаров, поиск по размерам, наличие на складе
+        <br>• <strong>AnalyticsService</strong> — анализ продаж: топ-товаров, динамика по месяцам, выручка по клиентам
+    </p>
+
+    <div class="business-value">
+        <strong>💼 Ценность для бизнеса</strong>
+        <ul>
+            <li><strong>Поиск клиента за 1 секунду</strong> по названию, коду или ИНН</li>
+            <li><strong>Мгновенный список «спящих» клиентов</strong> — кому пора позвонить</li>
+            <li><strong>Анализ продаж:</strong> что продаётся лучше всего, какая динамика по месяцам</li>
+        </ul>
+    </div>
+</div>
+
+<h3>✅ Чек-лист Части 6</h3>
+<div class="checklist">
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> ClientService реализован</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> ProductService реализован</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> AnalyticsService реализован</div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- ЧАСТЬ 6.5 -->
+<!-- ====================================================================== -->
+<h2 id="part65"><span class="part-badge">Часть 6.5</span> Сервис умных рекомендаций</h2>
+
+<div class="explanation-box">
+    <h4>🎯 Для чего это делается и что сделано</h4>
+    <p><strong>Проблема:</strong> Менеджер открывает карточку клиента и думает: «Что бы ему ещё предложить?» Он не помнит всю историю покупок клиента, не знает о новых поступлениях в категории клиента, не видит связей между товарами.</p>
+    <p><strong>Что сделано:</strong> Создан «движок рекомендаций», который анализирует историю покупок клиента и выдаёт персонализированный список из 5 товаров. Система учитывает четыре блока и самообучается на реакциях менеджера.</p>
+
+    <div class="business-value">
+        <strong>💼 Ценность для бизнеса</strong>
+        <ul>
+            <li><strong>Блок «История»:</strong> «Вы покупали это раньше — пора повторить заказ»</li>
+            <li><strong>Блок «Новинки»:</strong> «Появилась новая позиция в вашей категории»</li>
+            <li><strong>Блок «Cross-sells»:</strong> «С этой трубой обычно берут фланцы и отводы» (увеличение чека)</li>
+            <li><strong>Блок «Похожие размеры»:</strong> «120×80×6, а есть усиленная 8 мм»</li>
+            <li><strong>Самообучение:</strong> если менеджер принимает рекомендацию — её вес растёт (+5), если клиент отказался — падает (-3). При отрицательном весе товар больше не предлагается</li>
+        </ul>
+    </div>
+</div>
+
+<h3>✅ Чек-лист Части 6.5</h3>
+<div class="checklist">
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> RecommendationService.hpp/cpp созданы</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> Блок 1: история покупок</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> Блок 2: новинки</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> Блок 3: cross-sells</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> Блок 4: похожие размеры</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> Самообучение (+5/-3 балла)</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> Работает на реальных клиентах</div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- ЧАСТЬ 7 -->
+<!-- ====================================================================== -->
+<h2 id="part7"><span class="part-badge">Часть 7</span> UI — Консоль + GUI</h2>
+
+<div class="explanation-box">
+    <h4>🎯 Для чего это делается и что сделано</h4>
+    <p><strong>Проблема:</strong> Нужно два варианта интерфейса. Консольный — быстрый, для опытных пользователей, работает даже на слабых компьютерах и через удалённый доступ. Графический (GUI) — удобный, с кнопками и таблицами, понятный любому сотруднику.</p>
+    <p><strong>Что сделано:</strong>
+        <br>• <strong>Консольный интерфейс:</strong> текстовое меню с навигацией, быстрые клавиши, таблицы с форматированием
+        <br>• <strong>Графический интерфейс (Qt6):</strong> окна, кнопки, фильтры, удобные таблицы — как в привычных офисных программах
+        <br>• Оба варианта используют одни и те же сервисы — функциональность полностью идентична
+    </p>
+
+    <div class="business-value">
+        <strong>💼 Ценность для бизнеса</strong>
+        <ul>
+            <li><strong>Консольный режим:</strong> мгновенный запуск, работает через SSH на сервере</li>
+            <li><strong>Графический режим:</strong> интуитивно понятен — не требует обучения</li>
+            <li><strong>Единая функциональность:</strong> что в консоли, что в GUI — результат одинаковый</li>
+        </ul>
+    </div>
+</div>
+
+<h3>✅ Чек-лист Части 7</h3>
+<div class="checklist">
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> TablePrinter реализован</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> ConsoleMenu с навигацией</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> Qt6 GUI создан</div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- ЧАСТЬ 7.5 -->
+<!-- ====================================================================== -->
+<h2 id="part75"><span class="part-badge">Часть 7.5</span> Web-интерфейс для директора (FastAPI + ngrok)</h2>
+
+<div class="explanation-box">
+    <h4>🎯 Для чего это делается и что сделано</h4>
+    <p><strong>Проблема:</strong> Директору нужно видеть ключевые показатели бизнеса с любого устройства (телефон, планшет, ноутбук) без установки программ и без сложных настроек. Он не должен заходить в 1С или базу данных.</p>
+    <p><strong>Что сделано:</strong>
+        <br>• Создан веб-сайт с дашбордом — открывается в браузере по ссылке
+        <br>• Через ngrok создан защищённый туннель — директор заходит по постоянной ссылке из любой точки мира
+        <br>• Доступ защищён токеном (паролем) — посторонние не увидят данные
+        <br>• На дашборде: выручка, количество активных клиентов, проблемные товары, статусы клиентов
+    </p>
+
+    <div class="business-value">
+        <strong>💼 Ценность для бизнеса</strong>
+        <ul>
+            <li><strong>Доступ 24/7</strong> с телефона, планшета или ноутбука</li>
+            <li><strong>Не требует установки:</strong> работает в любом браузере (Chrome, Safari, Firefox)</li>
+            <li><strong>Защита:</strong> доступ только по токену — конфиденциальные данные в безопасности</li>
+            <li><strong>Адаптивный дизайн:</strong> удобно смотреть на экране любого размера</li>
+        </ul>
+    </div>
+</div>
+
+<h3>✅ Чек-лист Части 7.5</h3>
+<div class="checklist">
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> FastAPI бэкенд создан</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> HTML фронтенд свёрстан</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> Аутентификация по токену</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> ngrok настроен</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> Публичная ссылка работает</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox"> Директор протестировал</div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- ЧАСТЬ 8 -->
+<!-- ====================================================================== -->
+<h2 id="part8"><span class="part-badge">Часть 8</span> Тесты, CI/CD, Docker, Документация</h2>
+
+<div class="explanation-box">
+    <h4>🎯 Для чего это делается и что сделано</h4>
+    <p><strong>Проблема:</strong> Когда программа разрастается, любое изменение может случайно сломать то, что уже работало. Развернуть программу на новом сервере раньше было целой историей: установить все зависимости, настроить базу данных, прописать пути.</p>
+    <p><strong>Что сделано:</strong></p>
+
+    <div class="business-value">
+        <strong>💼 Ценность для бизнеса</strong>
+        <ul>
+            <li><strong>46 автоматических тестов:</strong> перед каждым обновлением проверяется, что ВСЁ работает правильно. Исключены «сюрпризы» при запуске новой версии</li>
+            <li><strong>CI/CD (GitHub Actions):</strong> при любом изменении кода тесты запускаются автоматически. Разработчик узнает об ошибке через минуту, а не через неделю от пользователей</li>
+            <li><strong>Docker-контейнер:</strong> программа упакована со всеми настройками в «контейнер». Развернуть на новом сервере — 5 минут и одна команда. Не нужно вручную ничего настраивать</li>
+            <li><strong>Документация:</strong> полное описание системы для разработчиков + руководство для пользователей (DIRECTOR_GUIDE)</li>
+        </ul>
+    </div>
+
+    <div class="technical-detail">
+        <strong>🔧 Что происходит при изменении кода (автоматически)</strong>
+        <ol>
+            <li>Разработчик вносит изменение и отправляет на GitHub</li>
+            <li>GitHub Actions автоматически запускает 46 тестов</li>
+            <li>Проверяется: работа с БД, рекомендации, веб-интерфейс, консоль</li>
+            <li>Если все тесты прошли — код готов к использованию</li>
+            <li>Если есть ошибка — разработчик получает уведомление и сразу исправляет</li>
+        </ol>
+    </div>
+</div>
+
+<h3>✅ Чек-лист Части 8</h3>
+<div class="checklist">
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> C++ тесты (GTest) — 6 тестов</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> Python тесты (pytest) — 14 тестов</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> GitHub Actions: ci.yml (C++)</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> GitHub Actions: web-tests.yml (Python)</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> Dockerfile.cpp готов</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> Dockerfile.web готов</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> docker-compose.yml работает</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> Документация оформлена</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> Демо-сервер запущен</div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- СВОДНАЯ ТАБЛИЦА -->
+<!-- ====================================================================== -->
+<h2 id="summary">📋 Сводная таблица всех частей</h2>
+
+<table>
+    <tr><th>Часть</th><th>Название</th><th>Ключевые компоненты</th><th>Статус</th></tr>
+    <tr><td>0.1</td><td>SQL 1 — База данных</td><td>14 таблиц, 2 view, 7 функций, 21 FK</td><td>✅ Выполнено</td></tr>
+    <tr><td>0.2</td><td>SQL 2 — Размеры труб</td><td>Парсинг названий, таблица связей</td><td>✅ Выполнено</td></tr>
+    <tr><td>1</td><td>Организация и Git</td><td>Структура, .gitignore, GitHub</td><td>✅ Выполнено</td></tr>
+    <tr><td>2</td><td>CMake</td><td>CMakeLists.txt, сборка</td><td>✅ Выполнено</td></tr>
+    <tr><td>3</td><td>Зависимости</td><td>libpqxx, nlohmann_json, Qt6</td><td>✅ Выполнено</td></tr>
+    <tr><td>4</td><td>Ядро — БД</td><td>Database, Config</td><td>✅ Выполнено</td></tr>
+    <tr><td>5</td><td>Модели</td><td>Client, Product, Document</td><td>✅ Выполнено</td></tr>
+    <tr><td>6</td><td>Сервисы</td><td>ClientService, ProductService</td><td>✅ Выполнено</td></tr>
+    <tr><td>6.5</td><td>Рекомендации</td><td>4 блока + самообучение</td><td>✅ Выполнено</td></tr>
+    <tr><td>7</td><td>UI (Консоль + GUI)</td><td>TablePrinter, ConsoleMenu, Qt6</td><td>✅ Выполнено</td></tr>
+    <tr><td>7.5</td><td>Web для директора</td><td>FastAPI + ngrok + HTML</td><td>✅ Выполнено</td></tr>
+    <tr><td>8</td><td>Тесты, CI/CD, Docker</td><td>GTest, pytest, GitHub Actions</td><td>✅ Выполнено</td></tr>
+</table>
+
+<!-- ====================================================================== -->
+<!-- ОБЩИЙ ЧЕК-ЛИСТ -->
+<!-- ====================================================================== -->
+<h2 id="checklist">☑️ Общий чек-лист выполнения проекта</h2>
+
+<div class="checklist" id="master-checklist">
+
+    <h3>Часть 0.1: SQL 1 — Структура БД</h3>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> activity_directions</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> status_rules</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> products (3,190 товаров)</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> product_aliases</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> clients (556 клиентов)</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> documents (2,696 шт)</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> sales_lines</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> product_cross_sells</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> product_scoring</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> website_behavior_log</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> manager_rejections_log</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> production_lead_times</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> ab_tests</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> status_change_log</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> v_smart_recommendations</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> v_manager_dashboard</div>
+
+    <h3>Часть 0.2: SQL 2 — Размеры труб</h3>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> 01_extend_products.sql</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> 02_parse_function.sql</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> 03_fill_dimensions.sql</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> 04_similarities.sql</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> 05_import_1c_csv.sql</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> JS-парсер 1С → CSV</div>
+
+    <h3>Части 1-8</h3>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> Организация проекта и Git</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> Система сборки CMake</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> Управление зависимостями</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> Ядро — работа с БД</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> Модели данных</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> Сервисный слой</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> Сервис рекомендаций</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> UI (Консоль + GUI)</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> Web-интерфейс для директора</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> C++ тесты (GTest)</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> Python тесты (pytest)</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> GitHub Actions (CI/CD)</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> Docker Compose</div>
+    <div class="checklist-item"><input type="checkbox" class="task-checkbox" checked> Документация</div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- ПРОГРЕСС -->
+<!-- ====================================================================== -->
+<h2>📈 Прогресс проекта</h2>
+<div class="progress-container">
+    <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill" style="width: 0%;">0%</div>
+    </div>
+</div>
+<p style="color: var(--text-muted);"><em>Отмечайте выполненные пункты — прогресс обновляется автоматически. Состояние сохраняется в браузере.</em></p>
+
+<!-- ====================================================================== -->
+<!-- ИТОГОВАЯ СВОДКА -->
+<!-- ====================================================================== -->
+<div class="summary-box">
+    <h3>📊 Итоговая сводка для руководителя</h3>
+    <table>
+        <tr>
+            <td style="width: 50%; padding: 15px; vertical-align: top;">
+                <h4 style="color: white; margin-top: 0;">🗄️ База данных</h4>
+                <p style="font-size: 17px; line-height: 1.8;">3,190 товаров, 556 клиентов, 2,696 документов. Автоматический расчёт статусов клиентов.</p>
+            </td>
+            <td style="width: 50%; padding: 15px; vertical-align: top;">
+                <h4 style="color: white; margin-top: 0;">💡 Умные рекомендации</h4>
+                <p style="font-size: 17px; line-height: 1.8;">4 блока рекомендаций + самообучение на реакциях менеджера. Рост среднего чека.</p>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding: 15px; vertical-align: top;">
+                <h4 style="color: white; margin-top: 0;">🌐 Доступ для директора</h4>
+                <p style="font-size: 17px; line-height: 1.8;">Веб-дашборд, доступен с телефона/ноутбука по ссылке, защита токеном.</p>
+            </td>
+            <td style="padding: 15px; vertical-align: top;">
+                <h4 style="color: white; margin-top: 0;">✅ Надёжность</h4>
+                <p style="font-size: 17px; line-height: 1.8;">46 тестов, CI/CD, Docker — развёртывание за 5 минут.</p>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div class="footer">
+    UTSK Intelligent Sales — План разработки v7.1 | Актуализировано: 27.04.2026
+</div>
+
+</div>
+
+<!-- ====================================================================== -->
+<!-- СКРИПТ ПРОГРЕССА -->
+<!-- ====================================================================== -->
+<script>
+(function() {
+    const checkboxes = document.querySelectorAll('#master-checklist .task-checkbox');
+    const progressFill = document.getElementById('progress-fill');
+    const totalTasks = checkboxes.length;
+    
+    function updateProgress() {
+        const checked = document.querySelectorAll('#master-checklist .task-checkbox:checked').length;
+        const percent = totalTasks > 0 ? Math.round((checked / totalTasks) * 100) : 0;
+        progressFill.style.width = percent + '%';
+        progressFill.textContent = percent + '%';
+        
+        if (percent >= 100) {
+            progressFill.style.background = 'linear-gradient(90deg, #10b981, #34d399)';
+        } else if (percent >= 75) {
+            progressFill.style.background = 'linear-gradient(90deg, #6366f1, #10b981)';
+        } else if (percent >= 50) {
+            progressFill.style.background = 'linear-gradient(90deg, #f59e0b, #fbbf24)';
+        } else {
+            progressFill.style.background = 'linear-gradient(90deg, #10b981, #34d399)';
+        }
+    }
+    
+    function saveState() {
+        const states = [];
+        checkboxes.forEach(function(cb) { states.push(cb.checked); });
+        localStorage.setItem('utsk_plan_checklist_state', JSON.stringify(states));
+    }
+    
+    function loadState() {
+        const saved = localStorage.getItem('utsk_plan_checklist_state');
+        if (saved) {
+            const states = JSON.parse(saved);
+            checkboxes.forEach(function(cb, index) {
+                if (index < states.length) cb.checked = states[index];
+            });
+        }
+    }
+    
+    checkboxes.forEach(function(checkbox) {
+        checkbox.addEventListener('change', function() {
+            saveState();
+            updateProgress();
+        });
+    });
+    
+    loadState();
+    updateProgress();
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1374 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Справочник по базе данных UTSK v7.1</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --block-steel: #f1f5f9;
+            --block-blue: #e0f2fe;
+            --block-green: #d1fae5;
+            --block-purple: #f3e8ff;
+            --text-steel: #334155;
+            --text-blue: #0369a1;
+            --text-green: #047857;
+            --text-purple: #6b21a8;
+            --bg-canvas: #dbeafe;
+            --bg-app: #ffffff;
+            --bg-sidebar: #f8fafc;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --bg-card: #f8fafc;
+            --border-light: #e2e8f0;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px;
+            background: linear-gradient(135deg, #e2e8f0 0%, #dbeafe 100%);
+            line-height: 1.7;
+            color: var(--text-main);
+            font-size: 17px;
+        }
+
+        .container {
+            background-color: var(--bg-app);
+            padding: 45px 55px;
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(15, 23, 42, 0.1);
+        }
+
+        h1 {
+            color: var(--text-main);
+            border-bottom: 3px solid var(--border-light);
+            padding-bottom: 20px;
+            margin-top: 0;
+            font-size: 38px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        h2 {
+            color: var(--text-main);
+            margin-top: 50px;
+            margin-bottom: 25px;
+            border-left: 5px solid #6366f1;
+            padding-left: 25px;
+            font-size: 30px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+
+        h3 {
+            color: var(--text-main);
+            margin-top: 40px;
+            margin-bottom: 20px;
+            font-size: 26px;
+            font-weight: 700;
+            border-bottom: 2px solid var(--border-light);
+            padding-bottom: 12px;
+            letter-spacing: -0.2px;
+        }
+
+        h4 {
+            color: var(--text-steel);
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        p, li {
+            font-size: 17px;
+            color: var(--text-steel);
+            line-height: 1.8;
+        }
+
+        p strong, li strong {
+            color: var(--text-main);
+            font-weight: 700;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0 30px 0;
+            font-size: 16px;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--border-light);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        th {
+            background: var(--bg-card);
+            color: var(--text-steel);
+            font-weight: 700;
+            padding: 16px 15px;
+            text-align: left;
+            font-size: 15px;
+            border-bottom: 2px solid var(--border-light);
+            letter-spacing: 0.3px;
+        }
+
+        td {
+            padding: 14px 15px;
+            border-bottom: 1px solid var(--border-light);
+            vertical-align: top;
+            color: var(--text-main);
+            font-size: 16px;
+        }
+
+        tr:last-child td { border-bottom: none; }
+        tr:nth-child(even) { background-color: #f8fafc; }
+        tr:hover td { background-color: #e0f2fe; }
+
+        code {
+            background-color: #f1f5f9;
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-family: 'JetBrains Mono', 'Consolas', 'Courier New', monospace;
+            font-size: 15px;
+            color: #6366f1;
+            border: 1px solid #e2e8f0;
+            font-weight: 500;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .badge-pk { background: #fef3c7; color: #92400e; border: 1px solid #fbbf24; }
+        .badge-fk { background: #d1fae5; color: #065f46; border: 1px solid #34d399; }
+        .badge-required { background: #fee2e2; color: #991b1b; border: 1px solid #f87171; }
+        .badge-view { background: #dbeafe; color: #1e40af; border: 1px solid #60a5fa; }
+
+        .stats-box {
+            background: linear-gradient(135deg, #dbeafe 0%, #e0f2fe 100%);
+            border: 2px solid #93c5fd;
+            color: var(--text-main);
+            padding: 30px 35px;
+            border-radius: 20px;
+            margin: 30px 0 40px 0;
+        }
+        .stats-box h3 {
+            font-size: 24px;
+            margin-top: 0;
+            border: none;
+            padding-bottom: 10px;
+            color: var(--text-blue);
+        }
+        .stats-box table { background: transparent; margin: 0; border: none; box-shadow: none; }
+        .stats-box td {
+            border: none;
+            padding: 12px 24px 12px 0;
+            font-size: 19px;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+        .stats-box tr:nth-child(even) { background: transparent; }
+
+        .section-toc {
+            background: var(--bg-card);
+            padding: 25px 35px;
+            border-radius: 16px;
+            margin: 35px 0;
+            columns: 2;
+            column-gap: 40px;
+            border: 1px solid var(--border-light);
+        }
+        .section-toc a {
+            color: var(--text-steel);
+            text-decoration: none;
+            display: block;
+            padding: 7px 0;
+            font-size: 16px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .section-toc a:hover { color: #6366f1; }
+
+        .note {
+            background: #fef3c7;
+            border-left: 5px solid #f59e0b;
+            padding: 20px 25px;
+            margin: 25px 0;
+            border-radius: 0 16px 16px 0;
+            color: var(--text-main);
+            font-size: 16px;
+        }
+        .note strong { font-size: 18px; }
+        .note ul { margin: 10px 0 0 20px; }
+        .note li { font-size: 16px; line-height: 1.8; }
+
+        .sql-example {
+            background: #1e293b;
+            color: #34d399;
+            padding: 22px 28px;
+            border-radius: 14px;
+            font-family: 'JetBrains Mono', 'Consolas', monospace;
+            font-size: 15px;
+            overflow-x: auto;
+            margin: 25px 0;
+            border: 1px solid #334155;
+            line-height: 1.8;
+        }
+        .sql-example code { background: transparent; color: inherit; border: none; padding: 0; }
+
+        /* ER Diagram */
+        .er-diagram {
+            background: var(--bg-card);
+            padding: 45px 35px;
+            border-radius: 24px;
+            margin: 35px 0;
+            border: 2px solid var(--border-light);
+        }
+        .er-level {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .er-table {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+            padding: 22px 26px;
+            min-width: 220px;
+            max-width: 280px;
+            border-left: 6px solid;
+            transition: transform 0.2s;
+            color: var(--text-main);
+        }
+        .er-table:hover { transform: translateY(-3px); box-shadow: 0 8px 22px rgba(0,0,0,0.10); }
+        .er-table.reference { border-left-color: #f59e0b; }
+        .er-table.entity { border-left-color: #10b981; }
+        .er-table.transaction { border-left-color: #ef4444; }
+        .er-table.analytics { border-left-color: #8b5cf6; }
+        .er-table.audit { border-left-color: #f97316; }
+        .er-table h4 { font-size: 17px; margin: 0 0 10px 0; display: flex; align-items: center; gap: 8px; }
+        .er-table p { font-size: 15px; margin: 5px 0; color: var(--text-steel); }
+        .pk-badge {
+            display: inline-block;
+            background: #fef3c7;
+            color: #92400e;
+            padding: 3px 10px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            margin-right: 6px;
+        }
+        .fk-badge {
+            display: inline-block;
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 3px 10px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            margin-right: 6px;
+        }
+        .arrow-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: #6366f1;
+        }
+        .arrow-symbol { font-size: 28px; line-height: 1; }
+        .arrow-label {
+            background: #dbeafe;
+            padding: 5px 14px;
+            border-radius: 14px;
+            color: #1e40af;
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 5px;
+        }
+        .horizontal-connections {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin: 15px 0;
+            padding: 12px;
+            background: rgba(99, 102, 241, 0.05);
+            border-radius: 30px;
+        }
+        .connection-tag {
+            background: white;
+            border: 2px dashed #6366f1;
+            border-radius: 25px;
+            padding: 10px 20px;
+            font-size: 15px;
+            color: #1e40af;
+            font-weight: 500;
+        }
+        .connection-tag strong { color: #1e293b; }
+        .er-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+            justify-content: center;
+            margin-top: 40px;
+            padding-top: 25px;
+            border-top: 2px solid #e2e8f0;
+            font-size: 15px;
+            font-weight: 500;
+        }
+        .legend-dot {
+            width: 18px;
+            height: 18px;
+            border-radius: 6px;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        .legend-dot.ref { background: #fef3c7; border: 2px solid #f59e0b; }
+        .legend-dot.entity { background: #d1fae5; border: 2px solid #10b981; }
+        .legend-dot.trans { background: #fee2e2; border: 2px solid #ef4444; }
+        .legend-dot.ml { background: #f3e8ff; border: 2px solid #8b5cf6; }
+        .legend-dot.audit { background: #fff7ed; border: 2px solid #f97316; }
+
+        .footer {
+            margin-top: 60px;
+            text-align: center;
+            color: #94a3b8;
+            font-size: 15px;
+            border-top: 2px solid #f1f5f9;
+            padding-top: 30px;
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+        /* Back to main page link */
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background: var(--block-steel);
+            color: var(--text-main);
+            text-decoration: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .back-link:hover { background: #e2e8f0; }
+    </style>
+</head>
+<body>
+<div class="container">
+
+<a href="index.html" class="back-link">← Назад к дашборду</a>
+
+<h1>📚 Справочник по архитектуре базы данных UTSK</h1>
+<p style="font-size: 19px; color: var(--text-muted); margin-top: -5px;">
+    <strong>Версия:</strong> 7.1 (bd_intelligent_sales) | 
+    <strong>Дата актуализации:</strong> 27.04.2026 | 
+    <strong>Товаров:</strong> 3,190 | 
+    <strong>Клиентов:</strong> 556 | 
+    <strong>Связей похожих труб:</strong> 124,140
+</p>
+
+<div class="stats-box">
+    <h3>📊 Общая статистика</h3>
+    <table>
+        <tr>
+            <td><strong>Всего таблиц:</strong></td><td>14</td>
+            <td><strong>Всего представлений (Views):</strong></td><td>2</td>
+        </tr>
+        <tr>
+            <td><strong>Всего функций:</strong></td><td>7</td>
+            <td><strong>Всего триггеров:</strong></td><td>7</td>
+        </tr>
+        <tr>
+            <td><strong>Всего индексов:</strong></td><td>16</td>
+            <td><strong>Связей FOREIGN KEY:</strong></td><td>21</td>
+        </tr>
+    </table>
+</div>
+
+<div class="section-toc">
+    <a href="#block1">🗂 БЛОК 1: СПРАВОЧНИКИ</a>
+    <a href="#tbl1"> 1. activity_directions</a>
+    <a href="#tbl2"> 2. status_rules</a>
+    <a href="#block2">🏢 БЛОК 2: ОСНОВНЫЕ СУЩНОСТИ</a>
+    <a href="#tbl3"> 3. products</a>
+    <a href="#tbl4"> 4. product_aliases</a>
+    <a href="#tbl5"> 5. clients</a>
+    <a href="#block3">🛒 БЛОК 3: ТРАНЗАКЦИИ</a>
+    <a href="#tbl6"> 6. documents</a>
+    <a href="#tbl7"> 7. sales_lines</a>
+    <a href="#block4">🧠 БЛОК 4: ML, АНАЛИТИКА</a>
+    <a href="#tbl8"> 8. product_cross_sells</a>
+    <a href="#tbl9"> 9. product_scoring</a>
+    <a href="#tbl10"> 10. website_behavior_log</a>
+    <a href="#tbl11"> 11. manager_rejections_log</a>
+    <a href="#tbl12"> 12. production_lead_times</a>
+    <a href="#tbl13"> 13. ab_tests</a>
+    <a href="#tbl14"> 14. status_change_log</a>
+    <a href="#block5">🔮 БЛОК 5: ПРЕДСТАВЛЕНИЯ</a>
+    <a href="#view15"> 15. v_smart_recommendations</a>
+    <a href="#view16"> 16. v_manager_dashboard</a>
+    <a href="#er">📊 ER-ДИАГРАММА</a>
+</div>
+
+<!-- ====================================================================== -->
+<!-- БЛОК 1: СПРАВОЧНИКИ                                                    -->
+<!-- ====================================================================== -->
+<h2 id="block1">🗂 БЛОК 1: СПРАВОЧНИКИ (Словари системы)</h2>
+
+<!-- 1. activity_directions -->
+<h3 id="tbl1">1. activity_directions — Направления деятельности</h3>
+<p><strong>🎯 Бизнес-задача:</strong> Глобальная сегментация рынка трубного проката. Позволяет делить товары и клиентов на понятные бизнесу отрасли.</p>
+<table>
+    <tr><th>Параметр</th><th>Тип данных</th><th>Ограничения</th><th>Пример</th><th>Описание</th></tr>
+    <tr><td><code>id</code></td><td>SERIAL</td><td><span class="badge badge-pk">PRIMARY KEY</span></td><td>3</td><td>Уникальный идентификатор направления</td></tr>
+    <tr><td><code>name</code></td><td>VARCHAR(100)</td><td><span class="badge badge-required">NOT NULL</span> UNIQUE</td><td>'Промышленность/Нефтегаз'</td><td>Название сегмента рынка</td></tr>
+    <tr><td><code>description</code></td><td>TEXT</td><td>NULL</td><td>'Магистральные трубы'</td><td>Пояснение для менеджеров</td></tr>
+    <tr><td><code>created_at</code></td><td>TIMESTAMP</td><td>DEFAULT NOW()</td><td>2026-01-15 10:30</td><td>Дата создания записи</td></tr>
+    <tr><td><code>updated_at</code></td><td>TIMESTAMP</td><td>DEFAULT NOW()</td><td>2026-04-20 14:22</td><td>Дата последнего изменения</td></tr>
+</table>
+<p><strong>📋 Предустановленные значения:</strong> Сельское хозяйство, Строительство, Промышленность/Нефтегаз, ЖКХ и Водоканалы, Дорожное строительство, Трейдер, Конечный потребитель, Трейдер с производством, Универсальный/Смешанное.</p>
+<p><strong>🔗 Связи:</strong> <code>products</code> (1:M), <code>clients</code> (1:M).</p>
+<p><strong>⚙️ Бизнес-логика:</strong> Позволяет системе рекомендаций предлагать строителю — профильную трубу, а аграрию — трубы для систем полива.</p>
+
+<!-- 2. status_rules -->
+<h3 id="tbl2">2. status_rules — Матрица RFM-статусов</h3>
+<p><strong>🎯 Бизнес-задача:</strong> Автоматизация жизненного цикла клиента без ручного вмешательства.</p>
+<table>
+    <tr><th>Параметр</th><th>Тип данных</th><th>Ограничения</th><th>Пример</th><th>Описание</th></tr>
+    <tr><td><code>id</code></td><td>SERIAL</td><td><span class="badge badge-pk">PRIMARY KEY</span></td><td>5</td><td>Номер правила</td></tr>
+    <tr><td><code>status_name</code></td><td>VARCHAR(50)</td><td><span class="badge badge-required">NOT NULL</span> UNIQUE</td><td>'Ежемесячные'</td><td>Название статуса</td></tr>
+    <tr><td><code>min_current_year</code></td><td>INT</td><td>NULL</td><td>11</td><td>Минимум накладных в текущем году</td></tr>
+    <tr><td><code>max_current_year</code></td><td>INT</td><td>NULL</td><td>40</td><td>Максимум накладных в текущем году</td></tr>
+    <tr><td><code>min_prev_year</code></td><td>INT</td><td>NULL</td><td>NULL</td><td>Минимум накладных в прошлом году</td></tr>
+    <tr><td><code>max_prev_year</code></td><td>INT</td><td>NULL</td><td>NULL</td><td>Максимум накладных в прошлом году</td></tr>
+    <tr><td><code>min_days_since_last_purchase</code></td><td>INT</td><td>NULL</td><td>180</td><td>Дней с последней покупки (для Спящих)</td></tr>
+    <tr><td><code>min_days_between_purchases</code></td><td>INT</td><td>NULL</td><td>365</td><td>Разрыв между покупками (для Проснувшихся)</td></tr>
+    <tr><td><code>priority</code></td><td>INT</td><td><span class="badge badge-required">NOT NULL</span></td><td>40</td><td>Приоритет проверки (меньше = важнее)</td></tr>
+    <tr><td><code>description</code></td><td>TEXT</td><td>NULL</td><td>'11-40 накладных'</td><td>Пояснение логики</td></tr>
+</table>
+<p><strong>📋 Предустановленные статусы:</strong> Новые (1), Разовые (2), Повторные (3), Ежеквартальные (4), Ежемесячные (5), Еженедельные (6), Ежедневные (7), Спящие (8), Ушедшие (9).</p>
+<p><strong>🔗 Связи:</strong> <code>clients</code> (1:M).</p>
+<p><strong>⚙️ Бизнес-логика:</strong> Функция <code>calculate_client_status()</code> сравнивает статистику из <code>documents</code> с этими правилами.</p>
+
+<!-- ====================================================================== -->
+<!-- БЛОК 2: ОСНОВНЫЕ СУЩНОСТИ                                              -->
+<!-- ====================================================================== -->
+<h2 id="block2">🏢 БЛОК 2: ОСНОВНЫЕ СУЩНОСТИ (Данные из 1С)</h2>
+
+<!-- 3. products -->
+<h3 id="tbl3">3. products — Номенклатура</h3>
+<p><strong>🎯 Бизнес-задача:</strong> Мастер-справочник товаров с аналитическими тегами.</p>
+<table>
+    <tr><th>Параметр</th><th>Тип данных</th><th>Ограничения</th><th>Пример</th><th>Описание</th></tr>
+    <tr><td><code>code</code></td><td>VARCHAR(50)</td><td><span class="badge badge-pk">PRIMARY KEY</span></td><td>'000014144'</td><td>Код из 1С</td></tr>
+    <tr><td><code>name</code></td><td>VARCHAR(255)</td><td><span class="badge badge-required">NOT NULL</span></td><td>'GB/T 8162:2018 76х10 ст20'</td><td>Эталонное название</td></tr>
+    <tr><td><code>anchor_direction_id</code></td><td>INT</td><td><span class="badge badge-fk">FK (activity_directions)</span></td><td>2</td><td>Ссылка на направление</td></tr>
+    <tr><td><code>is_auto_tagged</code></td><td>BOOLEAN</td><td>DEFAULT FALSE</td><td>TRUE</td><td>Размечено скриптом или вручную</td></tr>
+    <tr><td><code>material_grade</code></td><td>VARCHAR(50)</td><td>NULL</td><td>'ст20'</td><td>Марка стали / ГОСТ</td></tr>
+    <tr><td><code>is_new_arrival</code></td><td>BOOLEAN</td><td>DEFAULT FALSE</td><td>TRUE</td><td>Флаг "Новинка"</td></tr>
+    <tr><td><code>in_stock_balance</code></td><td>DECIMAL(15,3)</td><td>DEFAULT 0</td><td>12.500</td><td>Остаток на складе (тонны)</td></tr>
+    <tr><td><code>created_at</code></td><td>TIMESTAMP</td><td>DEFAULT NOW()</td><td>-</td><td>Дата создания</td></tr>
+    <tr><td><code>updated_at</code></td><td>TIMESTAMP</td><td>DEFAULT NOW()</td><td>-</td><td>Дата обновления</td></tr>
+</table>
+<p><strong>🔗 Связи:</strong> <code>activity_directions</code> (M:1), <code>sales_lines</code> (1:M), <code>product_aliases</code> (1:M), <code>product_scoring</code> (1:M), <code>product_cross_sells</code> (1:M), <code>production_lead_times</code> (1:M).</p>
+
+<!-- 4. product_aliases -->
+<h3 id="tbl4">4. product_aliases — Синонимы номенклатуры</h3>
+<p><strong>🎯 Бизнес-задача:</strong> Очистка данных. Склеивает дубликаты названий из 1С в один эталонный код.</p>
+<table>
+    <tr><th>Параметр</th><th>Тип данных</th><th>Ограничения</th><th>Пример</th><th>Описание</th></tr>
+    <tr><td><code>id</code></td><td>SERIAL</td><td><span class="badge badge-pk">PRIMARY KEY</span></td><td>145</td><td>Уникальный ID</td></tr>
+    <tr><td><code>product_code</code></td><td>VARCHAR(50)</td><td><span class="badge badge-fk">FK (products) ON DELETE CASCADE</span></td><td>'000014144'</td><td>Код эталонного товара</td></tr>
+    <tr><td><code>alias_text</code></td><td>VARCHAR(255)</td><td><span class="badge badge-required">NOT NULL</span> UNIQUE</td><td>'Тр. 76х10 ст20'</td><td>"Грязное" имя из 1С</td></tr>
+    <tr><td><code>created_at</code></td><td>TIMESTAMP</td><td>DEFAULT NOW()</td><td>-</td><td>Дата создания</td></tr>
+</table>
+
+<!-- 5. clients -->
+<h3 id="tbl5">5. clients — Контрагенты (ГЛАВНАЯ ТАБЛИЦА)</h3>
+<p><strong>🎯 Бизнес-задача:</strong> "Личное дело" клиента. Центр всей аналитики.</p>
+<table>
+    <tr><th>Параметр</th><th>Тип данных</th><th>Ограничения</th><th>Пример</th><th>Описание</th></tr>
+    <tr><td><code>code</code></td><td>VARCHAR(50)</td><td><span class="badge badge-pk">PRIMARY KEY</span></td><td>'36'</td><td>Код клиента из 1С</td></tr>
+    <tr><td><code>name</code></td><td>VARCHAR(255)</td><td><span class="badge badge-required">NOT NULL</span></td><td>'АВ Металл групп ООО'</td><td>Название компании</td></tr>
+    <tr><td><code>client_type</code></td><td>VARCHAR(50)</td><td>NULL</td><td>'Трейдер'</td><td>Тип клиента</td></tr>
+    <tr><td><code>current_status_id</code></td><td>INT</td><td><span class="badge badge-fk">FK (status_rules)</span></td><td>4</td><td>Текущий RFM-статус</td></tr>
+    <tr><td><code>status_history</code></td><td>JSONB</td><td>DEFAULT '[]'</td><td>[{"date":"...","old":1,"new":4}]</td><td>История изменений статусов</td></tr>
+    <tr><td><code>last_status_push_to_crm</code></td><td>TIMESTAMP</td><td>NULL</td><td>2026-04-01 09:00</td><td>Защита от спама в CRM</td></tr>
+    <tr><td><code>first_purchase_date</code></td><td>DATE</td><td>NULL</td><td>2025-01-15</td><td>Дата первой покупки</td></tr>
+    <tr><td><code>last_purchase_date</code></td><td>DATE</td><td>NULL</td><td>2026-04-20</td><td>Дата последней покупки (для RFM)</td></tr>
+    <tr><td><code>activity_direction_id</code></td><td>INT</td><td><span class="badge badge-fk">FK (activity_directions)</span></td><td>2</td><td>Определенное направление</td></tr>
+    <tr><td><code>direction_confidence</code></td><td>DECIMAL(5,2)</td><td>CHECK (0-100)</td><td>87.50</td><td>Уверенность алгоритма (%)</td></tr>
+    <tr><td><code>is_direction_manual</code></td><td>BOOLEAN</td><td>DEFAULT FALSE</td><td>FALSE</td><td>Ручная блокировка автоопределения</td></tr>
+    <tr><td><code>requires_survey</code></td><td>BOOLEAN</td><td>DEFAULT FALSE</td><td>TRUE</td><td>Требуется опрос (для Новых)</td></tr>
+    <tr><td><code>survey_completed_at</code></td><td>TIMESTAMP</td><td>NULL</td><td>2026-04-21 14:30</td><td>Дата проведения опроса</td></tr>
+    <tr><td><code>survey_completed_by</code></td><td>VARCHAR(100)</td><td>NULL</td><td>'manager@utsk.ua'</td><td>Кто провел опрос</td></tr>
+</table>
+<p><strong>🔗 Связи:</strong> <code>status_rules</code> (M:1), <code>activity_directions</code> (M:1), <code>documents</code> (1:M), <code>product_scoring</code> (1:M), <code>website_behavior_log</code> (1:M), <code>manager_rejections_log</code> (1:M), <code>status_change_log</code> (1:M).</p>
+
+<!-- ====================================================================== -->
+<!-- БЛОК 3: ТРАНЗАКЦИИ                                                     -->
+<!-- ====================================================================== -->
+<h2 id="block3">🛒 БЛОК 3: ТРАНЗАКЦИИ (История покупок)</h2>
+
+<!-- 6. documents -->
+<h3 id="tbl6">6. documents — Накладные</h3>
+<p><strong>🎯 Бизнес-задача:</strong> Хранение заголовков сделок для учета частоты покупок.</p>
+<table>
+    <tr><th>Параметр</th><th>Тип данных</th><th>Ограничения</th><th>Пример</th><th>Описание</th></tr>
+    <tr><td><code>id</code></td><td>BIGINT</td><td><span class="badge badge-pk">PRIMARY KEY</span></td><td>2640</td><td>Номер документа из 1С</td></tr>
+    <tr><td><code>client_code</code></td><td>VARCHAR(50)</td><td><span class="badge badge-fk">FK (clients) ON DELETE CASCADE</span></td><td>'36'</td><td>Код клиента</td></tr>
+    <tr><td><code>invoice_date</code></td><td>DATE</td><td><span class="badge badge-required">NOT NULL</span></td><td>2026-04-12</td><td>Дата отгрузки</td></tr>
+    <tr><td><code>total_amount</code></td><td>DECIMAL(15,2)</td><td>DEFAULT 0, CHECK ≥0</td><td>15400.00</td><td>Общая сумма накладной</td></tr>
+    <tr><td><code>created_at</code></td><td>TIMESTAMP</td><td>DEFAULT NOW()</td><td>-</td><td>Дата импорта</td></tr>
+</table>
+<p><strong>🔗 Связи:</strong> <code>clients</code> (M:1), <code>sales_lines</code> (1:M).</p>
+<p><strong>⚙️ Бизнес-логика:</strong> Группирует строки покупок в один факт посещения. Критично для расчета RFM-статуса (частота = количество документов).</p>
+
+<!-- 7. sales_lines -->
+<h3 id="tbl7">7. sales_lines — Строки отгрузок</h3>
+<p><strong>🎯 Бизнес-задача:</strong> Детализация продаж для вычисления профиля потребления.</p>
+<table>
+    <tr><th>Параметр</th><th>Тип данных</th><th>Ограничения</th><th>Пример</th><th>Описание</th></tr>
+    <tr><td><code>id</code></td><td>BIGSERIAL</td><td><span class="badge badge-pk">PRIMARY KEY</span></td><td>15432</td><td>Уникальный ID строки</td></tr>
+    <tr><td><code>document_id</code></td><td>BIGINT</td><td><span class="badge badge-fk">FK (documents) ON DELETE CASCADE</span></td><td>2640</td><td>К какому документу относится</td></tr>
+    <tr><td><code>product_code</code></td><td>VARCHAR(50)</td><td><span class="badge badge-fk">FK (products) ON DELETE RESTRICT</span></td><td>'000014144'</td><td>Что купили</td></tr>
+    <tr><td><code>quantity</code></td><td>DECIMAL(15,3)</td><td><span class="badge badge-required">NOT NULL</span>, CHECK >0</td><td>1.500</td><td>Количество (тонны/шт)</td></tr>
+    <tr><td><code>amount</code></td><td>DECIMAL(15,2)</td><td><span class="badge badge-required">NOT NULL</span>, CHECK ≥0</td><td>10556.00</td><td>Сумма в грн</td></tr>
+    <tr><td><code>recorded_at</code></td><td>TIMESTAMP</td><td>DEFAULT NOW()</td><td>-</td><td>Дата записи</td></tr>
+</table>
+<p><strong>⚙️ Бизнес-логика:</strong> "Голосует" суммой <code>amount</code> за направление деятельности клиента. Побеждает направление с максимальной суммой.</p>
+
+<!-- ====================================================================== -->
+<!-- БЛОК 4: ML, АНАЛИТИКА И ЦИФРОВОЙ СЛЕД                                  -->
+<!-- ====================================================================== -->
+<h2 id="block4">🧠 БЛОК 4: ML, АНАЛИТИКА И ЦИФРОВОЙ СЛЕД</h2>
+
+<!-- 8. product_cross_sells -->
+<h3 id="tbl8">8. product_cross_sells — Сопутствующие товары</h3>
+<p><strong>🎯 Бизнес-задача:</strong> Формирование жестких кросс-ссылок (Труба + Заглушка/Фитинг).</p>
+<table>
+    <tr><th>Параметр</th><th>Тип данных</th><th>Ограничения</th><th>Пример</th><th>Описание</th></tr>
+    <tr><td><code>id</code></td><td>SERIAL</td><td><span class="badge badge-pk">PRIMARY KEY</span></td><td>12</td><td>Уникальный ID связи</td></tr>
+    <tr><td><code>main_product_code</code></td><td>VARCHAR(50)</td><td><span class="badge badge-fk">FK (products) ON DELETE CASCADE</span></td><td>'000014144'</td><td>Основной товар</td></tr>
+    <tr><td><code>related_product_code</code></td><td>VARCHAR(50)</td><td><span class="badge badge-fk">FK (products) ON DELETE CASCADE</span></td><td>'000010035'</td><td>Сопутствующий товар</td></tr>
+    <tr><td><code>relation_type</code></td><td>VARCHAR(50)</td><td>NULL</td><td>'фитинг'</td><td>Тип связи</td></tr>
+</table>
+<p><strong>⚙️ Бизнес-логика:</strong> Используется в <code>v_smart_recommendations</code> для автоматического добавления аксессуаров в КП.</p>
+
+<!-- 9. product_scoring -->
+<h3 id="tbl9">9. product_scoring — ML Самообучение</h3>
+<p><strong>🎯 Бизнес-задача:</strong> Адаптация рекомендаций под конкретного клиента. Система "запоминает", какие товары работают, а какие — нет.</p>
+<table>
+    <tr><th>Параметр</th><th>Тип данных</th><th>Ограничения</th><th>Пример</th><th>Описание</th></tr>
+    <tr><td><code>id</code></td><td>BIGSERIAL</td><td><span class="badge badge-pk">PRIMARY KEY</span></td><td>3421</td><td>Уникальный идентификатор записи</td></tr>
+    <tr><td><code>client_code</code></td><td>VARCHAR(50)</td><td><span class="badge badge-fk">FK (clients) ON DELETE CASCADE</span></td><td>'36'</td><td>Код клиента</td></tr>
+    <tr><td><code>product_code</code></td><td>VARCHAR(50)</td><td><span class="badge badge-fk">FK (products) ON DELETE CASCADE</span></td><td>'000014144'</td><td>Код товара</td></tr>
+    <tr><td><code>base_score</code></td><td>INT</td><td>DEFAULT 10</td><td>10</td><td>Базовый вес при совпадении категории</td></tr>
+    <tr><td><code>positive_reinforcement</code></td><td>INT</td><td>DEFAULT 0</td><td>15</td><td>+5 баллов за каждое добавление менеджером</td></tr>
+    <tr><td><code>negative_reinforcement</code></td><td>INT</td><td>DEFAULT 0</td><td>6</td><td>-3 балла за каждое удаление из КП</td></tr>
+    <tr><td><code>current_weight</code></td><td>INT</td><td>GENERATED ALWAYS</td><td>19</td><td>Итоговый вес = base + pos - neg</td></tr>
+    <tr><td><code>is_blocked</code></td><td>BOOLEAN</td><td>DEFAULT FALSE</td><td>FALSE</td><td>Заблокирован ли показ товара</td></tr>
+    <tr><td><code>blocked_until</code></td><td>DATE</td><td>NULL</td><td>2026-05-20</td><td>Дата автоматической разблокировки</td></tr>
+    <tr><td><code>segment_agro_weight</code></td><td>INT</td><td>DEFAULT 0</td><td>5</td><td>Накопленный вес для сегмента Агро</td></tr>
+    <tr><td><code>segment_build_weight</code></td><td>INT</td><td>DEFAULT 0</td><td>3</td><td>Накопленный вес для сегмента Строй</td></tr>
+    <tr><td><code>created_at</code></td><td>TIMESTAMP</td><td>DEFAULT NOW()</td><td>2026-03-10 11:20</td><td>Дата создания записи</td></tr>
+    <tr><td><code>updated_at</code></td><td>TIMESTAMP</td><td>DEFAULT NOW()</td><td>2026-04-20 16:45</td><td>Дата последнего обновления</td></tr>
+</table>
+<p><strong>🔗 Связи:</strong> <code>clients</code> (M:1), <code>products</code> (M:1).</p>
+<p><strong>⚙️ Бизнес-логика:</strong></p>
+<ul>
+    <li>При добавлении товара в КП менеджером → <code>positive_reinforcement += 5</code></li>
+    <li>При удалении товара из КП → <code>negative_reinforcement += 3</code></li>
+    <li>Если <code>current_weight < 0</code> → <code>is_blocked = TRUE</code> и <code>blocked_until = NOW() + 30 дней</code></li>
+    <li>Триггер <code>trg_penalize_rejection</code> автоматически штрафует при вставке в <code>manager_rejections_log</code></li>
+</ul>
+
+<!-- 10. website_behavior_log -->
+<h3 id="tbl10">10. website_behavior_log — Цифровой след</h3>
+<p><strong>🎯 Бизнес-задача:</strong> Отслеживание интереса клиента на сайте до момента покупки. Менеджер видит: "Клиент вчера 20 минут смотрел категорию Фланцы".</p>
+<table>
+    <tr><th>Параметр</th><th>Тип данных</th><th>Ограничения</th><th>Пример</th><th>Описание</th></tr>
+    <tr><td><code>id</code></td><td>BIGSERIAL</td><td><span class="badge badge-pk">PRIMARY KEY</span></td><td>12543</td><td>Уникальный идентификатор записи</td></tr>
+    <tr><td><code>client_code</code></td><td>VARCHAR(50)</td><td><span class="badge badge-fk">FK (clients) ON DELETE CASCADE</span></td><td>'36'</td><td>Код клиента</td></tr>
+    <tr><td><code>product_category</code></td><td>VARCHAR(100)</td><td>NULL</td><td>'Профильная труба'</td><td>Категория просмотра</td></tr>
+    <tr><td><code>product_code</code></td><td>VARCHAR(50)</td><td><span class="badge badge-fk">FK (products) ON DELETE SET NULL</span></td><td>'000014144'</td><td>Конкретный просмотренный товар</td></tr>
+    <tr><td><code>action_type</code></td><td>VARCHAR(50)</td><td>NULL</td><td>'view'</td><td>Тип действия (view/add_to_cart/search)</td></tr>
+    <tr><td><code>timestamp</code></td><td>TIMESTAMP</td><td>DEFAULT NOW()</td><td>2026-04-22 14:23:00</td><td>Время события</td></tr>
+</table>
+<p><strong>🔗 Связи:</strong> <code>clients</code> (M:1), <code>products</code> (M:1, SET NULL).</p>
+<p><strong>⚙️ Бизнес-логика:</strong></p>
+<ul>
+    <li>Используется в <code>v_smart_recommendations</code> с пометкой "Вы недавно интересовались" (приоритет 4)</li>
+    <li>Данные старше 7 дней не учитываются в рекомендациях</li>
+    <li>Индекс <code>idx_website_behavior_client</code> оптимизирует выборку по клиенту и дате</li>
+</ul>
+
+<!-- 11. manager_rejections_log -->
+<h3 id="tbl11">11. manager_rejections_log — Отказы менеджеров</h3>
+<p><strong>🎯 Бизнес-задача:</strong> Сбор обратной связи о работе AI для самообучения. "Кладбище идей" — товары, которые система предложила, но менеджер счел нерелевантными.</p>
+<table>
+    <tr><th>Параметр</th><th>Тип данных</th><th>Ограничения</th><th>Пример</th><th>Описание</th></tr>
+    <tr><td><code>id</code></td><td>BIGSERIAL</td><td><span class="badge badge-pk">PRIMARY KEY</span></td><td>543</td><td>Уникальный идентификатор записи</td></tr>
+    <tr><td><code>client_code</code></td><td>VARCHAR(50)</td><td><span class="badge badge-fk">FK (clients) ON DELETE CASCADE</span></td><td>'36'</td><td>Код клиента</td></tr>
+    <tr><td><code>product_code</code></td><td>VARCHAR(50)</td><td><span class="badge badge-fk">FK (products) ON DELETE CASCADE</span></td><td>'000014144'</td><td>Отвергнутый товар</td></tr>
+    <tr><td><code>manager_login</code></td><td>VARCHAR(100)</td><td>NULL</td><td>'ivanov@utsk.ua'</td><td>Логин менеджера, отклонившего товар</td></tr>
+    <tr><td><code>reject_reason</code></td><td>TEXT</td><td>NULL</td><td>'У клиента уже есть аналог'</td><td>Причина отказа (для аналитики)</td></tr>
+    <tr><td><code>document_id</code></td><td>BIGINT</td><td><span class="badge badge-fk">FK (documents) ON DELETE SET NULL</span></td><td>2640</td><td>В каком документе был удален товар</td></tr>
+    <tr><td><code>rejected_at</code></td><td>TIMESTAMP</td><td>DEFAULT NOW()</td><td>2026-04-22 15:10:00</td><td>Время отказа</td></tr>
+</table>
+<p><strong>🔗 Связи:</strong> <code>clients</code> (M:1), <code>products</code> (M:1), <code>documents</code> (M:1, SET NULL).</p>
+<p><strong>⚙️ Бизнес-логика:</strong></p>
+<ul>
+    <li>При вставке записи триггер <code>trg_penalize_rejection</code> автоматически штрафует товар в <code>product_scoring</code> на -3 балла</li>
+    <li>Используется в <code>v_smart_recommendations_v2</code> для исключения отвергнутых товаров (за последние 30 дней)</li>
+    <li>Частичный индекс <code>idx_rejections_recent</code> ускоряет фильтрацию</li>
+</ul>
+
+<!-- 12. production_lead_times -->
+<h3 id="tbl12">12. production_lead_times — Сроки производства и логистики</h3>
+<p><strong>🎯 Бизнес-задача:</strong> Расчет сроков поставки нестандартных позиций. Позволяет менеджеру и клиенту видеть реальные сроки изготовления или доставки товара.</p>
+<table>
+    <tr><th>Параметр</th><th>Тип данных</th><th>Ограничения</th><th>Пример</th><th>Описание</th></tr>
+    <tr><td><code>id</code></td><td>SERIAL</td><td><span class="badge badge-pk">PRIMARY KEY</span></td><td>87</td><td>Уникальный идентификатор записи</td></tr>
+    <tr><td><code>product_code</code></td><td>VARCHAR(50)</td><td><span class="badge badge-fk">FK (products) ON DELETE CASCADE</span></td><td>'000014144'</td><td>Код товара</td></tr>
+    <tr><td><code>from_blank_days</code></td><td>INT</td><td>NULL</td><td>3</td><td>Дней на перекат из круглой трубы в профильную</td></tr>
+    <tr><td><code>from_sheet_days</code></td><td>INT</td><td>NULL</td><td>7</td><td>Дней на изготовление сварной трубы из листа</td></tr>
+    <tr><td><code>transit_days</code></td><td>INT</td><td>NULL</td><td>14</td><td>Дней на доставку от завода-изготовителя</td></tr>
+    <tr><td><code>alternative_blank_code</code></td><td>VARCHAR(50)</td><td><span class="badge badge-fk">FK (products) ON DELETE SET NULL</span></td><td>'000010035'</td><td>Альтернативная заготовка</td></tr>
+    <tr><td><code>created_at</code></td><td>TIMESTAMP</td><td>DEFAULT NOW()</td><td>2026-01-10 09:00</td><td>Дата создания записи</td></tr>
+    <tr><td><code>updated_at</code></td><td>TIMESTAMP</td><td>DEFAULT NOW()</td><td>2026-04-15 11:30</td><td>Дата последнего обновления</td></tr>
+</table>
+<p><strong>🔗 Связи:</strong> <code>products</code> (основной, M:1), <code>products</code> (альтернативный, M:1, SET NULL).</p>
+<p><strong>⚙️ Бизнес-логика (калькулятор сроков):</strong></p>
+<ol>
+    <li>Если <code>in_stock_balance > 0</code> → «На складе. Готово к отгрузке»</li>
+    <li>Если есть <code>from_blank_days</code> и заготовка в наличии → «Производство из заготовки: X дней»</li>
+    <li>Если есть <code>from_sheet_days</code> → «Собственное производство: Y дней»</li>
+    <li>Иначе → «Транзит: Z дней»</li>
+</ol>
+
+<!-- 13. ab_tests -->
+<h3 id="tbl13">13. ab_tests — A/B тестирование маркетинговых материалов</h3>
+<p><strong>🎯 Бизнес-задача:</strong> Тестирование эффективности визуальных элементов и офферов на сайте. Автоматический выбор лучшего варианта на основе конверсии (ТЗ п. 2.5).</p>
+<table>
+    <tr><th>Параметр</th><th>Тип данных</th><th>Ограничения</th><th>Пример</th><th>Описание</th></tr>
+    <tr><td><code>id</code></td><td>SERIAL</td><td><span class="badge badge-pk">PRIMARY KEY</span></td><td>5</td><td>Уникальный идентификатор теста</td></tr>
+    <tr><td><code>test_name</code></td><td>VARCHAR(100)</td><td>NOT NULL</td><td>'guest_banner_q2_2026'</td><td>Название теста</td></tr>
+    <tr><td><code>variant</code></td><td>CHAR(1)</td><td>CHECK IN ('A','B','C')</td><td>'B'</td><td>Вариант теста</td></tr>
+    <tr><td><code>content</code></td><td>JSONB</td><td>NOT NULL</td><td>{"title":"Профиль для агро","image":"agro.jpg"}</td><td>Содержимое варианта</td></tr>
+    <tr><td><code>impressions</code></td><td>INT</td><td>DEFAULT 0, CHECK ≥0</td><td>3420</td><td>Количество показов</td></tr>
+    <tr><td><code>clicks</code></td><td>INT</td><td>DEFAULT 0, CHECK ≥0</td><td>684</td><td>Количество кликов</td></tr>
+    <tr><td><code>add_to_cart</code></td><td>INT</td><td>DEFAULT 0, CHECK ≥0</td><td>82</td><td>Добавлений в корзину</td></tr>
+    <tr><td><code>ctr</code></td><td>DECIMAL(5,2)</td><td>GENERATED ALWAYS</td><td>20.00</td><td>CTR = clicks / impressions × 100%</td></tr>
+    <tr><td><code>conversion_rate</code></td><td>DECIMAL(5,2)</td><td>GENERATED ALWAYS</td><td>2.40</td><td>CR = add_to_cart / impressions × 100%</td></tr>
+    <tr><td><code>is_active</code></td><td>BOOLEAN</td><td>DEFAULT TRUE</td><td>TRUE</td><td>Активен ли тест</td></tr>
+    <tr><td><code>start_date</code></td><td>DATE</td><td>DEFAULT CURRENT_DATE</td><td>2026-04-01</td><td>Дата начала теста</td></tr>
+    <tr><td><code>end_date</code></td><td>DATE</td><td>NULL</td><td>2026-04-30</td><td>Дата окончания (NULL = бессрочно)</td></tr>
+    <tr><td><code>created_at</code></td><td>TIMESTAMP</td><td>DEFAULT NOW()</td><td>2026-04-01 00:00</td><td>Дата создания</td></tr>
+    <tr><td><code>updated_at</code></td><td>TIMESTAMP</td><td>DEFAULT NOW()</td><td>2026-04-22 10:15</td><td>Дата обновления</td></tr>
+</table>
+<p><strong>⚙️ Бизнес-логика:</strong></p>
+<ul>
+    <li>Система автоматически отдаёт приоритет показу варианта с лучшей конверсией</li>
+    <li>Для гостей сайта случайно выбирается один из активных вариантов</li>
+    <li>Каждую неделю анализируется <code>conversion_rate</code> и перераспределяется трафик</li>
+    <li>Используется для динамической витрины на сайте</li>
+</ul>
+
+<!-- 14. status_change_log -->
+<h3 id="tbl14">14. status_change_log — Аудит изменений статусов клиентов</h3>
+<p><strong>🎯 Бизнес-задача:</strong> Хранение полной истории "падений" и "взлетов" клиента. Обеспечивает прозрачность работы алгоритмов и соответствует ТЗ (п. 3.3 «Логирование»).</p>
+<table>
+    <tr><th>Параметр</th><th>Тип данных</th><th>Ограничения</th><th>Пример</th><th>Описание</th></tr>
+    <tr><td><code>id</code></td><td>BIGSERIAL</td><td><span class="badge badge-pk">PRIMARY KEY</span></td><td>2341</td><td>Уникальный идентификатор записи</td></tr>
+    <tr><td><code>client_code</code></td><td>VARCHAR(50)</td><td><span class="badge badge-fk">FK (clients) ON DELETE CASCADE</span></td><td>'36'</td><td>Код клиента</td></tr>
+    <tr><td><code>old_status_id</code></td><td>INT</td><td><span class="badge badge-fk">FK (status_rules) ON DELETE SET NULL</span></td><td>1</td><td>Предыдущий статус</td></tr>
+    <tr><td><code>new_status_id</code></td><td>INT</td><td><span class="badge badge-fk">FK (status_rules) ON DELETE SET NULL</span></td><td>4</td><td>Новый статус</td></tr>
+    <tr><td><code>changed_by</code></td><td>VARCHAR(50)</td><td>NOT NULL</td><td>'SYSTEM'</td><td>Кто инициировал изменение (SYSTEM или логин)</td></tr>
+    <tr><td><code>change_reason</code></td><td>TEXT</td><td>NULL</td><td>'Автоматический пересчет RFM'</td><td>Причина изменения</td></tr>
+    <tr><td><code>documents_count_current_year</code></td><td>INT</td><td>NULL</td><td>15</td><td>Кол-во накладных в текущем году на момент изменения</td></tr>
+    <tr><td><code>documents_count_prev_year</code></td><td>INT</td><td>NULL</td><td>8</td><td>Кол-во накладных в прошлом году на момент изменения</td></tr>
+    <tr><td><code>changed_at</code></td><td>TIMESTAMP</td><td>DEFAULT NOW()</td><td>2026-04-22 00:05:00</td><td>Время изменения</td></tr>
+</table>
+<p><strong>🔗 Связи:</strong> <code>clients</code> (M:1), <code>status_rules</code> (old, M:1), <code>status_rules</code> (new, M:1).</p>
+<p><strong>⚙️ Бизнес-логика:</strong></p>
+<ul>
+    <li>Автоматически заполняется триггером <code>trg_log_status_change</code> при ЛЮБОМ изменении <code>clients.current_status_id</code></li>
+    <li>Позволяет отследить полный путь клиента: Новый → Повторный → Ежемесячный → Спящий → Проснувшийся</li>
+    <li>Соответствует требованию ТЗ: «Вести журнал автоматических изменений статусов (кто/когда/какой алгоритм изменил статус)»</li>
+</ul>
+<div class="sql-example">
+<code>-- Пример запроса для аудита истории клиента<br>
+SELECT<br>
+&nbsp;&nbsp;&nbsp;&nbsp;c.name,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;old_sr.status_name AS old_status,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;new_sr.status_name AS new_status,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;scl.changed_by,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;scl.changed_at<br>
+FROM status_change_log scl<br>
+JOIN clients c ON scl.client_code = c.code<br>
+LEFT JOIN status_rules old_sr ON scl.old_status_id = old_sr.id<br>
+LEFT JOIN status_rules new_sr ON scl.new_status_id = new_sr.id<br>
+WHERE scl.client_code = '36'<br>
+ORDER BY scl.changed_at DESC;</code>
+</div>
+
+<!-- ====================================================================== -->
+<!-- БЛОК 5: ВИРТУАЛЬНЫЕ ОБЪЕКТЫ (VIEWS)                                      -->
+<!-- ====================================================================== -->
+<h2 id="block5">🔮 БЛОК 5: ВИРТУАЛЬНЫЕ ОБЪЕКТЫ (VIEWS)</h2>
+
+<!-- 15. v_smart_recommendations -->
+<h3 id="view15">15. v_smart_recommendations / v_smart_recommendations_v2 — Движок Рекомендаций</h3>
+<p><span class="badge badge-view">VIEW</span> <strong>🎯 Бизнес-задача:</strong> Генерация персональных коммерческих предложений для каждого клиента. Соответствует ТЗ п. 2.3 «Генерация коммерческих предложений».</p>
+
+<h4>📥 Источники данных и приоритеты:</h4>
+<table>
+    <tr><th>Приоритет</th><th>Источник</th><th>Таблицы</th><th>Метка в КП</th><th>Логика</th></tr>
+    <tr><td>1</td><td>История покупок</td><td>sales_lines, documents</td><td>«Часто покупаете»</td><td>Товары, которые клиент покупал 2+ раза</td></tr>
+    <tr><td>2</td><td>Новинки по направлению</td><td>products, clients</td><td>«Новинка в вашем сегменте»</td><td>Новые товары из направления клиента</td></tr>
+    <tr><td>3</td><td>Сопутствующие товары</td><td>product_cross_sells</td><td>«С этим обычно берут»</td><td>Жесткие кросс-ссылки</td></tr>
+    <tr><td>4</td><td>Цифровой след</td><td>website_behavior_log</td><td>«Вы недавно интересовались»</td><td>Товары/категории, просмотренные за 7 дней</td></tr>
+</table>
+
+<h4>⚙️ Алгоритм работы:</h4>
+<ol>
+    <li>Объединяет данные из всех 4 источников</li>
+    <li>Фильтрует товары по <code>in_stock_balance > 0</code> (только в наличии)</li>
+    <li>Исключает товары из <code>manager_rejections_log</code> (отвергнутые за последние 30 дней)</li>
+    <li>Исключает товары с <code>is_blocked = TRUE</code> в <code>product_scoring</code></li>
+    <li>Сортирует по приоритету источника, затем по весу в <code>product_scoring.current_weight</code></li>
+    <li>Возвращает <strong>не более 5 товаров</strong> (соответствует ТЗ п. 2.3)</li>
+</ol>
+
+<h4>📋 Пример результата для клиента:</h4>
+<div class="note">
+<strong>Клиент: АВ Металл групп (Строительство)</strong><br>
+1. [История] Труба проф. 100х70х6 ст09Г2С — вы покупали 3 раза<br>
+2. [Новинка] GB/T 8162:2018 102х10 ст20 — новое поступление<br>
+3. [Сопутка] Заглушка 100х70 — к профильной трубе<br>
+4. [Интерес] Труба ВГП 50х3.5 — вы смотрели вчера<br>
+5. [История] Порізка труб — услуга, которой вы пользовались
+</div>
+
+<!-- 16. v_manager_dashboard -->
+<h3 id="view16">16. v_manager_dashboard — Рабочий стол менеджера</h3>
+<p><span class="badge badge-view">VIEW</span> <strong>🎯 Бизнес-задача:</strong> Единая витрина данных для оперативной работы менеджера. Соответствует ТЗ п. 2.4 «CRM Менеджера: В карточке клиента отображается текущий статус и список товаров».</p>
+
+<h4>📥 Источники данных:</h4>
+<table>
+    <tr><th>Таблица</th><th>Поля</th><th>Назначение</th></tr>
+    <tr><td>clients</td><td>code, name, client_type, first_purchase_date, last_purchase_date, requires_survey, survey_completed_at</td><td>Основные данные клиента</td></tr>
+    <tr><td>status_rules</td><td>status_name, priority</td><td>Текущий статус</td></tr>
+    <tr><td>activity_directions</td><td>name (as direction)</td><td>Определенное направление</td></tr>
+    <tr><td>documents (подзапрос)</td><td>COUNT(*), SUM(total_amount)</td><td>Общее количество документов и выручка</td></tr>
+</table>
+
+<h4>📋 Поля представления:</h4>
+<table>
+    <tr><th>Поле</th><th>Тип</th><th>Описание</th></tr>
+    <tr><td><code>code</code></td><td>VARCHAR(50)</td><td>Код клиента</td></tr>
+    <tr><td><code>name</code></td><td>VARCHAR(255)</td><td>Название компании</td></tr>
+    <tr><td><code>client_type</code></td><td>VARCHAR(50)</td><td>Тип клиента (Трейдер/Конечник)</td></tr>
+    <tr><td><code>current_status</code></td><td>VARCHAR(50)</td><td>Название текущего статуса</td></tr>
+    <tr><td><code>first_purchase_date</code></td><td>DATE</td><td>Дата первой покупки</td></tr>
+    <tr><td><code>last_purchase_date</code></td><td>DATE</td><td>Дата последней покупки</td></tr>
+    <tr><td><code>days_since_last</code></td><td>INT</td><td>Дней с последней покупки</td></tr>
+    <tr><td><code>activity_direction</code></td><td>VARCHAR(100)</td><td>Определенное направление</td></tr>
+    <tr><td><code>direction_confidence</code></td><td>DECIMAL(5,2)</td><td>Уверенность алгоритма (%)</td></tr>
+    <tr><td><code>requires_survey</code></td><td>BOOLEAN</td><td>Требуется ли опрос</td></tr>
+    <tr><td><code>survey_completed_at</code></td><td>TIMESTAMP</td><td>Когда проведен опрос</td></tr>
+    <tr><td><code>total_docs</code></td><td>BIGINT</td><td>Всего документов</td></tr>
+    <tr><td><code>docs_current_year</code></td><td>BIGINT</td><td>Документов в текущем году</td></tr>
+    <tr><td><code>total_revenue</code></td><td>DECIMAL</td><td>Общая выручка</td></tr>
+</table>
+
+<h4>⚙️ Сортировка по умолчанию:</h4>
+<ol>
+    <li>Сначала клиенты, требующие опроса (<code>requires_survey = TRUE</code>)</li>
+    <li>Затем по приоритету статуса (<code>status_rules.priority</code> — чем меньше, тем важнее)</li>
+    <li>Затем по дате последней покупки (сначала недавние)</li>
+</ol>
+
+<div class="sql-example">
+<code>-- Показать клиентов, с которыми нужно работать сегодня<br>
+SELECT code, name, current_status, days_since_last, requires_survey<br>
+FROM v_manager_dashboard<br>
+WHERE requires_survey = TRUE <br>
+&nbsp;&nbsp;&nbsp;OR days_since_last > 90<br>
+&nbsp;&nbsp;&nbsp;OR current_status IN ('Спящие', 'Ушедшие')<br>
+ORDER BY requires_survey DESC, days_since_last DESC;</code>
+</div>
+
+<!-- ====================================================================== -->
+<!-- ER-ДИАГРАММА СВЯЗЕЙ                                                    -->
+<!-- ====================================================================== -->
+<h2 id="er">📊 СВОДНАЯ СХЕМА СВЯЗЕЙ БАЗЫ ДАННЫХ (ER-ДИАГРАММА)</h2>
+<p>На схеме показаны все 14 таблиц и 21 связь между ними. Каждый блок — отдельная таблица. Стрелки показывают направление связи FOREIGN KEY (от дочерней таблицы к родительской).</p>
+
+<style>
+    .er-diagram {
+        background: linear-gradient(135deg, #f8f9fc 0%, #eef2f7 100%);
+        padding: 40px 30px;
+        border-radius: 20px;
+        margin: 30px 0;
+        box-shadow: inset 0 2px 10px rgba(0,0,0,0.03), 0 5px 20px rgba(0,0,0,0.08);
+    }
+    
+    .er-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+    }
+    
+    .er-level {
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+        flex-wrap: wrap;
+        position: relative;
+    }
+    
+    .er-level-top {
+        justify-content: center;
+    }
+    
+    .er-level-middle {
+        justify-content: space-around;
+        margin-top: 20px;
+        position: relative;
+    }
+    
+    .er-level-bottom {
+        justify-content: center;
+        gap: 25px;
+        margin-top: 30px;
+        flex-wrap: wrap;
+    }
+    
+    .er-table {
+        background: white;
+        border-radius: 14px;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.05);
+        padding: 18px 22px;
+        min-width: 200px;
+        max-width: 260px;
+        border-left: 5px solid;
+        transition: transform 0.2s, box-shadow 0.2s;
+        position: relative;
+    }
+    
+    .er-table:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 28px rgba(0,0,0,0.12);
+    }
+    
+    .er-table.reference {
+        border-left-color: #ffd700;
+        background: linear-gradient(135deg, #fffdf5 0%, #fff9e6 100%);
+    }
+    
+    .er-table.entity {
+        border-left-color: #4caf50;
+        background: linear-gradient(135deg, #f5fff5 0%, #e8f5e9 100%);
+    }
+    
+    .er-table.transaction {
+        border-left-color: #e94560;
+        background: linear-gradient(135deg, #fff5f7 0%, #ffe8ec 100%);
+    }
+    
+    .er-table.analytics {
+        border-left-color: #9c27b0;
+        background: linear-gradient(135deg, #fdf5ff 0%, #f3e5f5 100%);
+    }
+    
+    .er-table.audit {
+        border-left-color: #ff9800;
+        background: linear-gradient(135deg, #fff8f0 0%, #fff3e0 100%);
+    }
+    
+    .er-table-header {
+        font-weight: 700;
+        font-size: 17px;
+        margin-bottom: 12px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid rgba(0,0,0,0.08);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .er-table-header .badge-icon {
+        font-size: 20px;
+    }
+    
+    .er-table-content {
+        font-size: 13.5px;
+        line-height: 1.7;
+        color: #333;
+    }
+    
+    .er-table-content p {
+        margin: 5px 0;
+    }
+    
+    .pk-badge {
+        display: inline-block;
+        background: #ffd700;
+        color: #1a1a2e;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 700;
+        margin-right: 6px;
+    }
+    
+    .fk-badge {
+        display: inline-block;
+        background: #2196f3;
+        color: white;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 700;
+        margin-right: 6px;
+    }
+    
+    .connection-lines {
+        position: relative;
+        margin: 5px 0;
+    }
+    
+    .arrow-down {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 60px;
+        margin: 5px 0;
+    }
+    
+    .arrow-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        color: #2196f3;
+        font-size: 13px;
+        font-weight: 500;
+    }
+    
+    .arrow-symbol {
+        font-size: 28px;
+        line-height: 1;
+        color: #2196f3;
+    }
+    
+    .arrow-label {
+        background: #e3f2fd;
+        padding: 4px 12px;
+        border-radius: 20px;
+        margin-top: 5px;
+        color: #1565c0;
+        font-size: 12px;
+    }
+    
+    .horizontal-connections {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        flex-wrap: wrap;
+        margin: 15px 0 5px;
+        padding: 10px;
+        background: rgba(33, 150, 243, 0.05);
+        border-radius: 30px;
+    }
+    
+    .connection-tag {
+        background: white;
+        border: 1.5px dashed #2196f3;
+        border-radius: 25px;
+        padding: 8px 18px;
+        font-size: 13px;
+        color: #1565c0;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    }
+    
+    .connection-tag strong {
+        color: #0d47a1;
+    }
+    
+    .er-legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 25px;
+        justify-content: center;
+        margin-top: 40px;
+        padding-top: 25px;
+        border-top: 2px solid #dee2e6;
+    }
+    
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 14px;
+    }
+    
+    .legend-color {
+        width: 20px;
+        height: 20px;
+        border-radius: 6px;
+    }
+    
+    .legend-color.reference { background: linear-gradient(135deg, #fff9e6 0%, #ffd700 100%); border-left: 4px solid #ffd700; }
+    .legend-color.entity { background: linear-gradient(135deg, #e8f5e9 0%, #4caf50 100%); border-left: 4px solid #4caf50; }
+    .legend-color.transaction { background: linear-gradient(135deg, #ffe8ec 0%, #e94560 100%); border-left: 4px solid #e94560; }
+    .legend-color.analytics { background: linear-gradient(135deg, #f3e5f5 0%, #9c27b0 100%); border-left: 4px solid #9c27b0; }
+    .legend-color.audit { background: linear-gradient(135deg, #fff3e0 0%, #ff9800 100%); border-left: 4px solid #ff9800; }
+</style>
+
+<div class="er-diagram">
+    <div class="er-grid">
+        
+        <!-- ===== УРОВЕНЬ 1: СПРАВОЧНИКИ ===== -->
+        <div class="er-level er-level-top">
+            <!-- activity_directions -->
+            <div class="er-table reference">
+                <div class="er-table-header">
+                    <span class="badge-icon">🗂️</span> activity_directions
+                </div>
+                <div class="er-table-content">
+                    <p><span class="pk-badge">PK</span> <code>id</code> — уникальный ID</p>
+                    <p><code>name</code> — название направления</p>
+                    <p><code>description</code> — описание</p>
+                    <p style="margin-top: 8px; color: #666; font-style: italic;">Направления: Агро, Строй, ЖКХ, Трейдер и др.</p>
+                </div>
+            </div>
+            
+            <!-- status_rules -->
+            <div class="er-table reference">
+                <div class="er-table-header">
+                    <span class="badge-icon">📋</span> status_rules
+                </div>
+                <div class="er-table-content">
+                    <p><span class="pk-badge">PK</span> <code>id</code> — уникальный ID</p>
+                    <p><code>status_name</code> — название статуса</p>
+                    <p><code>priority</code> — приоритет проверки</p>
+                    <p style="margin-top: 8px; color: #666; font-style: italic;">Новые, Повторные, Ежемесячные, Спящие...</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Стрелки от справочников к сущностям -->
+        <div class="arrow-down">
+            <div class="arrow-item">
+                <span class="arrow-symbol">⬇</span>
+                <span class="arrow-label">FK: anchor_direction_id</span>
+            </div>
+            <div class="arrow-item">
+                <span class="arrow-symbol">⬇</span>
+                <span class="arrow-label">FK: current_status_id</span>
+            </div>
+            <div class="arrow-item">
+                <span class="arrow-symbol">⬇</span>
+                <span class="arrow-label">FK: activity_direction_id</span>
+            </div>
+        </div>
+        
+        <!-- ===== УРОВЕНЬ 2: ОСНОВНЫЕ СУЩНОСТИ ===== -->
+        <div class="er-level er-level-middle">
+            <!-- products -->
+            <div class="er-table entity">
+                <div class="er-table-header">
+                    <span class="badge-icon">📦</span> products
+                </div>
+                <div class="er-table-content">
+                    <p><span class="pk-badge">PK</span> <code>code</code> — код из 1С</p>
+                    <p><span class="fk-badge">FK</span> <code>anchor_direction_id</code> → activity_directions</p>
+                    <p><code>name</code> — эталонное название</p>
+                    <p><code>material_grade</code> — марка стали</p>
+                    <p><code>in_stock_balance</code> — остаток</p>
+                </div>
+            </div>
+            
+            <!-- clients -->
+            <div class="er-table entity">
+                <div class="er-table-header">
+                    <span class="badge-icon">👤</span> clients
+                </div>
+                <div class="er-table-content">
+                    <p><span class="pk-badge">PK</span> <code>code</code> — код из 1С</p>
+                    <p><span class="fk-badge">FK</span> <code>current_status_id</code> → status_rules</p>
+                    <p><span class="fk-badge">FK</span> <code>activity_direction_id</code> → activity_directions</p>
+                    <p><code>name</code> — название компании</p>
+                    <p><code>last_purchase_date</code> — для RFM</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Стрелки от сущностей к транзакциям и аналитике -->
+        <div class="arrow-down">
+            <div class="arrow-item">
+                <span class="arrow-symbol">⬇</span>
+                <span class="arrow-label">FK: product_code</span>
+            </div>
+            <div class="arrow-item">
+                <span class="arrow-symbol">⬇</span>
+                <span class="arrow-label">FK: client_code</span>
+            </div>
+            <div class="arrow-item">
+                <span class="arrow-symbol">⬇</span>
+                <span class="arrow-label">FK: product_code</span>
+            </div>
+            <div class="arrow-item">
+                <span class="arrow-symbol">⬇</span>
+                <span class="arrow-label">FK: client_code</span>
+            </div>
+        </div>
+        
+        <!-- ===== УРОВЕНЬ 3: ТРАНЗАКЦИИ ===== -->
+        <div class="er-level er-level-bottom">
+            <!-- documents -->
+            <div class="er-table transaction">
+                <div class="er-table-header">
+                    <span class="badge-icon">📄</span> documents
+                </div>
+                <div class="er-table-content">
+                    <p><span class="pk-badge">PK</span> <code>id</code> — номер документа</p>
+                    <p><span class="fk-badge">FK</span> <code>client_code</code> → clients</p>
+                    <p><code>invoice_date</code> — дата отгрузки</p>
+                    <p><code>total_amount</code> — сумма накладной</p>
+                </div>
+            </div>
+            
+            <!-- sales_lines -->
+            <div class="er-table transaction">
+                <div class="er-table-header">
+                    <span class="badge-icon">🛒</span> sales_lines
+                </div>
+                <div class="er-table-content">
+                    <p><span class="pk-badge">PK</span> <code>id</code> — уникальный ID</p>
+                    <p><span class="fk-badge">FK</span> <code>document_id</code> → documents</p>
+                    <p><span class="fk-badge">FK</span> <code>product_code</code> → products</p>
+                    <p><code>quantity</code> — количество</p>
+                    <p><code>amount</code> — сумма (голосует за направление!)</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Горизонтальные связи между транзакциями -->
+        <div class="horizontal-connections">
+            <span class="connection-tag"><strong>documents</strong> (1) ──▶ (M) <strong>sales_lines</strong> по document_id</span>
+        </div>
+        
+        <!-- Стрелки к аналитике -->
+        <div class="arrow-down">
+            <div class="arrow-item">
+                <span class="arrow-symbol">⬇</span>
+                <span class="arrow-label">FK: client_code & product_code</span>
+            </div>
+            <div class="arrow-item">
+                <span class="arrow-symbol">⬇</span>
+                <span class="arrow-label">FK: client_code</span>
+            </div>
+            <div class="arrow-item">
+                <span class="arrow-symbol">⬇</span>
+                <span class="arrow-label">FK: product_code</span>
+            </div>
+        </div>
+        
+        <!-- ===== УРОВЕНЬ 4: ML, АНАЛИТИКА, АУДИТ ===== -->
+        <div class="er-level er-level-bottom">
+            <!-- product_scoring -->
+            <div class="er-table analytics">
+                <div class="er-table-header">
+                    <span class="badge-icon">🤖</span> product_scoring
+                </div>
+                <div class="er-table-content">
+                    <p><span class="pk-badge">PK</span> <code>id</code></p>
+                    <p><span class="fk-badge">FK</span> <code>client_code</code> → clients</p>
+                    <p><span class="fk-badge">FK</span> <code>product_code</code> → products</p>
+                    <p><code>current_weight</code> — вес (base + pos - neg)</p>
+                    <p style="color: #7b1fa2;">+5 за добавление, -3 за удаление</p>
+                </div>
+            </div>
+            
+            <!-- product_cross_sells -->
+            <div class="er-table analytics">
+                <div class="er-table-header">
+                    <span class="badge-icon">🔗</span> product_cross_sells
+                </div>
+                <div class="er-table-content">
+                    <p><span class="pk-badge">PK</span> <code>id</code></p>
+                    <p><span class="fk-badge">FK</span> <code>main_product_code</code> → products</p>
+                    <p><span class="fk-badge">FK</span> <code>related_product_code</code> → products</p>
+                    <p><code>relation_type</code> — тип связи</p>
+                    <p style="color: #7b1fa2;">Труба → Фитинг/Заглушка</p>
+                </div>
+            </div>
+            
+            <!-- website_behavior_log -->
+            <div class="er-table analytics">
+                <div class="er-table-header">
+                    <span class="badge-icon">👣</span> website_behavior_log
+                </div>
+                <div class="er-table-content">
+                    <p><span class="pk-badge">PK</span> <code>id</code></p>
+                    <p><span class="fk-badge">FK</span> <code>client_code</code> → clients</p>
+                    <p><span class="fk-badge">FK</span> <code>product_code</code> → products (NULL)</p>
+                    <p><code>product_category</code> — категория</p>
+                    <p style="color: #7b1fa2;">Цифровой след на сайте</p>
+                </div>
+            </div>
+            
+            <!-- manager_rejections_log -->
+            <div class="er-table analytics">
+                <div class="er-table-header">
+                    <span class="badge-icon">❌</span> manager_rejections_log
+                </div>
+                <div class="er-table-content">
+                    <p><span class="pk-badge">PK</span> <code>id</code></p>
+                    <p><span class="fk-badge">FK</span> <code>client_code</code> → clients</p>
+                    <p><span class="fk-badge">FK</span> <code>product_code</code> → products</p>
+                    <p><span class="fk-badge">FK</span> <code>document_id</code> → documents</p>
+                    <p style="color: #7b1fa2;">Товары, удалённые менеджером</p>
+                </div>
+            </div>
+            
+            <!-- production_lead_times -->
+            <div class="er-table analytics">
+                <div class="er-table-header">
+                    <span class="badge-icon">⏱️</span> production_lead_times
+                </div>
+                <div class="er-table-content">
+                    <p><span class="pk-badge">PK</span> <code>id</code></p>
+                    <p><span class="fk-badge">FK</span> <code>product_code</code> → products</p>
+                    <p><span class="fk-badge">FK</span> <code>alternative_blank_code</code> → products</p>
+                    <p><code>from_blank_days</code> — дней из заготовки</p>
+                    <p><code>transit_days</code> — дней транзита</p>
+                </div>
+            </div>
+            
+            <!-- ab_tests -->
+            <div class="er-table analytics">
+                <div class="er-table-header">
+                    <span class="badge-icon">🧪</span> ab_tests
+                </div>
+                <div class="er-table-content">
+                    <p><span class="pk-badge">PK</span> <code>id</code></p>
+                    <p><code>test_name</code> — название теста</p>
+                    <p><code>variant</code> — A/B/C</p>
+                    <p><code>ctr</code> — кликабельность %</p>
+                    <p><code>conversion_rate</code> — конверсия %</p>
+                    <p style="color: #7b1fa2;">A/B тесты баннеров на сайте</p>
+                </div>
+            </div>
+            
+            <!-- status_change_log -->
+            <div class="er-table audit">
+                <div class="er-table-header">
+                    <span class="badge-icon">📝</span> status_change_log
+                </div>
+                <div class="er-table-content">
+                    <p><span class="pk-badge">PK</span> <code>id</code></p>
+                    <p><span class="fk-badge">FK</span> <code>client_code</code> → clients</p>
+                    <p><span class="fk-badge">FK</span> <code>old_status_id</code> → status_rules</p>
+                    <p><span class="fk-badge">FK</span> <code>new_status_id</code> → status_rules</p>
+                    <p><code>changed_by</code> — SYSTEM/менеджер</p>
+                    <p style="color: #e65100;">Аудит изменений статусов</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Горизонтальные связи аналитики -->
+        <div class="horizontal-connections">
+            <span class="connection-tag"><strong>product_scoring</strong> связывает clients и products с весом</span>
+            <span class="connection-tag"><strong>product_cross_sells</strong> — две ссылки на products</span>
+            <span class="connection-tag"><strong>manager_rejections_log</strong> → триггер штрафа в product_scoring</span>
+        </div>
+        
+        <!-- Легенда -->
+        <div class="er-legend">
+            <div class="legend-item"><div class="legend-color reference"></div> Справочники (Словари системы)</div>
+            <div class="legend-item"><div class="legend-color entity"></div> Основные сущности (Данные из 1С)</div>
+            <div class="legend-item"><div class="legend-color transaction"></div> Транзакции (История покупок)</div>
+            <div class="legend-item"><div class="legend-color analytics"></div> ML и Аналитика (Самообучение)</div>
+            <div class="legend-item"><div class="legend-color audit"></div> Аудит и логирование</div>
+            <div class="legend-item"><span class="pk-badge" style="margin:0 5px 0 0;">PK</span> Первичный ключ</div>
+            <div class="legend-item"><span class="fk-badge" style="margin:0 5px 0 0;">FK</span> Внешний ключ</div>
+        </div>
+        
+    </div>
+</div>
+
+<p style="margin-top: 20px; text-align: center; color: #666;">
+    <strong>🔗 Всего связей FOREIGN KEY: 21</strong> | 
+    <span style="color: #4caf50;">CASCADE — 11</span> | 
+    <span style="color: #ff9800;">SET NULL — 9</span> | 
+    <span style="color: #f44336;">RESTRICT — 1</span>
+</p>
+
+<!-- ====================================================================== -->
+<!-- ДЕТАЛЬНОЕ ОПИСАНИЕ СВЯЗЕЙ                                              -->
+<!-- ====================================================================== -->
+<h3 style="margin-top: 50px;">🔗 ПОЛНЫЙ СПИСОК ВСЕХ СВЯЗЕЙ FOREIGN KEY</h3>
+
+<table>
+    <tr><th style="width: 5%;">№</th><th style="width: 25%;">Дочерняя таблица</th><th style="width: 20%;">Поле (FK)</th><th style="width: 25%;">Родительская таблица</th><th style="width: 25%;">ON DELETE</th></tr>
+    
+    <tr><td>1</td><td><code>products</code></td><td><code>anchor_direction_id</code></td><td><code>activity_directions</code></td><td>SET NULL</td></tr>
+    <tr><td>2</td><td><code>clients</code></td><td><code>activity_direction_id</code></td><td><code>activity_directions</code></td><td>SET NULL</td></tr>
+    <tr><td>3</td><td><code>clients</code></td><td><code>current_status_id</code></td><td><code>status_rules</code></td><td>SET NULL</td></tr>
+    <tr><td>4</td><td><code>product_aliases</code></td><td><code>product_code</code></td><td><code>products</code></td><td>CASCADE</td></tr>
+    <tr><td>5</td><td><code>product_scoring</code></td><td><code>client_code</code></td><td><code>clients</code></td><td>CASCADE</td></tr>
+    <tr><td>6</td><td><code>product_scoring</code></td><td><code>product_code</code></td><td><code>products</code></td><td>CASCADE</td></tr>
+    <tr><td>7</td><td><code>product_cross_sells</code></td><td><code>main_product_code</code></td><td><code>products</code></td><td>CASCADE</td></tr>
+    <tr><td>8</td><td><code>product_cross_sells</code></td><td><code>related_product_code</code></td><td><code>products</code></td><td>CASCADE</td></tr>
+    <tr><td>9</td><td><code>documents</code></td><td><code>client_code</code></td><td><code>clients</code></td><td>CASCADE</td></tr>
+    <tr><td>10</td><td><code>sales_lines</code></td><td><code>document_id</code></td><td><code>documents</code></td><td>CASCADE</td></tr>
+    <tr><td>11</td><td><code>sales_lines</code></td><td><code>product_code</code></td><td><code>products</code></td><td>RESTRICT</td></tr>
+    <tr><td>12</td><td><code>website_behavior_log</code></td><td><code>client_code</code></td><td><code>clients</code></td><td>CASCADE</td></tr>
+    <tr><td>13</td><td><code>website_behavior_log</code></td><td><code>product_code</code></td><td><code>products</code></td><td>SET NULL</td></tr>
+    <tr><td>14</td><td><code>manager_rejections_log</code></td><td><code>client_code</code></td><td><code>clients</code></td><td>CASCADE</td></tr>
+    <tr><td>15</td><td><code>manager_rejections_log</code></td><td><code>product_code</code></td><td><code>products</code></td><td>CASCADE</td></tr>
+    <tr><td>16</td><td><code>manager_rejections_log</code></td><td><code>document_id</code></td><td><code>documents</code></td><td>SET NULL</td></tr>
+    <tr><td>17</td><td><code>production_lead_times</code></td><td><code>product_code</code></td><td><code>products</code></td><td>CASCADE</td></tr>
+    <tr><td>18</td><td><code>production_lead_times</code></td><td><code>alternative_blank_code</code></td><td><code>products</code></td><td>SET NULL</td></tr>
+    <tr><td>19</td><td><code>status_change_log</code></td><td><code>client_code</code></td><td><code>clients</code></td><td>CASCADE</td></tr>
+    <tr><td>20</td><td><code>status_change_log</code></td><td><code>old_status_id</code></td><td><code>status_rules</code></td><td>SET NULL</td></tr>
+    <tr><td>21</td><td><code>status_change_log</code></td><td><code>new_status_id</code></td><td><code>status_rules</code></td><td>SET NULL</td></tr>
+</table>
+
+<div class="note">
+<strong>💡 Пояснение типов ON DELETE:</strong>
+<ul>
+    <li><strong>CASCADE</strong> — при удалении родительской записи дочерние удаляются автоматически</li>
+    <li><strong>SET NULL</strong> — при удалении родительской записи в дочерних поле становится NULL</li>
+    <li><strong>RESTRICT</strong> — запрещает удаление родительской записи, если есть дочерние</li>
+</ul>
+</div>
+
+<div class="footer">
+    Сгенерировано автоматически системой документирования UTSK | &copy; 2026 UTSK Intelligent Sales
+</div>
+
+</div>
+</body>
+</html>
