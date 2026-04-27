@@ -1,27 +1,41 @@
 cmake_minimum_required(VERSION 3.16)
 
-# Простой ручной поиск GTest
+# ====== GTest: ручной поиск ======
+set(GTEST_ROOT "/usr/src/gtest" CACHE PATH "GTest source directory")
+
 find_path(GTEST_INCLUDE_DIR gtest/gtest.h
-    PATHS /usr/include /usr/local/include /usr/src/gtest/include
+    PATHS ${GTEST_ROOT}/include
+          /usr/include
+          /usr/local/include
+    NO_DEFAULT_PATH
 )
 find_library(GTEST_LIBRARY gtest
-    PATHS /usr/lib /usr/local/lib /usr/lib/x86_64-linux-gnu
+    PATHS ${GTEST_ROOT}/lib
+          /usr/lib
+          /usr/lib/x86_64-linux-gnu
+          /usr/local/lib
+    NO_DEFAULT_PATH
 )
 find_library(GTEST_MAIN_LIBRARY gtest_main
-    PATHS /usr/lib /usr/local/lib /usr/lib/x86_64-linux-gnu
+    PATHS ${GTEST_ROOT}/lib
+          /usr/lib
+          /usr/lib/x86_64-linux-gnu
+          /usr/local/lib
+    NO_DEFAULT_PATH
 )
 
-# Если не нашли — используем find_package
 if(NOT GTEST_LIBRARY)
-    find_package(GTest REQUIRED)
-    set(GTEST_LIBRARY GTest::GTest)
-    set(GTEST_MAIN_LIBRARY GTest::Main)
+    message(FATAL_ERROR "GTest not found. Build it first: cd /usr/src/gtest && sudo cmake . && sudo make && sudo cp lib/*.a /usr/lib/x86_64-linux-gnu/")
 endif()
 
+message(STATUS "GTest found: ${GTEST_LIBRARY}")
+
+# ====== Остальные зависимости ======
 find_package(nlohmann_json REQUIRED)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(PQXX REQUIRED libpqxx)
 
+# ====== Тестовый executable ======
 add_executable(utsk_tests
     unit/test_database.cpp
     ../src/core/Database.cpp
