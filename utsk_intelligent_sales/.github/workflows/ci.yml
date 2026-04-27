@@ -1,0 +1,71 @@
+name: UTSK CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-cpp:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: root
+          POSTGRES_DB: bd_intelligent_sales
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install C++ dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y cmake g++ pkg-config libpqxx-dev nlohmann-json3-dev libgtest-dev
+      
+      - name: Compile and install GTest
+        run: |
+          cd /usr/src/gtest
+          sudo cmake CMakeLists.txt
+          sudo make
+          sudo cp lib/libgtest.a /usr/lib/x86_64-linux-gnu/
+          sudo cp lib/libgtest_main.a /usr/lib/x86_64-linux-gnu/
+          echo "✅ GTest compiled and installed"
+      
+      - name: Build and Test C++
+        working-directory: utsk_intelligent_sales
+        run: |
+          cmake -B build -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=ON
+          cmake --build build -j $(nproc)
+          ./build/tests/utsk_tests
+        env:
+          PGPASSWORD: root
+
+  test-web:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      
+      - name: Install and Test Web
+        working-directory: utsk_web
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+          pip install -r backend/requirements.txt
+          pip install pytest httpx
+          python -m pytest tests/ -v --tb=short -k "test_auth or test_index"
+        # Запускаем только тесты, не требующие БД
