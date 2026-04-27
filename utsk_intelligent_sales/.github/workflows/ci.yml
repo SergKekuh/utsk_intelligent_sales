@@ -18,22 +18,39 @@ jobs:
           POSTGRES_DB: bd_intelligent_sales
         ports:
           - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - uses: actions/checkout@v4
-      - name: Install deps
-        run: sudo apt update && sudo apt install -y cmake g++ pkg-config libpqxx-dev nlohmann-json3-dev libgtest-dev
-      - name: Build GTest
+      
+      - name: Install dependencies
         run: |
-          cd /usr/src/gtest && sudo cmake . && sudo make
-          sudo cp lib/libgtest.a lib/libgtest_main.a /usr/lib/x86_64-linux-gnu/
-      - name: Build and Test
+          sudo apt update
+          sudo apt install -y cmake g++ pkg-config libpqxx-dev nlohmann-json3-dev libgtest-dev
+      
+      - name: Compile and install GTest
+        run: |
+          cd /usr/src/gtest
+          sudo cmake CMakeLists.txt
+          sudo make
+          sudo cp lib/libgtest.a /usr/lib/x86_64-linux-gnu/
+          sudo cp lib/libgtest_main.a /usr/lib/x86_64-linux-gnu/
+      
+      - name: Build and Test C++
         working-directory: utsk_intelligent_sales
+        env:
+          PGHOST: localhost
+          PGPORT: 5432
+          PGDATABASE: bd_intelligent_sales
+          PGUSER: postgres
+          PGPASSWORD: root
         run: |
           cmake -B build -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=ON
-          cmake --build build -j $(nproc) 2>&1 | tail -20
+          cmake --build build -j $(nproc)
           ./build/tests/utsk_tests
-        env:
-          PGPASSWORD: root
 
   test-web:
     runs-on: ubuntu-latest
@@ -43,7 +60,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Auth tests only
+      - name: Auth and index tests only
         working-directory: utsk_web
         run: |
           pip install fastapi uvicorn sqlalchemy psycopg2-binary pytest httpx
