@@ -37,25 +37,32 @@ jobs:
           sudo cmake CMakeLists.txt
           sudo make -j$(nproc)
           sudo cp lib/libgtest.a lib/libgtest_main.a /usr/lib/x86_64-linux-gnu/
-          echo "✅ GTest installed"
       
       - name: Init DB schema
         env:
           PGPASSWORD: root
         run: |
-          echo "=== Creating tables ==="
+          echo "=== Step 1: Testing connection ==="
+          psql -h localhost -U postgres -d bd_intelligent_sales -c "SELECT 1 AS connection_test;"
+          
+          echo "=== Step 2: Creating clients table ==="
           psql -h localhost -U postgres -d bd_intelligent_sales -c "
             CREATE TABLE IF NOT EXISTS clients (
                 code VARCHAR(50) PRIMARY KEY,
                 name VARCHAR(255) NOT NULL
             );
           "
+          
+          echo "=== Step 3: Inserting test data ==="
           psql -h localhost -U postgres -d bd_intelligent_sales -c "
             INSERT INTO clients VALUES ('36', 'Test Client') ON CONFLICT DO NOTHING;
           "
-          echo "=== Verifying ==="
-          psql -h localhost -U postgres -d bd_intelligent_sales -c "SELECT COUNT(*) FROM clients;"
-          echo "✅ Schema ready"
+          
+          echo "=== Step 4: Verifying ==="
+          psql -h localhost -U postgres -d bd_intelligent_sales -c "
+            SELECT COUNT(*) AS client_count FROM clients;
+          "
+          echo "=== DONE ==="
       
       - name: Build and Test
         working-directory: utsk_intelligent_sales
