@@ -7,69 +7,9 @@ on:
     branches: [ main ]
 
 jobs:
-  # ==========================================================================
-  # 1. ТЕСТЫ WEB (PYTEST)
-  # ==========================================================================
-  test-web:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_PASSWORD: root
-          POSTGRES_DB: bd_intelligent_sales
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-    
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      
-      - name: Install dependencies
-        run: |
-          cd utsk_web
-          python -m venv venv
-          source venv/bin/activate
-          pip install -r backend/requirements.txt
-          pip install pytest httpx
-      
-      - name: Wait for PostgreSQL
-        run: |
-          for i in {1..30}; do
-            if pg_isready -h localhost -p 5432; then
-              echo "✅ PostgreSQL is ready"
-              break
-            fi
-            echo "⏳ Waiting for PostgreSQL... ($i/30)"
-            sleep 2
-          done
-      
-      - name: Run tests
-        env:
-          DATABASE_URL: postgresql://postgres:root@localhost:5432/bd_intelligent_sales
-        run: |
-          cd utsk_web
-          source venv/bin/activate
-          python -m pytest tests/ -v --tb=short
-
-  # ==========================================================================
-  # 2. СБОРКА И ТЕСТЫ C++
-  # ==========================================================================
   test-cpp:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    
     services:
       postgres:
         image: postgres:15
@@ -83,57 +23,52 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-    
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Install C++ dependencies
+      - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install -y cmake g++ make pkg-config
-          sudo apt install -y libpqxx-dev nlohmann-json3-dev libgtest-dev
-      
-      - name: Build Google Test
+          sudo apt install -y cmake g++ pkg-config libpqxx-dev nlohmann-json3-dev libgtest-dev
+      - name: Build GTest
+        run: cd /usr/src/gtest && sudo cmake . && sudo make && sudo cp lib/*.a /usr/lib/
+      - name: Build and Test C++
+        working-directory: utsk_intelligent_sales
         run: |
-          cd /usr/src/gtest
-          sudo cmake CMakeLists.txt
-          sudo make
-          sudo cp lib/*.a /usr/lib/
-      
-      - name: Configure CMake
-        run: |
-          cd utsk_intelligent_sales
           cmake -B build -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=ON
-      
-      - name: Build
-        run: |
-          cd utsk_intelligent_sales
           cmake --build build -j $(nproc)
-      
-      - name: Verify binary exists
-        run: |
-          test -f utsk_intelligent_sales/build/utsk_console && echo "✅ Binary exists"
-          test -f utsk_intelligent_sales/build/utsk_console || (echo "❌ Binary missing" && exit 1)
-      
-      - name: Run C++ tests
-        run: |
-          cd utsk_intelligent_sales
           ./build/tests/utsk_tests
         env:
           PGPASSWORD: root
 
-  # ==========================================================================
-  # 3. ПРОВЕРКА СТИЛЯ КОДА (ОПЦИОНАЛЬНО)
-  # ==========================================================================
-  lint:
+  test-web:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
-    if: github.event_name == 'pull_request'
-    
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: root
+          POSTGRES_DB: bd_intelligent_sales
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Check Python syntax
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install and Test Web
+        working-directory: utsk_web
+        env:
+          DATABASE_URL: postgresql://postgres:root@localhost:5432/bd_intelligent_sales
         run: |
-          python -m py_compile utsk_web/backend/app.py
-          echo "✅ Python syntax OK"
+          python -m venv venv
+          source venv/bin/activate
+          pip install -r backend/requirements.txt
+          pip install pytest httpx
+          python -m pytest tests/ -v --tb=short
