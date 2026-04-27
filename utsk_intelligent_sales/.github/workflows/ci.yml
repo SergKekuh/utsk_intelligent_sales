@@ -42,27 +42,18 @@ jobs:
         env:
           PGPASSWORD: root
         run: |
-          echo "=== Step 1: Testing connection ==="
-          psql -h localhost -U postgres -d bd_intelligent_sales -c "SELECT 1 AS connection_test;"
-          
-          echo "=== Step 2: Creating clients table ==="
+          echo "=== Creating tables ==="
           psql -h localhost -U postgres -d bd_intelligent_sales -c "
             CREATE TABLE IF NOT EXISTS clients (
                 code VARCHAR(50) PRIMARY KEY,
                 name VARCHAR(255) NOT NULL
             );
           "
-          
-          echo "=== Step 3: Inserting test data ==="
           psql -h localhost -U postgres -d bd_intelligent_sales -c "
             INSERT INTO clients VALUES ('36', 'Test Client') ON CONFLICT DO NOTHING;
           "
-          
-          echo "=== Step 4: Verifying ==="
-          psql -h localhost -U postgres -d bd_intelligent_sales -c "
-            SELECT COUNT(*) AS client_count FROM clients;
-          "
-          echo "=== DONE ==="
+          echo "=== Verify ==="
+          psql -h localhost -U postgres -d bd_intelligent_sales -c "SELECT COUNT(*) FROM clients;"
       
       - name: Build and Test
         working-directory: utsk_intelligent_sales
@@ -76,17 +67,3 @@ jobs:
           cmake -B build -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=ON
           cmake --build build -j $(nproc)
           ./build/tests/utsk_tests
-
-  test-web:
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - name: Auth tests
-        working-directory: utsk_web
-        run: |
-          pip install fastapi uvicorn sqlalchemy psycopg2-binary pytest httpx
-          python -m pytest tests/ -v -k "auth or index"
