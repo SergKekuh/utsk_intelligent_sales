@@ -18,50 +18,34 @@ jobs:
           POSTGRES_DB: bd_intelligent_sales
         ports:
           - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
     steps:
       - uses: actions/checkout@v4
       
-      - name: Install dependencies
+      - name: Install deps + GTest
         run: |
           sudo apt update
           sudo apt install -y cmake g++ pkg-config libpqxx-dev nlohmann-json3-dev libgtest-dev
+          # Собираем GTest
+          cd /usr/src/gtest
+          sudo cmake CMakeLists.txt
+          sudo make
+          # Устанавливаем в систему
+          sudo make install 2>/dev/null || sudo cp lib/libgtest.a lib/libgtest_main.a /usr/local/lib/
+          sudo cp include/gtest /usr/local/include/ -r 2>/dev/null || true
+          echo "✅ GTest ready"
       
-      - name: Compile and install GTest
-        run: |
-          cd /usr/src/gtest && sudo cmake . && sudo make
-          sudo cp lib/libgtest.a lib/libgtest_main.a /usr/lib/x86_64-linux-gnu/
-      
-      - name: Init database schema
+      - name: Init DB schema
         env:
           PGPASSWORD: root
         run: |
-          # Создаём минимальную схему для тестов
           psql -h localhost -U postgres -d bd_intelligent_sales << 'SQL'
           CREATE TABLE IF NOT EXISTS clients (
-              code VARCHAR(50) PRIMARY KEY,
-              name VARCHAR(255) NOT NULL,
-              current_status_id INT,
-              activity_direction_id INT,
-              last_purchase_date DATE,
-              first_purchase_date DATE,
-              requires_survey BOOLEAN DEFAULT FALSE
+              code VARCHAR(50) PRIMARY KEY, name VARCHAR(255) NOT NULL
           );
-          CREATE TABLE IF NOT EXISTS status_rules (
-              id SERIAL PRIMARY KEY,
-              status_name VARCHAR(50) NOT NULL,
-              priority INT NOT NULL
-          );
-          -- Добавляем тестовые данные
-          INSERT INTO clients (code, name) VALUES ('36', 'Test Client') ON CONFLICT DO NOTHING;
+          INSERT INTO clients VALUES ('36', 'Test') ON CONFLICT DO NOTHING;
           SQL
-          echo "✅ Schema initialized"
       
-      - name: Build and Test C++
+      - name: Build and Test
         working-directory: utsk_intelligent_sales
         env:
           PGHOST: localhost
@@ -82,7 +66,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Auth and index tests
+      - name: Auth tests
         working-directory: utsk_web
         run: |
           pip install fastapi uvicorn sqlalchemy psycopg2-binary pytest httpx
