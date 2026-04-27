@@ -37,6 +37,11 @@ jobs:
         working-directory: utsk_web
         env:
           DATABASE_URL: postgresql://postgres:root@localhost:5432/bd_intelligent_sales
+          PGHOST: localhost
+          PGPORT: 5432
+          PGDATABASE: bd_intelligent_sales
+          PGUSER: postgres
+          PGPASSWORD: root
         run: |
           pip install fastapi uvicorn sqlalchemy psycopg2-binary pytest httpx
           python -m pytest tests/ -v --tb=short
