@@ -1,41 +1,37 @@
 cmake_minimum_required(VERSION 3.16)
 
-# ====== GTest: ручной поиск ======
-set(GTEST_ROOT "/usr/src/gtest" CACHE PATH "GTest source directory")
-
+# ====== GTest: поиск без NO_DEFAULT_PATH ======
 find_path(GTEST_INCLUDE_DIR gtest/gtest.h
-    PATHS ${GTEST_ROOT}/include
-          /usr/include
-          /usr/local/include
-    NO_DEFAULT_PATH
+    PATHS /usr/src/gtest/include /usr/include /usr/local/include
 )
 find_library(GTEST_LIBRARY gtest
-    PATHS ${GTEST_ROOT}/lib
-          /usr/lib
-          /usr/lib/x86_64-linux-gnu
-          /usr/local/lib
-    NO_DEFAULT_PATH
+    PATHS /usr/src/gtest/lib /usr/lib /usr/lib/x86_64-linux-gnu /usr/local/lib
 )
 find_library(GTEST_MAIN_LIBRARY gtest_main
-    PATHS ${GTEST_ROOT}/lib
-          /usr/lib
-          /usr/lib/x86_64-linux-gnu
-          /usr/local/lib
-    NO_DEFAULT_PATH
+    PATHS /usr/src/gtest/lib /usr/lib /usr/lib/x86_64-linux-gnu /usr/local/lib
 )
 
+# Если не нашли — пробуем find_package
 if(NOT GTEST_LIBRARY)
-    message(FATAL_ERROR "GTest not found. Build it first: cd /usr/src/gtest && sudo cmake . && sudo make && sudo cp lib/*.a /usr/lib/x86_64-linux-gnu/")
+    find_package(GTest QUIET)
+    if(GTest_FOUND)
+        set(GTEST_LIBRARY GTest::GTest)
+        set(GTEST_MAIN_LIBRARY GTest::Main)
+        get_target_property(GTEST_INCLUDE_DIR GTest::GTest INTERFACE_INCLUDE_DIRECTORIES)
+    endif()
 endif()
 
-message(STATUS "GTest found: ${GTEST_LIBRARY}")
+if(NOT GTEST_LIBRARY)
+    message(FATAL_ERROR "GTest not found. Install: sudo apt install libgtest-dev && cd /usr/src/gtest && sudo cmake . && sudo make && sudo cp lib/*.a /usr/lib/x86_64-linux-gnu/")
+endif()
 
-# ====== Остальные зависимости ======
+message(STATUS "GTest: ${GTEST_LIBRARY}")
+
+# ====== Остальное ======
 find_package(nlohmann_json REQUIRED)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(PQXX REQUIRED libpqxx)
 
-# ====== Тестовый executable ======
 add_executable(utsk_tests
     unit/test_database.cpp
     ../src/core/Database.cpp
