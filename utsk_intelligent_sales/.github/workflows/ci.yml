@@ -33,11 +33,33 @@ jobs:
       
       - name: Compile and install GTest
         run: |
-          cd /usr/src/gtest
-          sudo cmake CMakeLists.txt
-          sudo make
-          sudo cp lib/libgtest.a /usr/lib/x86_64-linux-gnu/
-          sudo cp lib/libgtest_main.a /usr/lib/x86_64-linux-gnu/
+          cd /usr/src/gtest && sudo cmake . && sudo make
+          sudo cp lib/libgtest.a lib/libgtest_main.a /usr/lib/x86_64-linux-gnu/
+      
+      - name: Init database schema
+        env:
+          PGPASSWORD: root
+        run: |
+          # Создаём минимальную схему для тестов
+          psql -h localhost -U postgres -d bd_intelligent_sales << 'SQL'
+          CREATE TABLE IF NOT EXISTS clients (
+              code VARCHAR(50) PRIMARY KEY,
+              name VARCHAR(255) NOT NULL,
+              current_status_id INT,
+              activity_direction_id INT,
+              last_purchase_date DATE,
+              first_purchase_date DATE,
+              requires_survey BOOLEAN DEFAULT FALSE
+          );
+          CREATE TABLE IF NOT EXISTS status_rules (
+              id SERIAL PRIMARY KEY,
+              status_name VARCHAR(50) NOT NULL,
+              priority INT NOT NULL
+          );
+          -- Добавляем тестовые данные
+          INSERT INTO clients (code, name) VALUES ('36', 'Test Client') ON CONFLICT DO NOTHING;
+          SQL
+          echo "✅ Schema initialized"
       
       - name: Build and Test C++
         working-directory: utsk_intelligent_sales
@@ -60,7 +82,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Auth and index tests only
+      - name: Auth and index tests
         working-directory: utsk_web
         run: |
           pip install fastapi uvicorn sqlalchemy psycopg2-binary pytest httpx
