@@ -25,218 +25,152 @@
             --radius-app: 20px;
             --radius-block: 24px;
         }
-
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
-
         body {
             background: linear-gradient(135deg, #e2e8f0 0%, #dbeafe 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-            color: var(--text-main);
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; padding: 20px; color: var(--text-main); font-size: 16px;
         }
-
         .app-window {
-            width: 1320px;
-            height: 840px;
-            background: var(--bg-app);
-            border-radius: var(--radius-app);
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 20px 50px rgba(15, 23, 42, 0.1);
-            overflow: hidden;
+            width: 1320px; height: 840px; background: var(--bg-app);
+            border-radius: var(--radius-app); display: flex; flex-direction: column;
+            box-shadow: 0 20px 50px rgba(15, 23, 42, 0.1); overflow: hidden;
         }
-
+        .error-banner {
+            background: #fee2e2; color: #991b1b; padding: 12px 20px;
+            border-radius: 12px; font-size: 14px; font-weight: 500;
+            display: none; align-items: center; gap: 10px;
+        }
+        .error-banner.show { display: flex; }
+        .error-banner button {
+            margin-left: auto; background: none; border: none;
+            font-size: 18px; cursor: pointer; color: #991b1b;
+        }
         .titlebar {
-            height: var(--header-height);
-            background: var(--bg-app);
-            display: flex;
-            align-items: center;
-            padding: 0 24px;
-            border-bottom: 1px solid #f1f5f9;
-            user-select: none;
+            height: var(--header-height); background: var(--bg-app);
+            display: flex; align-items: center; padding: 0 24px;
+            border-bottom: 1px solid #f1f5f9; user-select: none;
         }
-
         .titlebar-controls { display: flex; gap: 8px; margin-right: 24px; }
-        .titlebar-btn { width: 13px; height: 13px; border-radius: 50%; cursor: pointer; transition: transform 0.2s; }
-        .titlebar-btn:hover { transform: scale(1.1); }
+        .titlebar-btn { width: 13px; height: 13px; border-radius: 50%; cursor: pointer; }
         .titlebar-btn.close { background: #ff5f56; }
         .titlebar-btn.minimize { background: #ffbd2e; }
         .titlebar-btn.maximize { background: #27c93f; }
-
-        .titlebar-logo { font-size: 15px; font-weight: 700; color: var(--text-main); margin-right: 15px; letter-spacing: -0.5px; }
+        .titlebar-logo { font-size: 15px; font-weight: 700; margin-right: 15px; }
         .titlebar-title { font-size: 13px; color: var(--text-muted); font-weight: 500; }
-
         .main-content { flex: 1; display: flex; overflow: hidden; }
-
         .sidebar {
-            width: var(--sidebar-width);
-            background: var(--bg-sidebar);
-            display: flex;
-            flex-direction: column;
-            padding: 24px 16px;
-            overflow-y: auto;
-            border-right: 1px solid #f1f5f9;
+            width: var(--sidebar-width); background: var(--bg-sidebar);
+            display: flex; flex-direction: column; padding: 24px 16px;
+            overflow-y: auto; border-right: 1px solid #f1f5f9;
         }
-
         .sidebar-section {
-            padding: 0 16px;
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            color: #94a3b8;
-            letter-spacing: 0.5px;
+            padding: 0 16px; font-size: 11px; font-weight: 600;
+            text-transform: uppercase; color: #94a3b8; letter-spacing: 0.5px;
             margin: 24px 0 10px 0;
         }
         .sidebar-section:first-child { margin-top: 0; }
-
         .sidebar-item {
-            padding: 10px 16px;
-            color: var(--text-steel);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 14px;
-            font-weight: 500;
-            border-radius: 12px;
-            margin-bottom: 4px;
-            text-decoration: none;
-            transition: all 0.2s;
+            padding: 10px 16px; color: var(--text-steel); cursor: pointer;
+            display: flex; align-items: center; gap: 12px; font-size: 14px;
+            font-weight: 500; border-radius: 12px; margin-bottom: 4px;
+            text-decoration: none; transition: all 0.2s;
         }
-
         .sidebar-item:hover { background: #e2e8f0; }
         .sidebar-item.active { background: var(--text-main); color: white; }
-
-        .workspace { flex: 1; display: flex; flex-direction: column; background: var(--bg-app); position: relative; }
-
-        .content-area {
-            flex: 1;
-            padding: 32px 40px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-        }
-
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-
-        .page-title { font-size: 24px; font-weight: 700; color: var(--text-main); letter-spacing: -0.5px; }
-
-        .toolbar-actions { display: flex; gap: 12px; align-items: center; }
-
+        .sidebar-item.external { color: #6366f1; }
+        .workspace { flex: 1; display: flex; flex-direction: column; background: var(--bg-app); }
+        .content-area { flex: 1; padding: 32px 40px; overflow-y: auto; display: flex; flex-direction: column; gap: 24px; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .page-title { font-size: 24px; font-weight: 700; color: var(--text-main); white-space: nowrap; }
+        .toolbar-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
         .btn {
-            padding: 10px 18px;
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            border: none;
-            transition: all 0.2s;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            padding: 10px 18px; border-radius: 12px; font-size: 14px; font-weight: 600;
+            cursor: pointer; border: none; transition: all 0.2s; text-decoration: none;
+            display: inline-flex; align-items: center; gap: 8px; white-space: nowrap;
         }
-
         .btn-primary { background: var(--text-main); color: white; }
-        .btn-primary:hover { background: #334155; }
         .btn-secondary { background: var(--block-steel); color: var(--text-main); }
-        .btn-secondary:hover { background: #e2e8f0; }
-        .btn-live {
-            background: var(--block-green) !important;
-            color: var(--text-green) !important;
-            font-weight: 700 !important;
-        }
-        .btn-live:hover { background: #a7f3d0 !important; }
-
-        .search-input {
-            padding: 10px 16px;
-            border-radius: 12px;
-            border: none;
-            background: var(--block-steel);
-            font-size: 14px;
-            outline: none;
-            width: 220px;
-        }
-
+        .btn-live { background: var(--block-green) !important; color: var(--text-green) !important; font-weight: 700 !important; }
+        .search-input { padding: 10px 16px; border-radius: 12px; border: none; background: var(--block-steel); font-size: 14px; outline: none; width: 220px; }
         .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
-
-        .kpi-block {
-            border-radius: var(--radius-block);
-            padding: 24px;
-            display: flex;
-            flex-direction: column;
-            transition: transform 0.2s ease;
-        }
-        .kpi-block:hover { transform: translateY(-3px); }
-
+        .kpi-block { border-radius: var(--radius-block); padding: 24px; display: flex; flex-direction: column; }
         .bg-blue { background: var(--block-blue); color: var(--text-blue); }
         .bg-steel { background: var(--block-steel); color: var(--text-steel); }
         .bg-green { background: var(--block-green); color: var(--text-green); }
         .bg-purple { background: var(--block-purple); color: var(--text-purple); }
-
         .kpi-label { font-size: 13px; font-weight: 600; opacity: 0.8; margin-bottom: 12px; }
-        .kpi-value { font-size: 36px; font-weight: 800; letter-spacing: -1px; margin-bottom: 12px; }
-        .kpi-trend {
-            font-size: 12px;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 12px;
-            border-radius: 20px;
-            background: rgba(255, 255, 255, 0.5);
-            width: fit-content;
-        }
-
-        .middle-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
-
-        .table-block { background: var(--block-steel); border-radius: var(--radius-block); padding: 24px; }
+        .kpi-value { font-size: 36px; font-weight: 800; margin-bottom: 12px; }
+        .kpi-trend { font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 20px; background: rgba(255,255,255,0.5); width: fit-content; }
+        .middle-grid { display: grid; grid-template-columns: 3fr 1fr; gap: 24px; }
+        .middle-grid.full-width { grid-template-columns: 1fr !important; }
+        .table-block { background: var(--block-steel); border-radius: var(--radius-block); padding: 24px; overflow-x: auto; }
         .block-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .block-title { font-size: 18px; font-weight: 700; color: var(--text-main); }
-
-        table { width: 100%; border-collapse: collapse; }
+        .table-block table { width: 100%; border-collapse: collapse; table-layout: fixed; min-width: 600px; }
         th { color: #64748b; padding: 0 12px 12px 12px; font-size: 13px; font-weight: 600; text-align: left; border-bottom: 2px solid #e2e8f0; }
-        td { padding: 16px 12px; color: var(--text-main); font-size: 14px; font-weight: 500; border-bottom: 1px solid #e2e8f0; }
-        tr:last-child td { border-bottom: none; }
-
-        .status-pill { padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; background: white; }
+        td { padding: 12px 10px; color: var(--text-main); font-size: 13px; font-weight: 500; border-bottom: 1px solid #e2e8f0; vertical-align: top; word-wrap: break-word; }
+        /* Фиксированная ширина для 4-колоночной таблицы */
+        .cols4 th:nth-child(1), .cols4 td:nth-child(1) { width: auto; }
+        .cols4 th:nth-child(2), .cols4 td:nth-child(2) { width: 20%; text-align: center; }
+        .cols4 th:nth-child(3), .cols4 td:nth-child(3) { width: 20%; text-align: center; }
+        .cols4 th:nth-child(4), .cols4 td:nth-child(4) { width: 15%; text-align: center; }
+        /* Фиксированная ширина для 5-колоночной таблицы (рекомендации) */
+        .cols5 th:nth-child(1), .cols5 td:nth-child(1) { width: 40px; text-align: center; }
+        .cols5 th:nth-child(2), .cols5 td:nth-child(2) { width: auto; }
+        .cols5 th:nth-child(3), .cols5 td:nth-child(3) { width: 120px; text-align: center; }
+        .cols5 th:nth-child(4), .cols5 td:nth-child(4) { width: 90px; text-align: center; }
+        .cols5 th:nth-child(5), .cols5 td:nth-child(5) { width: 110px; text-align: center; }
+        .status-pill { padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; background: white; display: inline-block; white-space: nowrap; }
         .status-pill.blue { color: var(--text-blue); }
         .status-pill.green { color: var(--text-green); }
         .status-pill.orange { color: #d97706; }
-
         .side-blocks { display: flex; flex-direction: column; gap: 24px; }
-
-        .doc-block {
-            background: var(--block-blue);
-            border-radius: var(--radius-block);
-            padding: 24px;
-            text-decoration: none;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            transition: transform 0.2s;
+                /* Таблица поиска клиентов — своя ширина колонок */
+        #client-list-cell table th:nth-child(1),
+        #client-list-cell table td:nth-child(1) {
+            width: 80px !important;
         }
-        .doc-block:hover { transform: translateY(-3px); }
+        #client-list-cell table th:nth-child(2),
+        #client-list-cell table td:nth-child(2) {
+            width: auto !important;
+        }
+        #client-list-cell table th:nth-child(3),
+        #client-list-cell table td:nth-child(3) {
+            width: 150px !important;
+            text-align: center !important;
+        }
+        #client-list-cell table th:nth-child(4),
+        #client-list-cell table td:nth-child(4) {
+            width: 130px !important;
+            text-align: center !important;
+        }
+        .side-blocks.hidden { display: none !important; }
+        .side-blocks { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 12px; 
+        }
+        .doc-block {
+            background: var(--block-blue); border-radius: calc(var(--radius-block) * 0.7);
+            padding: 14px 14px; text-decoration: none; display: flex;
+            flex-direction: column; gap: 8px; transition: transform 0.2s;
+            width: 100%; margin-left: auto;
+        }
+        .doc-block:hover { transform: translateY(-2px); }
         .doc-block.alt { background: var(--block-green); }
         .doc-block.purple { background: var(--block-purple); }
         .doc-block.orange { background: #fff7ed; }
-
-        .doc-icon { font-size: 28px; }
-        .doc-title { font-size: 16px; font-weight: 700; color: var(--text-main); }
-        .doc-desc { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
-
+        .doc-icon { font-size: 20px; }
+        .doc-title { font-size: 13px; font-weight: 700; color: var(--text-main); }
+        .doc-desc { font-size: 11px; color: var(--text-muted); line-height: 1.4; }
         ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        @media (max-width: 1100px) {
+            .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+            .middle-grid { grid-template-columns: 1fr; }
+            .app-window { height: auto; min-height: 100vh; }
+        }
     </style>
 </head>
 <body>
@@ -249,154 +183,440 @@
             <div class="titlebar-btn maximize"></div>
         </div>
         <span class="titlebar-logo">UTSK Studio</span>
-        <span class="titlebar-title">Проект: Intelligent Sales v3.0</span>
+        <span class="titlebar-title">Проект: Intelligent Sales v7.1</span>
     </div>
 
     <div class="main-content">
-        <!-- Sidebar -->
         <div class="sidebar">
             <div class="sidebar-section">Аналитика</div>
-            <a href="#" class="sidebar-item active">📊 Обзорный Дашборд</a>
-            <a href="#" class="sidebar-item">👥 Активные клиенты</a>
-            <a href="#" class="sidebar-item">🏷️ Воронка продаж</a>
-
+            <a href="#" class="sidebar-item active" data-page="dashboard">📊 Обзорный Дашборд</a>
+            <a href="#" class="sidebar-item" data-page="clients">👥 Активные клиенты</a>
+            <a href="#" class="sidebar-item" data-page="funnel">🏷️ Воронка продаж</a>
             <div class="sidebar-section">Модули AI</div>
-            <a href="#" class="sidebar-item">✨ Рекомендации</a>
-            <a href="#" class="sidebar-item">⚠️ Риск оттока</a>
-
+            <a href="#" class="sidebar-item" data-page="recommendations">✨ Рекомендации</a>
+            <a href="#" class="sidebar-item" data-page="churn">⚠️ Риск оттока</a>
             <div class="sidebar-section">База знаний</div>
-            <a href="db_reference.html" target="_blank" class="sidebar-item">🗄️ Схема БД (SQL)</a>
-            <a href="plan.html" target="_blank" class="sidebar-item">📄 План разработки</a>
+            <a href="/db-reference?token=utsk2026" target="_blank" class="sidebar-item external">🗄️ Схема БД (SQL)</a>
+            <a href="/plan?token=utsk2026" target="_blank" class="sidebar-item external">📄 План разработки</a>
         </div>
 
-        <!-- Workspace -->
         <div class="workspace">
             <div class="content-area">
-                
+                <div class="error-banner" id="error-banner">
+                    <span>⚠️</span> <span id="error-message"></span>
+                    <button onclick="this.parentElement.classList.remove('show')">✕</button>
+                </div>
+
                 <div class="page-header">
-                    <h1 class="page-title">Сводка за 30 дней</h1>
+                    <h1 class="page-title" id="page-title">Сводка за 30 дней</h1>
                     <div class="toolbar-actions">
-                        <input type="text" class="search-input" placeholder="Поиск (Ctrl+K)">
-                        <a href="db_reference.html" target="_blank" class="btn btn-secondary">🗄️ Справочник БД</a>
+                        <input type="text" class="search-input" id="search-input" placeholder="Поиск клиента (Enter)">
+                        <a href="/db-reference?token=utsk2026" target="_blank" class="btn btn-secondary">🗄️ Справочник БД</a>
                         <a href="https://grandkid-unrest-undesired.ngrok-free.dev/?token=utsk2026" target="_blank" class="btn btn-live">🌐 Live Demo</a>
-                        <a href="#" class="btn btn-primary">+ Новый отчет</a>
+                        <button class="btn btn-primary" onclick="refreshAll()">🔄 Обновить</button>
                     </div>
                 </div>
 
-                <!-- KPI Grid -->
                 <div class="kpi-grid">
                     <div class="kpi-block bg-blue">
-                        <span class="kpi-label">Активная база B2B</span>
-                        <span class="kpi-value">556</span>
-                        <div class="kpi-trend">↑ +12 новых</div>
+                        <span class="kpi-label">Всего клиентов</span>
+                        <span class="kpi-value" id="kpi-total-clients">—</span>
+                        <div class="kpi-trend">Данные из БД</div>
                     </div>
                     <div class="kpi-block bg-steel">
-                        <span class="kpi-label">Закрытые сделки</span>
-                        <span class="kpi-value">184</span>
-                        <div class="kpi-trend">→ Стабильно</div>
+                        <span class="kpi-label">Активные за 30 дней</span>
+                        <span class="kpi-value" id="kpi-active-30d">—</span>
+                        <div class="kpi-trend">Данные из БД</div>
                     </div>
                     <div class="kpi-block bg-green">
-                        <span class="kpi-label">Выручка (YTD)</span>
-                        <span class="kpi-value">₴ 210M</span>
-                        <div class="kpi-trend">↑ +15% рост</div>
+                        <span class="kpi-label">Общая выручка</span>
+                        <span class="kpi-value" id="kpi-total-revenue">—</span>
+                        <div class="kpi-trend">Данные из БД</div>
                     </div>
                     <div class="kpi-block bg-purple">
                         <span class="kpi-label">Средний чек</span>
-                        <span class="kpi-value">₴ 78K</span>
-                        <div class="kpi-trend" style="color: #9333ea;">↓ Снижение 3%</div>
+                        <span class="kpi-value" id="kpi-avg-check">—</span>
+                        <div class="kpi-trend">Данные из БД</div>
                     </div>
                 </div>
 
-                <!-- Middle Section -->
-                <div class="middle-grid">
-                    
-                    <!-- Table Block -->
-                    <div class="table-block">
+                <div class="middle-grid" id="middle-grid">
+                    <div class="table-block" id="table-block">
                         <div class="block-header">
-                            <h2 class="block-title">Крупные транзакции (Live)</h2>
-                            <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;">Фильтры</button>
+                            <h2 class="block-title" id="block-title">Клиенты (Live из БД)</h2>
+                            <button class="btn btn-secondary" style="padding:6px 12px;font-size:12px;" onclick="refreshAll()">🔄 Обновить</button>
                         </div>
-                        <table>
-                            <thead>
-                                <tr><th>Клиент</th><th>Сегмент</th><th>Дата</th><th>Сумма</th></tr>
+                        <table class="cols4" id="main-table">
+                            <thead id="table-head">
+                                <tr><th>Клиент</th><th>Статус</th><th>Последняя покупка</th><th>Действия</th></tr>
                             </thead>
-                            <tbody>
-                                <tr>
-                                    <td>АВ Металл групп А-1</td>
-                                    <td><span class="status-pill blue">Ключевые</span></td>
-                                    <td style="color: var(--text-muted);">30 Мар</td>
-                                    <td>4 190 915 ₴</td>
-                                </tr>
-                                <tr>
-                                    <td>АМБАР ТОВ ТВК</td>
-                                    <td><span class="status-pill green">Регулярные</span></td>
-                                    <td style="color: var(--text-muted);">01 Апр</td>
-                                    <td>8 500 000 ₴</td>
-                                </tr>
-                                <tr>
-                                    <td>АВАНГАРД-КОМПАНІ</td>
-                                    <td><span class="status-pill blue">Новый</span></td>
-                                    <td style="color: var(--text-muted);">31 Мар</td>
-                                    <td>28 300 ₴</td>
-                                </tr>
-                                <tr>
-                                    <td>Альфа Композіт ТОВ</td>
-                                    <td><span class="status-pill orange">Риск оттока</span></td>
-                                    <td style="color: var(--text-muted);">15 Фев</td>
-                                    <td style="opacity: 0.6;">1 200 000 ₴</td>
-                                </tr>
-                                <tr>
-                                    <td>Металл Сервис Плюс</td>
-                                    <td><span class="status-pill green">Регулярные</span></td>
-                                    <td style="color: var(--text-muted);">02 Апр</td>
-                                    <td>540 000 ₴</td>
-                                </tr>
+                            <tbody id="clients-table-body">
+                                <tr><td colspan="4" style="text-align:center;">Загрузка данных...</td></tr>
                             </tbody>
                         </table>
                     </div>
 
-                    <!-- Side Blocks (Docs) -->
-                    <div class="side-blocks">
-                        <a href="db_reference.html" target="_blank" class="doc-block">
+                    <div class="side-blocks" id="side-blocks">
+                        <a href="/db-reference?token=utsk2026" target="_blank" class="doc-block">
                             <span class="doc-icon">🗄️</span>
                             <span class="doc-title">Схема Базы Данных</span>
-                            <span class="doc-desc">Справочник по 14 таблицам, 21 связи (ER-диаграмма) и триггерам PostgreSQL.</span>
+                            <span class="doc-desc">Справочник по 14 таблицам, 21 связи (ER-диаграмма).</span>
                         </a>
-                        
-                        <a href="plan.html" target="_blank" class="doc-block alt">
+                        <a href="/plan?token=utsk2026" target="_blank" class="doc-block alt">
                             <span class="doc-icon">🚀</span>
                             <span class="doc-title">План Разработки</span>
-                            <span class="doc-desc">Архитектура ядра на C++, API эндпоинты, чек-листы и статусы.</span>
+                            <span class="doc-desc">Архитектура C++, API, чек-листы и статусы.</span>
                         </a>
-
                         <a href="https://grandkid-unrest-undesired.ngrok-free.dev/?token=utsk2026" target="_blank" class="doc-block purple">
                             <span class="doc-icon">🌐</span>
                             <span class="doc-title">Web-интерфейс (Live)</span>
                             <span class="doc-desc">Демо-версия для директора. Доступ через ngrok.</span>
                         </a>
-
-                        <a href="https://github.com/your-username/utsk_intelligent_sales/actions" target="_blank" class="doc-block orange">
+                        <a href="https://github.com/SergKekuh/utsk_intelligent_sales/actions" target="_blank" class="doc-block orange">
                             <span class="doc-icon">⚙️</span>
                             <span class="doc-title">CI/CD Pipeline</span>
-                            <span class="doc-desc">GitHub Actions: 20/20 тестов. Всё зелёное!</span>
+                            <span class="doc-desc">GitHub Actions: 20/20 тестов.</span>
                         </a>
                     </div>
-
                 </div>
-
             </div>
         </div>
     </div>
 </div>
 
 <script>
-document.querySelectorAll('.sidebar-item').forEach(item => {
-    item.addEventListener('click', function(e) {
-        if (this.getAttribute('target') === '_blank') return;
-        e.preventDefault();
-        document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
-        this.classList.add('active');
+// ====== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ======
+const TOKEN = new URLSearchParams(window.location.search).get('token') || 'utsk2026';
+localStorage.setItem('utsk_token', TOKEN);
+var allClientsCache = [];
+var currentPage = 'dashboard';
+
+// ====== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ======
+function showError(msg) {
+    var b = document.getElementById('error-banner');
+    var m = document.getElementById('error-message');
+    if (b && m) { m.textContent = msg; b.classList.add('show'); setTimeout(function(){ b.classList.remove('show'); }, 4000); }
+}
+function safeText(id, text) { var el = document.getElementById(id); if (el) el.textContent = text; }
+function formatNum(n) { return (n == null) ? '—' : Number(n).toLocaleString('ru-RU'); }
+function formatCur(n) {
+    if (n == null) return '—';
+    n = Number(n);
+    if (n >= 1e6) return '₴ ' + (n/1e6).toFixed(1) + 'M';
+    if (n >= 1e3) return '₴ ' + Math.round(n/1000) + 'K';
+    return '₴ ' + formatNum(Math.round(n));
+}
+
+function toggleSideBlocks(show) {
+    var sb = document.getElementById('side-blocks');
+    var mg = document.getElementById('middle-grid');
+    if (sb && mg) {
+        if (show) { sb.classList.remove('hidden'); mg.classList.remove('full-width'); }
+        else { sb.classList.add('hidden'); mg.classList.add('full-width'); }
+    }
+}
+
+// ====== KPI ======
+async function loadDashboard() {
+    try {
+        var r = await fetch('/api/dashboard?token=' + TOKEN);
+        if (!r.ok) throw new Error(r.status);
+        var d = await r.json();
+        safeText('kpi-total-clients', formatNum(d.total_clients));
+        safeText('kpi-active-30d', formatNum(d.active_30d));
+        safeText('kpi-total-revenue', formatCur(d.total_revenue));
+        var avg = d.active_30d > 0 ? Math.round(d.total_revenue / d.active_30d) : 0;
+        safeText('kpi-avg-check', formatCur(avg));
+    } catch(e) { console.error(e); }
+}
+
+// ====== ВСЕ КЛИЕНТЫ ======
+async function loadClients(q) {
+    var tb = document.getElementById('clients-table-body');
+    if (!tb) return;
+    setTableCols(4);
+    tb.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;">⏳ Загрузка...</td></tr>';
+    try {
+        var url = '/api/clients?token=' + TOKEN + '&limit=15';
+        if (q) url += '&search=' + encodeURIComponent(q);
+        var r = await fetch(url);
+        if (!r.ok) throw new Error(r.status);
+        var data = await r.json();
+        tb.innerHTML = '';
+        if (!data.length) { tb.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;">📭 Нет данных</td></tr>'; return; }
+        data.forEach(function(c){
+            var cls = 'blue';
+            if (c.status && (c.status.includes('Спящ')||c.status.includes('Ушедш'))) cls='orange';
+            else if (c.status && !c.status.includes('Новы')) cls='green';
+            tb.innerHTML += '<tr>' +
+                '<td><b>'+(c.name||'—')+'</b><br><small style="color:var(--text-muted);">Код: '+(c.code||'—')+'</small></td>'+
+                '<td><span class="status-pill '+cls+'">'+(c.status||'—')+'</span></td>'+
+                '<td style="color:var(--text-muted);">'+(c.last_purchase_date||'—')+'</td>'+
+                '<td><button onclick="loadRecsForClient(\''+c.code+'\')" style="background:#6366f1;color:white;border:none;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;">💡</button></td>'+
+                '</tr>';
+        });
+    } catch(e) { tb.innerHTML = '<tr><td colspan="4" style="color:#dc2626;text-align:center;padding:20px;">⚠️ Ошибка</td></tr>'; }
+}
+
+// ====== АКТИВНЫЕ КЛИЕНТЫ ======
+async function loadActive() {
+    var tb = document.getElementById('clients-table-body');
+    if (!tb) return;
+    setTableCols(4);
+    tb.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;">⏳ Загрузка...</td></tr>';
+    try {
+        var r = await fetch('/api/clients/active?token='+TOKEN+'&limit=15');
+        if (!r.ok) throw new Error(r.status);
+        var data = await r.json();
+        tb.innerHTML = '';
+        if (!data.length) { tb.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;">📭 Нет активных за 30 дней</td></tr>'; return; }
+        data.forEach(function(c){
+            tb.innerHTML += '<tr>' +
+                '<td><b>'+(c.name||'—')+'</b><br><small style="color:var(--text-muted);">Код: '+(c.code||'—')+' | Документов: '+(c.docs_count||0)+'</small></td>'+
+                '<td><span class="status-pill green">'+(c.status||'—')+'</span></td>'+
+                '<td style="color:var(--text-muted);">'+(c.last_purchase_date||'—')+'</td>'+
+                '<td style="font-weight:600;color:#047857;">₴ '+formatNum(Math.round(c.total_revenue||0))+'</td>'+
+                '</tr>';
+        });
+    } catch(e) { tb.innerHTML = '<tr><td colspan="4" style="color:#dc2626;text-align:center;padding:20px;">⚠️ Ошибка</td></tr>'; }
+}
+
+// ====== РИСК ОТТОКА ======
+async function loadChurn() {
+    var tb = document.getElementById('clients-table-body');
+    if (!tb) return;
+    setTableCols(4);
+    tb.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;">⏳ Загрузка...</td></tr>';
+    try {
+        var r = await fetch('/api/clients/churn-risk?token='+TOKEN+'&limit=15');
+        if (!r.ok) throw new Error(r.status);
+        var data = await r.json();
+        tb.innerHTML = '';
+        if (!data.length) { tb.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;">✅ Риска оттока нет!</td></tr>'; return; }
+        data.forEach(function(c){
+            var bg = (c.days_since_last > 180) ? ' style="background:#fff5f5;"' : '';
+            tb.innerHTML += '<tr'+bg+'>' +
+                '<td><b>'+(c.name||'—')+'</b><br><small style="color:var(--text-muted);">Код: '+(c.code||'—')+'</small></td>'+
+                '<td><span class="status-pill orange">'+(c.status||'—')+'</span></td>'+
+                '<td style="color:var(--text-muted);">'+(c.last_purchase_date||'—')+'</td>'+
+                '<td style="font-weight:600;color:#dc2626;">⚠️ '+(c.days_since_last||0)+' дн.</td>'+
+                '</tr>';
+        });
+    } catch(e) { tb.innerHTML = '<tr><td colspan="4" style="color:#dc2626;text-align:center;padding:20px;">⚠️ Ошибка</td></tr>'; }
+}
+
+// ====== ВОРОНКА ПРОДАЖ ======
+async function loadFunnel() {
+    var tb = document.getElementById('clients-table-body');
+    if (!tb) return;
+    setTableCols(3);
+    tb.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:20px;">⏳ Загрузка...</td></tr>';
+    try {
+        var r = await fetch('/api/funnel?token=' + TOKEN);
+        if (!r.ok) throw new Error(r.status);
+        var data = await r.json();
+        tb.innerHTML = '';
+        if (!data.length) { tb.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:20px;">📭 Нет данных</td></tr>'; return; }
+        data.forEach(function(s){
+            tb.innerHTML += '<tr><td style="padding:16px 12px;"><b>'+s.stage+'</b></td><td style="padding:16px 12px;text-align:center;">'+formatNum(s.count)+' клиентов</td><td style="padding:16px 12px;text-align:right;">'+formatCur(s.revenue)+'</td></tr>';
+        });
+    } catch(e) { tb.innerHTML = '<tr><td colspan="3" style="color:#dc2626;text-align:center;padding:20px;">⚠️ Ошибка</td></tr>'; }
+}
+
+/// ====== РЕКОМЕНДАЦИИ ДЛЯ КЛИЕНТА (4 БЛОКА) ======
+async function loadRecsForClient(clientCode) {
+    var tb = document.getElementById('clients-table-body');
+    if (!tb) return;
+    setTableCols(5);
+    tb.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;">⏳ Загрузка рекомендаций...</td></tr>';
+    try {
+        var r = await fetch('/api/recommendations/' + clientCode + '?token=' + TOKEN);
+        if (!r.ok) throw new Error(r.status);
+        var data = await r.json();
+        tb.innerHTML = '';
+        
+        if (!data.recommendations || !data.recommendations.length) {
+            tb.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;">📭 Нет рекомендаций для <b>' + (data.client_name || clientCode) + '</b></td></tr>';
+            return;
+        }
+        
+        // Заголовок
+        tb.innerHTML += '<tr style="background:#f0fdf4;"><td colspan="5" style="text-align:center;font-weight:700;padding:12px;">🎯 Рекомендации для: <b>' + data.client_name + '</b> (код: ' + data.client_code + ')</td></tr>';
+        
+        // Кнопка возврата
+        tb.innerHTML += '<tr><td colspan="5" style="text-align:center;padding:8px;"><button onclick="showRecSearch()" style="padding:8px 20px;background:#6366f1;color:white;border:none;border-radius:10px;cursor:pointer;font-size:14px;font-weight:600;">🔍 Искать другого клиента</button></td></tr>';
+        
+        // Данные
+        var reasonColors = {
+            'Часто покупаете': '#047857',
+            'Новинка в вашем сегменте': '#0369a1',
+            'С этим обычно берут': '#6b21a8',
+            'Вы недавно интересовались': '#d97706',
+            'Популярный товар': '#64748b'
+        };
+        
+        var reasonIcons = {
+            'Часто покупаете': '🔄',
+            'Новинка в вашем сегменте': '🆕',
+            'С этим обычно берут': '🔗',
+            'Вы недавно интересовались': '👣',
+            'Популярный товар': '⭐'
+        };
+        
+        data.recommendations.forEach(function(p, i){
+            var reasonText = p.reason || 'Часто покупаете';
+            var color = reasonColors[reasonText] || '#047857';
+            var icon = reasonIcons[reasonText] || '✅';
+            
+            tb.innerHTML += '<tr>' +
+                '<td style="text-align:center;font-weight:600;width:40px;">'+(i+1)+'</td>' +
+                '<td style="max-width:300px;"><b>'+(p.name||'—')+'</b><br><small style="color:var(--text-muted);">'+(p.code||'—')+'</small></td>'+
+                '<td style="text-align:center;width:120px;color:'+color+';font-weight:600;">'+icon+' '+reasonText+'</td>'+
+                '<td style="text-align:center;width:80px;">'+(p.in_stock||p.in_stock_balance||0)+'</td>'+
+                '<td style="text-align:center;"><span class="status-pill green">Рекомендовано</span></td>'+
+                '</tr>';
+        });
+        
+        console.log('✅ Рекомендации для', clientCode, ':', data.recommendations.length, 'шт.');
+    } catch(e) { 
+        console.error(e); 
+        tb.innerHTML = '<tr><td colspan="5" style="color:#dc2626;text-align:center;padding:20px;">⚠️ Ошибка: ' + e.message + '</td></tr>'; 
+    }
+}
+
+// ====== ВСПОМОГАТЕЛЬНАЯ: ПЕРЕКЛЮЧЕНИЕ КОЛОНОК ======
+function setTableCols(n) {
+    var tbl = document.getElementById('main-table');
+    if (!tbl) return;
+    tbl.classList.remove('cols3', 'cols4', 'cols5');
+    tbl.classList.add('cols' + n);
+}
+
+// ====== ПОЛЕ ПОИСКА ДЛЯ РЕКОМЕНДАЦИЙ ======
+async function showRecSearch() {
+    var tb = document.getElementById('clients-table-body');
+    if (!tb) return;
+    
+    // Очищаем заголовок таблицы
+    var thead = document.getElementById('table-head');
+    if (thead) thead.innerHTML = '';
+    
+    setTableCols(4);
+    tb.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;">' +
+        '<div style="font-size:18px;margin-bottom:12px;">👥 ВЫБЕРИТЕ КЛИЕНТА ДЛЯ РЕКОМЕНДАЦИЙ</div>' +
+        '<input type="text" id="rec-search-input" placeholder="Введите название или код компании..." ' +
+        'style="padding:14px 20px;border-radius:12px;border:2px solid #6366f1;font-size:16px;width:450px;" ' +
+        'oninput="filterClientList()" autofocus>' +
+        '<br><small style="color:var(--text-muted);margin-top:6px;display:block;">Вводите название — список фильтруется автоматически</small>' +
+        '</td></tr>' +
+        '<tr><td colspan="4" id="client-list-cell" style="padding:0;max-height:400px;overflow-y:auto;"></td></tr>';
+    loadAllClientsForSearch();
+}
+
+async function loadAllClientsForSearch() {
+    var cell = document.getElementById('client-list-cell');
+    if (!cell) return;
+    cell.innerHTML = '<div style="text-align:center;padding:20px;">⏳ Загрузка списка клиентов...</div>';
+    try {
+        var r = await fetch('/api/clients?token=' + TOKEN + '&limit=500');
+        if (!r.ok) throw new Error(r.status);
+        allClientsCache = await r.json();
+        filterClientList();
+    } catch(e) { cell.innerHTML = '<div style="text-align:center;padding:20px;color:#dc2626;">⚠️ Ошибка</div>'; }
+}
+
+function filterClientList() {
+    var inp = document.getElementById('rec-search-input');
+    var cell = document.getElementById('client-list-cell');
+    if (!cell) return;
+    var query = (inp && inp.value.trim()) ? inp.value.trim().toLowerCase() : '';
+    var filtered = allClientsCache;
+    if (query) { filtered = allClientsCache.filter(function(c){ return (c.name&&c.name.toLowerCase().includes(query))||(c.code&&c.code.toString().includes(query)); }); }
+    var display = filtered.slice(0, 50);
+    if (!display.length) { cell.innerHTML = '<div style="text-align:center;padding:15px;">Ничего не найдено</div>'; return; }
+    var html = '<table style="width:100%;border-collapse:collapse;"><thead><tr style="background:#f8fafc;">' +
+        '<th style="padding:10px 16px;">Код</th><th style="padding:10px 16px;">Название</th><th style="padding:10px 16px;text-align:center;">Статус</th><th style="padding:10px 16px;text-align:center;">Действие</th></tr></thead><tbody>';
+    display.forEach(function(c){
+        var cls = 'blue';
+        if (c.status&&(c.status.includes('Спящ')||c.status.includes('Ушедш'))) cls='orange';
+        else if (c.status&&!c.status.includes('Новы')) cls='green';
+        html += '<tr style="cursor:pointer;" onclick="loadRecsForClient(\''+c.code+'\')" onmouseover="this.style.background=\'#e0f2fe\'" onmouseout="this.style.background=\'\'">'+
+            '<td style="padding:10px 16px;font-weight:600;">'+(c.code||'—')+'</td>'+
+            '<td style="padding:10px 16px;">'+(c.name||'—')+'</td>'+
+            '<td style="padding:10px 16px;text-align:center;"><span class="status-pill '+cls+'">'+(c.status||'—')+'</span></td>'+
+            '<td style="padding:10px 16px;text-align:center;"><span style="color:#6366f1;font-weight:600;">💡 Выбрать</span></td></tr>';
     });
+    if (filtered.length > 50) html += '<tr><td colspan="4" style="text-align:center;padding:10px;">Показано 50 из ' + filtered.length + '</td></tr>';
+    html += '</tbody></table>';
+    cell.innerHTML = html;
+}
+
+// ====== УМНОЕ ОБНОВЛЕНИЕ ======
+function refreshAll() { 
+    loadDashboard(); 
+    if (currentPage === 'recommendations') showRecSearch();
+    else if (currentPage === 'clients') loadActive();
+    else if (currentPage === 'churn') loadChurn();
+    else if (currentPage === 'funnel') loadFunnel();
+    else loadClients();
+}
+
+// ====== ЗАПУСК ======
+document.addEventListener('DOMContentLoaded', function(){
+    var si = document.getElementById('search-input');
+    if (si) si.addEventListener('keypress', function(e){ if (e.key==='Enter') loadClients(this.value.trim()||null); });
+
+    document.querySelectorAll('.sidebar-item').forEach(function(item){
+        item.addEventListener('click', function(e){
+            var href = this.getAttribute('href');
+            var target = this.getAttribute('target');
+            var dp = this.getAttribute('data-page');
+            if (target === '_blank') return;
+            if (href && href.startsWith('/') && href !== '#' && !href.startsWith('/?')) return;
+            e.preventDefault();
+            document.querySelectorAll('.sidebar-item').forEach(function(i){ i.classList.remove('active'); });
+            this.classList.add('active');
+            currentPage = dp;
+            var thead = document.getElementById('table-head');
+            var bt = document.getElementById('block-title');
+            var pt = document.getElementById('page-title');
+
+            if (dp === 'dashboard') {
+                if (pt) pt.textContent = 'Сводка за 30 дней';
+                if (bt) bt.textContent = 'Клиенты (Live из БД)';
+                if (thead) thead.innerHTML = '<tr><th>Клиент</th><th>Статус</th><th>Последняя покупка</th><th>Действия</th></tr>';
+                toggleSideBlocks(true);
+                refreshAll();
+            } else if (dp === 'clients') {
+                if (pt) pt.textContent = 'Активные клиенты';
+                if (bt) bt.textContent = 'Покупки за последние 30 дней';
+                if (thead) thead.innerHTML = '<tr><th>Клиент</th><th>Статус</th><th>Последняя покупка</th><th>Выручка</th></tr>';
+                toggleSideBlocks(false);
+                loadActive();
+            } else if (dp === 'churn') {
+                if (pt) pt.textContent = 'Риск оттока';
+                if (bt) bt.textContent = 'Без покупок более 90 дней';
+                if (thead) thead.innerHTML = '<tr><th>Клиент</th><th>Статус</th><th>Последняя покупка</th><th>Предупреждение</th></tr>';
+                toggleSideBlocks(false);
+                loadChurn();
+            } else if (dp === 'funnel') {
+                if (pt) pt.textContent = 'Воронка продаж';
+                if (bt) bt.textContent = 'Распределение по статусам';
+                if (thead) thead.innerHTML = '<tr><th>Статус</th><th>Клиентов</th><th>Выручка</th></tr>';
+                toggleSideBlocks(false);
+                loadFunnel();
+            } else if (dp === 'recommendations') {
+                if (pt) pt.textContent = 'Рекомендации';
+                if (bt) bt.textContent = 'Персональные для клиента';
+                if (thead) thead.innerHTML = '<tr><th>#</th><th>Товар</th><th>Причина</th><th>Остаток</th><th>Статус</th></tr>';
+                toggleSideBlocks(false);
+                showRecSearch();
+            }
+        });
+    });
+
+    console.log('🚀 UTSK v7.1 запущен');
+    refreshAll();
 });
 </script>
 

@@ -62,3 +62,28 @@ def test_index_html():
     response = client.get("/?token=" + TOKEN)
     assert response.status_code == 200
     assert "UTSK" in response.text
+
+def test_plan_page(test_client):
+    """Проверка страницы плана разработки"""
+    response = test_client.get("/plan?token=utsk2026")
+    assert response.status_code == 200
+    assert "UTSK" in response.text or "План разработки" in response.text
+
+
+def test_db_reference_page(test_client):
+    """Проверка справочника БД"""
+    response = test_client.get("/db-reference?token=utsk2026")
+    assert response.status_code == 200
+    assert "UTSK" in response.text or "Справочник" in response.text
+
+
+def test_plan_page_no_auth(test_client):
+    """Страница плана без токена = 403"""
+    response = test_client.get("/plan")
+    assert response.status_code == 403
+
+
+def test_db_reference_no_auth(test_client):
+    """Справочник без токена = 403"""
+    response = test_client.get("/db-reference")
+    assert response.status_code == 403

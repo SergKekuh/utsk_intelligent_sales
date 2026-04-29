@@ -521,7 +521,7 @@
 <body>
 <div class="container">
 
-<a href="index.html" class="back-link">← Назад к дашборду</a>
+<a href="/?token=utsk2026" class="back-link">← Назад к дашборду</a>
 
 <h1>🚀 UTSK Intelligent Sales — План разработки <small>v7.1</small></h1>
 <p style="font-size: 20px; color: var(--text-muted); margin-top: -5px;">
@@ -737,7 +737,7 @@
 
 <div class="note">
     <strong>✅ Статус:</strong> База данных создана и заполнена реальными данными из 1С.<br>
-    <strong>📄 Полный справочник:</strong> <code>db_reference.html</code>
+    <strong>📄 Полный справочник:</strong> <a href="/db-reference?token=utsk2026"><code>db_reference.html</code></a>
 </div>
 
 <h3>✅ Чек-лист: SQL 1</h3>
@@ -1321,9 +1321,10 @@
 </div>
 
 <!-- ====================================================================== -->
-<!-- СКРИПТ ПРОГРЕССА -->
+<!-- СКРИПТЫ: ПРОГРЕСС-БАР + АВТО-ТОКЕН -->
 <!-- ====================================================================== -->
 <script>
+// ====== 1. ПРОГРЕСС-БАР ======
 (function() {
     const checkboxes = document.querySelectorAll('#master-checklist .task-checkbox');
     const progressFill = document.getElementById('progress-fill');
@@ -1371,6 +1372,36 @@
     
     loadState();
     updateProgress();
+})();
+
+// ====== 2. АВТО-ПОДСТАНОВКА ТОКЕНА ======
+(function() {
+    // Получаем токен из URL или localStorage
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    if (token) {
+        localStorage.setItem('utsk_token', token);
+    }
+    
+    const savedToken = localStorage.getItem('utsk_token');
+    if (!savedToken) return; // Нет токена — ничего не делаем
+    
+    document.querySelectorAll('a[href]').forEach(function(link) {
+        var href = link.getAttribute('href');
+        
+        // Пропускаем:
+        if (!href) return;                           // пустые ссылки
+        if (href.startsWith('#')) return;            // якоря
+        if (href.startsWith('http://')) return;      // внешние http
+        if (href.startsWith('https://')) return;     // внешние https
+        if (href.startsWith('mailto:')) return;      // почтовые
+        if (href.startsWith('javascript:')) return;  // javascript
+        if (href.includes('token=')) return;         // уже есть токен
+        
+        // Добавляем токен
+        var separator = href.includes('?') ? '&' : '?';
+        link.setAttribute('href', href + separator + 'token=' + savedToken);
+    });
 })();
 </script>
 
