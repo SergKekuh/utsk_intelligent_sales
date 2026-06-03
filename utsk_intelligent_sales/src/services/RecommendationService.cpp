@@ -1,15 +1,15 @@
 #include "services/RecommendationService.hpp"
 #include "core/Logger.hpp"
-#include <sstream>
 
 namespace utsk {
 
-RecommendationService::RecommendationService(Database& db) : m_db(db) {}
+RecommendationService::RecommendationService(Database &db) : m_db(db) {}
 
-std::vector<Recommendation> RecommendationService::getForClient(const std::string& clientCode) {
-    std::vector<Recommendation> recommendations;
-    
-    const std::string query = R"(
+std::vector<Recommendation>
+RecommendationService::getForClient(const std::string &clientCode) {
+  std::vector<Recommendation> recommendations;
+
+  const std::string query = R"(
         -- БЛОК 1: История покупок (часто покупаемые товары)
         SELECT 
             c.code as client_code, c.name as client_name,
@@ -52,25 +52,25 @@ std::vector<Recommendation> RecommendationService::getForClient(const std::strin
         ORDER BY priority, in_stock DESC
         LIMIT 5
     )";
-    
-    try {
-        auto result = m_db.executeParams(query, {clientCode});
-        
-        for (const auto& row : result) {
-            Recommendation rec;
-            rec.clientCode = row["client_code"].as<std::string>();
-            rec.clientName = row["client_name"].as<std::string>();
-            rec.productCode = row["product_code"].as<std::string>();
-            rec.productName = row["product_name"].as<std::string>();
-            rec.reason = row["reason"].as<std::string>();
-            rec.priority = row["priority"].as<int>();
-            rec.inStockBalance = row["in_stock"].as<double>();
-            recommendations.push_back(rec);
-        }
-        
-        // Если рекомендаций нет — предложим популярные товары
-        if (recommendations.empty()) {
-            const std::string fallbackQuery = R"(
+
+  try {
+    auto result = m_db.executeParams(query, {clientCode});
+
+    for (const auto &row : result) {
+      Recommendation rec;
+      rec.clientCode = row["client_code"].as<std::string>();
+      rec.clientName = row["client_name"].as<std::string>();
+      rec.productCode = row["product_code"].as<std::string>();
+      rec.productName = row["product_name"].as<std::string>();
+      rec.reason = row["reason"].as<std::string>();
+      rec.priority = row["priority"].as<int>();
+      rec.inStockBalance = row["in_stock"].as<double>();
+      recommendations.push_back(rec);
+    }
+
+    // Если рекомендаций нет — предложим популярные товары
+    if (recommendations.empty()) {
+      const std::string fallbackQuery = R"(
                 SELECT 
                     $1 as client_code,
                     (SELECT name FROM clients WHERE code = $1) as client_name,
@@ -84,36 +84,36 @@ std::vector<Recommendation> RecommendationService::getForClient(const std::strin
                 ORDER BY p.code
                 LIMIT 5
             )";
-            
-            auto fbResult = m_db.executeParams(fallbackQuery, {clientCode});
-            
-            for (const auto& row : fbResult) {
-                Recommendation rec;
-                rec.clientCode = row["client_code"].as<std::string>();
-                rec.clientName = row["client_name"].as<std::string>();
-                rec.productCode = row["product_code"].as<std::string>();
-                rec.productName = row["product_name"].as<std::string>();
-                rec.reason = row["reason"].as<std::string>();
-                rec.priority = row["priority"].as<int>();
-                rec.inStockBalance = row["in_stock"].as<double>();
-                recommendations.push_back(rec);
-            }
-        }
-        
-        LOG_INFO("Generated " + std::to_string(recommendations.size()) + 
-                 " recommendations for client " + clientCode);
-        
-    } catch (const std::exception& e) {
-        LOG_ERROR(std::string("Recommendation query failed: ") + e.what());
+
+      auto fbResult = m_db.executeParams(fallbackQuery, {clientCode});
+
+      for (const auto &row : fbResult) {
+        Recommendation rec;
+        rec.clientCode = row["client_code"].as<std::string>();
+        rec.clientName = row["client_name"].as<std::string>();
+        rec.productCode = row["product_code"].as<std::string>();
+        rec.productName = row["product_name"].as<std::string>();
+        rec.reason = row["reason"].as<std::string>();
+        rec.priority = row["priority"].as<int>();
+        rec.inStockBalance = row["in_stock"].as<double>();
+        recommendations.push_back(rec);
+      }
     }
-    
-    return recommendations;
+
+    LOG_INFO("Generated " + std::to_string(recommendations.size()) +
+             " recommendations for client " + clientCode);
+
+  } catch (const std::exception &e) {
+    LOG_ERROR(std::string("Recommendation query failed: ") + e.what());
+  }
+
+  return recommendations;
 }
 
-void RecommendationService::recordAddition(const std::string& clientCode, 
-                                            const std::string& productCode) {
-    try {
-        const std::string query = R"(
+void RecommendationService::recordAddition(const std::string &clientCode,
+                                           const std::string &productCode) {
+  try {
+    const std::string query = R"(
             INSERT INTO product_scoring (client_code, product_code, positive_reinforcement)
             VALUES ($1, $2, 5)
             ON CONFLICT (client_code, product_code) 
@@ -123,19 +123,19 @@ void RecommendationService::recordAddition(const std::string& clientCode,
                 blocked_until = NULL,
                 updated_at = CURRENT_TIMESTAMP
         )";
-        
-        m_db.executeParams(query, {clientCode, productCode});
-        LOG_INFO("Recorded addition: +5 for product " + productCode);
-        
-    } catch (const std::exception& e) {
-        LOG_ERROR(std::string("Failed to record addition: ") + e.what());
-    }
+
+    m_db.executeParams(query, {clientCode, productCode});
+    LOG_INFO("Recorded addition: +5 for product " + productCode);
+
+  } catch (const std::exception &e) {
+    LOG_ERROR(std::string("Failed to record addition: ") + e.what());
+  }
 }
 
-void RecommendationService::recordRejection(const std::string& clientCode, 
-                                             const std::string& productCode) {
-    try {
-        const std::string query = R"(
+void RecommendationService::recordRejection(const std::string &clientCode,
+                                            const std::string &productCode) {
+  try {
+    const std::string query = R"(
             INSERT INTO product_scoring (client_code, product_code, negative_reinforcement)
             VALUES ($1, $2, 3)
             ON CONFLICT (client_code, product_code) 
@@ -143,10 +143,10 @@ void RecommendationService::recordRejection(const std::string& clientCode,
                 negative_reinforcement = product_scoring.negative_reinforcement + 3,
                 updated_at = CURRENT_TIMESTAMP
         )";
-        
-        m_db.executeParams(query, {clientCode, productCode});
-        
-        const std::string blockQuery = R"(
+
+    m_db.executeParams(query, {clientCode, productCode});
+
+    const std::string blockQuery = R"(
             UPDATE product_scoring 
             SET is_blocked = TRUE,
                 blocked_until = CURRENT_DATE + INTERVAL '30 days'
@@ -154,48 +154,47 @@ void RecommendationService::recordRejection(const std::string& clientCode,
               AND product_code = $2 
               AND current_weight < 0
         )";
-        
-        m_db.executeParams(blockQuery, {clientCode, productCode});
-        
-        const std::string logQuery = R"(
+
+    m_db.executeParams(blockQuery, {clientCode, productCode});
+
+    const std::string logQuery = R"(
             INSERT INTO manager_rejections_log (client_code, product_code, reject_reason)
             VALUES ($1, $2, 'Отклонено менеджером')
         )";
-        
-        m_db.executeParams(logQuery, {clientCode, productCode});
-        
-        LOG_INFO("Recorded rejection: -3 for product " + productCode);
-        
-    } catch (const std::exception& e) {
-        LOG_ERROR(std::string("Failed to record rejection: ") + e.what());
-    }
+
+    m_db.executeParams(logQuery, {clientCode, productCode});
+
+    LOG_INFO("Recorded rejection: -3 for product " + productCode);
+
+  } catch (const std::exception &e) {
+    LOG_ERROR(std::string("Failed to record rejection: ") + e.what());
+  }
 }
 
-std::vector<std::pair<std::string, std::string>> RecommendationService::getClientList() {
-    std::vector<std::pair<std::string, std::string>> clients;
-    
-    const std::string query = R"(
+std::vector<std::pair<std::string, std::string>>
+RecommendationService::getClientList() {
+  std::vector<std::pair<std::string, std::string>> clients;
+
+  const std::string query = R"(
         SELECT code, name 
         FROM clients 
         ORDER BY name
         LIMIT 50
     )";
-    
-    try {
-        auto result = m_db.execute(query);
-        
-        for (const auto& row : result) {
-            clients.push_back({
-                row["code"].as<std::string>(),
-                row["name"].as<std::string>()
-            });
-        }
-        
-    } catch (const std::exception& e) {
-        LOG_ERROR(std::string("Failed to get client list: ") + e.what());
+
+  try {
+    auto result = m_db.execute(query);
+
+    for (const auto &row : result) {
+      clients.push_back(
+          {row["code"].as<std::string>(), row["name"].as<std::string>()});
     }
-    
-    return clients;
+
+  } catch (const std::exception &e) {
+    LOG_ERROR(std::string("Failed to get client list: ") + e.what());
+  }
+
+  return clients;
 }
 
 } // namespace utsk
