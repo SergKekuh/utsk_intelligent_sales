@@ -373,6 +373,282 @@ def top_recommendations(token: str = Query(None), limit: int = 10):
         return [dict(row._mapping) for row in result]
     finally:
         db.close()
+# ====== API: АНАЛИТИКА — МЕСЯЧНАЯ ДИНАМИКА ======
+@app.get("/api/analytics/monthly-revenue")
+def monthly_revenue(token: str = Query(None), year: int = 2026):
+    """Динамика выручки по месяцам (товар + услуги)"""
+    verify_token(token)
+    db = get_db()
+    try:
+        # Проверяем, существует ли представление
+        view_exists = db.execute(text("""
+            SELECT EXISTS (
+                SELECT FROM pg_views WHERE viewname = 'view_monthly_revenue'
+            )
+        """)).scalar()
+        
+        if not view_exists:
+            # Если представления нет — считаем на лету
+            result = db.execute(text("""
+                SELECT 
+                    EXTRACT(YEAR FROM d.invoice_date)::INTEGER AS year,
+                    EXTRACT(MONTH FROM d.invoice_date)::INTEGER AS month,
+                    TO_CHAR(TO_DATE(EXTRACT(MONTH FROM d.invoice_date)::TEXT, 'MM'), 'Mon') AS month_name,
+                    COUNT(DISTINCT d.client_code) AS active_clients,
+                    COUNT(DISTINCT d.id) AS invoice_count,
+                    COALESCE(SUM(CASE WHEN pr.is_service = FALSE THEN sl.amount ELSE 0 END), 0) AS goods_revenue,
+                    COALESCE(SUM(CASE WHEN pr.is_service = TRUE THEN sl.amount ELSE 0 END), 0) AS services_revenue,
+                    COALESCE(SUM(sl.amount), 0) AS total_revenue
+                FROM documents d
+                JOIN sales_lines sl ON sl.document_id = d.id
+                LEFT JOIN products pr ON sl.product_code = pr.code
+                JOIN clients c ON d.client_code = c.code AND c.is_active_current = TRUE
+                WHERE EXTRACT(YEAR FROM d.invoice_date) = :year
+                GROUP BY year, month, month_name
+                ORDER BY month
+            """), {"year": year})
+        else:
+            result = db.execute(text("""
+                SELECT * FROM view_monthly_revenue
+                WHERE year = :year
+                ORDER BY month
+            """), {"year": year})
+        
+        data = []
+        for row in result:
+            r = dict(row._mapping)
+            # Преобразуем NUMERIC в float для JSON
+            for key in ['goods_revenue', 'services_revenue', 'total_revenue']:
+                if key in r and r[key] is not None:
+                    r[key] = round(float(r[key]), 2)
+            data.append(r)
+        
+        return {"status": "ok", "year": year, "data": data, "count": len(data)}
+    except Exception as e:
+        logger.error(f"Ошибка monthly_revenue: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
+
+
+# ====== API: АНАЛИТИКА — YoY СРАВНЕНИЕ ======
+@app.get("/api/analytics/yoy-comparison")
+def yoy_comparison(token: str = Query(None), year1: int = 2026, year2: int = 2025):
+    """Сравнение двух годов (честный YoY — одни и те же клиенты в обоих годах)"""
+    verify_token(token)
+    db = get_db()
+    try:
+        view_exists = db.execute(text("""
+            SELECT EXISTS (
+                SELECT FROM pg_views WHERE viewname = 'view_yoy_comparison'
+            )
+        """)).scalar()
+        
+        if not view_exists:
+            # Считаем на лету — клиенты, у которых были продажи в ОБОИХ годах
+            result = db.execute(text("""
+                WITH mutual_clients AS (
+                    SELECT DISTINCT d1.client_code
+                    FROM documents d1
+                    WHERE EXTRACT(YEAR FROM d1.invoice_date) = :year1
+                    INTERSECT
+                    SELECT DISTINCT d2.client_code
+                    FROM documents d2
+                    WHERE EXTRACT(YEAR FROM d2.invoice_date) = :year2
+                )
+                SELECT 
+                    EXTRACT(MONTH FROM d.invoice_date)::INTEGER AS month,
+                    TO_CHAR(TO_DATE(EXTRACT(MONTH FROM d.invoice_date)::TEXT, 'MM'), 'Mon') AS month_name,
+                    COALESCE(SUM(CASE WHEN EXTRACT(YEAR FROM d.invoice_date) = :year1 
+                        AND pr.is_service = FALSE THEN sl.amount ELSE 0 END), 0) AS goods_revenue_y1,
+                    COALESCE(SUM(CASE WHEN EXTRACT(YEAR FROM d.invoice_date) = :year2 
+                        AND pr.is_service = FALSE THEN sl.amount ELSE 0 END), 0) AS goods_revenue_y2,
+                    COUNT(DISTINCT CASE WHEN EXTRACT(YEAR FROM d.invoice_date) = :year1 
+                        THEN d.client_code END) AS clients_y1,
+                    COUNT(DISTINCT CASE WHEN EXTRACT(YEAR FROM d.invoice_date) = :year2 
+                        THEN d.client_code END) AS clients_y2
+                FROM documents d
+                JOIN sales_lines sl ON sl.document_id = d.id
+                LEFT JOIN products pr ON sl.product_code = pr.code
+                WHERE d.client_code IN (SELECT client_code FROM mutual_clients)
+                  AND EXTRACT(YEAR FROM d.invoice_date) IN (:year1, :year2)
+                GROUP BY month, month_name
+                ORDER BY month
+            """), {"year1": year1, "year2": year2})
+        else:
+            result = db.execute(text("""
+                SELECT * FROM view_yoy_comparison
+                ORDER BY month
+            """))
+        
+        data = []
+        for row in result:
+            r = dict(row._mapping)
+            for key in r:
+                if r[key] is not None and isinstance(r[key], (int, float)):
+                    r[key] = round(float(r[key]), 2)
+            # Добавляем % роста
+            if r.get('goods_revenue_y2', 0) > 0:
+                r['growth_pct'] = round(((r.get('goods_revenue_y1', 0) - r.get('goods_revenue_y2', 0)) / r['goods_revenue_y2']) * 100, 1)
+            else:
+                r['growth_pct'] = None
+            data.append(r)
+        
+        return {"status": "ok", "year1": year1, "year2": year2, "data": data, "count": len(data)}
+    except Exception as e:
+        logger.error(f"Ошибка yoy_comparison: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
+
+# ====== СТРАНИЦА: АНАЛИТИКА ПО КЛИЕНТАМ ======
+@app.get("/analytics", response_class=HTMLResponse)
+async def analytics_page(request: Request, token: str = Query(None)):
+    verify_token(token)
+    search_dirs = [FRONTEND_DIR, os.path.join(PROJECT_DIR, "frontend", "static"), os.path.join(ROOT_DIR, "frontend", "static")]
+    filepath = find_file("analytics.html", search_dirs)
+    if filepath:
+        with open(filepath, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    raise HTTPException(status_code=404, detail="Страница аналитики не найдена")
+    # ====== API: PIVOT ABC-ОТЧЁТ ======
+@app.get("/api/analytics/pivot-report")
+def pivot_report(
+    token: str = Query(None),
+    year: int = 2026,
+    multiplier: float = 2.9,
+    limit_price: float = 146000,
+    direction: str = "below"
+):
+    """PIVOT-таблица ABC-сегментации из generate_custom_sales_report"""
+    verify_token(token)
+    db = get_db()
+    try:
+        result = db.execute(
+            text("SELECT * FROM generate_custom_sales_report(:year, :multiplier, :limit_price, :direction)"),
+            {
+                "year": year,
+                "multiplier": multiplier,
+                "limit_price": limit_price,
+                "direction": direction
+            }
+        )
+        
+        data = []
+        for row in result:
+            r = dict(row._mapping)
+            for key in r:
+                if r[key] is not None and isinstance(r[key], (int, float)):
+                    r[key] = round(float(r[key]), 2)
+            data.append(r)
+        
+        return {
+            "status": "ok",
+            "params": {
+                "year": year,
+                "multiplier": multiplier,
+                "limit_price": limit_price,
+                "direction": direction
+            },
+            "data": data,
+            "count": len(data)
+        }
+    except Exception as e:
+        logger.error(f"Ошибка pivot_report: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
+
+
+# ====== API: ФОРМАТИРОВАННЫЙ PIVOT-ОТЧЁТ ======
+@app.get("/api/analytics/pivot-formatted")
+def pivot_formatted(
+    token: str = Query(None),
+    year: int = 2026,
+    multiplier: float = 2.9,
+    limit_price: float = 146000
+):
+    """PIVOT-отчёт: группы C2 и ABC с правильными названиями метрик"""
+    verify_token(token)
+    db = get_db()
+    try:
+        below_result = db.execute(
+            text("SELECT * FROM generate_custom_sales_report(:year, :multiplier, :limit_price, 'below')"),
+            {"year": year, "multiplier": multiplier, "limit_price": limit_price}
+        )
+        above_result = db.execute(
+            text("SELECT * FROM generate_custom_sales_report(:year, :multiplier, :limit_price, 'above')"),
+            {"year": year, "multiplier": multiplier, "limit_price": limit_price}
+        )
+        
+        def rows_to_list(result):
+            data = []
+            for row in result:
+                r = dict(row._mapping)
+                for key in r:
+                    if r[key] is not None:
+                        try:
+                            r[key] = round(float(r[key]), 2)
+                        except (ValueError, TypeError):
+                            pass
+                data.append(r)
+            return data
+        
+        below_data = rows_to_list(below_result)
+        above_data = rows_to_list(above_result)
+        
+        return {
+            "status": "ok",
+            "params": {"year": year, "multiplier": multiplier, "limit_price": limit_price},
+            "below": below_data,
+            "above": above_data,
+            "below_count": len(below_data),
+            "above_count": len(above_data)
+        }
+        
+    except Exception as e:
+        logger.error(f"Ошибка pivot_formatted: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
+
+
+# ====== API: ABC-ГРУППЫ (ПИРАМИДА) ======
+@app.get("/api/analytics/abc-groups")
+def abc_groups(
+    token: str = Query(None),
+    year: int = 2026,
+    multiplier: float = 2.9
+):
+    """ABC-сегментация: группы A1..C2 + Total (из get_abc_groups)"""
+    verify_token(token)
+    db = get_db()
+    try:
+        result = db.execute(
+            text("SELECT * FROM get_abc_groups(:year, :multiplier)"),
+            {"year": year, "multiplier": multiplier}
+        )
+        
+        data = []
+        for row in result:
+            r = dict(row._mapping)
+            for key in r:
+                if r[key] is not None and isinstance(r[key], (int, float)):
+                    r[key] = round(float(r[key]), 2)
+            data.append(r)
+        
+        return {
+            "status": "ok",
+            "params": {"year": year, "multiplier": multiplier},
+            "data": data,
+            "count": len(data)
+        }
+    except Exception as e:
+        logger.error(f"Ошибка abc_groups: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
+
 
 # ====== HEALTH CHECK ======
 @app.get("/health")
@@ -384,7 +660,7 @@ def health():
         return {"status": "ok", "database": "connected", "clients_count": result}
     except Exception as e:
         return {"status": "error", "message": str(e)}
-
+        
 # ====== ЗАПУСК ======
 if __name__ == "__main__":
     print("=" * 60)
