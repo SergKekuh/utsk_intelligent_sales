@@ -649,6 +649,565 @@ def abc_groups(
     finally:
         db.close()
 
+# ======================================================================
+# API ДЛЯ СТРАНИЦЫ /monthly — АНАЛИТИКА ЗА МЕСЯЦ
+# ======================================================================
+
+# ====== 1. ДИНАМИКА ПО ДНЯМ ======
+@app.get("/api/analytics/daily-revenue")
+def daily_revenue(
+    token: str = Query(None),
+    year: int = 2026,
+    month: int = 5
+):
+    """Выручка по дням внутри месяца"""
+    verify_token(token)
+    db = get_db()
+    try:
+        result = db.execute(text("""
+            SELECT 
+                EXTRACT(DAY FROM d.invoice_date)::INTEGER AS day,
+                COUNT(DISTINCT d.client_code) AS active_clients,
+                COUNT(DISTINCT d.id) AS invoice_count,
+                COALESCE(SUM(CASE WHEN pr.is_service = FALSE THEN sl.amount ELSE 0 END), 0) AS goods_revenue,
+                COALESCE(SUM(sl.amount), 0) AS total_revenue
+            FROM documents d
+            JOIN sales_lines sl ON sl.document_id = d.id
+            LEFT JOIN products pr ON sl.product_code = pr.code
+            JOIN clients c ON d.client_code = c.code AND c.is_active_current = TRUE
+            WHERE EXTRACT(YEAR FROM d.invoice_date) = :year
+              AND EXTRACT(MONTH FROM d.invoice_date) = :month
+            GROUP BY day
+            ORDER BY day
+        """), {"year": year, "month": month})
+        
+        data = []
+        for row in result:
+            r = dict(row._mapping)
+            for key in r:
+                if r[key] is not None and isinstance(r[key], (int, float)):
+                    r[key] = round(float(r[key]), 2)
+            data.append(r)
+        
+        return {"status": "ok", "year": year, "month": month, "data": data, "count": len(data)}
+    except Exception as e:
+        logger.error(f"Ошибка daily_revenue: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
+
+
+# ====== 2. СРАВНЕНИЕ МЕСЯЦЕВ ======
+@app.get("/api/analytics/monthly-detail")
+def monthly_detail(
+    token: str = Query(None),
+    year: int = 2026,
+    month: int = 5
+):
+    """Метрики за текущий и прошлый месяц + структура товары/услуги"""
+    verify_token(token)
+    db = get_db()
+    try:
+        # Текущий месяц
+        current = db.execute(text("""
+            SELECT 
+                COUNT(DISTINCT d.client_code) AS active_clients,
+                COUNT(DISTINCT d.id) AS invoice_count,
+                COALESCE(SUM(CASE WHEN COALESCE(pr.is_service, FALSE) = FALSE THEN sl.amount ELSE 0 END), 0) AS goods_revenue,
+                COALESCE(SUM(CASE WHEN COALESCE(pr.is_service, FALSE) = TRUE THEN sl.amount ELSE 0 END), 0) AS services_revenue,
+                COALESCE(SUM(sl.amount), 0) AS total_revenue
+            FROM documents d
+            JOIN sales_lines sl ON sl.document_id = d.id
+            LEFT JOIN products pr ON sl.product_code = pr.code
+            JOIN clients c ON d.client_code = c.code AND c.is_active_current = TRUE
+            WHERE EXTRACT(YEAR FROM d.invoice_date) = :year
+              AND EXTRACT(MONTH FROM d.invoice_date) = :month
+        """), {"year": year, "month": month}).first()
+        
+        # Прошлый месяц
+        prev_month = month - 1
+        prev_year = year
+        if prev_month == 0:
+            prev_month = 12
+            prev_year = year - 1
+        
+        previous = db.execute(text("""
+            SELECT 
+                COUNT(DISTINCT d.client_code) AS active_clients,
+                COUNT(DISTINCT d.id) AS invoice_count,
+                COALESCE(SUM(CASE WHEN COALESCE(pr.is_service, FALSE) = FALSE THEN sl.amount ELSE 0 END), 0) AS goods_revenue,
+                COALESCE(SUM(CASE WHEN COALESCE(pr.is_service, FALSE) = TRUE THEN sl.amount ELSE 0 END), 0) AS services_revenue,
+                COALESCE(SUM(sl.amount), 0) AS total_revenue
+            FROM documents d
+            JOIN sales_lines sl ON sl.document_id = d.id
+            LEFT JOIN products pr ON sl.product_code = pr.code
+            JOIN clients c ON d.client_code = c.code AND c.is_active_current = TRUE
+            WHERE EXTRACT(YEAR FROM d.invoice_date) = :year
+              AND EXTRACT(MONTH FROM d.invoice_date) = :month
+        """), {"year": prev_year, "month": prev_month}).first()
+        
+        def row_to_dict(row):
+            if not row: return {}
+            r = dict(row._mapping)
+            for k in r:
+                if r[k] is not None:
+                    r[k] = round(float(r[k]), 2)
+                else:
+                    r[k] = 0.0
+            return r
+        
+        current_dict = row_to_dict(current)
+        previous_dict = row_to_dict(previous)
+        
+        # Расчёт роста
+        growth = {}
+        for key in ['goods_revenue', 'invoice_count', 'active_clients', 'services_revenue']:
+            prev_val = previous_dict.get(key, 0) or 0
+            curr_val = current_dict.get(key, 0) or 0
+            growth[key] = round(float((curr_val - prev_val) / prev_val * 100), 1) if prev_val > 0 else None
+        
+        # Средний чек
+        curr_inv = max(current_dict.get('invoice_count', 1), 1)
+        prev_inv = max(previous_dict.get('invoice_count', 1), 1)
+        current_dict['avg_ticket'] = round(float(current_dict.get('goods_revenue', 0)) / float(curr_inv), 2)
+        previous_dict['avg_ticket'] = round(float(previous_dict.get('goods_revenue', 0)) / float(prev_inv), 2)
+        
+        prev_ticket = previous_dict.get('avg_ticket', 0) or 0
+        curr_ticket = current_dict.get('avg_ticket', 0) or 0
+        growth['avg_ticket'] = round(float((curr_ticket - prev_ticket) / prev_ticket * 100), 1) if prev_ticket > 0 else None
+        
+        return {
+            "status": "ok",
+            "current": {"year": year, "month": month, **current_dict},
+            "previous": {"year": prev_year, "month": prev_month, **previous_dict},
+            "growth": growth
+        }
+    except Exception as e:
+        logger.error(f"Ошибка monthly_detail: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
+
+
+# ====== 3. МИГРАЦИЯ ABC-ГРУПП ======
+@app.get("/api/analytics/abc-migration")
+def abc_migration(
+    token: str = Query(None),
+    year: int = 2026,
+    groups: str = "A1,A2,B1,B2",
+    multiplier: float = 2.9
+):
+    """
+    Клиенты с ABC-группой groups в year-1 → их метрики в year.
+    groups: список через запятую (A1,A2,B1,B2 или C1,C2)
+    """
+    verify_token(token)
+    db = get_db()
+    try:
+        year_prev = year - 1
+        group_list = [g.strip() for g in groups.split(",")]
+        
+        # Получаем ABC-группы клиентов за прошлый год
+        abc_prev = db.execute(
+            text("SELECT * FROM get_abc_groups(:year, :multiplier)"),
+            {"year": year_prev, "multiplier": multiplier}
+        )
+        
+        # Собираем client_code по группам
+        # Для этого нам нужен другой подход — через временную таблицу
+        result = db.execute(text("""
+            WITH abc_prev AS (
+                SELECT 
+                    d.client_code,
+                    COALESCE(SUM(CASE WHEN pr.is_service = FALSE THEN sl.amount ELSE 0 END), 0) AS goods_revenue
+                FROM documents d
+                JOIN sales_lines sl ON sl.document_id = d.id
+                LEFT JOIN products pr ON sl.product_code = pr.code
+                JOIN clients c ON d.client_code = c.code AND c.is_active_current = TRUE
+                WHERE EXTRACT(YEAR FROM d.invoice_date) = :year_prev
+                GROUP BY d.client_code
+            ),
+            abc_grouped AS (
+                SELECT 
+                    client_code,
+                    goods_revenue,
+                    CASE
+                        WHEN goods_revenue >= 3000000 * :mult THEN 'A1'
+                        WHEN goods_revenue >= 2000000 * :mult THEN 'A2'
+                        WHEN goods_revenue >= 1500000 * :mult THEN 'A3'
+                        WHEN goods_revenue >= 1000000 * :mult THEN 'B1'
+                        WHEN goods_revenue >= 500000  * :mult THEN 'B2'
+                        WHEN goods_revenue >= 150000  * :mult THEN 'C1'
+                        WHEN goods_revenue >= 1000    * :mult THEN 'C2'
+                        ELSE 'Other'
+                    END AS abc_group
+                FROM abc_prev
+            )
+            SELECT 
+                ag.abc_group AS group_prev,
+                COUNT(DISTINCT ag.client_code) AS companies_count,
+                COALESCE(SUM(v.goods_revenue), 0) AS goods_revenue,
+                COALESCE(SUM(v.invoice_count), 0) AS invoice_count
+            FROM abc_grouped ag
+            LEFT JOIN view_client_profiles_yearly v 
+                ON v.client_code = ag.client_code 
+                AND v.sales_year = :year
+            WHERE ag.abc_group = ANY(:groups)
+            GROUP BY ag.abc_group
+            ORDER BY 
+                CASE ag.abc_group
+                    WHEN 'A1' THEN 1 WHEN 'A2' THEN 2 WHEN 'A3' THEN 3
+                    WHEN 'B1' THEN 4 WHEN 'B2' THEN 5
+                    WHEN 'C1' THEN 6 WHEN 'C2' THEN 7
+                END
+        """), {
+            "year_prev": year_prev,
+            "year": year,
+            "mult": multiplier,
+            "groups": group_list
+        })
+        
+        data = []
+        for row in result:
+            r = dict(row._mapping)
+            for key in r:
+                if r[key] is not None and isinstance(r[key], (int, float)):
+                    r[key] = round(float(r[key]), 2)
+            data.append(r)
+        
+        return {
+            "status": "ok",
+            "year_prev": year_prev,
+            "year": year,
+            "groups": groups,
+            "data": data,
+            "count": len(data)
+        }
+    except Exception as e:
+        logger.error(f"Ошибка abc_migration: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
+
+
+# ====== 4. ЗАЛЁТНЫЕ (C1/C2 + Новые) ======
+@app.get("/api/analytics/zaletnye")
+def zaletnye(
+    token: str = Query(None),
+    year: int = 2026,
+    multiplier: float = 2.9
+):
+    """Залётные: C1/C2 в прошлом году + новые клиенты → их метрики в текущем"""
+    verify_token(token)
+    db = get_db()
+    try:
+        year_prev = year - 1
+        
+        result = db.execute(text("""
+            WITH abc_prev AS (
+                SELECT 
+                    d.client_code,
+                    COALESCE(SUM(CASE WHEN pr.is_service = FALSE THEN sl.amount ELSE 0 END), 0) AS goods_revenue
+                FROM documents d
+                JOIN sales_lines sl ON sl.document_id = d.id
+                LEFT JOIN products pr ON sl.product_code = pr.code
+                JOIN clients c ON d.client_code = c.code AND c.is_active_current = TRUE
+                WHERE EXTRACT(YEAR FROM d.invoice_date) = :year_prev
+                GROUP BY d.client_code
+            ),
+            abc_grouped AS (
+                SELECT 
+                    client_code,
+                    CASE
+                        WHEN goods_revenue >= 3000000 * :mult THEN 'A1'
+                        WHEN goods_revenue >= 2000000 * :mult THEN 'A2'
+                        WHEN goods_revenue >= 1500000 * :mult THEN 'A3'
+                        WHEN goods_revenue >= 1000000 * :mult THEN 'B1'
+                        WHEN goods_revenue >= 500000  * :mult THEN 'B2'
+                        WHEN goods_revenue >= 150000  * :mult THEN 'C1'
+                        WHEN goods_revenue >= 1000    * :mult THEN 'C2'
+                        ELSE 'Other'
+                    END AS abc_group
+                FROM abc_prev
+            ),
+            -- C1/C2 из прошлого года
+            zalet_prev AS (
+                SELECT ag.client_code, ag.abc_group AS group_prev
+                FROM abc_grouped ag
+                WHERE ag.abc_group IN ('C1', 'C2')
+            ),
+            -- Новые (не было в прошлом году)
+            new_clients AS (
+                SELECT v.client_code, 'Новый' AS group_prev
+                FROM view_client_profiles_yearly v
+                WHERE v.sales_year = :year
+                  AND v.client_code NOT IN (
+                      SELECT DISTINCT client_code FROM view_client_profiles_yearly WHERE sales_year = :year_prev
+                  )
+            ),
+            -- Объединяем
+            all_zalet AS (
+                SELECT * FROM zalet_prev
+                UNION ALL
+                SELECT * FROM new_clients
+            )
+            SELECT 
+                az.group_prev,
+                COUNT(DISTINCT az.client_code) AS companies_count,
+                COALESCE(SUM(v.goods_revenue), 0) AS goods_revenue,
+                COALESCE(SUM(v.invoice_count), 0) AS invoice_count
+            FROM all_zalet az
+            LEFT JOIN view_client_profiles_yearly v 
+                ON v.client_code = az.client_code 
+                AND v.sales_year = :year
+            GROUP BY az.group_prev
+            ORDER BY 
+                CASE az.group_prev
+                    WHEN 'C1' THEN 1 WHEN 'C2' THEN 2 WHEN 'Новый' THEN 3
+                END
+        """), {
+            "year_prev": year_prev,
+            "year": year,
+            "mult": multiplier
+        })
+        
+        data = []
+        for row in result:
+            r = dict(row._mapping)
+            for key in r:
+                if r[key] is not None and isinstance(r[key], (int, float)):
+                    r[key] = round(float(r[key]), 2)
+            data.append(r)
+        
+        return {
+            "status": "ok",
+            "year_prev": year_prev,
+            "year": year,
+            "data": data,
+            "count": len(data)
+        }
+    except Exception as e:
+        logger.error(f"Ошибка zaletnye: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
+
+
+# ====== 5. ОТРАСЛИ ЗА МЕСЯЦ ======
+@app.get("/api/analytics/monthly-directions")
+def monthly_directions(
+    token: str = Query(None),
+    year: int = 2026,
+    month: int = 5
+):
+    """Выручка по направлениям за месяц"""
+    verify_token(token)
+    db = get_db()
+    try:
+        result = db.execute(text("""
+            SELECT 
+                COALESCE(ad.name, 'Не указано') AS direction_name,
+                COUNT(DISTINCT d.client_code) AS companies_count,
+                COUNT(DISTINCT d.id) AS invoice_count,
+                COALESCE(SUM(CASE WHEN pr.is_service = FALSE THEN sl.amount ELSE 0 END), 0) AS goods_revenue
+            FROM documents d
+            JOIN sales_lines sl ON sl.document_id = d.id
+            LEFT JOIN products pr ON sl.product_code = pr.code
+            JOIN clients c ON d.client_code = c.code AND c.is_active_current = TRUE
+            LEFT JOIN activity_directions ad ON c.activity_direction_id = ad.id
+            WHERE EXTRACT(YEAR FROM d.invoice_date) = :year
+              AND EXTRACT(MONTH FROM d.invoice_date) = :month
+            GROUP BY ad.name
+            ORDER BY goods_revenue DESC
+            LIMIT 10
+        """), {"year": year, "month": month})
+        
+        data = []
+        for row in result:
+            r = dict(row._mapping)
+            for key in r:
+                if r[key] is not None and isinstance(r[key], (int, float)):
+                    r[key] = round(float(r[key]), 2)
+            data.append(r)
+        
+        return {"status": "ok", "year": year, "month": month, "data": data, "count": len(data)}
+    except Exception as e:
+        logger.error(f"Ошибка monthly_directions: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
+
+
+# ====== 6. ТОП-ТОВАРЫ ЗА МЕСЯЦ ======
+@app.get("/api/analytics/monthly-products")
+def monthly_products(
+    token: str = Query(None),
+    year: int = 2026,
+    month: int = 5,
+    limit: int = 10
+):
+    """Топ товаров за месяц"""
+    verify_token(token)
+    db = get_db()
+    try:
+        result = db.execute(text("""
+            SELECT 
+                p.code AS product_code,
+                p.name AS product_name,
+                COUNT(DISTINCT d.id) AS invoice_count,
+                COALESCE(SUM(sl.amount), 0) AS total_sales,
+                COALESCE(SUM(sl.quantity), 0) AS total_quantity
+            FROM documents d
+            JOIN sales_lines sl ON sl.document_id = d.id
+            JOIN products p ON sl.product_code = p.code
+            WHERE EXTRACT(YEAR FROM d.invoice_date) = :year
+              AND EXTRACT(MONTH FROM d.invoice_date) = :month
+              AND COALESCE(p.is_service, FALSE) = FALSE
+            GROUP BY p.code, p.name
+            ORDER BY total_sales DESC
+            LIMIT :limit
+        """), {"year": year, "month": month, "limit": limit})
+        
+        data = []
+        for row in result:
+            r = dict(row._mapping)
+            for key in r:
+                if r[key] is not None and isinstance(r[key], (int, float)):
+                    r[key] = round(float(r[key]), 2)
+            data.append(r)
+        
+        return {"status": "ok", "year": year, "month": month, "data": data, "count": len(data)}
+    except Exception as e:
+        logger.error(f"Ошибка monthly_products: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
+
+
+# ====== 7. ТОП-КЛИЕНТЫ ЗА МЕСЯЦ ======
+@app.get("/api/analytics/monthly-top-clients")
+def monthly_top_clients(
+    token: str = Query(None),
+    year: int = 2026,
+    month: int = 5,
+    limit: int = 10,
+    multiplier: float = 2.9
+):
+    """Топ-клиенты за месяц с ABC-группой из прошлого года"""
+    verify_token(token)
+    db = get_db()
+    try:
+        year_prev = year - 1
+        
+        result = db.execute(text("""
+            WITH month_data AS (
+                SELECT 
+                    d.client_code,
+                    COUNT(DISTINCT d.id) AS invoice_count,
+                    COALESCE(SUM(CASE WHEN pr.is_service = FALSE THEN sl.amount ELSE 0 END), 0) AS goods_revenue
+                FROM documents d
+                JOIN sales_lines sl ON sl.document_id = d.id
+                LEFT JOIN products pr ON sl.product_code = pr.code
+                WHERE EXTRACT(YEAR FROM d.invoice_date) = :year
+                  AND EXTRACT(MONTH FROM d.invoice_date) = :month
+                GROUP BY d.client_code
+            ),
+            abc_prev AS (
+                SELECT 
+                    d.client_code,
+                    COALESCE(SUM(CASE WHEN pr.is_service = FALSE THEN sl.amount ELSE 0 END), 0) AS goods_revenue_prev
+                FROM documents d
+                JOIN sales_lines sl ON sl.document_id = d.id
+                LEFT JOIN products pr ON sl.product_code = pr.code
+                WHERE EXTRACT(YEAR FROM d.invoice_date) = :year_prev
+                GROUP BY d.client_code
+            ),
+            abc_grouped AS (
+                SELECT 
+                    client_code,
+                    CASE
+                        WHEN goods_revenue_prev >= 3000000 * :mult THEN 'A1'
+                        WHEN goods_revenue_prev >= 2000000 * :mult THEN 'A2'
+                        WHEN goods_revenue_prev >= 1500000 * :mult THEN 'A3'
+                        WHEN goods_revenue_prev >= 1000000 * :mult THEN 'B1'
+                        WHEN goods_revenue_prev >= 500000  * :mult THEN 'B2'
+                        WHEN goods_revenue_prev >= 150000  * :mult THEN 'C1'
+                        WHEN goods_revenue_prev >= 1000    * :mult THEN 'C2'
+                        ELSE 'Новый'
+                    END AS abc_group_prev
+                FROM abc_prev
+            )
+            SELECT 
+                c.name AS client_name,
+                COALESCE(ag.abc_group_prev, 'Новый') AS group_prev,
+                md.invoice_count,
+                md.goods_revenue
+            FROM month_data md
+            JOIN clients c ON c.code = md.client_code
+            LEFT JOIN abc_grouped ag ON ag.client_code = md.client_code
+            WHERE c.is_active_current = TRUE
+            ORDER BY md.goods_revenue DESC
+            LIMIT :limit
+        """), {
+            "year": year,
+            "month": month,
+            "year_prev": year_prev,
+            "mult": multiplier,
+            "limit": limit
+        })
+        
+        data = []
+        for i, row in enumerate(result):
+            r = dict(row._mapping)
+            for key in r:
+                if r[key] is not None and isinstance(r[key], (int, float)):
+                    r[key] = round(float(r[key]), 2)
+            r["position"] = i + 1
+            data.append(r)
+        
+        return {"status": "ok", "year": year, "month": month, "data": data, "count": len(data)}
+    except Exception as e:
+        logger.error(f"Ошибка monthly_top_clients: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
+
+
+# ====== СТРАНИЦА /monthly ======
+@app.get("/monthly", response_class=HTMLResponse)
+async def monthly_page(request: Request, token: str = Query(None)):
+    verify_token(token)
+    search_dirs = [FRONTEND_DIR, os.path.join(PROJECT_DIR, "frontend", "static"), os.path.join(ROOT_DIR, "frontend", "static")]
+    filepath = find_file("monthly.html", search_dirs)
+    if filepath:
+        with open(filepath, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    raise HTTPException(status_code=404, detail="Страница помесячной аналитики не найдена")
+
+# ====== 0. КОЛИЧЕСТВО АКТИВНЫХ КЛИЕНТОВ ЗА ГОД ======
+@app.get("/api/analytics/yearly-clients-count")
+def yearly_clients_count(
+    token: str = Query(None),
+    year: int = 2026
+):
+    """Количество уникальных активных клиентов за год"""
+    verify_token(token)
+    db = get_db()
+    try:
+        result = db.execute(text("""
+            SELECT COUNT(DISTINCT d.client_code) AS active_clients
+            FROM documents d
+            JOIN clients c ON d.client_code = c.code AND c.is_active_current = TRUE
+            WHERE EXTRACT(YEAR FROM d.invoice_date) = :year
+        """), {"year": year}).scalar()
+        
+        return {"status": "ok", "year": year, "active_clients": result}
+    except Exception as e:
+        logger.error(f"Ошибка yearly_clients_count: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
+
 
 # ====== HEALTH CHECK ======
 @app.get("/health")

@@ -614,24 +614,27 @@
                             style="cursor:pointer; transition: transform 0.2s;"
                             onmouseover="this.style.transform='scale(1.02)'"
                             onmouseout="this.style.transform='scale(1)'">
-                            <span class="kpi-label">👥 Всего клиентов</span>
+                            <span class="kpi-label">👥 Всего клиентов в 2026</span>
                             <span class="kpi-value" id="kpi-total-clients">—</span>
                             <div class="kpi-trend" id="kpi-total-clients-sub">Нажмите для аналитики →</div>
                         </div>
-                        <div class="kpi-block bg-steel">
-                            <span class="kpi-label">Активные за 30 дней</span>
+                        <div class="kpi-block bg-steel" onclick="window.open('/monthly?token=utsk2026','_self')"
+                            style="cursor:pointer; transition: transform 0.2s;"
+                            onmouseover="this.style.transform='scale(1.03)'"
+                            onmouseout="this.style.transform='scale(1)'">
+                            <span class="kpi-label">📅 Активные за 30 дней</span>
                             <span class="kpi-value" id="kpi-active-30d">—</span>
-                            <div class="kpi-trend">Данные из БД</div>
+                            <div class="kpi-trend">Нажмите для аналитики месяца →</div>
                         </div>
                         <div class="kpi-block bg-green">
-                            <span class="kpi-label">Общая выручка</span>
+                            <span class="kpi-label">💰 Общая выручка за 2026</span>
                             <span class="kpi-value" id="kpi-total-revenue">—</span>
-                            <div class="kpi-trend">Данные из БД</div>
+                            <div class="kpi-trend" id="kpi-revenue-sub">Товарная выручка</div>
                         </div>
                         <div class="kpi-block bg-purple">
-                            <span class="kpi-label">Средний чек</span>
+                            <span class="kpi-label">🛒 Средний чек за 2026</span>
                             <span class="kpi-value" id="kpi-avg-check">—</span>
-                            <div class="kpi-trend">Данные из БД</div>
+                            <div class="kpi-trend" id="kpi-avg-sub">Без услуг</div>
                         </div>
                     </div>
 
@@ -724,14 +727,34 @@
         // ====== KPI ======
         async function loadDashboard() {
             try {
+                // Основные KPI дашборда
                 var r = await fetch('/api/dashboard?token=' + TOKEN);
                 if (!r.ok) throw new Error(r.status);
                 var d = await r.json();
-                safeText('kpi-total-clients', formatNum(d.total_clients));
                 safeText('kpi-active-30d', formatNum(d.active_30d));
-                safeText('kpi-total-revenue', formatCur(d.total_revenue));
-                var avg = d.active_30d > 0 ? Math.round(d.total_revenue / d.active_30d) : 0;
-                safeText('kpi-avg-check', formatCur(avg));
+
+                // Количество активных клиентов за 2026 год
+                var respClients = await fetch('/api/analytics/yearly-clients-count?token=' + TOKEN + '&year=2026');
+                var jsonClients = await respClients.json();
+                if (jsonClients.status === 'ok') {
+                    safeText('kpi-total-clients', formatNum(jsonClients.active_clients));
+                    safeText('kpi-total-clients-sub', 'Участвуют в аналитике');
+                }
+
+                // Выручка и средний чек за 2026 год
+                var resp2026 = await fetch('/api/analytics/monthly-revenue?token=' + TOKEN + '&year=2026');
+                var json2026 = await resp2026.json();
+
+                if (json2026.status === 'ok' && json2026.data.length) {
+                    var totalGoods = json2026.data.reduce(function (s, r) { return s + (r.goods_revenue || 0); }, 0);
+                    var totalInvoices = json2026.data.reduce(function (s, r) { return s + (r.invoice_count || 0); }, 0);
+                    var avgTicket = totalInvoices > 0 ? Math.round(totalGoods / totalInvoices) : 0;
+
+                    safeText('kpi-total-revenue', formatCur(totalGoods));
+                    safeText('kpi-avg-check', formatCur(avgTicket));
+                    safeText('kpi-revenue-sub', 'Товарная выручка');
+                    safeText('kpi-avg-sub', 'Без услуг');
+                }
             } catch (e) { console.error(e); }
         }
 

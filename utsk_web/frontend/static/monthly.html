@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UTSK — Аналитика за месяц</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+            --muted: #64748b;
+            --blue: #0ea5e9;
+            --green: #10b981;
+            --amber: #f59e0b;
+            --purple: #8b5cf6;
+            --red: #ef4444;
+            --border: #e2e8f0;
+            --radius: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', system-ui, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f1f5f9 0%, #e0f2fe 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--text);
+        }
+
+        .page-header {
+            max-width: 1400px;
+            margin: 0 auto 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--card);
+            padding: 18px 28px;
+            border-radius: var(--radius);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+        }
+
+        .page-header h1 {
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .btn-back {
+            padding: 10px 20px;
+            background: var(--text);
+            color: white;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .btn-back:hover {
+            opacity: 0.9;
+        }
+
+        .params-panel {
+            max-width: 1400px;
+            margin: 0 auto 20px;
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 16px 24px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .params-panel label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--muted);
+            text-transform: uppercase;
+        }
+
+        .params-panel select,
+        .params-panel input {
+            padding: 8px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            background: var(--bg);
+            outline: none;
+        }
+
+        .params-panel select {
+            cursor: pointer;
+            min-width: 100px;
+        }
+
+        .params-panel input[type="number"] {
+            width: 80px;
+            text-align: center;
+        }
+
+        .btn-update {
+            padding: 10px 24px;
+            background: var(--text);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-left: auto;
+        }
+
+        .btn-update:hover {
+            background: #334155;
+        }
+
+        .param-divider {
+            width: 1px;
+            height: 30px;
+            background: var(--border);
+        }
+
+        .kpi-row {
+            max-width: 1400px;
+            margin: 0 auto 20px;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 14px;
+        }
+
+        .kpi-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 18px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+        }
+
+        .kpi-card .kpi-icon {
+            font-size: 24px;
+            margin-bottom: 6px;
+        }
+
+        .kpi-card .kpi-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--muted);
+            text-transform: uppercase;
+        }
+
+        .kpi-card .kpi-value {
+            font-size: 26px;
+            font-weight: 800;
+            margin: 4px 0;
+        }
+
+        .kpi-card .kpi-sub {
+            font-size: 11px;
+            color: var(--muted);
+        }
+
+        .tabs-container {
+            max-width: 1400px;
+            margin: 0 auto 16px;
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            background: var(--card);
+            padding: 6px;
+            border-radius: 14px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+        }
+
+        .tab-btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            background: transparent;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover {
+            background: #f1f5f9;
+            color: var(--text);
+        }
+
+        .tab-btn.active {
+            background: var(--text);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .chart-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+            margin-bottom: 20px;
+        }
+
+        .chart-card .card-title {
+            font-size: 17px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 4px;
+            height: 250px;
+            padding: 10px;
+            background: #fafbfc;
+            border-radius: 12px;
+            overflow-x: auto;
+        }
+
+        .bar-group {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 30px;
+        }
+
+        .bar-fill {
+            width: 100%;
+            max-width: 40px;
+            border-radius: 5px 5px 0 0;
+            min-height: 3px;
+        }
+
+        .bar-fill.blue {
+            background: linear-gradient(to top, #0284c7, #38bdf8);
+        }
+
+        .bar-fill.gray {
+            background: #cbd5e1;
+        }
+
+        .bar-label {
+            font-size: 9px;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        table thead th {
+            padding: 10px 12px;
+            text-align: left;
+            font-size: 11px;
+            text-transform: uppercase;
+            color: var(--muted);
+            background: #f8fafc;
+            border-bottom: 2px solid var(--border);
+            position: sticky;
+            top: 0;
+        }
+
+        table thead th.right {
+            text-align: right;
+        }
+
+        table tbody td {
+            padding: 8px 12px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        table tbody td.right {
+            text-align: right;
+            font-weight: 500;
+        }
+
+        table tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        .growth-up {
+            color: var(--green);
+            font-weight: 600;
+        }
+
+        .growth-down {
+            color: var(--red);
+            font-weight: 600;
+        }
+
+        @media (max-width: 900px) {
+            .kpi-row {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ====== HEADER ====== -->
+    <div class="page-header">
+        <div>
+            <h1>📅 Аналитика за месяц</h1>
+        </div>
+        <a href="/?token=utsk2026" class="btn-back">← На дашборд</a>
+    </div>
+
+    <!-- ====== ПАНЕЛЬ ПАРАМЕТРОВ ====== -->
+    <div class="params-panel">
+        <label>Год:</label>
+        <select id="param-year">
+            <option value="2026" selected>2026</option>
+            <option value="2025">2025</option>
+        </select>
+        <span class="param-divider"></span>
+        <label>Месяц:</label>
+        <select id="param-month">
+            <option value="1">Январь</option>
+            <option value="2">Февраль</option>
+            <option value="3">Март</option>
+            <option value="4">Апрель</option>
+            <option value="5" selected>Май</option>
+            <option value="6">Июнь</option>
+            <option value="7">Июль</option>
+            <option value="8">Август</option>
+            <option value="9">Сентябрь</option>
+            <option value="10">Октябрь</option>
+            <option value="11">Ноябрь</option>
+            <option value="12">Декабрь</option>
+        </select>
+        <span class="param-divider"></span>
+        <label>Коэф. ABC:</label>
+        <input type="number" id="param-multiplier" value="2.9" step="0.1" min="0.1" max="10">
+        <button class="btn-update" onclick="refreshActiveTab()">🔄 Обновить</button>
+    </div>
+
+    <!-- ====== KPI ====== -->
+    <div class="kpi-row">
+        <div class="kpi-card">
+            <div class="kpi-icon">💰</div>
+            <div class="kpi-label">Товарная выручка</div>
+            <div class="kpi-value" id="kpi-goods" style="color:var(--green);">—</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-icon">📦</div>
+            <div class="kpi-label">Накладных</div>
+            <div class="kpi-value" id="kpi-invoices" style="color:var(--blue);">—</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-icon">👥</div>
+            <div class="kpi-label">Клиентов</div>
+            <div class="kpi-value" id="kpi-clients" style="color:var(--purple);">—</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-icon">🛒</div>
+            <div class="kpi-label">Средний чек</div>
+            <div class="kpi-value" id="kpi-ticket" style="color:var(--amber);">—</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-icon">📈</div>
+            <div class="kpi-label">Рост к прошлому</div>
+            <div class="kpi-value" id="kpi-growth" style="color:var(--blue);">—</div>
+        </div>
+    </div>
+
+    <!-- ====== ВКЛАДКИ ====== -->
+    <div class="tabs-container">
+        <button class="tab-btn active" data-tab="tab-daily">📈 По дням</button>
+        <button class="tab-btn" data-tab="tab-compare">📊 Сравнение</button>
+        <button class="tab-btn" data-tab="tab-migration">🔄 Миграция ABC</button>
+        <button class="tab-btn" data-tab="tab-zalet">🆕 Залётные</button>
+        <button class="tab-btn" data-tab="tab-directions">🏗️ Отрасли и Товары</button>
+        <button class="tab-btn" data-tab="tab-top">👥 Топ-10</button>
+    </div>
+
+    <!-- ====== ВКЛАДКА 1: ПО ДНЯМ ====== -->
+    <div class="tab-content active" id="tab-daily">
+        <div class="chart-card">
+            <h2 class="card-title">📈 Динамика товарной выручки по дням</h2>
+            <div class="bar-chart" id="chart-daily">
+                <div style="color:#94a3b8;align-self:center;width:100%;text-align:center;">Загрузка...</div>
+            </div>
+            <div style="overflow-x:auto;margin-top:16px;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>День</th>
+                            <th class="right">Клиентов</th>
+                            <th class="right">Накладных</th>
+                            <th class="right">Выручка</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-daily"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====== ВКЛАДКА 2: СРАВНЕНИЕ ====== -->
+    <div class="tab-content" id="tab-compare">
+        <div class="chart-card">
+            <h2 class="card-title">📊 Сравнение месяцев</h2>
+            <div class="grid-2">
+                <div class="bar-chart" id="chart-compare">
+                    <div style="color:#94a3b8;align-self:center;width:100%;text-align:center;">Загрузка...</div>
+                </div>
+                <div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Показатель</th>
+                                <th class="right">Текущий</th>
+                                <th class="right">Прошлый</th>
+                                <th class="right">Рост</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-compare"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====== ВКЛАДКА 3: МИГРАЦИЯ ABC ====== -->
+    <div class="tab-content" id="tab-migration">
+        <div class="chart-card">
+            <h2 class="card-title">🔄 Активность групп A1, A2, B1, B2</h2>
+            <p style="color:var(--muted);margin-bottom:16px;">Клиенты с группой в <span id="mig-year-prev">2025</span> →
+                их метрики в <span id="mig-year">2026</span></p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Группа в <span id="mig-th-prev">2025</span></th>
+                        <th class="right">Компаний</th>
+                        <th class="right">Расходных</th>
+                        <th class="right">Сумма</th>
+                    </tr>
+                </thead>
+                <tbody id="table-migration"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ====== ВКЛАДКА 4: ЗАЛЁТНЫЕ ====== -->
+    <div class="tab-content" id="tab-zalet">
+        <div class="chart-card">
+            <h2 class="card-title">🆕 Залётные клиенты</h2>
+            <p style="color:var(--muted);margin-bottom:16px;">C1/C2 в <span id="zal-year-prev">2025</span> + новые →
+                метрики в <span id="zal-year">2026</span></p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Группа в <span id="zal-th-prev">2025</span></th>
+                        <th class="right">Компаний</th>
+                        <th class="right">Расходных</th>
+                        <th class="right">Сумма</th>
+                    </tr>
+                </thead>
+                <tbody id="table-zalet"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ====== ВКЛАДКА 5: ОТРАСЛИ И ТОВАРЫ ====== -->
+    <div class="tab-content" id="tab-directions">
+        <div class="chart-card">
+            <h2 class="card-title">🏗️ Отрасли и Товары</h2>
+            <div class="grid-2">
+                <div>
+                    <h3 style="margin-bottom:12px;">🏗️ Топ отраслей</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Отрасль</th>
+                                <th class="right">Компаний</th>
+                                <th class="right">Накладных</th>
+                                <th class="right">Выручка</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-directions"></tbody>
+                    </table>
+                </div>
+                <div>
+                    <h3 style="margin-bottom:12px;">📦 Топ товаров</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Товар</th>
+                                <th class="right">Накладных</th>
+                                <th class="right">Продажи</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-products"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====== ВКЛАДКА 6: ТОП-10 ====== -->
+    <div class="tab-content" id="tab-top">
+        <div class="chart-card">
+            <h2 class="card-title">👥 Топ-10 клиентов</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Наименование</th>
+                        <th>Группа в <span id="top-th-prev">2025</span></th>
+                        <th class="right">Накладных</th>
+                        <th class="right">Сумма</th>
+                    </tr>
+                </thead>
+                <tbody id="table-top"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ====== JAVASCRIPT ====== -->
+    <script>
+        var TOKEN = new URLSearchParams(window.location.search).get('token') || 'utsk2026';
+        var MONTH_NAMES = ['', 'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+
+        function fmtM(v) {
+            if (!v || v === 0) return '0';
+            if (Math.abs(v) >= 1e6) return (v / 1e6).toFixed(2) + ' млн ₴';
+            if (Math.abs(v) >= 1e3) return Math.round(v / 1000) + ' тыс ₴';
+            return Math.round(v).toLocaleString('ru-RU') + ' ₴';
+        }
+        function fmtS(v) { if (!v) return '0'; if (Math.abs(v) >= 1e6) return (v / 1e6).toFixed(1) + 'M'; if (Math.abs(v) >= 1e3) return Math.round(v / 1000) + 'K'; return Math.round(v).toString(); }
+        function fmtN(n) { return (n == null) ? '—' : Number(n).toLocaleString('ru-RU'); }
+
+        function getParams() {
+            return {
+                year: parseInt(document.getElementById('param-year').value) || 2026,
+                month: parseInt(document.getElementById('param-month').value) || 5,
+                multiplier: parseFloat(document.getElementById('param-multiplier').value) || 2.9
+            };
+        }
+
+        // ====== ВКЛАДКА 1: ПО ДНЯМ ======
+        async function loadDaily() {
+            var p = getParams();
+            var tbody = document.getElementById('table-daily');
+            var chart = document.getElementById('chart-daily');
+            try {
+                var resp = await fetch('/api/analytics/daily-revenue?token=' + TOKEN + '&year=' + p.year + '&month=' + p.month);
+                var json = await resp.json();
+                if (json.status !== 'ok') { console.error(json); return; }
+                var data = json.data;
+
+                tbody.innerHTML = data.map(function (r) {
+                    return '<tr><td>' + r.day + '</td><td class="right">' + fmtN(r.active_clients) + '</td><td class="right">' + fmtN(r.invoice_count) + '</td><td class="right">' + fmtM(r.goods_revenue) + '</td></tr>';
+                }).join('');
+
+                var maxVal = Math.max.apply(null, data.map(function (d) { return d.goods_revenue || 0; }).concat([1]));
+                var ceiling = maxVal * 1.15;
+                var chartH = 210;
+                chart.innerHTML = data.map(function (r) {
+                    var h = Math.max(4, Math.round((r.goods_revenue || 0) / ceiling * chartH));
+                    return '<div class="bar-group"><div style="font-size:8px;color:#64748b;margin-bottom:2px;">' + fmtS(r.goods_revenue) + '</div><div class="bar-fill blue" style="height:' + h + 'px;"></div><div class="bar-label">' + r.day + '</div></div>';
+                }).join('');
+
+                // KPI
+                var totalGoods = data.reduce(function (s, r) { return s + (r.goods_revenue || 0); }, 0);
+                var totalInvoices = data.reduce(function (s, r) { return s + (r.invoice_count || 0); }, 0);
+                var totalClients = data.reduce(function (s, r) { return s + (r.active_clients || 0); }, 0);
+                document.getElementById('kpi-goods').textContent = fmtM(totalGoods);
+                document.getElementById('kpi-invoices').textContent = fmtN(totalInvoices);
+                document.getElementById('kpi-clients').textContent = fmtN(totalClients);
+                document.getElementById('kpi-ticket').textContent = fmtM(totalInvoices > 0 ? totalGoods / totalInvoices : 0);
+            } catch (e) { console.error(e); }
+        }
+
+        // ====== ВКЛАДКА 2: СРАВНЕНИЕ ======
+        async function loadCompare() {
+            var p = getParams();
+            var tbody = document.getElementById('table-compare');
+            var chart = document.getElementById('chart-compare');
+            try {
+                var resp = await fetch('/api/analytics/monthly-detail?token=' + TOKEN + '&year=' + p.year + '&month=' + p.month);
+                var json = await resp.json();
+                if (json.status !== 'ok') { console.error(json); return; }
+
+                var curr = json.current, prev = json.previous, growth = json.growth;
+
+                // KPI
+                document.getElementById('kpi-goods').textContent = fmtM(curr.goods_revenue);
+                document.getElementById('kpi-invoices').textContent = fmtN(curr.invoice_count);
+                document.getElementById('kpi-clients').textContent = fmtN(curr.active_clients);
+                document.getElementById('kpi-ticket').textContent = fmtM(curr.avg_ticket);
+
+                var g = growth.goods_revenue;
+                var el = document.getElementById('kpi-growth');
+                el.textContent = (g != null ? (g >= 0 ? '+' : '') + g + '%' : '—');
+                el.style.color = (g || 0) >= 0 ? '#10b981' : '#ef4444';
+
+                var rows = [
+                    ['Товарная выручка', fmtM(curr.goods_revenue), fmtM(prev.goods_revenue), growth.goods_revenue],
+                    ['Накладных', fmtN(curr.invoice_count), fmtN(prev.invoice_count), growth.invoice_count],
+                    ['Клиентов', fmtN(curr.active_clients), fmtN(prev.active_clients), growth.active_clients],
+                    ['Средний чек', fmtM(curr.avg_ticket), fmtM(prev.avg_ticket), growth.avg_ticket],
+                    ['Услуги', fmtM(curr.services_revenue), fmtM(prev.services_revenue), growth.services_revenue]
+                ];
+                tbody.innerHTML = rows.map(function (r) {
+                    var gClass = (r[3] || 0) >= 0 ? 'growth-up' : 'growth-down';
+                    return '<tr><td><strong>' + r[0] + '</strong></td><td class="right">' + r[1] + '</td><td class="right">' + r[2] + '</td><td class="right ' + gClass + '">' + (r[3] != null ? (r[3] >= 0 ? '+' : '') + r[3] + '%' : '—') + '</td></tr>';
+                }).join('');
+
+                // График сравнения
+                var maxV = Math.max(curr.goods_revenue || 0, prev.goods_revenue || 0, 1);
+                var ceiling = maxV * 1.15, chartH = 210;
+                var h1 = Math.round((curr.goods_revenue || 0) / ceiling * chartH);
+                var h2 = Math.round((prev.goods_revenue || 0) / ceiling * chartH);
+                chart.innerHTML =
+                    '<div class="bar-group"><div style="font-size:9px;color:#0ea5e9;">' + fmtS(curr.goods_revenue) + '</div><div class="bar-fill blue" style="height:' + h1 + 'px;"></div><div class="bar-label">' + MONTH_NAMES[p.month] + '</div></div>' +
+                    '<div class="bar-group"><div style="font-size:9px;color:#94a3b8;">' + fmtS(prev.goods_revenue) + '</div><div class="bar-fill gray" style="height:' + h2 + 'px;"></div><div class="bar-label">' + MONTH_NAMES[prev.month] + '</div></div>';
+            } catch (e) { console.error(e); }
+        }
+
+        // ====== ВКЛАДКА 3: МИГРАЦИЯ ======
+        async function loadMigration() {
+            var p = getParams();
+            var tbody = document.getElementById('table-migration');
+            var yearPrev = p.year - 1;
+
+            ['mig-year-prev', 'mig-th-prev'].forEach(function (id) { var el = document.getElementById(id); if (el) el.textContent = yearPrev; });
+            ['mig-year'].forEach(function (id) { var el = document.getElementById(id); if (el) el.textContent = p.year; });
+
+            try {
+                var resp = await fetch('/api/analytics/abc-migration?token=' + TOKEN + '&year=' + p.year + '&groups=A1,A2,B1,B2&multiplier=' + p.multiplier);
+                var json = await resp.json();
+                if (json.status !== 'ok') { console.error(json); return; }
+
+                tbody.innerHTML = json.data.map(function (r) {
+                    return '<tr><td><strong>' + r.group_prev + '</strong></td><td class="right">' + fmtN(r.companies_count) + '</td><td class="right">' + fmtN(r.invoice_count) + '</td><td class="right">' + fmtM(r.goods_revenue) + '</td></tr>';
+                }).join('') || '<tr><td colspan="4">📭 Нет данных</td></tr>';
+            } catch (e) { console.error(e); }
+        }
+
+        // ====== ВКЛАДКА 4: ЗАЛЁТНЫЕ ======
+        async function loadZalet() {
+            var p = getParams();
+            var tbody = document.getElementById('table-zalet');
+            var yearPrev = p.year - 1;
+
+            ['zal-year-prev', 'zal-th-prev'].forEach(function (id) { var el = document.getElementById(id); if (el) el.textContent = yearPrev; });
+            ['zal-year'].forEach(function (id) { var el = document.getElementById(id); if (el) el.textContent = p.year; });
+
+            try {
+                var resp = await fetch('/api/analytics/zaletnye?token=' + TOKEN + '&year=' + p.year + '&multiplier=' + p.multiplier);
+                var json = await resp.json();
+                if (json.status !== 'ok') { console.error(json); return; }
+
+                tbody.innerHTML = json.data.map(function (r) {
+                    return '<tr><td><strong>' + r.group_prev + '</strong></td><td class="right">' + fmtN(r.companies_count) + '</td><td class="right">' + fmtN(r.invoice_count) + '</td><td class="right">' + fmtM(r.goods_revenue) + '</td></tr>';
+                }).join('') || '<tr><td colspan="4">📭 Нет данных</td></tr>';
+            } catch (e) { console.error(e); }
+        }
+
+        // ====== ВКЛАДКА 5: ОТРАСЛИ И ТОВАРЫ ======
+        async function loadDirections() {
+            var p = getParams();
+            try {
+                var [dResp, pResp] = await Promise.all([
+                    fetch('/api/analytics/monthly-directions?token=' + TOKEN + '&year=' + p.year + '&month=' + p.month),
+                    fetch('/api/analytics/monthly-products?token=' + TOKEN + '&year=' + p.year + '&month=' + p.month + '&limit=10')
+                ]);
+                var dJson = await dResp.json();
+                var pJson = await pResp.json();
+
+                document.getElementById('table-directions').innerHTML = (dJson.data || []).map(function (r) {
+                    return '<tr><td>' + r.direction_name + '</td><td class="right">' + fmtN(r.companies_count) + '</td><td class="right">' + fmtN(r.invoice_count) + '</td><td class="right">' + fmtM(r.goods_revenue) + '</td></tr>';
+                }).join('') || '<tr><td colspan="4">📭 Нет данных</td></tr>';
+
+                document.getElementById('table-products').innerHTML = (pJson.data || []).map(function (r) {
+                    return '<tr><td>' + r.product_name + '</td><td class="right">' + fmtN(r.invoice_count) + '</td><td class="right">' + fmtM(r.total_sales) + '</td></tr>';
+                }).join('') || '<tr><td colspan="3">📭 Нет данных</td></tr>';
+            } catch (e) { console.error(e); }
+        }
+
+        // ====== ВКЛАДКА 6: ТОП-10 ======
+        async function loadTop() {
+            var p = getParams();
+            var tbody = document.getElementById('table-top');
+            var yearPrev = p.year - 1;
+            var el = document.getElementById('top-th-prev'); if (el) el.textContent = yearPrev;
+
+            try {
+                var resp = await fetch('/api/analytics/monthly-top-clients?token=' + TOKEN + '&year=' + p.year + '&month=' + p.month + '&limit=10&multiplier=' + p.multiplier);
+                var json = await resp.json();
+                if (json.status !== 'ok') { console.error(json); return; }
+
+                tbody.innerHTML = json.data.map(function (r) {
+                    return '<tr><td><strong>' + r.position + '</strong></td><td>' + r.client_name + '</td><td>' + r.group_prev + '</td><td class="right">' + fmtN(r.invoice_count) + '</td><td class="right">' + fmtM(r.goods_revenue) + '</td></tr>';
+                }).join('') || '<tr><td colspan="5">📭 Нет данных</td></tr>';
+            } catch (e) { console.error(e); }
+        }
+
+        // ====== ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК ======
+        document.addEventListener('click', function (e) {
+            if (e.target.classList.contains('tab-btn')) {
+                var tabId = e.target.getAttribute('data-tab');
+                document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
+                document.querySelectorAll('.tab-content').forEach(function (t) { t.classList.remove('active'); });
+                e.target.classList.add('active');
+                var content = document.getElementById(tabId);
+                if (content) { content.classList.add('active'); loadTabContent(tabId); }
+            }
+        });
+
+        function loadTabContent(tabId) {
+            if (tabId === 'tab-daily') loadDaily();
+            else if (tabId === 'tab-compare') loadCompare();
+            else if (tabId === 'tab-migration') loadMigration();
+            else if (tabId === 'tab-zalet') loadZalet();
+            else if (tabId === 'tab-directions') loadDirections();
+            else if (tabId === 'tab-top') loadTop();
+        }
+
+        function refreshActiveTab() {
+            var active = document.querySelector('.tab-content.active');
+            if (active) loadTabContent(active.id);
+        }
+
+        // ====== СТАРТ ======
+        document.addEventListener('DOMContentLoaded', function () {
+            loadDaily();
+        });
+    </script>
+
+</body>
+
+</html>
