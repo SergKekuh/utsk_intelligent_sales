@@ -352,7 +352,7 @@ BEGIN
         WHERE d.client_code = p_client_code GROUP BY dir_id
     ),
     total_sum AS (SELECT SUM(total) AS grand_total FROM direction_totals)
-    SELECT dt.dir_id, ROUND((dt.total / ts.grand_total * 100)::NUMERIC, 2) FROM direction_totals dt, total_sum ts ORDER BY dt.total DESC LIMIT 1;
+    SELECT dt.dir_id, ROUND((dt.total / NULLIF(ts.grand_total, 0) * 100)::NUMERIC, 2) FROM direction_totals dt, total_sum ts ORDER BY dt.total DESC LIMIT 1;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -362,7 +362,7 @@ BEGIN
     IF (OLD.current_status_id IS DISTINCT FROM NEW.current_status_id) THEN
         INSERT INTO status_change_log (client_code, old_status_id, new_status_id, changed_by, change_reason)
         VALUES (NEW.code, OLD.current_status_id, NEW.current_status_id, 'SYSTEM', 'Автоматический пересчет');
-        NEW.status_history = NEW.status_history || jsonb_build_object('date', CURRENT_TIMESTAMP, 'old_status', OLD.current_status_id, 'new_status', NEW.current_status_id);
+        NEW.status_history = COALESCE(NEW.status_history, '[]'::jsonb) || jsonb_build_object('date', CURRENT_TIMESTAMP, 'old_status', OLD.current_status_id, 'new_status', NEW.current_status_id);
     END IF;
     RETURN NEW;
 END;

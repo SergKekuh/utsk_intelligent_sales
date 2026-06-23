@@ -662,7 +662,7 @@
             ['mig-year'].forEach(function (id) { var el = document.getElementById(id); if (el) el.textContent = p.year; });
 
             try {
-                var resp = await fetch('/api/analytics/abc-migration?token=' + TOKEN + '&year=' + p.year + '&groups=A1,A2,B1,B2&multiplier=' + p.multiplier);
+                var resp = await fetch('/api/analytics/abc-migration?token=' + TOKEN + '&year=' + p.year + '&month=' + p.month + '&groups=A1,A2,B1,B2&multiplier=' + p.multiplier);
                 var json = await resp.json();
                 if (json.status !== 'ok') { console.error(json); return; }
 
@@ -682,7 +682,7 @@
             ['zal-year'].forEach(function (id) { var el = document.getElementById(id); if (el) el.textContent = p.year; });
 
             try {
-                var resp = await fetch('/api/analytics/zaletnye?token=' + TOKEN + '&year=' + p.year + '&multiplier=' + p.multiplier);
+                var resp = await fetch('/api/analytics/zaletnye?token=' + TOKEN + '&year=' + p.year + '&month=' + p.month + '&multiplier=' + p.multiplier);
                 var json = await resp.json();
                 if (json.status !== 'ok') { console.error(json); return; }
 

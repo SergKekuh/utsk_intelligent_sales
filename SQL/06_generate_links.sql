@@ -4,7 +4,7 @@ DELETE FROM product_similarities;
 
 WITH pipes AS (
     SELECT code, diameter, wall_thickness, is_profile
-    FROM products WHERE diameter IS NOT NULL AND COALESCE(in_stock_balance, 0) > 0
+    FROM products WHERE diameter IS NOT NULL
 )
 INSERT INTO product_similarities (
     source_product_code, similar_product_code, similarity_score, match_type,

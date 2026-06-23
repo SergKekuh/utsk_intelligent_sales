@@ -44,9 +44,10 @@ bool Database::connect(const ConnectionInfo& info) {
 }
 
 void Database::disconnect() {
-    if (m_connection && m_connection->is_open()) {
+    m_transaction.reset();
+    if (m_connection) {
         LOG_INFO("Disconnecting from database");
-        m_connection->close();
+        m_connection.reset();
     }
     m_connected = false;
 }
@@ -63,12 +64,15 @@ pqxx::result Database::execute(const std::string& query) {
     try {
         LOG_DEBUG("Executing query: " + query.substr(0, 100) + (query.size() > 100 ? "..." : ""));
         
-        pqxx::work w(*m_connection);
-        pqxx::result res = w.exec(query);
-        w.commit();
-        
-        LOG_DEBUG("Query returned " + std::to_string(res.size()) + " rows");
-        return res;
+        if (m_transaction) {
+            return m_transaction->exec(query);
+        } else {
+            pqxx::work w(*m_connection);
+            pqxx::result res = w.exec(query);
+            w.commit();
+            LOG_DEBUG("Query returned " + std::to_string(res.size()) + " rows");
+            return res;
+        }
     } catch (const std::exception& e) {
         LOG_ERROR(std::string("Query execution error: ") + e.what());
         throw;
@@ -84,9 +88,6 @@ pqxx::result Database::executeParams(const std::string& query,
     try {
         LOG_DEBUG("Executing parameterized query");
         
-        pqxx::work w(*m_connection);
-        
-        // УНИВЕРСАЛЬНЫЙ СПОСОБ — работает в libpqxx 7.8 и 7.10+
         // Преобразуем vector<string> → vector<const char*>
         std::vector<const char*> c_params;
         c_params.reserve(params.size());
@@ -94,31 +95,32 @@ pqxx::result Database::executeParams(const std::string& query,
             c_params.push_back(p.c_str());
         }
         
-        pqxx::result res;
-        switch (c_params.size()) {
-            case 1:
-                res = w.exec_params(query, c_params[0]);
-                break;
-            case 2:
-                res = w.exec_params(query, c_params[0], c_params[1]);
-                break;
-            case 3:
-                res = w.exec_params(query, c_params[0], c_params[1], c_params[2]);
-                break;
-            case 4:
-                res = w.exec_params(query, c_params[0], c_params[1], c_params[2], c_params[3]);
-                break;
-            case 5:
-                res = w.exec_params(query, c_params[0], c_params[1], c_params[2], c_params[3], c_params[4]);
-                break;
-            default:
-                throw std::runtime_error("Too many parameters (max 5)");
+        auto run_exec = [&](pqxx::transaction_base& txn) -> pqxx::result {
+            switch (c_params.size()) {
+                case 1:
+                    return txn.exec_params(query, c_params[0]);
+                case 2:
+                    return txn.exec_params(query, c_params[0], c_params[1]);
+                case 3:
+                    return txn.exec_params(query, c_params[0], c_params[1], c_params[2]);
+                case 4:
+                    return txn.exec_params(query, c_params[0], c_params[1], c_params[2], c_params[3]);
+                case 5:
+                    return txn.exec_params(query, c_params[0], c_params[1], c_params[2], c_params[3], c_params[4]);
+                default:
+                    throw std::runtime_error("Too many parameters (max 5)");
+            }
+        };
+
+        if (m_transaction) {
+            return run_exec(*m_transaction);
+        } else {
+            pqxx::work w(*m_connection);
+            pqxx::result res = run_exec(w);
+            w.commit();
+            LOG_DEBUG("Query returned " + std::to_string(res.size()) + " rows");
+            return res;
         }
-        
-        w.commit();
-        
-        LOG_DEBUG("Query returned " + std::to_string(res.size()) + " rows");
-        return res;
     } catch (const std::exception& e) {
         LOG_ERROR(std::string("Parameterized query error: ") + e.what());
         throw;

@@ -856,6 +856,10 @@
             var tb = document.getElementById('clients-table-body');
             if (!tb) return;
             setTableCols(5);
+            var thead = document.getElementById('table-head');
+            if (thead) {
+                thead.innerHTML = '<tr><th>№</th><th>Товар</th><th>Причина</th><th>Остаток</th><th>Статус</th></tr>';
+            }
             tb.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;">⏳ Загрузка рекомендаций...</td></tr>';
             try {
                 var r = await fetch('/api/recommendations/' + clientCode + '?token=' + TOKEN);

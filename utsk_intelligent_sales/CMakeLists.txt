@@ -35,6 +35,7 @@ add_executable(utsk_console
 )
 
 target_include_directories(utsk_console PRIVATE include ${PQXX_INCLUDE_DIRS} ${JSON_INCLUDE_DIRS})
-target_link_libraries(utsk_console ${PQXX_LIBRARIES} ${JSON_LIBRARIES})
-target_compile_options(utsk_console PRIVATE ${PQXX_CFLAGS_OTHER})
+target_link_libraries(utsk_console /usr/lib/x86_64-linux-gnu/libpqxx.a pq ${JSON_LIBRARIES})
+target_compile_options(utsk_console PRIVATE ${PQXX_CFLAGS_OTHER} "-fvisibility=hidden" "-fvisibility-inlines-hidden")
+target_link_options(utsk_console PRIVATE "-Wl,-Bsymbolic-functions")
 add_subdirectory(tests)

@@ -24,4 +24,6 @@ def test_full_user_scenario():
 
 def test_error_handling():
     assert client.get("/api/dashboard?token=wrong").status_code == 403
-    assert "error" in client.get("/api/recommendations/999999?token=" + TOKEN).json()
+    response = client.get("/api/recommendations/999999?token=" + TOKEN)
+    assert response.status_code == 404
+    assert "detail" in response.json()

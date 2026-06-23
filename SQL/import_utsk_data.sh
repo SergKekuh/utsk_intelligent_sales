@@ -131,6 +131,15 @@ WHERE document_id IS NOT NULL
   AND document_id IN (SELECT id FROM documents);
 \echo 'Строки отгрузок загружены.'
 
+-- Расчет сумм документов по строкам продаж
+\echo 'Расчет сумм документов...'
+UPDATE documents d
+SET total_amount = COALESCE((
+    SELECT SUM(amount)
+    FROM sales_lines sl
+    WHERE sl.document_id = d.id
+), 0.00);
+
 -- -------------------------------------------------------------------------
 -- ШАГ 5. ЗАПУСК АНАЛИТИКИ
 -- -------------------------------------------------------------------------

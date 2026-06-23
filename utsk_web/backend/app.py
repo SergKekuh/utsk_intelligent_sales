@@ -818,14 +818,10 @@ def abc_migration(
         result = db.execute(text("""
             WITH abc_prev AS (
                 SELECT 
-                    d.client_code,
-                    COALESCE(SUM(CASE WHEN pr.is_service = FALSE THEN sl.amount ELSE 0 END), 0) AS goods_revenue
-                FROM documents d
-                JOIN sales_lines sl ON sl.document_id = d.id
-                LEFT JOIN products pr ON sl.product_code = pr.code
-                JOIN clients c ON d.client_code = c.code AND c.is_active_current = TRUE
-                WHERE EXTRACT(YEAR FROM d.invoice_date) = :year_prev
-                GROUP BY d.client_code
+                    client_code,
+                    goods_revenue
+                FROM client_year_activity
+                WHERE sales_year = :year_prev
             ),
             abc_grouped AS (
                 SELECT 
@@ -906,14 +902,10 @@ def zaletnye(
         result = db.execute(text("""
             WITH abc_prev AS (
                 SELECT 
-                    d.client_code,
-                    COALESCE(SUM(CASE WHEN pr.is_service = FALSE THEN sl.amount ELSE 0 END), 0) AS goods_revenue
-                FROM documents d
-                JOIN sales_lines sl ON sl.document_id = d.id
-                LEFT JOIN products pr ON sl.product_code = pr.code
-                JOIN clients c ON d.client_code = c.code AND c.is_active_current = TRUE
-                WHERE EXTRACT(YEAR FROM d.invoice_date) = :year_prev
-                GROUP BY d.client_code
+                    client_code,
+                    goods_revenue
+                FROM client_year_activity
+                WHERE sales_year = :year_prev
             ),
             abc_grouped AS (
                 SELECT 
@@ -942,7 +934,7 @@ def zaletnye(
                 FROM view_client_profiles_yearly v
                 WHERE v.sales_year = :year
                   AND v.client_code NOT IN (
-                      SELECT DISTINCT client_code FROM view_client_profiles_yearly WHERE sales_year = :year_prev
+                      SELECT client_code FROM client_year_activity WHERE sales_year = :year_prev AND is_active = TRUE
                   )
             ),
             -- Объединяем
@@ -1208,7 +1200,135 @@ def yearly_clients_count(
     finally:
         db.close()
 
+# ====== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ДЛЯ ABC-СРАВНЕНИЯ ======
 
+def fetch_pivot_data_sync(year, multiplier, limit_price, direction):
+    """Синхронная версия получения PIVOT-данных"""
+    db = get_db()
+    try:
+        result = db.execute(
+            text("SELECT * FROM generate_custom_sales_report(:year, :multiplier, :limit_price, :direction)"),
+            {
+                "year": year,
+                "multiplier": multiplier,
+                "limit_price": limit_price,
+                "direction": direction
+            }
+        )
+        
+        data = []
+        for row in result:
+            r = dict(row._mapping)
+            for key in r:
+                if r[key] is not None and isinstance(r[key], (int, float)):
+                    r[key] = round(float(r[key]), 2)
+            data.append(r)
+        return data
+    except Exception as e:
+        logger.error(f"Ошибка fetch_pivot_data для {direction}: {e}")
+        return []
+    finally:
+        db.close()
+
+
+def parse_pivot_data(below_data, above_data):
+    """Парсит PIVOT-данные в формат с groups"""
+    result = {
+        "groups": [],
+        "pivot": {
+            "below": below_data,
+            "above": above_data
+        }
+    }
+    
+    # Собираем группы из above (ABC-группы)
+    groups_dict = {}
+    
+    for row in above_data:
+        group_name = row.get('out_group_name')
+        metric = row.get('out_metric')
+        
+        if group_name and group_name not in ['Total', 'Итого']:
+            if group_name not in groups_dict:
+                groups_dict[group_name] = {
+                    'out_group_name': group_name,
+                    'out_total_companies': 0,
+                    'out_total_sales': 0,
+                    'out_total_invoices': 0
+                }
+            
+            if metric == 'Кол-во компаний':
+                groups_dict[group_name]['out_total_companies'] = row.get('out_total', 0)
+            elif metric == 'Сумма продаж':
+                groups_dict[group_name]['out_total_sales'] = row.get('out_total', 0)
+            elif metric == 'Накладных':
+                groups_dict[group_name]['out_total_invoices'] = row.get('out_total', 0)
+    
+    # Конвертируем в список
+    result['groups'] = list(groups_dict.values())
+    
+    # Сортируем по порядку
+    order = {'A1': 1, 'A2': 2, 'A3': 3, 'B1': 4, 'B2': 5, 'C1': 6, 'C2': 7}
+    result['groups'].sort(key=lambda x: order.get(x.get('out_group_name', ''), 99))
+    
+    # Добавляем Total
+    total_data = None
+    for row in above_data:
+        if row.get('out_group_name') == 'Total':
+            if row.get('out_metric') == 'Кол-во компаний':
+                if not total_data:
+                    total_data = {'out_group_name': 'Total', 'out_total_companies': 0, 'out_total_sales': 0, 'out_total_invoices': 0}
+                total_data['out_total_companies'] = row.get('out_total', 0)
+            elif row.get('out_metric') == 'Сумма продаж':
+                if not total_data:
+                    total_data = {'out_group_name': 'Total', 'out_total_companies': 0, 'out_total_sales': 0, 'out_total_invoices': 0}
+                total_data['out_total_sales'] = row.get('out_total', 0)
+            elif row.get('out_metric') == 'Накладных':
+                if not total_data:
+                    total_data = {'out_group_name': 'Total', 'out_total_companies': 0, 'out_total_sales': 0, 'out_total_invoices': 0}
+                total_data['out_total_invoices'] = row.get('out_total', 0)
+    
+    if total_data:
+        result['groups'].append(total_data)
+    
+    return result
+
+
+# ====== API: СРАВНЕНИЕ ABC ======
+@app.get("/api/analytics/abc-comparison")
+def abc_comparison(
+    token: str = Query(None),
+    year: int = 2026,
+    multiplier: float = 2.9,
+    limit_price: float = 146000
+):
+    """Сравнение ABC-сегментации за два года"""
+    verify_token(token)
+    
+    try:
+        prev_year = year - 1
+        
+        # Текущий год
+        current_below = fetch_pivot_data_sync(year, multiplier, limit_price, "below")
+        current_above = fetch_pivot_data_sync(year, multiplier, limit_price, "above")
+        current_data = parse_pivot_data(current_below, current_above)
+        
+        # Предыдущий год
+        prev_below = fetch_pivot_data_sync(prev_year, multiplier, limit_price, "below")
+        prev_above = fetch_pivot_data_sync(prev_year, multiplier, limit_price, "above")
+        prev_data = parse_pivot_data(prev_below, prev_above)
+        
+        return {
+            "status": "ok",
+            "current_year": year,
+            "prev_year": prev_year,
+            "current": current_data,
+            "prev": prev_data
+        }
+        
+    except Exception as e:
+        logger.error(f"Ошибка abc_comparison: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 # ====== HEALTH CHECK ======
 @app.get("/health")
 def health():

@@ -11,7 +11,7 @@ std::vector<AnalyticsService::MonthlyRevenue> AnalyticsService::getRevenueByMont
             SELECT TO_CHAR(invoice_date::date, 'YYYY-MM') as month, SUM(total_amount) as revenue
             FROM documents
             GROUP BY TO_CHAR(invoice_date::date, 'YYYY-MM')
-            ORDER BY month DESC LIMIT $1
+            ORDER BY month DESC LIMIT ($1::INTEGER)
         )";
         auto result = m_db.executeParams(query, {std::to_string(monthsLimit)});
         for (const auto& row : result) {

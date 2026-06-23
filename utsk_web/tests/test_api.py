@@ -54,8 +54,9 @@ def test_recommendations_existing_client():
     assert "client_name" in data
 
 def test_recommendations_nonexistent_client():
-    data = client.get("/api/recommendations/999999?token=" + TOKEN).json()
-    assert "error" in data
+    response = client.get("/api/recommendations/999999?token=" + TOKEN)
+    assert response.status_code == 404
+    assert "detail" in response.json()
 
 # ====== ГЛАВНАЯ СТРАНИЦА ======
 def test_index_html():
@@ -63,27 +64,27 @@ def test_index_html():
     assert response.status_code == 200
     assert "UTSK" in response.text
 
-def test_plan_page(test_client):
+def test_plan_page():
     """Проверка страницы плана разработки"""
-    response = test_client.get("/plan?token=utsk2026")
+    response = client.get("/plan?token=utsk2026")
     assert response.status_code == 200
     assert "UTSK" in response.text or "План разработки" in response.text
 
 
-def test_db_reference_page(test_client):
+def test_db_reference_page():
     """Проверка справочника БД"""
-    response = test_client.get("/db-reference?token=utsk2026")
+    response = client.get("/db-reference?token=utsk2026")
     assert response.status_code == 200
     assert "UTSK" in response.text or "Справочник" in response.text
 
 
-def test_plan_page_no_auth(test_client):
+def test_plan_page_no_auth():
     """Страница плана без токена = 403"""
-    response = test_client.get("/plan")
+    response = client.get("/plan")
     assert response.status_code == 403
 
 
-def test_db_reference_no_auth(test_client):
+def test_db_reference_no_auth():
     """Справочник без токена = 403"""
-    response = test_client.get("/db-reference")
+    response = client.get("/db-reference")
     assert response.status_code == 403

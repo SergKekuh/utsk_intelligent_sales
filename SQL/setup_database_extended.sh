@@ -190,7 +190,8 @@ echo -e "${BLUE}  ШАГ 5/6: ИМПОРТ ДАННЫХ ИЗ 1С (CSV WIN1251)${
 CSV_FILE="$SQL_DIR/nomenclature_from_1c.csv"
 
 if [ -f "$CSV_FILE" ]; then
-    echo -e "${YELLOW}📄 Найден CSV-файл, выполняем импорт...${NC}"
+    echo -e "${YELLOW}📄 Найден CSV-файл, выполняем предварительную очистку...${NC}"
+    python3 "$SQL_DIR/clean_1c_csv.py"
     
     cat > "$SQL_DIR/05_import_1c_csv.sql" << 'SQLEOF'
 BEGIN;
@@ -200,7 +201,7 @@ CREATE TEMP TABLE tmp_1c_products (
     in_stock_balance VARCHAR(50), created_at VARCHAR(20), is_weight VARCHAR(10)
 );
 
-\copy tmp_1c_products FROM 'nomenclature_from_1c.csv' WITH (FORMAT csv, DELIMITER ';', HEADER true, ENCODING 'WIN1251');
+\copy tmp_1c_products FROM 'nomenclature_from_1c_clean.csv' WITH (FORMAT csv, DELIMITER ';', HEADER true, QUOTE e'\x01', ENCODING 'WIN1251');
 
 UPDATE products p
 SET in_stock_balance = tmp.in_stock_balance::NUMERIC
@@ -251,7 +252,7 @@ DELETE FROM product_similarities;
 
 WITH pipes AS (
     SELECT code, diameter, wall_thickness, is_profile
-    FROM products WHERE diameter IS NOT NULL AND COALESCE(in_stock_balance, 0) > 0
+    FROM products WHERE diameter IS NOT NULL
 )
 INSERT INTO product_similarities (
     source_product_code, similar_product_code, similarity_score, match_type,
@@ -278,6 +279,14 @@ COMMIT;
 SQLEOF
 psql -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" -f "$SQL_DIR/06_generate_links.sql" > /dev/null
 echo -e "${GREEN}✓ Шаг 6 выполнен${NC}"
+echo ""
+
+# =============================================================================
+# ШАГ 7: ОБНОВЛЕНИЕ СХЕМЫ И СОЗДАНИЕ ПРЕДСТАВЛЕНИЙ
+# =============================================================================
+echo -e "${BLUE}  ШАГ 7/6 (Дополнительный): ОБНОВЛЕНИЕ СХЕМЫ И СОЗДАНИЕ ПРЕДСТАВЛЕНИЙ${NC}"
+psql -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" -f "$SQL_DIR/update_schema.sql" > /dev/null
+echo -e "${GREEN}✓ Шаг 7 выполнен${NC}"
 echo ""
 
 # =============================================================================

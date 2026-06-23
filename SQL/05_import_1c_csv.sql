@@ -5,7 +5,7 @@ CREATE TEMP TABLE tmp_1c_products (
     in_stock_balance VARCHAR(50), created_at VARCHAR(20), is_weight VARCHAR(10)
 );
 
-\copy tmp_1c_products FROM 'nomenclature_from_1c.csv' WITH (FORMAT csv, DELIMITER ';', HEADER true, ENCODING 'WIN1251');
+\copy tmp_1c_products FROM 'nomenclature_from_1c_clean.csv' WITH (FORMAT csv, DELIMITER ';', HEADER true, QUOTE e'\x01', ENCODING 'WIN1251');
 
 UPDATE products p
 SET in_stock_balance = tmp.in_stock_balance::NUMERIC

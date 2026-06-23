@@ -33,5 +33,6 @@ add_executable(utsk_tests
 )
 
 target_include_directories(utsk_tests PRIVATE ../include ${PQXX_INCLUDE_DIRS})
-target_link_libraries(utsk_tests ${PQXX_LIBRARIES} nlohmann_json::nlohmann_json GTest::GTest GTest::Main pthread)
-target_compile_options(utsk_tests PRIVATE -Wno-deprecated-declarations)
+target_link_libraries(utsk_tests /usr/lib/x86_64-linux-gnu/libpqxx.a pq nlohmann_json::nlohmann_json GTest::GTest GTest::Main pthread)
+target_compile_options(utsk_tests PRIVATE -Wno-deprecated-declarations "-fvisibility=hidden" "-fvisibility-inlines-hidden")
+target_link_options(utsk_tests PRIVATE "-Wl,-Bsymbolic-functions")
