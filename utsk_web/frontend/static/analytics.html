@@ -1306,6 +1306,9 @@
             ['tab-yoy-year1'].forEach(id => { var el = document.getElementById(id); if (el) el.textContent = year1; });
             ['tab-yoy-year2'].forEach(id => { var el = document.getElementById(id); if (el) el.textContent = year2; });
 
+            // 🔥 Всегда загружаем YoY для KPI роста
+            loadYoY();
+
             var activeTab = document.querySelector('.tab-content.active');
             if (!activeTab) { loadMonthly(p.year); return; }
 
@@ -1314,7 +1317,7 @@
                 loadUnitedPivotAndSummary(p.year, p.multiplier, p.limitPrice);
                 loadFinal(p.year, p.multiplier, p.limitPrice);
             }
-            else if (tabId === 'tab-yoy') loadYoY();
+            else if (tabId === 'tab-yoy') { } // уже загружено выше
             else if (tabId === 'tab-abc') loadABC(p.year, p.multiplier);
             else if (tabId === 'tab-pivot') loadUnitedPivotAndSummary(p.year, p.multiplier, p.limitPrice);
         }
@@ -1322,6 +1325,9 @@
         // ====== ВКЛАДКА 1: МЕСЯЧНАЯ ДИНАМИКА ======
         var monthlyDataCache = [];
         async function loadMonthly(year) {
+
+            // 🔥 Всегда загружаем YoY для KPI роста
+            loadYoY();
             var tbody = document.getElementById('table-monthly');
             var chart = document.getElementById('chart-monthly');
             try {
@@ -1331,6 +1337,7 @@
                 var data = json.data;
                 data.sort((a, b) => (a.month || 0) - (b.month || 0));
                 monthlyDataCache = data;
+
 
                 var totalGoods = data.reduce((s, r) => s + (r.goods_revenue || 0), 0);
                 var totalInvoices = data.reduce((s, r) => s + (r.invoice_count || 0), 0);
@@ -1482,6 +1489,21 @@
                     return;
                 }
 
+                // 🔥 Загружаем YoY для KPI роста
+                var year1 = parseInt(year), year2 = year1 - 1;
+                fetch('/api/analytics/yoy-comparison?token=' + TOKEN + '&year1=' + year1 + '&year2=' + year2)
+                    .then(r => r.json())
+                    .then(yoyJson => {
+                        if (yoyJson.status === 'ok') {
+                            var totalY1 = yoyJson.data.reduce((s, r) => s + (r.goods_revenue_y1 || 0), 0);
+                            var totalY2 = yoyJson.data.reduce((s, r) => s + (r.goods_revenue_y2 || 0), 0);
+                            var growth = totalY2 > 0 ? ((totalY1 - totalY2) / totalY2 * 100) : 0;
+                            var gel = document.getElementById('kpi-growth');
+                            gel.textContent = (growth >= 0 ? '+' : '') + growth.toFixed(1) + '%';
+                            gel.style.color = growth >= 0 ? '#059669' : '#dc2626';
+                        }
+                    });
+
                 function parseGroup(data) {
                     var result = {};
                     data.forEach(function (row) {
@@ -1600,6 +1622,14 @@
                 addSection('📥 Случайные C2', c2Comp, c2Inv, c2Sales, c2Avg, c2Pct, colsAll);
                 addSection('📈 Основные ABC', abcComp, abcInv, abcSales, abcAvg, abcPct, colsAll);
                 addSection('📊 Все ABC', allComp, allInv, allSales, allAvg, allPct, colsAll);
+
+                // 🔥 ОБНОВЛЯЕМ KPI-КАРТОЧКИ
+                var kpiTotalGoods = allSales['out_total'] || 0;
+                var kpiTotalInvoices = allInv['out_total'] || 0;
+                var kpiAvgTicket = kpiTotalInvoices > 0 ? Math.round(kpiTotalGoods / kpiTotalInvoices) : 0;
+                document.getElementById('kpi-revenue').textContent = fmtM(kpiTotalGoods);
+                document.getElementById('kpi-invoices').textContent = fmtN(kpiTotalInvoices);
+                document.getElementById('kpi-avg-ticket').textContent = 'Средний чек: ' + fmtM(kpiAvgTicket);
 
                 // ====== ВАЖНЫЕ ======
                 var impTotalComp = (impComp['out_1'] || 0) + (impComp['out_2_3'] || 0) + (impComp['out_4_plus'] || 0);

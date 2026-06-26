@@ -1,0 +1,555 @@
+    database_name     | schema_name |                                                        postgres_version                                                         
+----------------------+-------------+---------------------------------------------------------------------------------------------------------------------------------
+ bd_intelligent_sales | public      | PostgreSQL 18.4 (Ubuntu 18.4-0ubuntu0.26.04.1) on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 15.2.0-16ubuntu1) 15.2.0, 64-bit
+(1 row)
+
+         table_name         |         column_name          |          data_type          | is_nullable |                     column_default                     | character_maximum_length | numeric_precision | numeric_scale | constraint_type 
+----------------------------+------------------------------+-----------------------------+-------------+--------------------------------------------------------+--------------------------+-------------------+---------------+-----------------
+ ab_tests                   | id                           | integer                     | NO          | nextval('ab_tests_id_seq'::regclass)                   |                          |                32 |             0 | PRIMARY KEY
+ ab_tests                   | test_name                    | character varying           | NO          |                                                        |                      100 |                   |               | 
+ ab_tests                   | variant                      | character                   | NO          |                                                        |                        1 |                   |               | 
+ ab_tests                   | content                      | jsonb                       | NO          |                                                        |                          |                   |               | 
+ ab_tests                   | impressions                  | integer                     | YES         | 0                                                      |                          |                32 |             0 | 
+ ab_tests                   | clicks                       | integer                     | YES         | 0                                                      |                          |                32 |             0 | 
+ ab_tests                   | add_to_cart                  | integer                     | YES         | 0                                                      |                          |                32 |             0 | 
+ ab_tests                   | ctr                          | numeric                     | YES         |                                                        |                          |                 5 |             2 | 
+ ab_tests                   | conversion_rate              | numeric                     | YES         |                                                        |                          |                 5 |             2 | 
+ ab_tests                   | is_active                    | boolean                     | YES         | true                                                   |                          |                   |               | 
+ ab_tests                   | start_date                   | date                        | YES         | CURRENT_DATE                                           |                          |                   |               | 
+ ab_tests                   | end_date                     | date                        | YES         |                                                        |                          |                   |               | 
+ ab_tests                   | created_at                   | timestamp without time zone | YES         | CURRENT_TIMESTAMP                                      |                          |                   |               | 
+ ab_tests                   | updated_at                   | timestamp without time zone | YES         | CURRENT_TIMESTAMP                                      |                          |                   |               | 
+ activity_directions        | id                           | integer                     | NO          | nextval('activity_directions_id_seq'::regclass)        |                          |                32 |             0 | PRIMARY KEY
+ activity_directions        | name                         | character varying           | NO          |                                                        |                      100 |                   |               | 
+ activity_directions        | description                  | text                        | YES         |                                                        |                          |                   |               | 
+ activity_directions        | created_at                   | timestamp without time zone | YES         | CURRENT_TIMESTAMP                                      |                          |                   |               | 
+ activity_directions        | updated_at                   | timestamp without time zone | YES         | CURRENT_TIMESTAMP                                      |                          |                   |               | 
+ client_groups              | id                           | integer                     | NO          | nextval('client_groups_id_seq'::regclass)              |                          |                32 |             0 | PRIMARY KEY
+ client_groups              | group_name                   | character varying           | NO          |                                                        |                      100 |                   |               | 
+ client_groups              | note                         | text                        | YES         |                                                        |                          |                   |               | 
+ client_groups              | created_at                   | timestamp without time zone | YES         | now()                                                  |                          |                   |               | 
+ client_year_activity       | id                           | bigint                      | NO          | nextval('client_year_activity_id_seq'::regclass)       |                          |                64 |             0 | PRIMARY KEY
+ client_year_activity       | client_code                  | character varying           | NO          |                                                        |                       50 |                   |               | 
+ client_year_activity       | sales_year                   | integer                     | NO          |                                                        |                          |                32 |             0 | 
+ client_year_activity       | is_active                    | boolean                     | YES         | false                                                  |                          |                   |               | 
+ client_year_activity       | is_manual                    | boolean                     | YES         | false                                                  |                          |                   |               | 
+ client_year_activity       | activation_reason            | character varying           | YES         |                                                        |                      100 |                   |               | 
+ client_year_activity       | deactivation_reason          | character varying           | YES         |                                                        |                      100 |                   |               | 
+ client_year_activity       | total_revenue                | numeric                     | YES         | 0                                                      |                          |                15 |             2 | 
+ client_year_activity       | goods_revenue                | numeric                     | YES         | 0                                                      |                          |                15 |             2 | 
+ client_year_activity       | total_docs                   | integer                     | YES         | 0                                                      |                          |                32 |             0 | 
+ client_year_activity       | abc_group                    | character varying           | YES         |                                                        |                        5 |                   |               | 
+ client_year_activity       | created_at                   | timestamp without time zone | YES         | CURRENT_TIMESTAMP                                      |                          |                   |               | 
+ client_year_activity       | updated_at                   | timestamp without time zone | YES         | CURRENT_TIMESTAMP                                      |                          |                   |               | 
+ clients                    | code                         | character varying           | NO          |                                                        |                       50 |                   |               | PRIMARY KEY
+ clients                    | name                         | character varying           | NO          |                                                        |                      255 |                   |               | 
+ clients                    | client_type                  | character varying           | YES         |                                                        |                       50 |                   |               | 
+ clients                    | current_status_id            | integer                     | YES         |                                                        |                          |                32 |             0 | FOREIGN KEY
+ clients                    | status_history               | jsonb                       | YES         | '[]'::jsonb                                            |                          |                   |               | 
+ clients                    | last_status_push_to_crm      | timestamp without time zone | YES         |                                                        |                          |                   |               | 
+ clients                    | first_purchase_date          | date                        | YES         |                                                        |                          |                   |               | 
+ clients                    | last_purchase_date           | date                        | YES         |                                                        |                          |                   |               | 
+ clients                    | activity_direction_id        | integer                     | YES         |                                                        |                          |                32 |             0 | FOREIGN KEY
+ clients                    | direction_confidence         | numeric                     | YES         |                                                        |                          |                 5 |             2 | 
+ clients                    | is_direction_manual          | boolean                     | YES         | false                                                  |                          |                   |               | 
+ clients                    | requires_survey              | boolean                     | YES         | false                                                  |                          |                   |               | 
+ clients                    | survey_completed_at          | timestamp without time zone | YES         |                                                        |                          |                   |               | 
+ clients                    | survey_completed_by          | character varying           | YES         |                                                        |                      100 |                   |               | 
+ clients                    | created_at                   | timestamp without time zone | YES         | CURRENT_TIMESTAMP                                      |                          |                   |               | 
+ clients                    | updated_at                   | timestamp without time zone | YES         | CURRENT_TIMESTAMP                                      |                          |                   |               | 
+ clients                    | legacy_unit_id               | integer                     | YES         |                                                        |                          |                32 |             0 | 
+ clients                    | okpo_code                    | character varying           | YES         |                                                        |                       20 |                   |               | 
+ clients                    | okpo_s1c8                    | character varying           | YES         |                                                        |                       20 |                   |               | 
+ clients                    | ipn                          | character varying           | YES         |                                                        |                       20 |                   |               | 
+ clients                    | legal_entity_type            | character varying           | YES         |                                                        |                       50 |                   |               | 
+ clients                    | full_unit_name               | text                        | YES         |                                                        |                          |                   |               | 
+ clients                    | group_id                     | integer                     | YES         |                                                        |                          |                32 |             0 | 
+ clients                    | active_years                 | ARRAY                       | YES         | '{}'::integer[]                                        |                          |                   |               | 
+ clients                    | is_active_current            | boolean                     | YES         | false                                                  |                          |                   |               | 
+ clients                    | analysis_updated_at          | timestamp without time zone | YES         |                                                        |                          |                   |               | 
+ documents                  | id                           | bigint                      | NO          | nextval('documents_id_seq'::regclass)                  |                          |                64 |             0 | PRIMARY KEY
+ documents                  | client_code                  | character varying           | NO          |                                                        |                       50 |                   |               | FOREIGN KEY
+ documents                  | invoice_date                 | date                        | NO          |                                                        |                          |                   |               | 
+ documents                  | total_amount                 | numeric                     | YES         | 0.00                                                   |                          |                15 |             2 | 
+ documents                  | created_at                   | timestamp without time zone | YES         | CURRENT_TIMESTAMP                                      |                          |                   |               | 
+ historical_client_activity | id                           | bigint                      | NO          | nextval('historical_client_activity_id_seq'::regclass) |                          |                64 |             0 | PRIMARY KEY
+ historical_client_activity | client_code                  | character varying           | NO          |                                                        |                       50 |                   |               | 
+ historical_client_activity | sales_year                   | integer                     | NO          |                                                        |                          |                32 |             0 | 
+ historical_client_activity | group_id                     | integer                     | YES         |                                                        |                          |                32 |             0 | FOREIGN KEY
+ historical_client_activity | expense_invoices             | numeric                     | YES         | 0                                                      |                          |                15 |             2 | 
+ historical_client_activity | sales_amount                 | numeric                     | YES         | 0                                                      |                          |                15 |             2 | 
+ historical_client_activity | note                         | text                        | YES         |                                                        |                          |                   |               | 
+ manager_rejections_log     | id                           | bigint                      | NO          | nextval('manager_rejections_log_id_seq'::regclass)     |                          |                64 |             0 | PRIMARY KEY
+ manager_rejections_log     | client_code                  | character varying           | NO          |                                                        |                       50 |                   |               | FOREIGN KEY
+ manager_rejections_log     | product_code                 | character varying           | NO          |                                                        |                       50 |                   |               | FOREIGN KEY
+ manager_rejections_log     | manager_login                | character varying           | YES         |                                                        |                      100 |                   |               | 
+ manager_rejections_log     | reject_reason                | text                        | YES         |                                                        |                          |                   |               | 
+ manager_rejections_log     | document_id                  | bigint                      | YES         |                                                        |                          |                64 |             0 | FOREIGN KEY
+ manager_rejections_log     | rejected_at                  | timestamp without time zone | YES         | CURRENT_TIMESTAMP                                      |                          |                   |               | 
+ product_aliases            | id                           | integer                     | NO          | nextval('product_aliases_id_seq'::regclass)            |                          |                32 |             0 | PRIMARY KEY
+ product_aliases            | product_code                 | character varying           | NO          |                                                        |                       50 |                   |               | FOREIGN KEY
+ product_aliases            | alias_text                   | character varying           | NO          |                                                        |                      255 |                   |               | 
+ product_aliases            | created_at                   | timestamp without time zone | YES         | CURRENT_TIMESTAMP                                      |                          |                   |               | 
+ product_cross_sells        | id                           | integer                     | NO          | nextval('product_cross_sells_id_seq'::regclass)        |                          |                32 |             0 | PRIMARY KEY
+ product_cross_sells        | main_product_code            | character varying           | YES         |                                                        |                       50 |                   |               | FOREIGN KEY
+ product_cross_sells        | related_product_code         | character varying           | YES         |                                                        |                       50 |                   |               | FOREIGN KEY
+ product_cross_sells        | relation_type                | character varying           | YES         |                                                        |                       50 |                   |               | 
+ product_scoring            | id                           | bigint                      | NO          | nextval('product_scoring_id_seq'::regclass)            |                          |                64 |             0 | PRIMARY KEY
+ product_scoring            | client_code                  | character varying           | NO          |                                                        |                       50 |                   |               | FOREIGN KEY
+ product_scoring            | product_code                 | character varying           | NO          |                                                        |                       50 |                   |               | FOREIGN KEY
+ product_scoring            | base_score                   | integer                     | YES         | 10                                                     |                          |                32 |             0 | 
+ product_scoring            | positive_reinforcement       | integer                     | YES         | 0                                                      |                          |                32 |             0 | 
+ product_scoring            | negative_reinforcement       | integer                     | YES         | 0                                                      |                          |                32 |             0 | 
+ product_scoring            | current_weight               | integer                     | YES         |                                                        |                          |                32 |             0 | 
+ product_scoring            | is_blocked                   | boolean                     | YES         | false                                                  |                          |                   |               | 
+ product_scoring            | blocked_until                | date                        | YES         |                                                        |                          |                   |               | 
+ product_scoring            | segment_agro_weight          | integer                     | YES         | 0                                                      |                          |                32 |             0 | 
+ product_scoring            | segment_build_weight         | integer                     | YES         | 0                                                      |                          |                32 |             0 | 
+ product_scoring            | created_at                   | timestamp without time zone | YES         | CURRENT_TIMESTAMP                                      |                          |                   |               | 
+ product_scoring            | updated_at                   | timestamp without time zone | YES         | CURRENT_TIMESTAMP                                      |                          |                   |               | 
+ product_similarities       | id                           | bigint                      | NO          | nextval('product_similarities_id_seq'::regclass)       |                          |                64 |             0 | PRIMARY KEY
+ product_similarities       | source_product_code          | character varying           | NO          |                                                        |                       50 |                   |               | 
+ product_similarities       | similar_product_code         | character varying           | NO          |                                                        |                       50 |                   |               | 
+ product_similarities       | similarity_score             | numeric                     | YES         | 0                                                      |                          |                 5 |             2 | 
+ product_similarities       | match_type                   | character varying           | NO          |                                                        |                       50 |                   |               | 
+ product_similarities       | source_diameter              | numeric                     | YES         |                                                        |                          |                10 |             2 | 
+ product_similarities       | source_wall                  | numeric                     | YES         |                                                        |                          |                10 |             2 | 
+ product_similarities       | similar_diameter             | numeric                     | YES         |                                                        |                          |                10 |             2 | 
+ product_similarities       | similar_wall                 | numeric                     | YES         |                                                        |                          |                10 |             2 | 
+ production_lead_times      | id                           | integer                     | NO          | nextval('production_lead_times_id_seq'::regclass)      |                          |                32 |             0 | PRIMARY KEY
+ production_lead_times      | product_code                 | character varying           | NO          |                                                        |                       50 |                   |               | FOREIGN KEY
+ production_lead_times      | from_blank_days              | integer                     | YES         |                                                        |                          |                32 |             0 | 
+ production_lead_times      | from_sheet_days              | integer                     | YES         |                                                        |                          |                32 |             0 | 
+ production_lead_times      | transit_days                 | integer                     | YES         |                                                        |                          |                32 |             0 | 
+ production_lead_times      | alternative_blank_code       | character varying           | YES         |                                                        |                       50 |                   |               | FOREIGN KEY
+ production_lead_times      | created_at                   | timestamp without time zone | YES         | CURRENT_TIMESTAMP                                      |                          |                   |               | 
+ production_lead_times      | updated_at                   | timestamp without time zone | YES         | CURRENT_TIMESTAMP                                      |                          |                   |               | 
+ products                   | code                         | character varying           | NO          |                                                        |                       50 |                   |               | PRIMARY KEY
+ products                   | name                         | character varying           | NO          |                                                        |                      255 |                   |               | 
+ products                   | anchor_direction_id          | integer                     | YES         |                                                        |                          |                32 |             0 | FOREIGN KEY
+ products                   | is_auto_tagged               | boolean                     | YES         | false                                                  |                          |                   |               | 
+ products                   | material_grade               | character varying           | YES         |                                                        |                       50 |                   |               | 
+ products                   | is_new_arrival               | boolean                     | YES         | false                                                  |                          |                   |               | 
+ products                   | in_stock_balance             | numeric                     | YES         | 0.00                                                   |                          |                15 |             3 | 
+ products                   | created_at                   | timestamp without time zone | YES         | CURRENT_TIMESTAMP                                      |                          |                   |               | 
+ products                   | updated_at                   | timestamp without time zone | YES         | CURRENT_TIMESTAMP                                      |                          |                   |               | 
+ products                   | diameter                     | numeric                     | YES         |                                                        |                          |                10 |             2 | 
+ products                   | wall_thickness               | numeric                     | YES         |                                                        |                          |                10 |             2 | 
+ products                   | profile_width                | numeric                     | YES         |                                                        |                          |                10 |             2 | 
+ products                   | profile_height               | numeric                     | YES         |                                                        |                          |                10 |             2 | 
+ products                   | is_profile                   | boolean                     | YES         | false                                                  |                          |                   |               | 
+ products                   | standard_name                | character varying           | YES         |                                                        |                      100 |                   |               | 
+ products                   | weight_per_meter             | numeric                     | YES         |                                                        |                          |                10 |             3 | 
+ products                   | first_purchase_date          | date                        | YES         |                                                        |                          |                   |               | 
+ products                   | last_purchase_date           | date                        | YES         |                                                        |                          |                   |               | 
+ products                   | unit                         | character varying           | YES         | 'т'::character varying                                 |                       20 |                   |               | 
+ products                   | is_service                   | boolean                     | YES         | false                                                  |                          |                   |               | 
+ sales_lines                | id                           | bigint                      | NO          | nextval('sales_lines_id_seq'::regclass)                |                          |                64 |             0 | PRIMARY KEY
+ sales_lines                | document_id                  | bigint                      | NO          |                                                        |                          |                64 |             0 | FOREIGN KEY
+ sales_lines                | product_code                 | character varying           | NO          |                                                        |                       50 |                   |               | FOREIGN KEY
+ sales_lines                | quantity                     | numeric                     | NO          |                                                        |                          |                15 |             3 | 
+ sales_lines                | amount                       | numeric                     | NO          | 0.00                                                   |                          |                15 |             2 | 
+ sales_lines                | recorded_at                  | timestamp without time zone | YES         | CURRENT_TIMESTAMP                                      |                          |                   |               | 
+ status_change_log          | id                           | bigint                      | NO          | nextval('status_change_log_id_seq'::regclass)          |                          |                64 |             0 | PRIMARY KEY
+ status_change_log          | client_code                  | character varying           | NO          |                                                        |                       50 |                   |               | FOREIGN KEY
+ status_change_log          | old_status_id                | integer                     | YES         |                                                        |                          |                32 |             0 | FOREIGN KEY
+ status_change_log          | new_status_id                | integer                     | YES         |                                                        |                          |                32 |             0 | FOREIGN KEY
+ status_change_log          | changed_by                   | character varying           | NO          |                                                        |                       50 |                   |               | 
+ status_change_log          | change_reason                | text                        | YES         |                                                        |                          |                   |               | 
+ status_change_log          | documents_count_current_year | integer                     | YES         |                                                        |                          |                32 |             0 | 
+ status_change_log          | documents_count_prev_year    | integer                     | YES         |                                                        |                          |                32 |             0 | 
+ status_change_log          | changed_at                   | timestamp without time zone | YES         | CURRENT_TIMESTAMP                                      |                          |                   |               | 
+ status_rules               | id                           | integer                     | NO          | nextval('status_rules_id_seq'::regclass)               |                          |                32 |             0 | PRIMARY KEY
+ status_rules               | status_name                  | character varying           | NO          |                                                        |                       50 |                   |               | 
+ status_rules               | min_current_year             | integer                     | YES         |                                                        |                          |                32 |             0 | 
+ status_rules               | max_current_year             | integer                     | YES         |                                                        |                          |                32 |             0 | 
+ status_rules               | min_prev_year                | integer                     | YES         |                                                        |                          |                32 |             0 | 
+ status_rules               | max_prev_year                | integer                     | YES         |                                                        |                          |                32 |             0 | 
+ status_rules               | min_days_since_last_purchase | integer                     | YES         |                                                        |                          |                32 |             0 | 
+ status_rules               | min_days_between_purchases   | integer                     | YES         |                                                        |                          |                32 |             0 | 
+ status_rules               | priority                     | integer                     | NO          |                                                        |                          |                32 |             0 | 
+ status_rules               | description                  | text                        | YES         |                                                        |                          |                   |               | 
+ status_rules               | created_at                   | timestamp without time zone | YES         | CURRENT_TIMESTAMP                                      |                          |                   |               | 
+ status_rules               | updated_at                   | timestamp without time zone | YES         | CURRENT_TIMESTAMP                                      |                          |                   |               | 
+ website_behavior_log       | id                           | bigint                      | NO          | nextval('website_behavior_log_id_seq'::regclass)       |                          |                64 |             0 | PRIMARY KEY
+ website_behavior_log       | client_code                  | character varying           | NO          |                                                        |                       50 |                   |               | FOREIGN KEY
+ website_behavior_log       | product_category             | character varying           | YES         |                                                        |                      100 |                   |               | 
+ website_behavior_log       | product_code                 | character varying           | YES         |                                                        |                       50 |                   |               | FOREIGN KEY
+ website_behavior_log       | action_type                  | character varying           | YES         |                                                        |                       50 |                   |               | 
+ website_behavior_log       | timestamp                    | timestamp without time zone | YES         | CURRENT_TIMESTAMP                                      |                          |                   |               | 
+(172 rows)
+
+ schemaname |         tablename          |                            indexname                            |                                                                                  indexdef                                                                                  
+------------+----------------------------+-----------------------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ public     | ab_tests                   | ab_tests_pkey                                                   | CREATE UNIQUE INDEX ab_tests_pkey ON public.ab_tests USING btree (id)
+ public     | ab_tests                   | idx_ab_tests_active                                             | CREATE INDEX idx_ab_tests_active ON public.ab_tests USING btree (is_active) WHERE (is_active = true)
+ public     | activity_directions        | activity_directions_name_key                                    | CREATE UNIQUE INDEX activity_directions_name_key ON public.activity_directions USING btree (name)
+ public     | activity_directions        | activity_directions_pkey                                        | CREATE UNIQUE INDEX activity_directions_pkey ON public.activity_directions USING btree (id)
+ public     | client_groups              | client_groups_group_name_key                                    | CREATE UNIQUE INDEX client_groups_group_name_key ON public.client_groups USING btree (group_name)
+ public     | client_groups              | client_groups_pkey                                              | CREATE UNIQUE INDEX client_groups_pkey ON public.client_groups USING btree (id)
+ public     | client_year_activity       | client_year_activity_client_code_sales_year_key                 | CREATE UNIQUE INDEX client_year_activity_client_code_sales_year_key ON public.client_year_activity USING btree (client_code, sales_year)
+ public     | client_year_activity       | client_year_activity_pkey                                       | CREATE UNIQUE INDEX client_year_activity_pkey ON public.client_year_activity USING btree (id)
+ public     | client_year_activity       | idx_cya_year_active                                             | CREATE INDEX idx_cya_year_active ON public.client_year_activity USING btree (sales_year, is_active)
+ public     | clients                    | clients_pkey                                                    | CREATE UNIQUE INDEX clients_pkey ON public.clients USING btree (code)
+ public     | clients                    | idx_clients_current_status                                      | CREATE INDEX idx_clients_current_status ON public.clients USING btree (current_status_id)
+ public     | clients                    | idx_clients_last_purchase                                       | CREATE INDEX idx_clients_last_purchase ON public.clients USING btree (last_purchase_date)
+ public     | clients                    | idx_clients_status_history                                      | CREATE INDEX idx_clients_status_history ON public.clients USING gin (status_history)
+ public     | documents                  | documents_pkey                                                  | CREATE UNIQUE INDEX documents_pkey ON public.documents USING btree (id)
+ public     | documents                  | idx_documents_client_date                                       | CREATE INDEX idx_documents_client_date ON public.documents USING btree (client_code, invoice_date)
+ public     | documents                  | idx_documents_invoice_date                                      | CREATE INDEX idx_documents_invoice_date ON public.documents USING btree (invoice_date)
+ public     | historical_client_activity | historical_client_activity_pkey                                 | CREATE UNIQUE INDEX historical_client_activity_pkey ON public.historical_client_activity USING btree (id)
+ public     | historical_client_activity | idx_historical_client                                           | CREATE INDEX idx_historical_client ON public.historical_client_activity USING btree (client_code)
+ public     | historical_client_activity | idx_historical_year                                             | CREATE INDEX idx_historical_year ON public.historical_client_activity USING btree (sales_year)
+ public     | historical_client_activity | uq_historical_activity                                          | CREATE UNIQUE INDEX uq_historical_activity ON public.historical_client_activity USING btree (client_code, sales_year)
+ public     | manager_rejections_log     | idx_rejections_client                                           | CREATE INDEX idx_rejections_client ON public.manager_rejections_log USING btree (client_code, rejected_at DESC)
+ public     | manager_rejections_log     | idx_rejections_product                                          | CREATE INDEX idx_rejections_product ON public.manager_rejections_log USING btree (product_code)
+ public     | manager_rejections_log     | manager_rejections_log_pkey                                     | CREATE UNIQUE INDEX manager_rejections_log_pkey ON public.manager_rejections_log USING btree (id)
+ public     | product_aliases            | product_aliases_alias_text_key                                  | CREATE UNIQUE INDEX product_aliases_alias_text_key ON public.product_aliases USING btree (alias_text)
+ public     | product_aliases            | product_aliases_pkey                                            | CREATE UNIQUE INDEX product_aliases_pkey ON public.product_aliases USING btree (id)
+ public     | product_cross_sells        | product_cross_sells_main_product_code_related_product_code_key  | CREATE UNIQUE INDEX product_cross_sells_main_product_code_related_product_code_key ON public.product_cross_sells USING btree (main_product_code, related_product_code)
+ public     | product_cross_sells        | product_cross_sells_pkey                                        | CREATE UNIQUE INDEX product_cross_sells_pkey ON public.product_cross_sells USING btree (id)
+ public     | product_scoring            | idx_product_scoring_client                                      | CREATE INDEX idx_product_scoring_client ON public.product_scoring USING btree (client_code)
+ public     | product_scoring            | idx_product_scoring_weight                                      | CREATE INDEX idx_product_scoring_weight ON public.product_scoring USING btree (current_weight) WHERE (current_weight > 0)
+ public     | product_scoring            | product_scoring_client_code_product_code_key                    | CREATE UNIQUE INDEX product_scoring_client_code_product_code_key ON public.product_scoring USING btree (client_code, product_code)
+ public     | product_scoring            | product_scoring_pkey                                            | CREATE UNIQUE INDEX product_scoring_pkey ON public.product_scoring USING btree (id)
+ public     | product_similarities       | product_similarities_pkey                                       | CREATE UNIQUE INDEX product_similarities_pkey ON public.product_similarities USING btree (id)
+ public     | product_similarities       | product_similarities_source_product_code_similar_product_co_key | CREATE UNIQUE INDEX product_similarities_source_product_code_similar_product_co_key ON public.product_similarities USING btree (source_product_code, similar_product_code)
+ public     | production_lead_times      | production_lead_times_pkey                                      | CREATE UNIQUE INDEX production_lead_times_pkey ON public.production_lead_times USING btree (id)
+ public     | products                   | products_pkey                                                   | CREATE UNIQUE INDEX products_pkey ON public.products USING btree (code)
+ public     | sales_lines                | idx_sales_lines_doc_prod                                        | CREATE INDEX idx_sales_lines_doc_prod ON public.sales_lines USING btree (document_id, product_code)
+ public     | sales_lines                | idx_sales_lines_product                                         | CREATE INDEX idx_sales_lines_product ON public.sales_lines USING btree (product_code)
+ public     | sales_lines                | sales_lines_pkey                                                | CREATE UNIQUE INDEX sales_lines_pkey ON public.sales_lines USING btree (id)
+ public     | status_change_log          | status_change_log_pkey                                          | CREATE UNIQUE INDEX status_change_log_pkey ON public.status_change_log USING btree (id)
+ public     | status_rules               | status_rules_pkey                                               | CREATE UNIQUE INDEX status_rules_pkey ON public.status_rules USING btree (id)
+ public     | status_rules               | status_rules_status_name_key                                    | CREATE UNIQUE INDEX status_rules_status_name_key ON public.status_rules USING btree (status_name)
+ public     | website_behavior_log       | idx_website_behavior_category                                   | CREATE INDEX idx_website_behavior_category ON public.website_behavior_log USING btree (product_category)
+ public     | website_behavior_log       | idx_website_behavior_client                                     | CREATE INDEX idx_website_behavior_client ON public.website_behavior_log USING btree (client_code, "timestamp" DESC)
+ public     | website_behavior_log       | idx_website_behavior_product                                    | CREATE INDEX idx_website_behavior_product ON public.website_behavior_log USING btree (product_code)
+ public     | website_behavior_log       | website_behavior_log_pkey                                       | CREATE UNIQUE INDEX website_behavior_log_pkey ON public.website_behavior_log USING btree (id)
+(45 rows)
+
+ function_name | arg_count | arguments | return_type | function_body 
+---------------+-----------+-----------+-------------+---------------
+(0 rows)
+
+         trigger_name         |         table_name         |       function_name        |                                                                                                   trigger_definition                                                                                                    
+------------------------------+----------------------------+----------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ RI_ConstraintTrigger_a_18671 | client_groups              | "RI_FKey_setnull_del"      | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_a_18671" AFTER DELETE ON public.client_groups FROM historical_client_activity NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_setnull_del"()
+ RI_ConstraintTrigger_a_18672 | client_groups              | "RI_FKey_noaction_upd"     | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_a_18672" AFTER UPDATE ON public.client_groups FROM historical_client_activity NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_noaction_upd"()
+ RI_ConstraintTrigger_a_21445 | activity_directions        | "RI_FKey_setnull_del"      | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_a_21445" AFTER DELETE ON public.activity_directions FROM products NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_setnull_del"()
+ RI_ConstraintTrigger_a_21446 | activity_directions        | "RI_FKey_noaction_upd"     | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_a_21446" AFTER UPDATE ON public.activity_directions FROM products NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_noaction_upd"()
+ RI_ConstraintTrigger_a_21463 | products                   | "RI_FKey_cascade_del"      | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_a_21463" AFTER DELETE ON public.products FROM product_aliases NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_cascade_del"()
+ RI_ConstraintTrigger_a_21464 | products                   | "RI_FKey_noaction_upd"     | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_a_21464" AFTER UPDATE ON public.products FROM product_aliases NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_noaction_upd"()
+ RI_ConstraintTrigger_a_21483 | status_rules               | "RI_FKey_setnull_del"      | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_a_21483" AFTER DELETE ON public.status_rules FROM clients NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_setnull_del"()
+ RI_ConstraintTrigger_a_21484 | status_rules               | "RI_FKey_noaction_upd"     | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_a_21484" AFTER UPDATE ON public.status_rules FROM clients NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_noaction_upd"()
+ RI_ConstraintTrigger_a_21488 | activity_directions        | "RI_FKey_setnull_del"      | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_a_21488" AFTER DELETE ON public.activity_directions FROM clients NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_setnull_del"()
+ RI_ConstraintTrigger_a_21489 | activity_directions        | "RI_FKey_noaction_upd"     | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_a_21489" AFTER UPDATE ON public.activity_directions FROM clients NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_noaction_upd"()
+ RI_ConstraintTrigger_a_21504 | clients                    | "RI_FKey_cascade_del"      | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_a_21504" AFTER DELETE ON public.clients FROM documents NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_cascade_del"()
+ RI_ConstraintTrigger_a_21505 | clients                    | "RI_FKey_noaction_upd"     | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_a_21505" AFTER UPDATE ON public.clients FROM documents NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_noaction_upd"()
+ RI_ConstraintTrigger_a_21525 | documents                  | "RI_FKey_cascade_del"      | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_a_21525" AFTER DELETE ON public.documents FROM sales_lines NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_cascade_del"()
+ RI_ConstraintTrigger_a_21526 | documents                  | "RI_FKey_noaction_upd"     | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_a_21526" AFTER UPDATE ON public.documents FROM sales_lines NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_noaction_upd"()
+ RI_ConstraintTrigger_a_21530 | products                   | "RI_FKey_restrict_del"     | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_a_21530" AFTER DELETE ON public.products FROM sales_lines NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_restrict_del"()
+ RI_ConstraintTrigger_a_21531 | products                   | "RI_FKey_noaction_upd"     | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_a_21531" AFTER UPDATE ON public.products FROM sales_lines NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_noaction_upd"()
+ RI_ConstraintTrigger_a_21558 | clients                    | "RI_FKey_cascade_del"      | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_a_21558" AFTER DELETE ON public.clients FROM product_scoring NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_cascade_del"()
+ RI_ConstraintTrigger_a_21559 | clients                    | "RI_FKey_noaction_upd"     | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_a_21559" AFTER UPDATE ON public.clients FROM product_scoring NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_noaction_upd"()
+ RI_ConstraintTrigger_a_21563 | products                   | "RI_FKey_cascade_del"      | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_a_21563" AFTER DELETE ON public.products FROM product_scoring NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_cascade_del"()
+ RI_ConstraintTrigger_a_21564 | products                   | "RI_FKey_noaction_upd"     | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_a_21564" AFTER UPDATE ON public.products FROM product_scoring NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_noaction_upd"()
+ RI_ConstraintTrigger_a_21578 | products                   | "RI_FKey_cascade_del"      | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_a_21578" AFTER DELETE ON public.products FROM product_cross_sells NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_cascade_del"()
+ RI_ConstraintTrigger_a_21579 | products                   | "RI_FKey_noaction_upd"     | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_a_21579" AFTER UPDATE ON public.products FROM product_cross_sells NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_noaction_upd"()
+ RI_ConstraintTrigger_a_21583 | products                   | "RI_FKey_cascade_del"      | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_a_21583" AFTER DELETE ON public.products FROM product_cross_sells NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_cascade_del"()
+ RI_ConstraintTrigger_a_21584 | products                   | "RI_FKey_noaction_upd"     | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_a_21584" AFTER UPDATE ON public.products FROM product_cross_sells NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_noaction_upd"()
+ RI_ConstraintTrigger_a_21599 | products                   | "RI_FKey_cascade_del"      | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_a_21599" AFTER DELETE ON public.products FROM production_lead_times NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_cascade_del"()
+ RI_ConstraintTrigger_a_21600 | products                   | "RI_FKey_noaction_upd"     | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_a_21600" AFTER UPDATE ON public.products FROM production_lead_times NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_noaction_upd"()
+ RI_ConstraintTrigger_a_21604 | products                   | "RI_FKey_noaction_del"     | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_a_21604" AFTER DELETE ON public.products FROM production_lead_times NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_noaction_del"()
+ RI_ConstraintTrigger_a_21605 | products                   | "RI_FKey_noaction_upd"     | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_a_21605" AFTER UPDATE ON public.products FROM production_lead_times NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_noaction_upd"()
+ RI_ConstraintTrigger_a_21619 | clients                    | "RI_FKey_cascade_del"      | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_a_21619" AFTER DELETE ON public.clients FROM website_behavior_log NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_cascade_del"()
+ RI_ConstraintTrigger_a_21620 | clients                    | "RI_FKey_noaction_upd"     | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_a_21620" AFTER UPDATE ON public.clients FROM website_behavior_log NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_noaction_upd"()
+ RI_ConstraintTrigger_a_21624 | products                   | "RI_FKey_setnull_del"      | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_a_21624" AFTER DELETE ON public.products FROM website_behavior_log NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_setnull_del"()
+ RI_ConstraintTrigger_a_21625 | products                   | "RI_FKey_noaction_upd"     | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_a_21625" AFTER UPDATE ON public.products FROM website_behavior_log NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_noaction_upd"()
+ RI_ConstraintTrigger_a_21642 | clients                    | "RI_FKey_cascade_del"      | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_a_21642" AFTER DELETE ON public.clients FROM manager_rejections_log NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_cascade_del"()
+ RI_ConstraintTrigger_a_21643 | clients                    | "RI_FKey_noaction_upd"     | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_a_21643" AFTER UPDATE ON public.clients FROM manager_rejections_log NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_noaction_upd"()
+ RI_ConstraintTrigger_a_21647 | products                   | "RI_FKey_cascade_del"      | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_a_21647" AFTER DELETE ON public.products FROM manager_rejections_log NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_cascade_del"()
+ RI_ConstraintTrigger_a_21648 | products                   | "RI_FKey_noaction_upd"     | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_a_21648" AFTER UPDATE ON public.products FROM manager_rejections_log NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_noaction_upd"()
+ RI_ConstraintTrigger_a_21652 | documents                  | "RI_FKey_setnull_del"      | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_a_21652" AFTER DELETE ON public.documents FROM manager_rejections_log NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_setnull_del"()
+ RI_ConstraintTrigger_a_21653 | documents                  | "RI_FKey_noaction_upd"     | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_a_21653" AFTER UPDATE ON public.documents FROM manager_rejections_log NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_noaction_upd"()
+ RI_ConstraintTrigger_a_21696 | clients                    | "RI_FKey_cascade_del"      | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_a_21696" AFTER DELETE ON public.clients FROM status_change_log NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_cascade_del"()
+ RI_ConstraintTrigger_a_21697 | clients                    | "RI_FKey_noaction_upd"     | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_a_21697" AFTER UPDATE ON public.clients FROM status_change_log NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_noaction_upd"()
+ RI_ConstraintTrigger_a_21701 | status_rules               | "RI_FKey_noaction_del"     | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_a_21701" AFTER DELETE ON public.status_rules FROM status_change_log NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_noaction_del"()
+ RI_ConstraintTrigger_a_21702 | status_rules               | "RI_FKey_noaction_upd"     | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_a_21702" AFTER UPDATE ON public.status_rules FROM status_change_log NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_noaction_upd"()
+ RI_ConstraintTrigger_a_21706 | status_rules               | "RI_FKey_noaction_del"     | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_a_21706" AFTER DELETE ON public.status_rules FROM status_change_log NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_noaction_del"()
+ RI_ConstraintTrigger_a_21707 | status_rules               | "RI_FKey_noaction_upd"     | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_a_21707" AFTER UPDATE ON public.status_rules FROM status_change_log NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_noaction_upd"()
+ RI_ConstraintTrigger_c_18673 | historical_client_activity | "RI_FKey_check_ins"        | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_c_18673" AFTER INSERT ON public.historical_client_activity FROM client_groups NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_check_ins"()
+ RI_ConstraintTrigger_c_18674 | historical_client_activity | "RI_FKey_check_upd"        | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_c_18674" AFTER UPDATE ON public.historical_client_activity FROM client_groups NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_check_upd"()
+ RI_ConstraintTrigger_c_21447 | products                   | "RI_FKey_check_ins"        | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_c_21447" AFTER INSERT ON public.products FROM activity_directions NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_check_ins"()
+ RI_ConstraintTrigger_c_21448 | products                   | "RI_FKey_check_upd"        | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_c_21448" AFTER UPDATE ON public.products FROM activity_directions NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_check_upd"()
+ RI_ConstraintTrigger_c_21465 | product_aliases            | "RI_FKey_check_ins"        | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_c_21465" AFTER INSERT ON public.product_aliases FROM products NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_check_ins"()
+ RI_ConstraintTrigger_c_21466 | product_aliases            | "RI_FKey_check_upd"        | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_c_21466" AFTER UPDATE ON public.product_aliases FROM products NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_check_upd"()
+ RI_ConstraintTrigger_c_21485 | clients                    | "RI_FKey_check_ins"        | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_c_21485" AFTER INSERT ON public.clients FROM status_rules NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_check_ins"()
+ RI_ConstraintTrigger_c_21486 | clients                    | "RI_FKey_check_upd"        | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_c_21486" AFTER UPDATE ON public.clients FROM status_rules NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_check_upd"()
+ RI_ConstraintTrigger_c_21490 | clients                    | "RI_FKey_check_ins"        | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_c_21490" AFTER INSERT ON public.clients FROM activity_directions NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_check_ins"()
+ RI_ConstraintTrigger_c_21491 | clients                    | "RI_FKey_check_upd"        | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_c_21491" AFTER UPDATE ON public.clients FROM activity_directions NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_check_upd"()
+ RI_ConstraintTrigger_c_21506 | documents                  | "RI_FKey_check_ins"        | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_c_21506" AFTER INSERT ON public.documents FROM clients NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_check_ins"()
+ RI_ConstraintTrigger_c_21507 | documents                  | "RI_FKey_check_upd"        | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_c_21507" AFTER UPDATE ON public.documents FROM clients NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_check_upd"()
+ RI_ConstraintTrigger_c_21527 | sales_lines                | "RI_FKey_check_ins"        | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_c_21527" AFTER INSERT ON public.sales_lines FROM documents NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_check_ins"()
+ RI_ConstraintTrigger_c_21528 | sales_lines                | "RI_FKey_check_upd"        | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_c_21528" AFTER UPDATE ON public.sales_lines FROM documents NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_check_upd"()
+ RI_ConstraintTrigger_c_21532 | sales_lines                | "RI_FKey_check_ins"        | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_c_21532" AFTER INSERT ON public.sales_lines FROM products NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_check_ins"()
+ RI_ConstraintTrigger_c_21533 | sales_lines                | "RI_FKey_check_upd"        | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_c_21533" AFTER UPDATE ON public.sales_lines FROM products NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_check_upd"()
+ RI_ConstraintTrigger_c_21560 | product_scoring            | "RI_FKey_check_ins"        | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_c_21560" AFTER INSERT ON public.product_scoring FROM clients NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_check_ins"()
+ RI_ConstraintTrigger_c_21561 | product_scoring            | "RI_FKey_check_upd"        | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_c_21561" AFTER UPDATE ON public.product_scoring FROM clients NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_check_upd"()
+ RI_ConstraintTrigger_c_21565 | product_scoring            | "RI_FKey_check_ins"        | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_c_21565" AFTER INSERT ON public.product_scoring FROM products NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_check_ins"()
+ RI_ConstraintTrigger_c_21566 | product_scoring            | "RI_FKey_check_upd"        | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_c_21566" AFTER UPDATE ON public.product_scoring FROM products NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_check_upd"()
+ RI_ConstraintTrigger_c_21580 | product_cross_sells        | "RI_FKey_check_ins"        | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_c_21580" AFTER INSERT ON public.product_cross_sells FROM products NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_check_ins"()
+ RI_ConstraintTrigger_c_21581 | product_cross_sells        | "RI_FKey_check_upd"        | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_c_21581" AFTER UPDATE ON public.product_cross_sells FROM products NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_check_upd"()
+ RI_ConstraintTrigger_c_21585 | product_cross_sells        | "RI_FKey_check_ins"        | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_c_21585" AFTER INSERT ON public.product_cross_sells FROM products NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_check_ins"()
+ RI_ConstraintTrigger_c_21586 | product_cross_sells        | "RI_FKey_check_upd"        | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_c_21586" AFTER UPDATE ON public.product_cross_sells FROM products NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_check_upd"()
+ RI_ConstraintTrigger_c_21601 | production_lead_times      | "RI_FKey_check_ins"        | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_c_21601" AFTER INSERT ON public.production_lead_times FROM products NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_check_ins"()
+ RI_ConstraintTrigger_c_21602 | production_lead_times      | "RI_FKey_check_upd"        | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_c_21602" AFTER UPDATE ON public.production_lead_times FROM products NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_check_upd"()
+ RI_ConstraintTrigger_c_21606 | production_lead_times      | "RI_FKey_check_ins"        | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_c_21606" AFTER INSERT ON public.production_lead_times FROM products NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_check_ins"()
+ RI_ConstraintTrigger_c_21607 | production_lead_times      | "RI_FKey_check_upd"        | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_c_21607" AFTER UPDATE ON public.production_lead_times FROM products NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_check_upd"()
+ RI_ConstraintTrigger_c_21621 | website_behavior_log       | "RI_FKey_check_ins"        | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_c_21621" AFTER INSERT ON public.website_behavior_log FROM clients NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_check_ins"()
+ RI_ConstraintTrigger_c_21622 | website_behavior_log       | "RI_FKey_check_upd"        | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_c_21622" AFTER UPDATE ON public.website_behavior_log FROM clients NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_check_upd"()
+ RI_ConstraintTrigger_c_21626 | website_behavior_log       | "RI_FKey_check_ins"        | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_c_21626" AFTER INSERT ON public.website_behavior_log FROM products NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_check_ins"()
+ RI_ConstraintTrigger_c_21627 | website_behavior_log       | "RI_FKey_check_upd"        | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_c_21627" AFTER UPDATE ON public.website_behavior_log FROM products NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_check_upd"()
+ RI_ConstraintTrigger_c_21644 | manager_rejections_log     | "RI_FKey_check_ins"        | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_c_21644" AFTER INSERT ON public.manager_rejections_log FROM clients NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_check_ins"()
+ RI_ConstraintTrigger_c_21645 | manager_rejections_log     | "RI_FKey_check_upd"        | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_c_21645" AFTER UPDATE ON public.manager_rejections_log FROM clients NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_check_upd"()
+ RI_ConstraintTrigger_c_21649 | manager_rejections_log     | "RI_FKey_check_ins"        | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_c_21649" AFTER INSERT ON public.manager_rejections_log FROM products NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_check_ins"()
+ RI_ConstraintTrigger_c_21650 | manager_rejections_log     | "RI_FKey_check_upd"        | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_c_21650" AFTER UPDATE ON public.manager_rejections_log FROM products NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_check_upd"()
+ RI_ConstraintTrigger_c_21654 | manager_rejections_log     | "RI_FKey_check_ins"        | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_c_21654" AFTER INSERT ON public.manager_rejections_log FROM documents NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_check_ins"()
+ RI_ConstraintTrigger_c_21655 | manager_rejections_log     | "RI_FKey_check_upd"        | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_c_21655" AFTER UPDATE ON public.manager_rejections_log FROM documents NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_check_upd"()
+ RI_ConstraintTrigger_c_21698 | status_change_log          | "RI_FKey_check_ins"        | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_c_21698" AFTER INSERT ON public.status_change_log FROM clients NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_check_ins"()
+ RI_ConstraintTrigger_c_21699 | status_change_log          | "RI_FKey_check_upd"        | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_c_21699" AFTER UPDATE ON public.status_change_log FROM clients NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_check_upd"()
+ RI_ConstraintTrigger_c_21703 | status_change_log          | "RI_FKey_check_ins"        | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_c_21703" AFTER INSERT ON public.status_change_log FROM status_rules NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_check_ins"()
+ RI_ConstraintTrigger_c_21704 | status_change_log          | "RI_FKey_check_upd"        | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_c_21704" AFTER UPDATE ON public.status_change_log FROM status_rules NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_check_upd"()
+ RI_ConstraintTrigger_c_21708 | status_change_log          | "RI_FKey_check_ins"        | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_c_21708" AFTER INSERT ON public.status_change_log FROM status_rules NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_check_ins"()
+ RI_ConstraintTrigger_c_21709 | status_change_log          | "RI_FKey_check_upd"        | CREATE CONSTRAINT TRIGGER "RI_ConstraintTrigger_c_21709" AFTER UPDATE ON public.status_change_log FROM status_rules NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION "RI_FKey_check_upd"()
+ trg_ab_tests_upd             | ab_tests                   | update_updated_at_column   | CREATE TRIGGER trg_ab_tests_upd BEFORE UPDATE ON public.ab_tests FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+ trg_activity_directions_upd  | activity_directions        | update_updated_at_column   | CREATE TRIGGER trg_activity_directions_upd BEFORE UPDATE ON public.activity_directions FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+ trg_clients_upd              | clients                    | update_updated_at_column   | CREATE TRIGGER trg_clients_upd BEFORE UPDATE ON public.clients FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+ trg_log_status_change        | clients                    | log_status_change          | CREATE TRIGGER trg_log_status_change BEFORE UPDATE ON public.clients FOR EACH ROW EXECUTE FUNCTION log_status_change()
+ trg_penalize_rejection       | manager_rejections_log     | penalize_rejected_product  | CREATE TRIGGER trg_penalize_rejection AFTER INSERT ON public.manager_rejections_log FOR EACH ROW EXECUTE FUNCTION penalize_rejected_product()
+ trg_product_scoring_upd      | product_scoring            | update_updated_at_column   | CREATE TRIGGER trg_product_scoring_upd BEFORE UPDATE ON public.product_scoring FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+ trg_products_upd             | products                   | update_updated_at_column   | CREATE TRIGGER trg_products_upd BEFORE UPDATE ON public.products FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+ trg_sales_lines_activity     | sales_lines                | trg_update_client_activity | CREATE TRIGGER trg_sales_lines_activity AFTER INSERT OR DELETE OR UPDATE ON public.sales_lines FOR EACH ROW EXECUTE FUNCTION trg_update_client_activity()
+ trg_status_rules_upd         | status_rules               | update_updated_at_column   | CREATE TRIGGER trg_status_rules_upd BEFORE UPDATE ON public.status_rules FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+(97 rows)
+
+ sequence_schema |           sequence_name           | data_type | start_value | increment | minimum_value |    maximum_value    
+-----------------+-----------------------------------+-----------+-------------+-----------+---------------+---------------------
+ public          | ab_tests_id_seq                   | integer   | 1           | 1         | 1             | 2147483647
+ public          | activity_directions_id_seq        | integer   | 1           | 1         | 1             | 2147483647
+ public          | client_groups_id_seq              | integer   | 1           | 1         | 1             | 2147483647
+ public          | client_year_activity_id_seq       | bigint    | 1           | 1         | 1             | 9223372036854775807
+ public          | documents_id_seq                  | bigint    | 1           | 1         | 1             | 9223372036854775807
+ public          | historical_client_activity_id_seq | bigint    | 1           | 1         | 1             | 9223372036854775807
+ public          | manager_rejections_log_id_seq     | bigint    | 1           | 1         | 1             | 9223372036854775807
+ public          | product_aliases_id_seq            | integer   | 1           | 1         | 1             | 2147483647
+ public          | product_cross_sells_id_seq        | integer   | 1           | 1         | 1             | 2147483647
+ public          | product_scoring_id_seq            | bigint    | 1           | 1         | 1             | 9223372036854775807
+ public          | product_similarities_id_seq       | bigint    | 1           | 1         | 1             | 9223372036854775807
+ public          | production_lead_times_id_seq      | integer   | 1           | 1         | 1             | 2147483647
+ public          | sales_lines_id_seq                | bigint    | 1           | 1         | 1             | 9223372036854775807
+ public          | status_change_log_id_seq          | bigint    | 1           | 1         | 1             | 9223372036854775807
+ public          | status_rules_id_seq               | integer   | 1           | 1         | 1             | 2147483647
+ public          | website_behavior_log_id_seq       | bigint    | 1           | 1         | 1             | 9223372036854775807
+(16 rows)
+
+         table_name         | row_count | total_size | table_size | index_size 
+----------------------------+-----------+------------+------------+------------
+ product_similarities       |    335508 | 84 MB      | 40 MB      | 44 MB
+ sales_lines                |      8399 | 1368 kB    | 608 kB     | 760 kB
+ documents                  |      3685 | 832 kB     | 344 kB     | 488 kB
+ products                   |      3197 | 1456 kB    | 1208 kB    | 248 kB
+ client_year_activity       |      1559 | 688 kB     | 368 kB     | 320 kB
+ status_change_log          |      1351 | 256 kB     | 168 kB     | 88 kB
+ clients                    |      1070 | 1288 kB    | 824 kB     | 464 kB
+ status_rules               |         9 | 48 kB      | 8192 bytes | 40 kB
+ activity_directions        |         9 | 48 kB      | 8192 bytes | 40 kB
+ historical_client_activity |         0 | 40 kB      | 0 bytes    | 40 kB
+ client_groups              |         0 | 48 kB      | 8192 bytes | 40 kB
+ product_scoring            |         0 | 32 kB      | 0 bytes    | 32 kB
+ product_cross_sells        |         0 | 16 kB      | 0 bytes    | 16 kB
+ production_lead_times      |         0 | 8192 bytes | 0 bytes    | 8192 bytes
+ website_behavior_log       |         0 | 32 kB      | 0 bytes    | 32 kB
+ manager_rejections_log     |         0 | 32 kB      | 0 bytes    | 32 kB
+ ab_tests                   |         0 | 24 kB      | 0 bytes    | 24 kB
+ product_aliases            |         0 | 16 kB      | 0 bytes    | 16 kB
+(18 rows)
+
+                         constraint_name                         |         table_name         | constraint_type |      column_name       |       foreign_table        |     foreign_column     
+-----------------------------------------------------------------+----------------------------+-----------------+------------------------+----------------------------+------------------------
+ ab_tests_add_to_cart_check                                      | ab_tests                   | CHECK           |                        | ab_tests                   | add_to_cart
+ ab_tests_clicks_check                                           | ab_tests                   | CHECK           |                        | ab_tests                   | clicks
+ ab_tests_content_not_null                                       | ab_tests                   | CHECK           |                        | ab_tests                   | content
+ ab_tests_id_not_null                                            | ab_tests                   | CHECK           |                        | ab_tests                   | id
+ ab_tests_impressions_check                                      | ab_tests                   | CHECK           |                        | ab_tests                   | impressions
+ ab_tests_test_name_not_null                                     | ab_tests                   | CHECK           |                        | ab_tests                   | test_name
+ ab_tests_variant_check                                          | ab_tests                   | CHECK           |                        | ab_tests                   | variant
+ ab_tests_variant_not_null                                       | ab_tests                   | CHECK           |                        | ab_tests                   | variant
+ ab_tests_pkey                                                   | ab_tests                   | PRIMARY KEY     | id                     | ab_tests                   | id
+ activity_directions_id_not_null                                 | activity_directions        | CHECK           |                        | activity_directions        | id
+ activity_directions_name_not_null                               | activity_directions        | CHECK           |                        | activity_directions        | name
+ activity_directions_pkey                                        | activity_directions        | PRIMARY KEY     | id                     | activity_directions        | id
+ activity_directions_name_key                                    | activity_directions        | UNIQUE          | name                   | activity_directions        | name
+ client_groups_group_name_not_null                               | client_groups              | CHECK           |                        | client_groups              | group_name
+ client_groups_id_not_null                                       | client_groups              | CHECK           |                        | client_groups              | id
+ client_groups_pkey                                              | client_groups              | PRIMARY KEY     | id                     | client_groups              | id
+ client_groups_group_name_key                                    | client_groups              | UNIQUE          | group_name             | client_groups              | group_name
+ client_year_activity_client_code_not_null                       | client_year_activity       | CHECK           |                        | client_year_activity       | client_code
+ client_year_activity_id_not_null                                | client_year_activity       | CHECK           |                        | client_year_activity       | id
+ client_year_activity_sales_year_not_null                        | client_year_activity       | CHECK           |                        | client_year_activity       | sales_year
+ client_year_activity_pkey                                       | client_year_activity       | PRIMARY KEY     | id                     | client_year_activity       | id
+ client_year_activity_client_code_sales_year_key                 | client_year_activity       | UNIQUE          | client_code            | client_year_activity       | sales_year
+ client_year_activity_client_code_sales_year_key                 | client_year_activity       | UNIQUE          | sales_year             | client_year_activity       | sales_year
+ client_year_activity_client_code_sales_year_key                 | client_year_activity       | UNIQUE          | client_code            | client_year_activity       | client_code
+ client_year_activity_client_code_sales_year_key                 | client_year_activity       | UNIQUE          | sales_year             | client_year_activity       | client_code
+ clients_code_not_null                                           | clients                    | CHECK           |                        | clients                    | code
+ clients_direction_confidence_check                              | clients                    | CHECK           |                        | clients                    | direction_confidence
+ clients_name_not_null                                           | clients                    | CHECK           |                        | clients                    | name
+ clients_activity_direction_id_fkey                              | clients                    | FOREIGN KEY     | activity_direction_id  | activity_directions        | id
+ clients_current_status_id_fkey                                  | clients                    | FOREIGN KEY     | current_status_id      | status_rules               | id
+ clients_pkey                                                    | clients                    | PRIMARY KEY     | code                   | clients                    | code
+ documents_client_code_not_null                                  | documents                  | CHECK           |                        | documents                  | client_code
+ documents_id_not_null                                           | documents                  | CHECK           |                        | documents                  | id
+ documents_invoice_date_not_null                                 | documents                  | CHECK           |                        | documents                  | invoice_date
+ documents_total_amount_check                                    | documents                  | CHECK           |                        | documents                  | total_amount
+ documents_client_code_fkey                                      | documents                  | FOREIGN KEY     | client_code            | clients                    | code
+ documents_pkey                                                  | documents                  | PRIMARY KEY     | id                     | documents                  | id
+ historical_client_activity_client_code_not_null                 | historical_client_activity | CHECK           |                        | historical_client_activity | client_code
+ historical_client_activity_id_not_null                          | historical_client_activity | CHECK           |                        | historical_client_activity | id
+ historical_client_activity_sales_year_check                     | historical_client_activity | CHECK           |                        | historical_client_activity | sales_year
+ historical_client_activity_sales_year_not_null                  | historical_client_activity | CHECK           |                        | historical_client_activity | sales_year
+ historical_client_activity_group_id_fkey                        | historical_client_activity | FOREIGN KEY     | group_id               | client_groups              | id
+ historical_client_activity_pkey                                 | historical_client_activity | PRIMARY KEY     | id                     | historical_client_activity | id
+ uq_historical_activity                                          | historical_client_activity | UNIQUE          | sales_year             | historical_client_activity | sales_year
+ uq_historical_activity                                          | historical_client_activity | UNIQUE          | client_code            | historical_client_activity | client_code
+ uq_historical_activity                                          | historical_client_activity | UNIQUE          | client_code            | historical_client_activity | sales_year
+ uq_historical_activity                                          | historical_client_activity | UNIQUE          | sales_year             | historical_client_activity | client_code
+ manager_rejections_log_client_code_not_null                     | manager_rejections_log     | CHECK           |                        | manager_rejections_log     | client_code
+ manager_rejections_log_id_not_null                              | manager_rejections_log     | CHECK           |                        | manager_rejections_log     | id
+ manager_rejections_log_product_code_not_null                    | manager_rejections_log     | CHECK           |                        | manager_rejections_log     | product_code
+ manager_rejections_log_client_code_fkey                         | manager_rejections_log     | FOREIGN KEY     | client_code            | clients                    | code
+ manager_rejections_log_document_id_fkey                         | manager_rejections_log     | FOREIGN KEY     | document_id            | documents                  | id
+ manager_rejections_log_product_code_fkey                        | manager_rejections_log     | FOREIGN KEY     | product_code           | products                   | code
+ manager_rejections_log_pkey                                     | manager_rejections_log     | PRIMARY KEY     | id                     | manager_rejections_log     | id
+ product_aliases_alias_text_not_null                             | product_aliases            | CHECK           |                        | product_aliases            | alias_text
+ product_aliases_id_not_null                                     | product_aliases            | CHECK           |                        | product_aliases            | id
+ product_aliases_product_code_not_null                           | product_aliases            | CHECK           |                        | product_aliases            | product_code
+ product_aliases_product_code_fkey                               | product_aliases            | FOREIGN KEY     | product_code           | products                   | code
+ product_aliases_pkey                                            | product_aliases            | PRIMARY KEY     | id                     | product_aliases            | id
+ product_aliases_alias_text_key                                  | product_aliases            | UNIQUE          | alias_text             | product_aliases            | alias_text
+ product_cross_sells_id_not_null                                 | product_cross_sells        | CHECK           |                        | product_cross_sells        | id
+ product_cross_sells_main_product_code_fkey                      | product_cross_sells        | FOREIGN KEY     | main_product_code      | products                   | code
+ product_cross_sells_related_product_code_fkey                   | product_cross_sells        | FOREIGN KEY     | related_product_code   | products                   | code
+ product_cross_sells_pkey                                        | product_cross_sells        | PRIMARY KEY     | id                     | product_cross_sells        | id
+ product_cross_sells_main_product_code_related_product_code_key  | product_cross_sells        | UNIQUE          | related_product_code   | product_cross_sells        | related_product_code
+ product_cross_sells_main_product_code_related_product_code_key  | product_cross_sells        | UNIQUE          | main_product_code      | product_cross_sells        | main_product_code
+ product_cross_sells_main_product_code_related_product_code_key  | product_cross_sells        | UNIQUE          | main_product_code      | product_cross_sells        | related_product_code
+ product_cross_sells_main_product_code_related_product_code_key  | product_cross_sells        | UNIQUE          | related_product_code   | product_cross_sells        | main_product_code
+ chk_current_weight                                              | product_scoring            | CHECK           |                        | product_scoring            | base_score
+ chk_current_weight                                              | product_scoring            | CHECK           |                        | product_scoring            | negative_reinforcement
+ chk_current_weight                                              | product_scoring            | CHECK           |                        | product_scoring            | positive_reinforcement
+ product_scoring_base_score_check                                | product_scoring            | CHECK           |                        | product_scoring            | base_score
+ product_scoring_client_code_not_null                            | product_scoring            | CHECK           |                        | product_scoring            | client_code
+ product_scoring_id_not_null                                     | product_scoring            | CHECK           |                        | product_scoring            | id
+ product_scoring_product_code_not_null                           | product_scoring            | CHECK           |                        | product_scoring            | product_code
+ product_scoring_client_code_fkey                                | product_scoring            | FOREIGN KEY     | client_code            | clients                    | code
+ product_scoring_product_code_fkey                               | product_scoring            | FOREIGN KEY     | product_code           | products                   | code
+ product_scoring_pkey                                            | product_scoring            | PRIMARY KEY     | id                     | product_scoring            | id
+ product_scoring_client_code_product_code_key                    | product_scoring            | UNIQUE          | client_code            | product_scoring            | client_code
+ product_scoring_client_code_product_code_key                    | product_scoring            | UNIQUE          | product_code           | product_scoring            | product_code
+ product_scoring_client_code_product_code_key                    | product_scoring            | UNIQUE          | product_code           | product_scoring            | client_code
+ product_scoring_client_code_product_code_key                    | product_scoring            | UNIQUE          | client_code            | product_scoring            | product_code
+ product_similarities_id_not_null                                | product_similarities       | CHECK           |                        | product_similarities       | id
+ product_similarities_match_type_not_null                        | product_similarities       | CHECK           |                        | product_similarities       | match_type
+ product_similarities_similar_product_code_not_null              | product_similarities       | CHECK           |                        | product_similarities       | similar_product_code
+ product_similarities_source_product_code_not_null               | product_similarities       | CHECK           |                        | product_similarities       | source_product_code
+ product_similarities_pkey                                       | product_similarities       | PRIMARY KEY     | id                     | product_similarities       | id
+ product_similarities_source_product_code_similar_product_co_key | product_similarities       | UNIQUE          | similar_product_code   | product_similarities       | source_product_code
+ product_similarities_source_product_code_similar_product_co_key | product_similarities       | UNIQUE          | similar_product_code   | product_similarities       | similar_product_code
+ product_similarities_source_product_code_similar_product_co_key | product_similarities       | UNIQUE          | source_product_code    | product_similarities       | similar_product_code
+ product_similarities_source_product_code_similar_product_co_key | product_similarities       | UNIQUE          | source_product_code    | product_similarities       | source_product_code
+ production_lead_times_id_not_null                               | production_lead_times      | CHECK           |                        | production_lead_times      | id
+ production_lead_times_product_code_not_null                     | production_lead_times      | CHECK           |                        | production_lead_times      | product_code
+ production_lead_times_alternative_blank_code_fkey               | production_lead_times      | FOREIGN KEY     | alternative_blank_code | products                   | code
+ production_lead_times_product_code_fkey                         | production_lead_times      | FOREIGN KEY     | product_code           | products                   | code
+ production_lead_times_pkey                                      | production_lead_times      | PRIMARY KEY     | id                     | production_lead_times      | id
+ products_code_not_null                                          | products                   | CHECK           |                        | products                   | code
+ products_name_not_null                                          | products                   | CHECK           |                        | products                   | name
+ products_anchor_direction_id_fkey                               | products                   | FOREIGN KEY     | anchor_direction_id    | activity_directions        | id
+ products_pkey                                                   | products                   | PRIMARY KEY     | code                   | products                   | code
+ sales_lines_amount_check                                        | sales_lines                | CHECK           |                        | sales_lines                | amount
+ sales_lines_amount_not_null                                     | sales_lines                | CHECK           |                        | sales_lines                | amount
+ sales_lines_document_id_not_null                                | sales_lines                | CHECK           |                        | sales_lines                | document_id
+ sales_lines_id_not_null                                         | sales_lines                | CHECK           |                        | sales_lines                | id
+ sales_lines_product_code_not_null                               | sales_lines                | CHECK           |                        | sales_lines                | product_code
+ sales_lines_quantity_check                                      | sales_lines                | CHECK           |                        | sales_lines                | quantity
+ sales_lines_quantity_not_null                                   | sales_lines                | CHECK           |                        | sales_lines                | quantity
+ sales_lines_document_id_fkey                                    | sales_lines                | FOREIGN KEY     | document_id            | documents                  | id
+ sales_lines_product_code_fkey                                   | sales_lines                | FOREIGN KEY     | product_code           | products                   | code
+ sales_lines_pkey                                                | sales_lines                | PRIMARY KEY     | id                     | sales_lines                | id
+ status_change_log_changed_by_not_null                           | status_change_log          | CHECK           |                        | status_change_log          | changed_by
+ status_change_log_client_code_not_null                          | status_change_log          | CHECK           |                        | status_change_log          | client_code
+ status_change_log_id_not_null                                   | status_change_log          | CHECK           |                        | status_change_log          | id
+ status_change_log_client_code_fkey                              | status_change_log          | FOREIGN KEY     | client_code            | clients                    | code
+ status_change_log_new_status_id_fkey                            | status_change_log          | FOREIGN KEY     | new_status_id          | status_rules               | id
+ status_change_log_old_status_id_fkey                            | status_change_log          | FOREIGN KEY     | old_status_id          | status_rules               | id
+ status_change_log_pkey                                          | status_change_log          | PRIMARY KEY     | id                     | status_change_log          | id
+ status_rules_id_not_null                                        | status_rules               | CHECK           |                        | status_rules               | id
+ status_rules_priority_not_null                                  | status_rules               | CHECK           |                        | status_rules               | priority
+ status_rules_status_name_not_null                               | status_rules               | CHECK           |                        | status_rules               | status_name
+ status_rules_pkey                                               | status_rules               | PRIMARY KEY     | id                     | status_rules               | id
+ status_rules_status_name_key                                    | status_rules               | UNIQUE          | status_name            | status_rules               | status_name
+ website_behavior_log_client_code_not_null                       | website_behavior_log       | CHECK           |                        | website_behavior_log       | client_code
+ website_behavior_log_id_not_null                                | website_behavior_log       | CHECK           |                        | website_behavior_log       | id
+ website_behavior_log_client_code_fkey                           | website_behavior_log       | FOREIGN KEY     | client_code            | clients                    | code
+ website_behavior_log_product_code_fkey                          | website_behavior_log       | FOREIGN KEY     | product_code           | products                   | code
+ website_behavior_log_pkey                                       | website_behavior_log       | PRIMARY KEY     | id                     | website_behavior_log       | id
+(127 rows)
+
+      table_name      | record_count | unique_clients | client_types | active_clients |  min_date  |  max_date  | total_amount 
+----------------------+--------------+----------------+--------------+----------------+------------+------------+--------------
+ clients              | 1070         | 1070           | 0            | 565            |            |            | 
+ documents            | 3685         | 1064           |              |                | 2025-01-01 | 2026-04-01 | 286435985.16
+ sales_lines          | 8399         | 1337           |              |                |            |            | 362449880.98
+ client_year_activity | 1559         | 1070           |              |                | 2025       | 2026       | 365840690.98
+(4 rows)
+
+                 check_name                 | count 
+--------------------------------------------+-------
+ Документы без клиентов                     |     0
+ Sales_lines без документов                 |     0
+ Клиенты в client_year_activity без clients |     0
+ Документы без sales_lines                  |     0
+(4 rows)
+
+           source            | year | count | clients 
+-----------------------------+------+-------+---------
+ client_year_activity        | 2025 |   997 |     997
+ client_year_activity        | 2026 |   562 |     562
+ documents                   | 2025 |   989 |     989
+ documents                   | 2026 |  2696 |     556
+ sales_lines (via documents) | 2025 |  1978 |     989
+ sales_lines (via documents) | 2026 |  6421 |     556
+(6 rows)
+
+ year | out_group_name | out_total_companies | out_total_sales 
+------+----------------+---------------------+-----------------
+ 2025 | B2             |                   2 |      3874692.62
+ 2025 | C1             |                  36 |     25841159.66
+ 2025 | C2             |                 445 |     45292129.36
+ 2025 | Total          |                 483 |     75007981.64
+ 2026 | A2             |                   2 |     16235410.94
+ 2026 | A3             |                   3 |     14983395.20
+ 2026 | B1             |                  10 |     34472400.70
+ 2026 | B2             |                  16 |     31995179.70
+ 2026 | C1             |                  83 |     66489791.90
+ 2026 | C2             |                 431 |     46225239.90
+ 2026 | Total          |                 545 |    210401418.34
+(11 rows)
+
+ year_direction | out_group_name |   out_metric    | out_1 | out_2_3 | out_4_10 | out_11_40 | out_41_170 | out_171_plus | out_total 
+----------------+----------------+-----------------+-------+---------+----------+-----------+------------+--------------+-----------
+ 2025 (above)   | ABC            | Кол-во компаний |   151 |       0 |        0 |         0 |          0 |            0 |       151
+ 2026 (above)   | ABC            | Кол-во компаний |    29 |      53 |       87 |        55 |          4 |            0 |       228
+(2 rows)
+
