@@ -953,6 +953,11 @@
             font-weight: 700;
         }
 
+        /* Подсветка выбранной метрики в YoY */
+        .kpi-card.active-metric {
+            box-shadow: 0 0 0 2px #f59e0b, 0 4px 12px rgba(245, 158, 11, 0.15);
+        }
+
         /* ====== МАСШТАБИРОВАНИЕ ====== */
         .scale-controls {
             display: flex;
@@ -1181,44 +1186,99 @@
 
         <!-- ====== ВКЛАДКА 2: YoY СРАВНЕНИЕ ====== -->
         <div class="tab-content" id="tab-yoy">
+            <!-- KPI-карточки сравнения -->
+            <div class="kpi-row" style="margin-bottom:20px;">
+                <div class="kpi-card kpi-blue" onclick="setYoYMetric('revenue')" id="yoy-card-revenue"
+                    style="cursor:pointer;">
+                    <div class="kpi-icon">💰</div>
+                    <div class="kpi-label">Выручка <span id="yoy-year-label-rev">2026</span></div>
+                    <div class="kpi-value" id="yoy-revenue">—</div>
+                    <div class="kpi-sub"><span id="yoy-revenue-delta">—</span> к <span id="yoy-revenue-prev">2025</span>
+                    </div>
+                </div>
+                <div class="kpi-card kpi-green" onclick="setYoYMetric('invoices')" id="yoy-card-invoices"
+                    style="cursor:pointer;">
+                    <div class="kpi-icon">📦</div>
+                    <div class="kpi-label">Накладные <span id="yoy-year-label-inv">2026</span></div>
+                    <div class="kpi-value" id="yoy-invoices">—</div>
+                    <div class="kpi-sub"><span id="yoy-invoices-delta">—</span> к <span
+                            id="yoy-invoices-prev">2025</span></div>
+                </div>
+                <div class="kpi-card kpi-amber" onclick="setYoYMetric('clients')" id="yoy-card-clients"
+                    style="cursor:pointer;">
+                    <div class="kpi-icon">👥</div>
+                    <div class="kpi-label">Активные компании</div>
+                    <div class="kpi-value" id="yoy-clients">—</div>
+                    <div class="kpi-sub"><span id="yoy-clients-delta">—</span> к <span id="yoy-clients-prev">2025</span>
+                    </div>
+                </div>
+                <div class="kpi-card kpi-purple" onclick="setYoYMetric('avg_ticket')" id="yoy-card-ticket"
+                    style="cursor:pointer;">
+                    <div class="kpi-icon">📊</div>
+                    <div class="kpi-label">Средний чек</div>
+                    <div class="kpi-value" id="yoy-ticket">—</div>
+                    <div class="kpi-sub"><span id="yoy-ticket-delta">—</span> к <span id="yoy-ticket-prev">2025</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Селектор года -->
+            <div class="card"
+                style="margin-bottom:20px;background:var(--card);border-radius:var(--radius);padding:16px 24px;border:1px solid var(--border);">
+                <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+                    <span style="font-weight:700;font-size:15px;">📅 Сравнение:</span>
+                    <select id="yoy-year-select" onchange="loadYoYComparison()"
+                        style="padding:8px 16px;border-radius:8px;border:1px solid var(--border);background:#fff;font-size:14px;cursor:pointer;">
+                        <option value="2026">2026 / 2025</option>
+                        <option value="2025">2025 / 2024</option>
+                    </select>
+                    <span style="color:var(--muted);font-size:12px;" id="yoy-updated">Обновлено: —</span>
+                </div>
+            </div>
+
+            <!-- График сезонности -->
             <div class="chart-card">
-                <div class="card-header">
-                    <h2 class="card-title">📈 Сравнение <span id="yoy-year1">2026</span> / <span
-                            id="yoy-year2">2025</span> (честный YoY)</h2>
-                </div>
-                <div class="chart-table-grid">
-                    <div class="bar-chart" id="chart-yoy">
-                        <div style="color: #94a3b8; text-align: center; width: 100%; align-self: center;">⏳ Загрузка...
-                        </div>
-                    </div>
-                    <div class="table-scroll">
-                        <table class="table-mini">
-                            <thead>
-                                <tr>
-                                    <th>Месяц</th>
-                                    <th class="right" id="yoy-th-year1">2026</th>
-                                    <th class="right" id="yoy-th-year2">2025</th>
-                                    <th class="right">Рост</th>
-                                </tr>
-                            </thead>
-                            <tbody id="table-yoy">
-                                <tr>
-                                    <td colspan="4" style="text-align:center;padding:30px;">⏳ Загрузка...</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                <div
+                    style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
+                    <h2 class="card-title" id="yoy-chart-title" style="margin:0;">📈 Сравнительная сезонность (Выручка)
+                    </h2>
+                    <div style="display:flex;gap:16px;font-size:12px;color:var(--muted);">
+                        <span>🟦 <span id="yoy-legend-year1">2026</span></span>
+                        <span>⬜ <span id="yoy-legend-year2">2025</span></span>
                     </div>
                 </div>
-                <div class="legend">
-                    <span><span class="dot blue"></span> <span id="yoy-legend-year1">2026</span></span>
-                    <span><span class="dot gray"></span> <span id="yoy-legend-year2">2025</span></span>
+                <div class="bar-chart" id="chart-yoy-comparison" style="height:260px;"></div>
+            </div>
+
+            <!-- Таблица сравнения по месяцам -->
+            <div class="chart-card" style="margin-top:20px;">
+                <h2 class="card-title">📋 Помесячная ведомость</h2>
+                <div style="overflow-x:auto;">
+                    <table class="pivot-formatted-table" id="table-yoy-monthly">
+                        <thead>
+                            <tr>
+                                <th>Месяц</th>
+                                <th class="right">Выручка <span id="yoy-th-year1-rev">2026</span></th>
+                                <th class="right">Выручка <span id="yoy-th-year2-rev">2025</span></th>
+                                <th class="right">Δ Выручка</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
                 </div>
+            </div>
+
+            <!-- Когорты -->
+            <div class="chart-card" style="margin-top:20px;">
+                <h2 class="card-title">👥 Статистика активности</h2>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;"
+                    id="yoy-cohorts"></div>
             </div>
         </div>
 
-        <!-- ====== ВКЛАДКА 3: ABC-ПИРАМИДА ====== -->
+        <!-- ====== ВКЛАДКА 3: ABC-ПИРАМИДА + МАТРИЦА ====== -->
         <div class="tab-content" id="tab-abc">
-            <div class="chart-card">
+            <div class="chart-card" style="margin-bottom:20px;">
                 <div class="card-header">
                     <h2 class="card-title">🔺 ABC-пирамида клиентов</h2>
                 </div>
@@ -1244,553 +1304,876 @@
                     </div>
                 </div>
             </div>
+
+            <!-- МАТРИЦА ABC СРАВНЕНИЕ -->
+            <div class="chart-card">
+                <div class="card-header">
+                    <h2 class="card-title">📊 Сравнительная матрица ABC</h2>
+                    <span style="font-size:12px;color:var(--muted);" id="abc-matrix-years">2026 / 2025</span>
+                </div>
+                <div style="overflow-x:auto;">
+                    <table class="pivot-formatted-table" id="table-abc-matrix">
+                        <thead>
+                            <tr>
+                                <th>Группа</th>
+                                <th class="right">Компаний <span id="abc-mx-year1">2026</span></th>
+                                <th class="right">Компаний <span id="abc-mx-year2">2025</span></th>
+                                <th class="right">Δ</th>
+                                <th class="right">Выручка <span id="abc-mx-rev-year1">2026</span></th>
+                                <th class="right">Выручка <span id="abc-mx-rev-year2">2025</span></th>
+                                <th class="right">Δ Выручка</th>
+                                <th class="right">Δ %</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-abc-matrix">
+                            <tr>
+                                <td colspan="8" style="text-align:center;padding:30px;">⏳ Загрузка...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
-    </div>
 
-    <!-- ====== JAVASCRIPT ====== -->
-    <script>
-        var TOKEN = new URLSearchParams(window.location.search).get('token') || 'utsk2026';
-        var MONTHS = ['', 'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
-        var MONTHS_SHORT = ['', 'Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'];
-        var currentScale = 100;
-        var currentSort = { field: null, asc: true };
+        <!-- ====== JAVASCRIPT ====== -->
+        <script>
+            var TOKEN = new URLSearchParams(window.location.search).get('token') || 'utsk2026';
+            var MONTHS = ['', 'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+            var MONTHS_SHORT = ['', 'Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'];
+            var currentScale = 100;
+            var currentSort = { field: null, asc: true };
 
-        function fmtM(v) { if (!v || v === 0) return '0'; if (Math.abs(v) >= 1e6) return (v / 1e6).toFixed(2) + ' млн ₴'; if (Math.abs(v) >= 1e3) return Math.round(v / 1000) + ' тыс ₴'; return Math.round(v).toLocaleString('ru-RU') + ' ₴'; }
-        function fmtS(v) { if (!v) return '0'; if (Math.abs(v) >= 1e6) return (v / 1e6).toFixed(1) + 'M'; if (Math.abs(v) >= 1e3) return Math.round(v / 1000) + 'K'; return Math.round(v).toString(); }
-        function fmtN(n) { return (n == null) ? '—' : Number(n).toLocaleString('ru-RU'); }
-        function formatNumRu(n) { return (n == null) ? '0' : Number(n).toLocaleString('ru-RU'); }
-        function fmtFullMoney(v) { if (v == null || v === 0) return '0'; return Math.round(v).toLocaleString('ru-RU'); }
+            function fmtM(v) { if (!v || v === 0) return '0'; if (Math.abs(v) >= 1e6) return (v / 1e6).toFixed(2) + ' млн ₴'; if (Math.abs(v) >= 1e3) return Math.round(v / 1000) + ' тыс ₴'; return Math.round(v).toLocaleString('ru-RU') + ' ₴'; }
+            function fmtS(v) { if (!v) return '0'; if (Math.abs(v) >= 1e6) return (v / 1e6).toFixed(1) + 'M'; if (Math.abs(v) >= 1e3) return Math.round(v / 1000) + 'K'; return Math.round(v).toString(); }
+            function fmtN(n) { return (n == null) ? '—' : Number(n).toLocaleString('ru-RU'); }
+            function formatNumRu(n) { return (n == null) ? '0' : Number(n).toLocaleString('ru-RU'); }
+            function fmtFullMoney(v) { if (v == null || v === 0) return '0'; return Math.round(v).toLocaleString('ru-RU'); }
 
-        function getParams() {
-            return {
-                year: document.getElementById('param-year').value || 2026,
-                multiplier: document.getElementById('param-multiplier').value || 2.9,
-                limitPrice: document.getElementById('param-limit-price').value || 146000
-            };
-        }
-
-        // ====== МАСШТАБИРОВАНИЕ ======
-        function changeScale(delta) {
-            currentScale = Math.min(150, Math.max(70, currentScale + delta));
-            document.getElementById('scale-display').textContent = currentScale + '%';
-            document.getElementById('main-grid').style.transform = 'scale(' + (currentScale / 100) + ')';
-            document.getElementById('main-grid').style.transformOrigin = 'top center';
-        }
-
-        // ====== АВТОСКРЫТИЕ ПАНЕЛЕЙ ПРИ СКРОЛЛЕ ======
-        var lastScrollY = window.scrollY;
-        window.addEventListener('scroll', function () {
-            var currentScrollY = window.scrollY;
-            var paramsPanel = document.getElementById('params-panel');
-            var kpiRow = document.getElementById('kpi-row');
-
-            if (currentScrollY > 200 && currentScrollY > lastScrollY) {
-                // Скроллим вниз — скрываем
-                if (paramsPanel) paramsPanel.classList.add('collapsed');
-                if (kpiRow) kpiRow.classList.add('collapsed');
-            } else if (currentScrollY < lastScrollY) {
-                // Скроллим вверх — показываем
-                if (paramsPanel) paramsPanel.classList.remove('collapsed');
-                if (kpiRow) kpiRow.classList.remove('collapsed');
+            function getParams() {
+                return {
+                    year: document.getElementById('param-year').value || 2026,
+                    multiplier: document.getElementById('param-multiplier').value || 2.9,
+                    limitPrice: document.getElementById('param-limit-price').value || 146000
+                };
             }
-            lastScrollY = currentScrollY;
-        });
 
-        // ====== ОБЩАЯ ФУНКЦИЯ ОБНОВЛЕНИЯ ======
-        function refreshAllAnalytics() {
-            var p = getParams();
-            document.getElementById('kpi-year-label').textContent = p.year;
-            loadGlobalKPI();
-
-            var year1 = parseInt(p.year), year2 = year1 - 1;
-            ['tab-yoy-year1'].forEach(id => { var el = document.getElementById(id); if (el) el.textContent = year1; });
-            ['tab-yoy-year2'].forEach(id => { var el = document.getElementById(id); if (el) el.textContent = year2; });
-
-            // 🔥 Всегда загружаем YoY для KPI роста
-            loadYoY();
-
-            var activeTab = document.querySelector('.tab-content.active');
-            if (!activeTab) { loadMonthly(p.year); return; }
-
-            var tabId = activeTab.id;
-            if (tabId === 'tab-monthly') {
-                loadUnitedPivotAndSummary(p.year, p.multiplier, p.limitPrice);
-                loadFinal(p.year, p.multiplier, p.limitPrice);
+            // ====== МАСШТАБИРОВАНИЕ ======
+            function changeScale(delta) {
+                currentScale = Math.min(150, Math.max(70, currentScale + delta));
+                document.getElementById('scale-display').textContent = currentScale + '%';
+                document.getElementById('main-grid').style.transform = 'scale(' + (currentScale / 100) + ')';
+                document.getElementById('main-grid').style.transformOrigin = 'top center';
             }
-            else if (tabId === 'tab-yoy') { } // уже загружено выше
-            else if (tabId === 'tab-abc') loadABC(p.year, p.multiplier);
-            else if (tabId === 'tab-pivot') loadUnitedPivotAndSummary(p.year, p.multiplier, p.limitPrice);
-        }
 
-        // ====== ВКЛАДКА 1: МЕСЯЧНАЯ ДИНАМИКА ======
-        var monthlyDataCache = [];
-        async function loadMonthly(year) {
+            // ====== АВТОСКРЫТИЕ ПАНЕЛЕЙ ПРИ СКРОЛЛЕ ======
+            var lastScrollY = window.scrollY;
+            window.addEventListener('scroll', function () {
+                var currentScrollY = window.scrollY;
+                var paramsPanel = document.getElementById('params-panel');
+                var kpiRow = document.getElementById('kpi-row');
 
-            // 🔥 Всегда загружаем YoY для KPI роста
-            loadYoY();
-            var tbody = document.getElementById('table-monthly');
-            var chart = document.getElementById('chart-monthly');
-            try {
-                var resp = await fetch('/api/analytics/monthly-revenue?token=' + TOKEN + '&year=' + year);
-                var json = await resp.json();
-                if (json.status !== 'ok') return;
-                var data = json.data;
-                data.sort((a, b) => (a.month || 0) - (b.month || 0));
-                monthlyDataCache = data;
-
-
-                var totalGoods = data.reduce((s, r) => s + (r.goods_revenue || 0), 0);
-                var totalInvoices = data.reduce((s, r) => s + (r.invoice_count || 0), 0);
-                var avgTicket = totalInvoices > 0 ? Math.round(totalGoods / totalInvoices) : 0;
-                document.getElementById('kpi-revenue').textContent = fmtM(totalGoods);
-                document.getElementById('kpi-invoices').textContent = fmtN(totalInvoices);
-                document.getElementById('kpi-avg-ticket').textContent = 'Средний чек: ' + fmtM(avgTicket);
-
-                renderMonthlyTable(data);
-                renderMonthlyChart(data, chart);
-            } catch (e) { console.error(e); }
-        }
-
-        function renderMonthlyTable(data) {
-            var tbody = document.getElementById('table-monthly');
-            var html = '';
-            data.forEach((r, index) => {
-                var val = r.goods_revenue || 0;
-                var prevVal = index > 0 ? (data[index - 1].goods_revenue || 0) : null;
-                var growthHtml = '<span style="color:var(--muted)">—</span>';
-                if (prevVal !== null && prevVal > 0) {
-                    var pct = ((val - prevVal) / prevVal) * 100;
-                    growthHtml = '<span class="growth-badge ' + (pct >= 0 ? 'up' : 'down') + '">' + (pct > 0 ? '+' : '') + pct.toFixed(1) + '%</span>';
+                if (currentScrollY > 200 && currentScrollY > lastScrollY) {
+                    // Скроллим вниз — скрываем
+                    if (paramsPanel) paramsPanel.classList.add('collapsed');
+                    if (kpiRow) kpiRow.classList.add('collapsed');
+                } else if (currentScrollY < lastScrollY) {
+                    // Скроллим вверх — показываем
+                    if (paramsPanel) paramsPanel.classList.remove('collapsed');
+                    if (kpiRow) kpiRow.classList.remove('collapsed');
                 }
-                var invoices = r.invoice_count || 0, clients = r.active_clients || 0, ticket = invoices > 0 ? val / invoices : 0;
-                html += '<tr>' +
-                    '<td style="font-weight:700;">' + MONTHS[r.month] + ' ' + (r.year || '') + '</td>' +
-                    '<td class="right">' + fmtN(invoices) + '</td>' +
-                    '<td class="right" style="color:var(--blue);font-weight:700;">' + fmtFullMoney(val) + '</td>' +
-                    '<td class="center">' + growthHtml + '</td>' +
-                    '<td class="right">' + fmtN(clients) + '</td>' +
-                    '<td class="right" style="font-weight:600;">' + fmtFullMoney(ticket) + '</td>' +
-                    '</tr>';
+                lastScrollY = currentScrollY;
             });
-            tbody.innerHTML = html;
-        }
 
-        function renderMonthlyChart(data, chart) {
-            var maxVal = Math.max(...data.map(d => d.goods_revenue || 0), 1);
-            var ceiling = maxVal * 1.15, chartHeight = 200;
-            chart.innerHTML = data.map(r => {
-                var val = r.goods_revenue || 0, hPx = Math.max(4, Math.round((val / ceiling) * chartHeight));
-                return '<div class="bar-group" style="justify-content:flex-end;">' +
-                    '<div class="bar-value">' + fmtS(val) + '</div>' +
-                    '<div class="bar-fill blue" style="height:' + hPx + 'px; max-width:60px;" title="' + MONTHS[r.month] + ': ' + fmtM(val) + '"></div>' +
-                    '<div class="bar-label">' + MONTHS_SHORT[r.month] + '</div></div>';
-            }).join('');
-        }
+            // ====== ОБЩАЯ ФУНКЦИЯ ОБНОВЛЕНИЯ ======
+            function refreshAllAnalytics() {
+                var p = getParams();
+                document.getElementById('kpi-year-label').textContent = p.year;
+                loadGlobalKPI();
 
-        // ====== СОРТИРОВКА ПО КЛИКУ НА ЗАГОЛОВКИ ======
-        document.addEventListener('click', function (e) {
-            if (e.target.closest('.monthly-table thead th')) {
-                var th = e.target.closest('.monthly-table thead th');
-                var field = th.getAttribute('data-sort');
-                if (!field || !monthlyDataCache.length) return;
+                var year1 = parseInt(p.year), year2 = year1 - 1;
+                ['tab-yoy-year1'].forEach(id => { var el = document.getElementById(id); if (el) el.textContent = year1; });
+                ['tab-yoy-year2'].forEach(id => { var el = document.getElementById(id); if (el) el.textContent = year2; });
 
-                if (currentSort.field === field) currentSort.asc = !currentSort.asc;
-                else { currentSort.field = field; currentSort.asc = true; }
+                // 🔥 Всегда загружаем YoY для KPI роста
+                loadYoYComparison();
 
-                var sorted = [...monthlyDataCache];
-                sorted.sort((a, b) => {
-                    var va, vb;
-                    if (field === 'month') { va = a.month || 0; vb = b.month || 0; }
-                    else if (field === 'invoices') { va = a.invoice_count || 0; vb = b.invoice_count || 0; }
-                    else if (field === 'revenue') { va = a.goods_revenue || 0; vb = b.goods_revenue || 0; }
-                    else if (field === 'clients') { va = a.active_clients || 0; vb = b.active_clients || 0; }
-                    else if (field === 'ticket') {
-                        va = (a.invoice_count > 0 ? (a.goods_revenue || 0) / a.invoice_count : 0);
-                        vb = (b.invoice_count > 0 ? (b.goods_revenue || 0) / b.invoice_count : 0);
-                    }
-                    else if (field === 'growth') {
-                        var aIdx = monthlyDataCache.indexOf(a), bIdx = monthlyDataCache.indexOf(b);
-                        va = aIdx > 0 ? ((a.goods_revenue || 0) - (monthlyDataCache[aIdx - 1].goods_revenue || 0)) / Math.max(monthlyDataCache[aIdx - 1].goods_revenue || 1, 1) : 0;
-                        vb = bIdx > 0 ? ((b.goods_revenue || 0) - (monthlyDataCache[bIdx - 1].goods_revenue || 0)) / Math.max(monthlyDataCache[bIdx - 1].goods_revenue || 1, 1) : 0;
-                    }
-                    return currentSort.asc ? va - vb : vb - va;
-                });
-                renderMonthlyTable(sorted);
+                var activeTab = document.querySelector('.tab-content.active');
+                if (!activeTab) { loadMonthly(p.year); return; }
 
-                // Обновляем стрелки в заголовках
-                document.querySelectorAll('.monthly-table thead th').forEach(el => el.textContent = el.textContent.replace(' ▲', '').replace(' ▼', ''));
-                th.textContent += currentSort.asc ? ' ▲' : ' ▼';
+                var tabId = activeTab.id;
+                if (tabId === 'tab-monthly') {
+                    loadUnitedPivotAndSummary(p.year, p.multiplier, p.limitPrice);
+                    loadFinal(p.year, p.multiplier, p.limitPrice);
+                }
+                else if (tabId === 'tab-yoy') { } // уже загружено выше
+                else if (tabId === 'tab-abc') loadABC(p.year, p.multiplier);
+                else if (tabId === 'tab-pivot') loadUnitedPivotAndSummary(p.year, p.multiplier, p.limitPrice);
             }
-        });
 
-        // ====== YoY ======
-        async function loadYoY(yearOverride) {
-            var tbody = document.getElementById('table-yoy'), chart = document.getElementById('chart-yoy');
-            var year1 = yearOverride || getParams().year || 2026, year2 = year1 - 1;
-            ['yoy-year1', 'yoy-th-year1', 'yoy-legend-year1'].forEach(id => { var el = document.getElementById(id); if (el) el.textContent = year1; });
-            ['yoy-year2', 'yoy-th-year2', 'yoy-legend-year2'].forEach(id => { var el = document.getElementById(id); if (el) el.textContent = year2; });
-            try {
-                var resp = await fetch('/api/analytics/yoy-comparison?token=' + TOKEN + '&year1=' + year1 + '&year2=' + year2);
-                var json = await resp.json();
-                if (json.status !== 'ok') return;
-                var data = json.data;
-                var totalY1 = data.reduce((s, r) => s + (r.goods_revenue_y1 || 0), 0), totalY2 = data.reduce((s, r) => s + (r.goods_revenue_y2 || 0), 0);
-                var growth = totalY2 > 0 ? ((totalY1 - totalY2) / totalY2 * 100) : 0;
-                var gel = document.getElementById('kpi-growth'); gel.textContent = (growth >= 0 ? '+' : '') + growth.toFixed(1) + '%'; gel.style.color = growth >= 0 ? '#059669' : '#dc2626';
-                tbody.innerHTML = data.map(r => '<tr><td style="font-weight:700;">' + MONTHS_SHORT[r.month] + '</td><td class="right" style="color:#0ea5e9;font-weight:600;">' + fmtM(r.goods_revenue_y1) + '</td><td class="right" style="color:#94a3b8;">' + fmtM(r.goods_revenue_y2) + '</td><td class="right" style="color:' + ((r.growth_pct || 0) >= 0 ? '#059669' : '#dc2626') + ';font-weight:700;">' + (r.growth_pct != null ? ((r.growth_pct >= 0 ? '+' : '') + r.growth_pct + '%') : '—') + '</td></tr>').join('');
-                var allVals = []; data.forEach(d => { if (d.goods_revenue_y1) allVals.push(d.goods_revenue_y1); if (d.goods_revenue_y2) allVals.push(d.goods_revenue_y2); });
-                var maxVal = Math.max(...allVals, 1), ceiling = maxVal * 1.15, ch = 200;
+            // ====== ВКЛАДКА 1: МЕСЯЧНАЯ ДИНАМИКА ======
+            var monthlyDataCache = [];
+            async function loadMonthly(year) {
+
+                // 🔥 Всегда загружаем YoY для KPI роста
+                loadYoYComparison();
+                var tbody = document.getElementById('table-monthly');
+                var chart = document.getElementById('chart-monthly');
+                try {
+                    var resp = await fetch('/api/analytics/monthly-revenue?token=' + TOKEN + '&year=' + year);
+                    var json = await resp.json();
+                    if (json.status !== 'ok') return;
+                    var data = json.data;
+                    data.sort((a, b) => (a.month || 0) - (b.month || 0));
+                    monthlyDataCache = data;
+
+
+                    var totalGoods = data.reduce((s, r) => s + (r.goods_revenue || 0), 0);
+                    var totalInvoices = data.reduce((s, r) => s + (r.invoice_count || 0), 0);
+                    var avgTicket = totalInvoices > 0 ? Math.round(totalGoods / totalInvoices) : 0;
+                    document.getElementById('kpi-revenue').textContent = fmtM(totalGoods);
+                    document.getElementById('kpi-invoices').textContent = fmtN(totalInvoices);
+                    document.getElementById('kpi-avg-ticket').textContent = 'Средний чек: ' + fmtM(avgTicket);
+
+                    renderMonthlyTable(data);
+                    renderMonthlyChart(data, chart);
+                } catch (e) { console.error(e); }
+            }
+
+            function renderMonthlyTable(data) {
+                var tbody = document.getElementById('table-monthly');
+                var html = '';
+                data.forEach((r, index) => {
+                    var val = r.goods_revenue || 0;
+                    var prevVal = index > 0 ? (data[index - 1].goods_revenue || 0) : null;
+                    var growthHtml = '<span style="color:var(--muted)">—</span>';
+                    if (prevVal !== null && prevVal > 0) {
+                        var pct = ((val - prevVal) / prevVal) * 100;
+                        growthHtml = '<span class="growth-badge ' + (pct >= 0 ? 'up' : 'down') + '">' + (pct > 0 ? '+' : '') + pct.toFixed(1) + '%</span>';
+                    }
+                    var invoices = r.invoice_count || 0, clients = r.active_clients || 0, ticket = invoices > 0 ? val / invoices : 0;
+                    html += '<tr>' +
+                        '<td style="font-weight:700;">' + MONTHS[r.month] + ' ' + (r.year || '') + '</td>' +
+                        '<td class="right">' + fmtN(invoices) + '</td>' +
+                        '<td class="right" style="color:var(--blue);font-weight:700;">' + fmtFullMoney(val) + '</td>' +
+                        '<td class="center">' + growthHtml + '</td>' +
+                        '<td class="right">' + fmtN(clients) + '</td>' +
+                        '<td class="right" style="font-weight:600;">' + fmtFullMoney(ticket) + '</td>' +
+                        '</tr>';
+                });
+                tbody.innerHTML = html;
+            }
+
+            function renderMonthlyChart(data, chart) {
+                var maxVal = Math.max(...data.map(d => d.goods_revenue || 0), 1);
+                var ceiling = maxVal * 1.15, chartHeight = 200;
                 chart.innerHTML = data.map(r => {
-                    var v1 = r.goods_revenue_y1 || 0, v2 = r.goods_revenue_y2 || 0;
-                    var h1 = Math.max(4, Math.round((v1 / ceiling) * ch)), h2 = Math.max(4, Math.round((v2 / ceiling) * ch));
+                    var val = r.goods_revenue || 0, hPx = Math.max(4, Math.round((val / ceiling) * chartHeight));
                     return '<div class="bar-group" style="justify-content:flex-end;">' +
-                        '<div style="display:flex;gap:6px;margin-bottom:3px;"><span style="font-size:9px;color:#0ea5e9;font-weight:700;">' + fmtS(v1) + '</span><span style="font-size:9px;color:#94a3b8;font-weight:700;">' + fmtS(v2) + '</span></div>' +
-                        '<div style="display:flex;gap:4px;align-items:flex-end;"><div class="bar-fill blue" style="width:20px;height:' + h1 + 'px;"></div><div class="bar-fill gray" style="width:20px;height:' + h2 + 'px;"></div></div>' +
-                        '<div class="bar-label">' + MONTHS_SHORT[r.month] + '</div><div class="bar-growth ' + (r.growth_pct >= 0 ? 'positive' : 'negative') + '">' + (r.growth_pct != null ? ((r.growth_pct >= 0 ? '+' : '') + r.growth_pct + '%') : '') + '</div></div>';
+                        '<div class="bar-value">' + fmtS(val) + '</div>' +
+                        '<div class="bar-fill blue" style="height:' + hPx + 'px; max-width:60px;" title="' + MONTHS[r.month] + ': ' + fmtM(val) + '"></div>' +
+                        '<div class="bar-label">' + MONTHS_SHORT[r.month] + '</div></div>';
                 }).join('');
-            } catch (e) { console.error(e); }
-        }
+            }
 
-        // ====== ABC-ПИРАМИДА ======
-        async function loadABC(year, multiplier) {
-            var tbody = document.getElementById('table-abc'), bars = document.getElementById('abc-bars');
-            try {
-                var resp = await fetch('/api/analytics/abc-groups?token=' + TOKEN + '&year=' + year + '&multiplier=' + multiplier);
-                var json = await resp.json();
-                if (json.status !== 'ok') return;
-                var data = json.data;
-                var totalRow = data.find(r => r.out_group_name === 'Total'), groups = data.filter(r => r.out_group_name !== 'Total');
-                var maxSales = totalRow ? totalRow.out_total_sales : 1;
-                tbody.innerHTML = groups.map(r => {
-                    var cls = r.out_group_name.startsWith('A') ? 'group-a' : (r.out_group_name.startsWith('B') ? 'group-b' : 'group-c');
-                    return '<tr><td class="' + cls + '" style="font-weight:700;">' + r.out_group_name + '</td><td class="right" style="font-weight:700;">' + fmtM(r.out_total_sales) + '</td><td class="right">' + fmtN(r.out_total_companies) + '</td></tr>';
-                }).join('') + (totalRow ? '<tr class="row-total"><td style="font-weight:700;">Итого</td><td class="right" style="font-weight:800;color:#0ea5e9;">' + fmtM(totalRow.out_total_sales) + '</td><td class="right" style="font-weight:800;">' + fmtN(totalRow.out_total_companies) + '</td></tr>' : '');
-                bars.innerHTML = groups.map(r => {
-                    var pct = ((r.out_total_sales || 0) / maxSales * 100).toFixed(0);
-                    var cls = r.out_group_name.startsWith('A') ? 'a' : (r.out_group_name.startsWith('B') ? 'b' : 'c');
-                    return '<div class="abc-bar-row"><div class="abc-bar-label">' + r.out_group_name + '</div><div class="abc-bar-track"><div class="abc-bar-fill ' + cls + '" style="width:' + pct + '%;">' + (pct > 12 ? fmtM(r.out_total_sales) : '') + '</div></div><div style="font-size:11px;color:var(--muted);width:55px;text-align:right;">' + fmtN(r.out_total_companies) + ' шт.</div></div>';
-                }).join('');
-            } catch (e) { console.error(e); }
-        }
+            // ====== СОРТИРОВКА ПО КЛИКУ НА ЗАГОЛОВКИ ======
+            document.addEventListener('click', function (e) {
+                if (e.target.closest('.monthly-table thead th')) {
+                    var th = e.target.closest('.monthly-table thead th');
+                    var field = th.getAttribute('data-sort');
+                    if (!field || !monthlyDataCache.length) return;
 
-        // ====== ОБЪЕДИНЁННЫЙ PIVOT + СВОДНЫЙ (ОДНА ТАБЛИЦА, v5) ======
-        async function loadUnitedPivotAndSummary(year, multiplier, limitPrice) {
-            var container = document.getElementById('pivot-formatted-container');
-            var summaryContainer = document.getElementById('summary-container');
-            if (summaryContainer) summaryContainer.style.display = 'none';
-            if (!container) return;
-            container.innerHTML = '<div style="color:#94a3b8;text-align:center;padding:40px;">⏳ Загрузка объединённого отчёта...</div>';
+                    if (currentSort.field === field) currentSort.asc = !currentSort.asc;
+                    else { currentSort.field = field; currentSort.asc = true; }
 
-            try {
-                var resp = await fetch('/api/analytics/pivot-formatted?token=' + TOKEN + '&year=' + year + '&multiplier=' + multiplier + '&limit_price=' + limitPrice);
-                var json = await resp.json();
-                if (json.status !== 'ok' || !json.below || !json.above) {
-                    container.innerHTML = '<div style="text-align:center;padding:40px;">⚠️ Нет данных</div>';
-                    return;
+                    var sorted = [...monthlyDataCache];
+                    sorted.sort((a, b) => {
+                        var va, vb;
+                        if (field === 'month') { va = a.month || 0; vb = b.month || 0; }
+                        else if (field === 'invoices') { va = a.invoice_count || 0; vb = b.invoice_count || 0; }
+                        else if (field === 'revenue') { va = a.goods_revenue || 0; vb = b.goods_revenue || 0; }
+                        else if (field === 'clients') { va = a.active_clients || 0; vb = b.active_clients || 0; }
+                        else if (field === 'ticket') {
+                            va = (a.invoice_count > 0 ? (a.goods_revenue || 0) / a.invoice_count : 0);
+                            vb = (b.invoice_count > 0 ? (b.goods_revenue || 0) / b.invoice_count : 0);
+                        }
+                        else if (field === 'growth') {
+                            var aIdx = monthlyDataCache.indexOf(a), bIdx = monthlyDataCache.indexOf(b);
+                            va = aIdx > 0 ? ((a.goods_revenue || 0) - (monthlyDataCache[aIdx - 1].goods_revenue || 0)) / Math.max(monthlyDataCache[aIdx - 1].goods_revenue || 1, 1) : 0;
+                            vb = bIdx > 0 ? ((b.goods_revenue || 0) - (monthlyDataCache[bIdx - 1].goods_revenue || 0)) / Math.max(monthlyDataCache[bIdx - 1].goods_revenue || 1, 1) : 0;
+                        }
+                        return currentSort.asc ? va - vb : vb - va;
+                    });
+                    renderMonthlyTable(sorted);
+
+                    // Обновляем стрелки в заголовках
+                    document.querySelectorAll('.monthly-table thead th').forEach(el => el.textContent = el.textContent.replace(' ▲', '').replace(' ▼', ''));
+                    th.textContent += currentSort.asc ? ' ▲' : ' ▼';
+                }
+            });
+
+            // ====== YoY СРАВНЕНИЕ (ОБНОВЛЁННОЕ) ======
+            var yoyMetric = 'revenue';
+
+            function setYoYMetric(metric) {
+                yoyMetric = metric;
+                ['revenue', 'invoices', 'clients', 'avg_ticket'].forEach(m => {
+                    var card = document.getElementById('yoy-card-' + m);
+                    if (card) card.style.borderColor = m === metric ? '#f59e0b' : 'var(--border)';
+                });
+                loadYoYComparison();
+            }
+
+            async function loadYoYComparison() {
+                var sel = document.getElementById('yoy-year-select');
+                var year1 = sel ? parseInt(sel.value) : 2026;
+                var year2 = year1 - 1;
+
+                // Обновляем заголовки
+                ['rev', 'inv', 'clients', 'ticket'].forEach(s => {
+                    var el1 = document.getElementById('yoy-year-label-' + s);
+                    var el2 = document.getElementById('yoy-' + s + '-prev');
+                    if (el1) el1.textContent = year1;
+                    if (el2) el2.textContent = year2;
+                });
+
+                // Обновляем заголовки таблицы
+                ['inv', 'rev'].forEach(s => {
+                    var el1 = document.getElementById('yoy-th-year1-' + s);
+                    var el2 = document.getElementById('yoy-th-year2-' + s);
+                    if (el1) el1.textContent = year1;
+                    if (el2) el2.textContent = year2;
+                });
+
+                // Обновляем легенду
+                ['yoy-legend-year1', 'yoy-abc-year1', 'yoy-abc-rev-year1'].forEach(id => {
+                    var el = document.getElementById(id); if (el) el.textContent = year1;
+                });
+                ['yoy-legend-year2', 'yoy-abc-year2', 'yoy-abc-rev-year2'].forEach(id => {
+                    var el = document.getElementById(id); if (el) el.textContent = year2;
+                });
+
+                document.getElementById('yoy-chart-title').textContent =
+                    '📈 Сравнительная сезонность (' +
+                    (yoyMetric === 'revenue' ? 'Выручка' : yoyMetric === 'clients' ? 'Компании' : 'Выручка') + ')';
+
+                try {
+                    var resp = await fetch('/api/analytics/yoy-comparison?token=' + TOKEN + '&year1=' + year1 + '&year2=' + year2);
+                    var json = await resp.json();
+                    if (json.status !== 'ok') return;
+
+                    var data = json.data;
+
+                    // Реальные поля из API: goods_revenue_y1, goods_revenue_y2, clients_y1, clients_y2
+                    var totalY1 = data.reduce((s, r) => s + (r.goods_revenue_y1 || 0), 0);
+                    var totalY2 = data.reduce((s, r) => s + (r.goods_revenue_y2 || 0), 0);
+                    var totalCliY1 = data.reduce((s, r) => s + (r.clients_y1 || 0), 0);
+                    var totalCliY2 = data.reduce((s, r) => s + (r.clients_y2 || 0), 0);
+
+                    // Для накладных используем отдельный запрос или считаем 0
+                    var totalInvY1 = 0, totalInvY2 = 0;
+                    try {
+                        var invResp1 = await fetch('/api/analytics/monthly-revenue?token=' + TOKEN + '&year=' + year1);
+                        var invJson1 = await invResp1.json();
+                        if (invJson1.status === 'ok') totalInvY1 = invJson1.data.reduce((s, r) => s + (r.invoice_count || 0), 0);
+
+                        var invResp2 = await fetch('/api/analytics/monthly-revenue?token=' + TOKEN + '&year=' + year2);
+                        var invJson2 = await invResp2.json();
+                        if (invJson2.status === 'ok') totalInvY2 = invJson2.data.reduce((s, r) => s + (r.invoice_count || 0), 0);
+                    } catch (e) { }
+
+                    var avgTicketY1 = totalInvY1 > 0 ? Math.round(totalY1 / totalInvY1) : 0;
+                    var avgTicketY2 = totalInvY2 > 0 ? Math.round(totalY2 / totalInvY2) : 0;
+
+                    // Обновляем KPI
+                    updateYoYKPI('revenue', totalY1, totalY2);
+                    updateYoYKPI('invoices', totalInvY1, totalInvY2);
+                    updateYoYKPI('clients', totalCliY1, totalCliY2);
+                    updateYoYKPI('avg_ticket', avgTicketY1, avgTicketY2);
+
+                    // График
+                    renderYoYChart(data, year1, year2);
+
+                    // Таблица помесячно
+                    renderYoYMonthlyTable(data, year1, year2);
+
+                    // Загружаем ABC-сравнение
+                    loadYoYABC(year1, year2);
+
+                    // Когорты
+                    loadYoYCohorts(year1, year2);
+
+                    document.getElementById('yoy-updated').textContent = 'Обновлено: ' + new Date().toLocaleTimeString();
+
+                } catch (e) { console.error(e); }
+            }
+
+            function updateYoYKPI(metric, val1, val2) {
+                var el = document.getElementById('yoy-' + metric);
+                var deltaEl = document.getElementById('yoy-' + metric + '-delta');
+                if (!el || !deltaEl) return;
+
+                if (metric === 'revenue' || metric === 'avg_ticket') {
+                    el.textContent = fmtM(val1);
+                } else {
+                    el.textContent = fmtN(val1);
                 }
 
-                // 🔥 Загружаем YoY для KPI роста
-                var year1 = parseInt(year), year2 = year1 - 1;
-                fetch('/api/analytics/yoy-comparison?token=' + TOKEN + '&year1=' + year1 + '&year2=' + year2)
-                    .then(r => r.json())
-                    .then(yoyJson => {
-                        if (yoyJson.status === 'ok') {
-                            var totalY1 = yoyJson.data.reduce((s, r) => s + (r.goods_revenue_y1 || 0), 0);
-                            var totalY2 = yoyJson.data.reduce((s, r) => s + (r.goods_revenue_y2 || 0), 0);
-                            var growth = totalY2 > 0 ? ((totalY1 - totalY2) / totalY2 * 100) : 0;
-                            var gel = document.getElementById('kpi-growth');
-                            gel.textContent = (growth >= 0 ? '+' : '') + growth.toFixed(1) + '%';
-                            gel.style.color = growth >= 0 ? '#059669' : '#dc2626';
-                        }
-                    });
+                var pct = val2 > 0 ? ((val1 - val2) / val2 * 100) : 0;
+                deltaEl.textContent = (pct >= 0 ? '▲ +' : '▼ ') + Math.abs(pct).toFixed(1) + '%';
+                deltaEl.style.color = pct >= 0 ? '#059669' : '#dc2626';
+            }
 
-                function parseGroup(data) {
-                    var result = {};
-                    data.forEach(function (row) {
-                        var m = row.out_metric;
-                        if (!result[m]) result[m] = {};
-                        Object.keys(row).forEach(function (k) {
-                            if (k !== 'out_group_name' && k !== 'out_metric') {
-                                result[m][k] = row[k] || 0;
+            function renderYoYChart(data, year1, year2) {
+                var chart = document.getElementById('chart-yoy-comparison');
+                if (!chart) return;
+
+                var allVals = [];
+                data.forEach(d => {
+                    var v1 = yoyMetric === 'revenue' ? d.goods_revenue_y1 :
+                        yoyMetric === 'clients' ? d.clients_y1 : d.goods_revenue_y1;
+                    var v2 = yoyMetric === 'revenue' ? d.goods_revenue_y2 :
+                        yoyMetric === 'clients' ? d.clients_y2 : d.goods_revenue_y2;
+                    if (v1) allVals.push(v1);
+                    if (v2) allVals.push(v2);
+                });
+
+                var maxVal = Math.max(...allVals, 1);
+                var ceiling = maxVal * 1.15;
+                var ch = 200;
+
+                chart.innerHTML = data.map(r => {
+                    var v1 = yoyMetric === 'revenue' ? r.goods_revenue_y1 :
+                        yoyMetric === 'clients' ? r.clients_y1 : r.goods_revenue_y1;
+                    var v2 = yoyMetric === 'revenue' ? r.goods_revenue_y2 :
+                        yoyMetric === 'clients' ? r.clients_y2 : r.goods_revenue_y2;
+                    var h1 = Math.max(4, Math.round((v1 / ceiling) * ch));
+                    var h2 = Math.max(4, Math.round((v2 / ceiling) * ch));
+                    var displayV1 = yoyMetric === 'revenue' ? fmtS(v1) : fmtN(Math.round(v1));
+                    var displayV2 = yoyMetric === 'revenue' ? fmtS(v2) : fmtN(Math.round(v2));
+                    return '<div class="bar-group" style="justify-content:flex-end;">' +
+                        '<div style="display:flex;gap:6px;margin-bottom:3px;">' +
+                        '<span style="font-size:9px;color:#0ea5e9;font-weight:700;">' + displayV1 + '</span>' +
+                        '<span style="font-size:9px;color:#94a3b8;font-weight:700;">' + displayV2 + '</span>' +
+                        '</div>' +
+                        '<div style="display:flex;gap:4px;align-items:flex-end;">' +
+                        '<div class="bar-fill blue" style="width:20px;height:' + h1 + 'px;"></div>' +
+                        '<div class="bar-fill gray" style="width:20px;height:' + h2 + 'px;"></div>' +
+                        '</div>' +
+                        '<div class="bar-label">' + MONTHS_SHORT[r.month] + '</div>' +
+                        '<div class="bar-growth ' + ((r.growth_pct || 0) >= 0 ? 'positive' : 'negative') + '">' +
+                        (r.growth_pct != null ? ((r.growth_pct >= 0 ? '+' : '') + r.growth_pct + '%') : '') + '</div>' +
+                        '</div>';
+                }).join('');
+            }
+
+            function renderYoYMonthlyTable(data, year1, year2) {
+                var tbody = document.querySelector('#table-yoy-monthly tbody');
+                if (!tbody) return;
+
+                tbody.innerHTML = data.map(r => {
+                    var revPct = r.goods_revenue_y2 > 0 ? ((r.goods_revenue_y1 - r.goods_revenue_y2) / r.goods_revenue_y2 * 100) : 0;
+                    return '<tr>' +
+                        '<td style="font-weight:700;">' + MONTHS[r.month] + '</td>' +
+                        '<td class="right">—</td>' +  // Накладные не доступны в YoY API
+                        '<td class="right" style="color:#0ea5e9;font-weight:600;">' + fmtM(r.goods_revenue_y1) + '</td>' +
+                        '<td class="right">—</td>' +
+                        '<td class="right" style="color:#94a3b8;">' + fmtM(r.goods_revenue_y2) + '</td>' +
+                        '<td class="right">—</td>' +
+                        '<td class="right" style="color:' + (revPct >= 0 ? '#059669' : '#dc2626') + ';font-weight:700;">' + (revPct >= 0 ? '+' : '') + revPct.toFixed(1) + '%</td>' +
+                        '</tr>';
+                }).join('');
+            }
+
+            async function loadYoYABC(year1, year2) {
+                try {
+                    var [resp1, resp2] = await Promise.all([
+                        fetch('/api/analytics/abc-groups?token=' + TOKEN + '&year=' + year1 + '&multiplier=2.9'),
+                        fetch('/api/analytics/abc-groups?token=' + TOKEN + '&year=' + year2 + '&multiplier=2.9')
+                    ]);
+                    var json1 = await resp1.json(), json2 = await resp2.json();
+                    if (json1.status !== 'ok' || json2.status !== 'ok') return;
+
+                    var data1 = json1.data.filter(r => r.out_group_name !== 'Total');
+                    var data2 = json2.data.filter(r => r.out_group_name !== 'Total');
+
+                    var tbody = document.querySelector('#table-yoy-abc tbody');
+                    if (!tbody) return;
+
+                    var groups = ['A1', 'A2', 'A3', 'B1', 'B2', 'C1', 'C2'];
+                    tbody.innerHTML = groups.map(g => {
+                        var d1 = data1.find(r => r.out_group_name === g) || {};
+                        var d2 = data2.find(r => r.out_group_name === g) || {};
+                        var comp1 = d1.out_total_companies || 0, comp2 = d2.out_total_companies || 0;
+                        var rev1 = d1.out_total_sales || 0, rev2 = d2.out_total_sales || 0;
+                        var compDiff = comp1 - comp2, revDiff = rev1 - rev2;
+                        var revPct = rev2 > 0 ? (revDiff / rev2 * 100) : 0;
+                        return '<tr>' +
+                            '<td style="font-weight:700;">' + g + '</td>' +
+                            '<td class="right">' + fmtN(comp1) + '</td>' +
+                            '<td class="right">' + fmtN(comp2) + '</td>' +
+                            '<td class="right" style="color:' + (compDiff >= 0 ? '#059669' : '#dc2626') + '">' + (compDiff >= 0 ? '+' : '') + fmtN(compDiff) + '</td>' +
+                            '<td class="right">' + fmtM(rev1) + '</td>' +
+                            '<td class="right">' + fmtM(rev2) + '</td>' +
+                            '<td class="right" style="color:' + (revDiff >= 0 ? '#059669' : '#dc2626') + '">' + (revDiff >= 0 ? '+' : '') + fmtM(revDiff) + '</td>' +
+                            '<td class="right" style="font-weight:700;color:' + (revPct >= 0 ? '#059669' : '#dc2626') + '">' + (revPct >= 0 ? '▲ +' : '▼ ') + Math.abs(revPct).toFixed(1) + '%</td>' +
+                            '</tr>';
+                    }).join('');
+
+                } catch (e) { console.error(e); }
+            }
+
+            async function loadYoYCohorts(year1, year2) {
+                try {
+                    var resp = await fetch('/api/analytics/monthly-revenue?token=' + TOKEN + '&year=' + year1);
+                    var json = await resp.json();
+                    if (json.status !== 'ok') return;
+
+                    // Считаем когорты по частотности из данных
+                    var data = json.data;
+                    var totalClients = data.reduce((s, r) => s + (r.active_clients || 0), 0);
+                    var totalInvoices = data.reduce((s, r) => s + (r.invoice_count || 0), 0);
+                    var avgPerClient = totalClients > 0 ? Math.round(totalInvoices / totalClients * 12) : 0;
+
+                    var container = document.getElementById('yoy-cohorts');
+                    if (!container) return;
+
+                    container.innerHTML = [
+                        { label: 'Всего компаний', val: totalClients, color: '#0ea5e9' },
+                        { label: 'Всего накладных', val: totalInvoices, color: '#8b5cf6' },
+                        { label: 'Средняя частота', val: avgPerClient + '/год', color: '#f59e0b' }
+                    ].map(c =>
+                        '<div class="card" style="text-align:center;padding:16px;">' +
+                        '<div style="font-size:24px;font-weight:800;color:' + c.color + ';">' + (typeof c.val === 'number' ? fmtN(c.val) : c.val) + '</div>' +
+                        '<div style="font-size:11px;color:var(--muted);margin-top:4px;">' + c.label + '</div>' +
+                        '</div>'
+                    ).join('');
+
+                } catch (e) { console.error(e); }
+            }
+
+            // Вызов при загрузке вкладки
+            function initYoYTab() {
+                setYoYMetric('revenue');
+                loadYoYComparison();
+            }
+
+            // ====== ABC-ПИРАМИДА + МАТРИЦА СРАВНЕНИЯ ======
+            async function loadABC(year, multiplier) {
+                var tbody = document.getElementById('table-abc'), bars = document.getElementById('abc-bars');
+
+                // Загружаем пирамиду
+                try {
+                    var resp = await fetch('/api/analytics/abc-groups?token=' + TOKEN + '&year=' + year + '&multiplier=' + multiplier);
+                    var json = await resp.json();
+                    if (json.status !== 'ok') return;
+                    var data = json.data;
+                    var totalRow = data.find(r => r.out_group_name === 'Total'), groups = data.filter(r => r.out_group_name !== 'Total');
+                    var maxSales = totalRow ? totalRow.out_total_sales : 1;
+                    tbody.innerHTML = groups.map(r => {
+                        var cls = r.out_group_name.startsWith('A') ? 'group-a' : (r.out_group_name.startsWith('B') ? 'group-b' : 'group-c');
+                        return '<tr><td class="' + cls + '" style="font-weight:700;">' + r.out_group_name + '</td><td class="right" style="font-weight:700;">' + fmtM(r.out_total_sales) + '</td><td class="right">' + fmtN(r.out_total_companies) + '</td></tr>';
+                    }).join('') + (totalRow ? '<tr class="row-total"><td style="font-weight:700;">Итого</td><td class="right" style="font-weight:800;color:#0ea5e9;">' + fmtM(totalRow.out_total_sales) + '</td><td class="right" style="font-weight:800;">' + fmtN(totalRow.out_total_companies) + '</td></tr>' : '');
+
+                    bars.innerHTML = groups.map(r => {
+                        var pct = ((r.out_total_sales || 0) / maxSales * 100).toFixed(0);
+                        var cls = r.out_group_name.startsWith('A') ? 'a' : (r.out_group_name.startsWith('B') ? 'b' : 'c');
+                        return '<div class="abc-bar-row"><div class="abc-bar-label">' + r.out_group_name + '</div><div class="abc-bar-track"><div class="abc-bar-fill ' + cls + '" style="width:' + pct + '%;">' + (pct > 12 ? fmtM(r.out_total_sales) : '') + '</div></div><div style="font-size:11px;color:var(--muted);width:55px;text-align:right;">' + fmtN(r.out_total_companies) + ' шт.</div></div>';
+                    }).join('');
+                } catch (e) { console.error(e); }
+
+                // Загружаем матрицу сравнения
+                loadABCMatrix(year);
+            }
+
+            async function loadABCMatrix(year) {
+                var year2 = year - 1;
+                var tbody = document.getElementById('tbody-abc-matrix');
+                if (!tbody) return;
+
+                // Обновляем заголовки
+                ['abc-mx-year1', 'abc-mx-rev-year1'].forEach(id => { var el = document.getElementById(id); if (el) el.textContent = year; });
+                ['abc-mx-year2', 'abc-mx-rev-year2'].forEach(id => { var el = document.getElementById(id); if (el) el.textContent = year2; });
+                var yearsEl = document.getElementById('abc-matrix-years');
+                if (yearsEl) yearsEl.textContent = year + ' / ' + year2;
+
+                try {
+                    var [resp1, resp2] = await Promise.all([
+                        fetch('/api/analytics/abc-groups?token=' + TOKEN + '&year=' + year + '&multiplier=2.9'),
+                        fetch('/api/analytics/abc-groups?token=' + TOKEN + '&year=' + year2 + '&multiplier=2.9')
+                    ]);
+                    var json1 = await resp1.json(), json2 = await resp2.json();
+                    if (json1.status !== 'ok' || json2.status !== 'ok') return;
+
+                    var data1 = json1.data.filter(r => r.out_group_name !== 'Total');
+                    var data2 = json2.data.filter(r => r.out_group_name !== 'Total');
+
+                    var groups = ['A1', 'A2', 'A3', 'B1', 'B2', 'C1', 'C2'];
+
+                    // Суммируем для итогов
+                    var totalComp1 = 0, totalComp2 = 0, totalRev1 = 0, totalRev2 = 0;
+
+                    var rows = groups.map(g => {
+                        var d1 = data1.find(r => r.out_group_name === g) || {};
+                        var d2 = data2.find(r => r.out_group_name === g) || {};
+                        var comp1 = d1.out_total_companies || 0, comp2 = d2.out_total_companies || 0;
+                        var rev1 = d1.out_total_sales || 0, rev2 = d2.out_total_sales || 0;
+                        var compDiff = comp1 - comp2, revDiff = rev1 - rev2;
+                        var revPct = rev2 > 0 ? (revDiff / rev2 * 100) : 0;
+
+                        totalComp1 += comp1; totalComp2 += comp2;
+                        totalRev1 += rev1; totalRev2 += rev2;
+
+                        return '<tr>' +
+                            '<td style="font-weight:700;">' + g + '</td>' +
+                            '<td class="right">' + fmtN(comp1) + '</td>' +
+                            '<td class="right">' + fmtN(comp2) + '</td>' +
+                            '<td class="right" style="color:' + (compDiff >= 0 ? '#059669' : '#dc2626') + '">' + (compDiff >= 0 ? '+' : '') + fmtN(compDiff) + '</td>' +
+                            '<td class="right">' + fmtM(rev1) + '</td>' +
+                            '<td class="right">' + fmtM(rev2) + '</td>' +
+                            '<td class="right" style="color:' + (revDiff >= 0 ? '#059669' : '#dc2626') + '">' + (revDiff >= 0 ? '+' : '') + fmtM(revDiff) + '</td>' +
+                            '<td class="right" style="font-weight:700;color:' + (revPct >= 0 ? '#059669' : '#dc2626') + '">' + (revPct >= 0 ? '▲ +' : '▼ ') + Math.abs(revPct).toFixed(1) + '%</td>' +
+                            '</tr>';
+                    }).join('');
+
+                    // Добавляем итоговую строку
+                    var totalCompDiff = totalComp1 - totalComp2;
+                    var totalRevDiff = totalRev1 - totalRev2;
+                    var totalRevPct = totalRev2 > 0 ? (totalRevDiff / totalRev2 * 100) : 0;
+
+                    rows += '<tr style="font-weight:700;background:#f8fafc;border-top:2px solid var(--border);">' +
+                        '<td>Итого</td>' +
+                        '<td class="right">' + fmtN(totalComp1) + '</td>' +
+                        '<td class="right">' + fmtN(totalComp2) + '</td>' +
+                        '<td class="right" style="color:' + (totalCompDiff >= 0 ? '#059669' : '#dc2626') + '">' + (totalCompDiff >= 0 ? '+' : '') + fmtN(totalCompDiff) + '</td>' +
+                        '<td class="right">' + fmtM(totalRev1) + '</td>' +
+                        '<td class="right">' + fmtM(totalRev2) + '</td>' +
+                        '<td class="right" style="color:' + (totalRevDiff >= 0 ? '#059669' : '#dc2626') + '">' + (totalRevDiff >= 0 ? '+' : '') + fmtM(totalRevDiff) + '</td>' +
+                        '<td class="right" style="color:' + (totalRevPct >= 0 ? '#059669' : '#dc2626') + '">' + (totalRevPct >= 0 ? '▲ +' : '▼ ') + Math.abs(totalRevPct).toFixed(1) + '%</td>' +
+                        '</tr>';
+
+                    tbody.innerHTML = rows;
+
+                } catch (e) { console.error(e); }
+            }
+
+            // ====== ОБЪЕДИНЁННЫЙ PIVOT + СВОДНЫЙ (ОДНА ТАБЛИЦА, v5) ======
+            async function loadUnitedPivotAndSummary(year, multiplier, limitPrice) {
+                var container = document.getElementById('pivot-formatted-container');
+                var summaryContainer = document.getElementById('summary-container');
+                if (summaryContainer) summaryContainer.style.display = 'none';
+                if (!container) return;
+                container.innerHTML = '<div style="color:#94a3b8;text-align:center;padding:40px;">⏳ Загрузка объединённого отчёта...</div>';
+
+                try {
+                    var resp = await fetch('/api/analytics/pivot-formatted?token=' + TOKEN + '&year=' + year + '&multiplier=' + multiplier + '&limit_price=' + limitPrice);
+                    var json = await resp.json();
+                    if (json.status !== 'ok' || !json.below || !json.above) {
+                        container.innerHTML = '<div style="text-align:center;padding:40px;">⚠️ Нет данных</div>';
+                        return;
+                    }
+
+                    // 🔥 Загружаем YoY для KPI роста
+                    var year1 = parseInt(year), year2 = year1 - 1;
+                    fetch('/api/analytics/yoy-comparison?token=' + TOKEN + '&year1=' + year1 + '&year2=' + year2)
+                        .then(r => r.json())
+                        .then(yoyJson => {
+                            if (yoyJson.status === 'ok') {
+                                var totalY1 = yoyJson.data.reduce((s, r) => s + (r.goods_revenue_y1 || 0), 0);
+                                var totalY2 = yoyJson.data.reduce((s, r) => s + (r.goods_revenue_y2 || 0), 0);
+                                var growth = totalY2 > 0 ? ((totalY1 - totalY2) / totalY2 * 100) : 0;
+                                var gel = document.getElementById('kpi-growth');
+                                gel.textContent = (growth >= 0 ? '+' : '') + growth.toFixed(1) + '%';
+                                gel.style.color = growth >= 0 ? '#059669' : '#dc2626';
                             }
                         });
+
+                    function parseGroup(data) {
+                        var result = {};
+                        data.forEach(function (row) {
+                            var m = row.out_metric;
+                            if (!result[m]) result[m] = {};
+                            Object.keys(row).forEach(function (k) {
+                                if (k !== 'out_group_name' && k !== 'out_metric') {
+                                    result[m][k] = row[k] || 0;
+                                }
+                            });
+                        });
+                        return result;
+                    }
+
+                    var below = parseGroup(json.below);
+                    var above = parseGroup(json.above);
+                    var colsAll = ['out_1', 'out_2_3', 'out_4_10', 'out_11_40', 'out_41_170', 'out_171_plus', 'out_total'];
+
+                    function sum(g1, g2, m) {
+                        var r = {};
+                        colsAll.forEach(function (c) { r[c] = ((g1[m] && g1[m][c]) || 0) + ((g2[m] && g2[m][c]) || 0); });
+                        return r;
+                    }
+
+                    var allComp = sum(below, above, 'Кол-во компаний');
+                    var allInv = sum(below, above, 'Накладных');
+                    var allSales = sum(below, above, 'Сумма продаж');
+                    var allAvg = {}; colsAll.forEach(function (c) { allAvg[c] = allInv[c] > 0 ? allSales[c] / allInv[c] : 0; });
+                    var allPct = {}; var gts = allSales['out_total'] || 1; colsAll.forEach(function (c) { allPct[c] = gts > 0 ? (allSales[c] / gts * 100) : 0; });
+
+                    var impComp = {}, impInv = {}, impSales = {};
+                    ['out_1', 'out_2_3'].forEach(function (c) {
+                        impComp[c] = (above['Кол-во компаний'] && above['Кол-во компаний'][c]) || 0;
+                        impInv[c] = (above['Накладных'] && above['Накладных'][c]) || 0;
+                        impSales[c] = (above['Сумма продаж'] && above['Сумма продаж'][c]) || 0;
                     });
-                    return result;
-                }
+                    var bulk = ['out_4_10', 'out_11_40', 'out_41_170', 'out_171_plus'];
+                    impComp['out_4_plus'] = 0; impInv['out_4_plus'] = 0; impSales['out_4_plus'] = 0;
+                    bulk.forEach(function (c) {
+                        impComp['out_4_plus'] += ((below['Кол-во компаний'] && below['Кол-во компаний'][c]) || 0) + ((above['Кол-во компаний'] && above['Кол-во компаний'][c]) || 0);
+                        impInv['out_4_plus'] += ((below['Накладных'] && below['Накладных'][c]) || 0) + ((above['Накладных'] && above['Накладных'][c]) || 0);
+                        impSales['out_4_plus'] += ((below['Сумма продаж'] && below['Сумма продаж'][c]) || 0) + ((above['Сумма продаж'] && above['Сумма продаж'][c]) || 0);
+                    });
 
-                var below = parseGroup(json.below);
-                var above = parseGroup(json.above);
-                var colsAll = ['out_1', 'out_2_3', 'out_4_10', 'out_11_40', 'out_41_170', 'out_171_plus', 'out_total'];
+                    var c2Comp = {}; colsAll.forEach(function (c) { c2Comp[c] = (below['Кол-во компаний'] && below['Кол-во компаний'][c]) || 0; });
+                    var c2Inv = {}; colsAll.forEach(function (c) { c2Inv[c] = (below['Накладных'] && below['Накладных'][c]) || 0; });
+                    var c2Sales = {}; colsAll.forEach(function (c) { c2Sales[c] = (below['Сумма продаж'] && below['Сумма продаж'][c]) || 0; });
+                    var c2Avg = {}; colsAll.forEach(function (c) { c2Avg[c] = c2Inv[c] > 0 ? c2Sales[c] / c2Inv[c] : 0; });
+                    var c2Pct = {}; var c2ts = c2Sales['out_total'] || 1; colsAll.forEach(function (c) { c2Pct[c] = c2ts > 0 ? (c2Sales[c] / c2ts * 100) : 0; });
 
-                function sum(g1, g2, m) {
-                    var r = {};
-                    colsAll.forEach(function (c) { r[c] = ((g1[m] && g1[m][c]) || 0) + ((g2[m] && g2[m][c]) || 0); });
-                    return r;
-                }
+                    var abcComp = {}; colsAll.forEach(function (c) { abcComp[c] = (above['Кол-во компаний'] && above['Кол-во компаний'][c]) || 0; });
+                    var abcInv = {}; colsAll.forEach(function (c) { abcInv[c] = (above['Накладных'] && above['Накладных'][c]) || 0; });
+                    var abcSales = {}; colsAll.forEach(function (c) { abcSales[c] = (above['Сумма продаж'] && above['Сумма продаж'][c]) || 0; });
+                    var abcAvg = {}; colsAll.forEach(function (c) { abcAvg[c] = abcInv[c] > 0 ? abcSales[c] / abcInv[c] : 0; });
+                    var abcPct = {}; var abcts = abcSales['out_total'] || 1; colsAll.forEach(function (c) { abcPct[c] = abcts > 0 ? (abcSales[c] / abcts * 100) : 0; });
 
-                var allComp = sum(below, above, 'Кол-во компаний');
-                var allInv = sum(below, above, 'Накладных');
-                var allSales = sum(below, above, 'Сумма продаж');
-                var allAvg = {}; colsAll.forEach(function (c) { allAvg[c] = allInv[c] > 0 ? allSales[c] / allInv[c] : 0; });
-                var allPct = {}; var gts = allSales['out_total'] || 1; colsAll.forEach(function (c) { allPct[c] = gts > 0 ? (allSales[c] / gts * 100) : 0; });
+                    var colNames = { 'out_1': 'Разовые (1)', 'out_2_3': 'Повторно (2-3)', 'out_4_10': 'Квартал (4-10)', 'out_11_40': 'Месяц (11-40)', 'out_41_170': 'Неделя (41-170)', 'out_171_plus': 'День (>170)', 'out_total': 'Сумма' };
 
-                var impComp = {}, impInv = {}, impSales = {};
-                ['out_1', 'out_2_3'].forEach(function (c) {
-                    impComp[c] = (above['Кол-во компаний'] && above['Кол-во компаний'][c]) || 0;
-                    impInv[c] = (above['Накладных'] && above['Накладных'][c]) || 0;
-                    impSales[c] = (above['Сумма продаж'] && above['Сумма продаж'][c]) || 0;
-                });
-                var bulk = ['out_4_10', 'out_11_40', 'out_41_170', 'out_171_plus'];
-                impComp['out_4_plus'] = 0; impInv['out_4_plus'] = 0; impSales['out_4_plus'] = 0;
-                bulk.forEach(function (c) {
-                    impComp['out_4_plus'] += ((below['Кол-во компаний'] && below['Кол-во компаний'][c]) || 0) + ((above['Кол-во компаний'] && above['Кол-во компаний'][c]) || 0);
-                    impInv['out_4_plus'] += ((below['Накладных'] && below['Накладных'][c]) || 0) + ((above['Накладных'] && above['Накладных'][c]) || 0);
-                    impSales['out_4_plus'] += ((below['Сумма продаж'] && below['Сумма продаж'][c]) || 0) + ((above['Сумма продаж'] && above['Сумма продаж'][c]) || 0);
-                });
+                    var totalCompAll = allComp['out_total'] || 1;
 
-                var c2Comp = {}; colsAll.forEach(function (c) { c2Comp[c] = (below['Кол-во компаний'] && below['Кол-во компаний'][c]) || 0; });
-                var c2Inv = {}; colsAll.forEach(function (c) { c2Inv[c] = (below['Накладных'] && below['Накладных'][c]) || 0; });
-                var c2Sales = {}; colsAll.forEach(function (c) { c2Sales[c] = (below['Сумма продаж'] && below['Сумма продаж'][c]) || 0; });
-                var c2Avg = {}; colsAll.forEach(function (c) { c2Avg[c] = c2Inv[c] > 0 ? c2Sales[c] / c2Inv[c] : 0; });
-                var c2Pct = {}; var c2ts = c2Sales['out_total'] || 1; colsAll.forEach(function (c) { c2Pct[c] = c2ts > 0 ? (c2Sales[c] / c2ts * 100) : 0; });
+                    // Стиль для вертикальной ячейки
+                    var cellStyle = 'vertical-align:middle;text-align:center;writing-mode:vertical-rl;text-orientation:mixed;font-weight:800;font-size:10px;color:#1e293b;background:#f8fafc;border-right:2px solid var(--border);padding:4px 1px;width:36px;min-width:36px;max-width:36px;transform:rotate(180deg);';
 
-                var abcComp = {}; colsAll.forEach(function (c) { abcComp[c] = (above['Кол-во компаний'] && above['Кол-во компаний'][c]) || 0; });
-                var abcInv = {}; colsAll.forEach(function (c) { abcInv[c] = (above['Накладных'] && above['Накладных'][c]) || 0; });
-                var abcSales = {}; colsAll.forEach(function (c) { abcSales[c] = (above['Сумма продаж'] && above['Сумма продаж'][c]) || 0; });
-                var abcAvg = {}; colsAll.forEach(function (c) { abcAvg[c] = abcInv[c] > 0 ? abcSales[c] / abcInv[c] : 0; });
-                var abcPct = {}; var abcts = abcSales['out_total'] || 1; colsAll.forEach(function (c) { abcPct[c] = abcts > 0 ? (abcSales[c] / abcts * 100) : 0; });
-
-                var colNames = { 'out_1': 'Разовые (1)', 'out_2_3': 'Повторно (2-3)', 'out_4_10': 'Квартал (4-10)', 'out_11_40': 'Месяц (11-40)', 'out_41_170': 'Неделя (41-170)', 'out_171_plus': 'День (>170)', 'out_total': 'Сумма' };
-
-                var totalCompAll = allComp['out_total'] || 1;
-
-                // Стиль для вертикальной ячейки
-                var cellStyle = 'vertical-align:middle;text-align:center;writing-mode:vertical-rl;text-orientation:mixed;font-weight:800;font-size:10px;color:#1e293b;background:#f8fafc;border-right:2px solid var(--border);padding:4px 1px;width:36px;min-width:36px;max-width:36px;transform:rotate(180deg);';
-
-                // ====== ТАБЛИЦА ======
-                var html = '<table class="pivot-formatted-table" style="margin-bottom:0;">';
-                html += '<colgroup><col style="width:36px !important;"><col></colgroup>';
-                html += '<thead>';
-                html += '<tr><th style="width:36px !important;">Классы</th><th>Метрика</th>';
-                colsAll.forEach(function (c) {
-                    html += '<th class="col-range" data-col="' + c + '" onclick="handlePivotSort(\'' + c + '\')" style="cursor:pointer;" title="Нажмите для сортировки">' + (colNames[c] || c) + '</th>';
-                });
-                html += '<th>Описание</th></tr></thead><tbody>';
-
-                // ====== ФУНКЦИЯ ДОБАВЛЕНИЯ СЕКЦИИ ======
-                function addSection(title, dataComp, dataInv, dataSales, dataAvg, dataPct, cols) {
-                    html += '<tr class="row-companies">';
-                    html += '<td rowspan="5" class="col-classes" style="' + cellStyle + '">' + title + '</td>';
-                    html += '<td>Кол-во компаний</td>';
+                    // ====== ТАБЛИЦА ======
+                    var html = '<table class="pivot-formatted-table" style="margin-bottom:0;">';
+                    html += '<colgroup><col style="width:36px !important;"><col></colgroup>';
+                    html += '<thead>';
+                    html += '<tr><th style="width:36px !important;">Классы</th><th>Метрика</th>';
                     colsAll.forEach(function (c) {
-                        var val = (cols.indexOf(c) >= 0) ? (dataComp[c] || 0) : null;
-                        html += '<td>' + (val !== null ? fmtN(Math.round(val)) : '—') + '</td>';
+                        html += '<th class="col-range" data-col="' + c + '" onclick="handlePivotSort(\'' + c + '\')" style="cursor:pointer;" title="Нажмите для сортировки">' + (colNames[c] || c) + '</th>';
                     });
-                    var pctC = totalCompAll > 0 ? ((dataComp['out_total'] || 0) / totalCompAll * 100).toFixed(2) : '0';
-                    html += '<td style="font-size:11px;color:#64748b;">' + pctC + '% — Общее количество фирм</td></tr>';
+                    html += '<th>Описание</th></tr></thead><tbody>';
+
+                    // ====== ФУНКЦИЯ ДОБАВЛЕНИЯ СЕКЦИИ ======
+                    function addSection(title, dataComp, dataInv, dataSales, dataAvg, dataPct, cols) {
+                        html += '<tr class="row-companies">';
+                        html += '<td rowspan="5" class="col-classes" style="' + cellStyle + '">' + title + '</td>';
+                        html += '<td>Кол-во компаний</td>';
+                        colsAll.forEach(function (c) {
+                            var val = (cols.indexOf(c) >= 0) ? (dataComp[c] || 0) : null;
+                            html += '<td>' + (val !== null ? fmtN(Math.round(val)) : '—') + '</td>';
+                        });
+                        var pctC = totalCompAll > 0 ? ((dataComp['out_total'] || 0) / totalCompAll * 100).toFixed(2) : '0';
+                        html += '<td style="font-size:11px;color:#64748b;">' + pctC + '% — Общее количество фирм</td></tr>';
+
+                        html += '<tr class="row-invoices"><td>Кол-во накладных</td>';
+                        colsAll.forEach(function (c) {
+                            var val = (cols.indexOf(c) >= 0) ? (dataInv[c] || 0) : null;
+                            html += '<td>' + (val !== null ? fmtN(Math.round(val)) : '—') + '</td>';
+                        });
+                        html += '<td style="font-size:11px;color:#64748b;">Сумма расходных накладных</td></tr>';
+
+                        html += '<tr class="row-sales"><td>Сумма продаж</td>';
+                        colsAll.forEach(function (c) {
+                            var val = (cols.indexOf(c) >= 0) ? (dataSales[c] || 0) : null;
+                            html += '<td>' + (val !== null ? fmtM(val) : '—') + '</td>';
+                        });
+                        var pctS = gts > 0 ? ((dataSales['out_total'] || 0) / gts * 100).toFixed(2) : '0';
+                        html += '<td style="font-size:11px;color:#64748b;">' + pctS + '% — Сумма продаж</td></tr>';
+
+                        html += '<tr class="row-ticket"><td>Средний чек</td>';
+                        colsAll.forEach(function (c) {
+                            var val = (cols.indexOf(c) >= 0) ? (dataAvg[c] || 0) : null;
+                            html += '<td>' + (val !== null ? fmtM(val) : '—') + '</td>';
+                        });
+                        html += '<td style="font-size:11px;color:#64748b;">Средняя цена за одну накладную</td></tr>';
+
+                        html += '<tr class="row-pct"><td>% от продаж</td>';
+                        colsAll.forEach(function (c) {
+                            var val = (cols.indexOf(c) >= 0) ? (dataPct[c] || 0) : null;
+                            html += '<td>' + (val !== null ? val.toFixed(2) + '%' : '—') + '</td>';
+                        });
+                        html += '<td style="font-size:11px;color:#64748b;">Процентное отношение по продажам</td></tr>';
+                    }
+
+                    addSection('📥 Случайные C2', c2Comp, c2Inv, c2Sales, c2Avg, c2Pct, colsAll);
+                    addSection('📈 Основные ABC', abcComp, abcInv, abcSales, abcAvg, abcPct, colsAll);
+                    addSection('📊 Все ABC', allComp, allInv, allSales, allAvg, allPct, colsAll);
+
+                    // 🔥 ОБНОВЛЯЕМ KPI-КАРТОЧКИ
+                    var kpiTotalGoods = allSales['out_total'] || 0;
+                    var kpiTotalInvoices = allInv['out_total'] || 0;
+                    var kpiAvgTicket = kpiTotalInvoices > 0 ? Math.round(kpiTotalGoods / kpiTotalInvoices) : 0;
+                    document.getElementById('kpi-revenue').textContent = fmtM(kpiTotalGoods);
+                    document.getElementById('kpi-invoices').textContent = fmtN(kpiTotalInvoices);
+                    document.getElementById('kpi-avg-ticket').textContent = 'Средний чек: ' + fmtM(kpiAvgTicket);
+
+                    // ====== ВАЖНЫЕ ======
+                    var impTotalComp = (impComp['out_1'] || 0) + (impComp['out_2_3'] || 0) + (impComp['out_4_plus'] || 0);
+                    var impTotalInv = (impInv['out_1'] || 0) + (impInv['out_2_3'] || 0) + (impInv['out_4_plus'] || 0);
+                    var impTotalSales = (impSales['out_1'] || 0) + (impSales['out_2_3'] || 0) + (impSales['out_4_plus'] || 0);
+                    var pctImpComp = totalCompAll > 0 ? (impTotalComp / totalCompAll * 100).toFixed(2) : '0';
+                    var pctImpSales = gts > 0 ? (impTotalSales / gts * 100).toFixed(2) : '0';
+
+                    html += '<tr class="row-companies">';
+                    html += '<td rowspan="5" class="col-classes" style="' + cellStyle + '">⭐ Важные — ABC</td>';
+                    html += '<td>Кол-во компаний</td>';
+                    html += '<td>' + fmtN(Math.round(impComp['out_1'] || 0)) + '</td>';
+                    html += '<td>' + fmtN(Math.round(impComp['out_2_3'] || 0)) + '</td>';
+                    html += '<td colspan="4" style="text-align:center;">' + fmtN(Math.round(impComp['out_4_plus'] || 0)) + '</td>';
+                    html += '<td>' + fmtN(Math.round(impTotalComp)) + '</td>';
+                    html += '<td style="font-size:11px;color:#64748b;">' + pctImpComp + '% — Общее количество фирм</td></tr>';
 
                     html += '<tr class="row-invoices"><td>Кол-во накладных</td>';
-                    colsAll.forEach(function (c) {
-                        var val = (cols.indexOf(c) >= 0) ? (dataInv[c] || 0) : null;
-                        html += '<td>' + (val !== null ? fmtN(Math.round(val)) : '—') + '</td>';
-                    });
+                    html += '<td>' + fmtN(Math.round(impInv['out_1'] || 0)) + '</td>';
+                    html += '<td>' + fmtN(Math.round(impInv['out_2_3'] || 0)) + '</td>';
+                    html += '<td colspan="4" style="text-align:center;">' + fmtN(Math.round(impInv['out_4_plus'] || 0)) + '</td>';
+                    html += '<td>' + fmtN(Math.round(impTotalInv)) + '</td>';
                     html += '<td style="font-size:11px;color:#64748b;">Сумма расходных накладных</td></tr>';
 
                     html += '<tr class="row-sales"><td>Сумма продаж</td>';
-                    colsAll.forEach(function (c) {
-                        var val = (cols.indexOf(c) >= 0) ? (dataSales[c] || 0) : null;
-                        html += '<td>' + (val !== null ? fmtM(val) : '—') + '</td>';
-                    });
-                    var pctS = gts > 0 ? ((dataSales['out_total'] || 0) / gts * 100).toFixed(2) : '0';
-                    html += '<td style="font-size:11px;color:#64748b;">' + pctS + '% — Сумма продаж</td></tr>';
+                    html += '<td>' + fmtM(impSales['out_1'] || 0) + '</td>';
+                    html += '<td>' + fmtM(impSales['out_2_3'] || 0) + '</td>';
+                    html += '<td colspan="4" style="text-align:center;">' + fmtM(impSales['out_4_plus'] || 0) + '</td>';
+                    html += '<td>' + fmtM(impTotalSales) + '</td>';
+                    html += '<td style="font-size:11px;color:#64748b;">' + pctImpSales + '% — Сумма продаж</td></tr>';
 
+                    var impAvg1 = (impInv['out_1'] || 0) > 0 ? (impSales['out_1'] || 0) / (impInv['out_1'] || 0) : 0;
+                    var impAvg2 = (impInv['out_2_3'] || 0) > 0 ? (impSales['out_2_3'] || 0) / (impInv['out_2_3'] || 0) : 0;
+                    var impAvg4plus = (impInv['out_4_plus'] || 0) > 0 ? (impSales['out_4_plus'] || 0) / (impInv['out_4_plus'] || 0) : 0;
+                    var impAvgTotal = impTotalInv > 0 ? impTotalSales / impTotalInv : 0;
                     html += '<tr class="row-ticket"><td>Средний чек</td>';
-                    colsAll.forEach(function (c) {
-                        var val = (cols.indexOf(c) >= 0) ? (dataAvg[c] || 0) : null;
-                        html += '<td>' + (val !== null ? fmtM(val) : '—') + '</td>';
-                    });
+                    html += '<td>' + fmtM(impAvg1) + '</td>';
+                    html += '<td>' + fmtM(impAvg2) + '</td>';
+                    html += '<td colspan="4" style="text-align:center;">' + fmtM(impAvg4plus) + '</td>';
+                    html += '<td>' + fmtM(impAvgTotal) + '</td>';
                     html += '<td style="font-size:11px;color:#64748b;">Средняя цена за одну накладную</td></tr>';
 
+                    var pct1 = gts > 0 ? ((impSales['out_1'] || 0) / gts * 100) : 0;
+                    var pct2 = gts > 0 ? ((impSales['out_2_3'] || 0) / gts * 100) : 0;
+                    var pct4plus = gts > 0 ? ((impSales['out_4_plus'] || 0) / gts * 100) : 0;
+                    var pctTotal = gts > 0 ? (impTotalSales / gts * 100) : 0;
                     html += '<tr class="row-pct"><td>% от продаж</td>';
-                    colsAll.forEach(function (c) {
-                        var val = (cols.indexOf(c) >= 0) ? (dataPct[c] || 0) : null;
-                        html += '<td>' + (val !== null ? val.toFixed(2) + '%' : '—') + '</td>';
-                    });
+                    html += '<td>' + pct1.toFixed(2) + '%</td>';
+                    html += '<td>' + pct2.toFixed(2) + '%</td>';
+                    html += '<td colspan="4" style="text-align:center;">' + pct4plus.toFixed(2) + '%</td>';
+                    html += '<td>' + pctTotal.toFixed(2) + '%</td>';
                     html += '<td style="font-size:11px;color:#64748b;">Процентное отношение по продажам</td></tr>';
+
+                    html += '</tbody></table>';
+                    container.innerHTML = html;
+
+                } catch (e) {
+                    console.error('United PIVOT error:', e);
+                    container.innerHTML = '<div style="text-align:center;padding:40px;">⚠️ Ошибка</div>';
                 }
-
-                addSection('📥 Случайные C2', c2Comp, c2Inv, c2Sales, c2Avg, c2Pct, colsAll);
-                addSection('📈 Основные ABC', abcComp, abcInv, abcSales, abcAvg, abcPct, colsAll);
-                addSection('📊 Все ABC', allComp, allInv, allSales, allAvg, allPct, colsAll);
-
-                // 🔥 ОБНОВЛЯЕМ KPI-КАРТОЧКИ
-                var kpiTotalGoods = allSales['out_total'] || 0;
-                var kpiTotalInvoices = allInv['out_total'] || 0;
-                var kpiAvgTicket = kpiTotalInvoices > 0 ? Math.round(kpiTotalGoods / kpiTotalInvoices) : 0;
-                document.getElementById('kpi-revenue').textContent = fmtM(kpiTotalGoods);
-                document.getElementById('kpi-invoices').textContent = fmtN(kpiTotalInvoices);
-                document.getElementById('kpi-avg-ticket').textContent = 'Средний чек: ' + fmtM(kpiAvgTicket);
-
-                // ====== ВАЖНЫЕ ======
-                var impTotalComp = (impComp['out_1'] || 0) + (impComp['out_2_3'] || 0) + (impComp['out_4_plus'] || 0);
-                var impTotalInv = (impInv['out_1'] || 0) + (impInv['out_2_3'] || 0) + (impInv['out_4_plus'] || 0);
-                var impTotalSales = (impSales['out_1'] || 0) + (impSales['out_2_3'] || 0) + (impSales['out_4_plus'] || 0);
-                var pctImpComp = totalCompAll > 0 ? (impTotalComp / totalCompAll * 100).toFixed(2) : '0';
-                var pctImpSales = gts > 0 ? (impTotalSales / gts * 100).toFixed(2) : '0';
-
-                html += '<tr class="row-companies">';
-                html += '<td rowspan="5" class="col-classes" style="' + cellStyle + '">⭐ Важные — ABC</td>';
-                html += '<td>Кол-во компаний</td>';
-                html += '<td>' + fmtN(Math.round(impComp['out_1'] || 0)) + '</td>';
-                html += '<td>' + fmtN(Math.round(impComp['out_2_3'] || 0)) + '</td>';
-                html += '<td colspan="4" style="text-align:center;">' + fmtN(Math.round(impComp['out_4_plus'] || 0)) + '</td>';
-                html += '<td>' + fmtN(Math.round(impTotalComp)) + '</td>';
-                html += '<td style="font-size:11px;color:#64748b;">' + pctImpComp + '% — Общее количество фирм</td></tr>';
-
-                html += '<tr class="row-invoices"><td>Кол-во накладных</td>';
-                html += '<td>' + fmtN(Math.round(impInv['out_1'] || 0)) + '</td>';
-                html += '<td>' + fmtN(Math.round(impInv['out_2_3'] || 0)) + '</td>';
-                html += '<td colspan="4" style="text-align:center;">' + fmtN(Math.round(impInv['out_4_plus'] || 0)) + '</td>';
-                html += '<td>' + fmtN(Math.round(impTotalInv)) + '</td>';
-                html += '<td style="font-size:11px;color:#64748b;">Сумма расходных накладных</td></tr>';
-
-                html += '<tr class="row-sales"><td>Сумма продаж</td>';
-                html += '<td>' + fmtM(impSales['out_1'] || 0) + '</td>';
-                html += '<td>' + fmtM(impSales['out_2_3'] || 0) + '</td>';
-                html += '<td colspan="4" style="text-align:center;">' + fmtM(impSales['out_4_plus'] || 0) + '</td>';
-                html += '<td>' + fmtM(impTotalSales) + '</td>';
-                html += '<td style="font-size:11px;color:#64748b;">' + pctImpSales + '% — Сумма продаж</td></tr>';
-
-                var impAvg1 = (impInv['out_1'] || 0) > 0 ? (impSales['out_1'] || 0) / (impInv['out_1'] || 0) : 0;
-                var impAvg2 = (impInv['out_2_3'] || 0) > 0 ? (impSales['out_2_3'] || 0) / (impInv['out_2_3'] || 0) : 0;
-                var impAvg4plus = (impInv['out_4_plus'] || 0) > 0 ? (impSales['out_4_plus'] || 0) / (impInv['out_4_plus'] || 0) : 0;
-                var impAvgTotal = impTotalInv > 0 ? impTotalSales / impTotalInv : 0;
-                html += '<tr class="row-ticket"><td>Средний чек</td>';
-                html += '<td>' + fmtM(impAvg1) + '</td>';
-                html += '<td>' + fmtM(impAvg2) + '</td>';
-                html += '<td colspan="4" style="text-align:center;">' + fmtM(impAvg4plus) + '</td>';
-                html += '<td>' + fmtM(impAvgTotal) + '</td>';
-                html += '<td style="font-size:11px;color:#64748b;">Средняя цена за одну накладную</td></tr>';
-
-                var pct1 = gts > 0 ? ((impSales['out_1'] || 0) / gts * 100) : 0;
-                var pct2 = gts > 0 ? ((impSales['out_2_3'] || 0) / gts * 100) : 0;
-                var pct4plus = gts > 0 ? ((impSales['out_4_plus'] || 0) / gts * 100) : 0;
-                var pctTotal = gts > 0 ? (impTotalSales / gts * 100) : 0;
-                html += '<tr class="row-pct"><td>% от продаж</td>';
-                html += '<td>' + pct1.toFixed(2) + '%</td>';
-                html += '<td>' + pct2.toFixed(2) + '%</td>';
-                html += '<td colspan="4" style="text-align:center;">' + pct4plus.toFixed(2) + '%</td>';
-                html += '<td>' + pctTotal.toFixed(2) + '%</td>';
-                html += '<td style="font-size:11px;color:#64748b;">Процентное отношение по продажам</td></tr>';
-
-                html += '</tbody></table>';
-                container.innerHTML = html;
-
-            } catch (e) {
-                console.error('United PIVOT error:', e);
-                container.innerHTML = '<div style="text-align:center;padding:40px;">⚠️ Ошибка</div>';
             }
-        }
-        // ====== ГЛОБАЛЬНЫЕ KPI ======
-        async function loadGlobalKPI() {
-            var p = getParams(), year = p.year || 2026;
-            var el = document.getElementById('kpi-total-year'); if (el) el.textContent = year;
-            try {
-                var resp = await fetch('/api/analytics/yearly-clients-count?token=' + TOKEN + '&year=' + year);
-                var json = await resp.json();
-                if (json.status === 'ok') { document.getElementById('kpi-total').textContent = fmtN(json.active_clients); document.getElementById('kpi-total-sub').textContent = 'Участвуют в аналитике'; }
-            } catch (e) { console.error(e); }
-        }
-
-        // ====== ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК ======
-        document.addEventListener('click', function (e) {
-            if (e.target.classList.contains('tab-btn')) {
-                var tabId = e.target.getAttribute('data-tab');
-                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-                e.target.classList.add('active');
-                var content = document.getElementById(tabId);
-                if (content) { content.classList.add('active'); loadTabContent(tabId); }
+            // ====== ГЛОБАЛЬНЫЕ KPI ======
+            async function loadGlobalKPI() {
+                var p = getParams(), year = p.year || 2026;
+                var el = document.getElementById('kpi-total-year'); if (el) el.textContent = year;
+                try {
+                    var resp = await fetch('/api/analytics/yearly-clients-count?token=' + TOKEN + '&year=' + year);
+                    var json = await resp.json();
+                    if (json.status === 'ok') { document.getElementById('kpi-total').textContent = fmtN(json.active_clients); document.getElementById('kpi-total-sub').textContent = 'Участвуют в аналитике'; }
+                } catch (e) { console.error(e); }
             }
-        });
 
-        function loadTabContent(tabId) {
-            var p = getParams();
-            if (tabId === 'tab-monthly') {
+            // ====== ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК ======
+            document.addEventListener('click', function (e) {
+                if (e.target.classList.contains('tab-btn')) {
+                    var tabId = e.target.getAttribute('data-tab');
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+                    e.target.classList.add('active');
+                    var content = document.getElementById(tabId);
+                    if (content) { content.classList.add('active'); loadTabContent(tabId); }
+                }
+            });
+
+            function loadTabContent(tabId) {
+                var p = getParams();
+                if (tabId === 'tab-monthly') {
+                    loadUnitedPivotAndSummary(p.year, p.multiplier, p.limitPrice);
+                    loadFinal(p.year, p.multiplier, p.limitPrice);
+                }
+                else if (tabId === 'tab-yoy') loadYoYComparison();
+                else if (tabId === 'tab-abc') loadABC(p.year, p.multiplier);
+                else if (tabId === 'tab-pivot') {
+                    loadUnitedPivotAndSummary(p.year, p.multiplier, p.limitPrice);
+                }
+            }
+
+            // ====== ИТОГОВЫЙ ABC (вкладка 6) ======
+            async function loadFinal(year, multiplier, limitPrice) {
+                var container = document.getElementById('final-container');
+                if (!container) return;
+                try {
+                    var resp = await fetch('/api/analytics/pivot-formatted?token=' + TOKEN + '&year=' + year + '&multiplier=' + multiplier + '&limit_price=' + limitPrice);
+                    var json = await resp.json();
+                    if (json.status !== 'ok' || !json.below || !json.above) return;
+
+                    function parseGroup(data) {
+                        var result = {};
+                        data.forEach(row => { var m = row.out_metric; result[m] = {}; Object.keys(row).forEach(k => { if (k !== 'out_group_name' && k !== 'out_metric') result[m][k] = row[k] || 0; }); });
+                        return result;
+                    }
+                    var below = parseGroup(json.below), above = parseGroup(json.above);
+
+                    var zc = ((below['Кол-во компаний'] && below['Кол-во компаний']['out_1']) || 0) + ((below['Кол-во компаний'] && below['Кол-во компаний']['out_2_3']) || 0);
+                    var zs = ((below['Сумма продаж'] && below['Сумма продаж']['out_1']) || 0) + ((below['Сумма продаж'] && below['Сумма продаж']['out_2_3']) || 0);
+                    var rc = (above['Кол-во компаний'] && above['Кол-во компаний']['out_1']) || 0, rs = (above['Сумма продаж'] && above['Сумма продаж']['out_1']) || 0;
+                    var pc = (above['Кол-во компаний'] && above['Кол-во компаний']['out_2_3']) || 0, ps = (above['Сумма продаж'] && above['Сумма продаж']['out_2_3']) || 0;
+                    var bulk = ['out_4_10', 'out_11_40', 'out_41_170', 'out_171_plus'];
+                    var poc = 0, pos = 0;
+                    bulk.forEach(c => { poc += ((below['Кол-во компаний'] && below['Кол-во компаний'][c]) || 0) + ((above['Кол-во компаний'] && above['Кол-во компаний'][c]) || 0); pos += ((below['Сумма продаж'] && below['Сумма продаж'][c]) || 0) + ((above['Сумма продаж'] && above['Сумма продаж'][c]) || 0); });
+
+                    var totalC = zc + rc + pc + poc, totalS = zs + rs + ps + pos;
+                    var pzc = totalC > 0 ? (zc / totalC * 100) : 0, prc = totalC > 0 ? (rc / totalC * 100) : 0, ppc = totalC > 0 ? (pc / totalC * 100) : 0, ppoc = totalC > 0 ? (poc / totalC * 100) : 0;
+                    var pzs = totalS > 0 ? (zs / totalS * 100) : 0, prs = totalS > 0 ? (rs / totalS * 100) : 0, pps = totalS > 0 ? (ps / totalS * 100) : 0, ppos = totalS > 0 ? (pos / totalS * 100) : 0;
+
+                    var html = '<table class="final-table"><thead><tr><th>ИТОГО ABC</th><th class="col-zalet">🔴 Залётные</th><th class="col-razov">🟠 Разовые основные</th><th class="col-povtor">🔵 Повторно основные</th><th class="col-post">🟢 Постоянные</th><th class="col-total">📊 Всего</th></tr></thead><tbody>';
+                    html += '<tr class="row-companies"><td><strong>Количество фирм</strong></td><td class="col-zalet">' + fmtN(zc) + '</td><td class="col-razov">' + fmtN(rc) + '</td><td class="col-povtor">' + fmtN(pc) + '</td><td class="col-post">' + fmtN(poc) + '</td><td class="col-total"><strong>' + fmtN(totalC) + '</strong></td></tr>';
+                    html += '<tr class="row-pct-companies"><td>Процентное отношение</td><td class="col-zalet">' + pzc.toFixed(2) + '%</td><td class="col-razov">' + prc.toFixed(2) + '%</td><td class="col-povtor">' + ppc.toFixed(2) + '%</td><td class="col-post">' + ppoc.toFixed(2) + '%</td><td class="col-total"><strong>100%</strong></td></tr>';
+                    html += '<tr class="row-sales"><td><strong>Продажи по группам</strong></td><td class="col-zalet">' + fmtM(zs) + '</td><td class="col-razov">' + fmtM(rs) + '</td><td class="col-povtor">' + fmtM(ps) + '</td><td class="col-post">' + fmtM(pos) + '</td><td class="col-total"><strong>' + fmtM(totalS) + '</strong></td></tr>';
+                    html += '<tr class="row-pct-sales"><td>Процентное отношение</td><td class="col-zalet">' + pzs.toFixed(2) + '%</td><td class="col-razov">' + prs.toFixed(2) + '%</td><td class="col-povtor">' + pps.toFixed(2) + '%</td><td class="col-post">' + ppos.toFixed(2) + '%</td><td class="col-total"><strong>100%</strong></td></tr>';
+                    html += '</tbody></table>';
+                    container.innerHTML = html;
+
+                    drawFinalChart('chart-final-companies', [{ label: 'Залётные', value: zc, color: '#ef4444', pct: pzc }, { label: 'Разовые', value: rc, color: '#f59e0b', pct: prc }, { label: 'Повторные', value: pc, color: '#0ea5e9', pct: ppc }, { label: 'Постоянные', value: poc, color: '#10b981', pct: ppoc }]);
+                    drawFinalChart('chart-final-sales', [{ label: 'Залётные', value: zs, color: '#ef4444', pct: pzs }, { label: 'Разовые', value: rs, color: '#f59e0b', pct: prs }, { label: 'Повторные', value: ps, color: '#0ea5e9', pct: pps }, { label: 'Постоянные', value: pos, color: '#10b981', pct: ppos }]);
+                } catch (e) { console.error(e); }
+            }
+            // ====== ЗАГОЛОВКИ PIVOT КАК КНОПКИ (заглушка для будущих дополнений) ======
+            function handlePivotSort(col) {
+                console.log('🔘 Клик по колонке PIVOT: ' + col + ' — функция сортировки будет добавлена позже');
+                // Здесь будет логика сортировки таблицы по выбранной колонке
+            }
+
+            function drawFinalChart(containerId, data) {
+                var container = document.getElementById(containerId);
+                if (!container) return;
+                var maxVal = Math.max(...data.map(d => d.value), 1), chartHeight = 180;
+                container.innerHTML = data.map(d => {
+                    var hPx = Math.max(8, Math.round((d.value / maxVal) * chartHeight));
+                    return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;min-width:70px;"><div style="font-size:10px;font-weight:700;color:' + d.color + ';margin-bottom:4px;">' + d.pct.toFixed(1) + '%</div><div style="font-size:9px;color:#64748b;margin-bottom:2px;">' + fmtS(d.value) + '</div><div style="width:100%;max-width:60px;height:' + hPx + 'px;background:' + d.color + ';border-radius:6px 6px 0 0;"></div><div style="font-size:10px;font-weight:700;color:#64748b;margin-top:6px;text-align:center;">' + d.label + '</div></div>';
+                }).join('');
+            }
+
+            // ====== СТАРТ ======
+            document.addEventListener('DOMContentLoaded', function () {
+                loadGlobalKPI();
+                var p = getParams();
                 loadUnitedPivotAndSummary(p.year, p.multiplier, p.limitPrice);
                 loadFinal(p.year, p.multiplier, p.limitPrice);
-            }
-            else if (tabId === 'tab-yoy') loadYoY();
-            else if (tabId === 'tab-abc') loadABC(p.year, p.multiplier);
-            else if (tabId === 'tab-pivot') {
-                loadUnitedPivotAndSummary(p.year, p.multiplier, p.limitPrice);
-            }
-        }
-
-        // ====== ИТОГОВЫЙ ABC (вкладка 6) ======
-        async function loadFinal(year, multiplier, limitPrice) {
-            var container = document.getElementById('final-container');
-            if (!container) return;
-            try {
-                var resp = await fetch('/api/analytics/pivot-formatted?token=' + TOKEN + '&year=' + year + '&multiplier=' + multiplier + '&limit_price=' + limitPrice);
-                var json = await resp.json();
-                if (json.status !== 'ok' || !json.below || !json.above) return;
-
-                function parseGroup(data) {
-                    var result = {};
-                    data.forEach(row => { var m = row.out_metric; result[m] = {}; Object.keys(row).forEach(k => { if (k !== 'out_group_name' && k !== 'out_metric') result[m][k] = row[k] || 0; }); });
-                    return result;
-                }
-                var below = parseGroup(json.below), above = parseGroup(json.above);
-
-                var zc = ((below['Кол-во компаний'] && below['Кол-во компаний']['out_1']) || 0) + ((below['Кол-во компаний'] && below['Кол-во компаний']['out_2_3']) || 0);
-                var zs = ((below['Сумма продаж'] && below['Сумма продаж']['out_1']) || 0) + ((below['Сумма продаж'] && below['Сумма продаж']['out_2_3']) || 0);
-                var rc = (above['Кол-во компаний'] && above['Кол-во компаний']['out_1']) || 0, rs = (above['Сумма продаж'] && above['Сумма продаж']['out_1']) || 0;
-                var pc = (above['Кол-во компаний'] && above['Кол-во компаний']['out_2_3']) || 0, ps = (above['Сумма продаж'] && above['Сумма продаж']['out_2_3']) || 0;
-                var bulk = ['out_4_10', 'out_11_40', 'out_41_170', 'out_171_plus'];
-                var poc = 0, pos = 0;
-                bulk.forEach(c => { poc += ((below['Кол-во компаний'] && below['Кол-во компаний'][c]) || 0) + ((above['Кол-во компаний'] && above['Кол-во компаний'][c]) || 0); pos += ((below['Сумма продаж'] && below['Сумма продаж'][c]) || 0) + ((above['Сумма продаж'] && above['Сумма продаж'][c]) || 0); });
-
-                var totalC = zc + rc + pc + poc, totalS = zs + rs + ps + pos;
-                var pzc = totalC > 0 ? (zc / totalC * 100) : 0, prc = totalC > 0 ? (rc / totalC * 100) : 0, ppc = totalC > 0 ? (pc / totalC * 100) : 0, ppoc = totalC > 0 ? (poc / totalC * 100) : 0;
-                var pzs = totalS > 0 ? (zs / totalS * 100) : 0, prs = totalS > 0 ? (rs / totalS * 100) : 0, pps = totalS > 0 ? (ps / totalS * 100) : 0, ppos = totalS > 0 ? (pos / totalS * 100) : 0;
-
-                var html = '<table class="final-table"><thead><tr><th>ИТОГО ABC</th><th class="col-zalet">🔴 Залётные</th><th class="col-razov">🟠 Разовые основные</th><th class="col-povtor">🔵 Повторно основные</th><th class="col-post">🟢 Постоянные</th><th class="col-total">📊 Всего</th></tr></thead><tbody>';
-                html += '<tr class="row-companies"><td><strong>Количество фирм</strong></td><td class="col-zalet">' + fmtN(zc) + '</td><td class="col-razov">' + fmtN(rc) + '</td><td class="col-povtor">' + fmtN(pc) + '</td><td class="col-post">' + fmtN(poc) + '</td><td class="col-total"><strong>' + fmtN(totalC) + '</strong></td></tr>';
-                html += '<tr class="row-pct-companies"><td>Процентное отношение</td><td class="col-zalet">' + pzc.toFixed(2) + '%</td><td class="col-razov">' + prc.toFixed(2) + '%</td><td class="col-povtor">' + ppc.toFixed(2) + '%</td><td class="col-post">' + ppoc.toFixed(2) + '%</td><td class="col-total"><strong>100%</strong></td></tr>';
-                html += '<tr class="row-sales"><td><strong>Продажи по группам</strong></td><td class="col-zalet">' + fmtM(zs) + '</td><td class="col-razov">' + fmtM(rs) + '</td><td class="col-povtor">' + fmtM(ps) + '</td><td class="col-post">' + fmtM(pos) + '</td><td class="col-total"><strong>' + fmtM(totalS) + '</strong></td></tr>';
-                html += '<tr class="row-pct-sales"><td>Процентное отношение</td><td class="col-zalet">' + pzs.toFixed(2) + '%</td><td class="col-razov">' + prs.toFixed(2) + '%</td><td class="col-povtor">' + pps.toFixed(2) + '%</td><td class="col-post">' + ppos.toFixed(2) + '%</td><td class="col-total"><strong>100%</strong></td></tr>';
-                html += '</tbody></table>';
-                container.innerHTML = html;
-
-                drawFinalChart('chart-final-companies', [{ label: 'Залётные', value: zc, color: '#ef4444', pct: pzc }, { label: 'Разовые', value: rc, color: '#f59e0b', pct: prc }, { label: 'Повторные', value: pc, color: '#0ea5e9', pct: ppc }, { label: 'Постоянные', value: poc, color: '#10b981', pct: ppoc }]);
-                drawFinalChart('chart-final-sales', [{ label: 'Залётные', value: zs, color: '#ef4444', pct: pzs }, { label: 'Разовые', value: rs, color: '#f59e0b', pct: prs }, { label: 'Повторные', value: ps, color: '#0ea5e9', pct: pps }, { label: 'Постоянные', value: pos, color: '#10b981', pct: ppos }]);
-            } catch (e) { console.error(e); }
-        }
-        // ====== ЗАГОЛОВКИ PIVOT КАК КНОПКИ (заглушка для будущих дополнений) ======
-        function handlePivotSort(col) {
-            console.log('🔘 Клик по колонке PIVOT: ' + col + ' — функция сортировки будет добавлена позже');
-            // Здесь будет логика сортировки таблицы по выбранной колонке
-        }
-
-        function drawFinalChart(containerId, data) {
-            var container = document.getElementById(containerId);
-            if (!container) return;
-            var maxVal = Math.max(...data.map(d => d.value), 1), chartHeight = 180;
-            container.innerHTML = data.map(d => {
-                var hPx = Math.max(8, Math.round((d.value / maxVal) * chartHeight));
-                return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;min-width:70px;"><div style="font-size:10px;font-weight:700;color:' + d.color + ';margin-bottom:4px;">' + d.pct.toFixed(1) + '%</div><div style="font-size:9px;color:#64748b;margin-bottom:2px;">' + fmtS(d.value) + '</div><div style="width:100%;max-width:60px;height:' + hPx + 'px;background:' + d.color + ';border-radius:6px 6px 0 0;"></div><div style="font-size:10px;font-weight:700;color:#64748b;margin-top:6px;text-align:center;">' + d.label + '</div></div>';
-            }).join('');
-        }
-
-        // ====== СТАРТ ======
-        document.addEventListener('DOMContentLoaded', function () {
-            loadGlobalKPI();
-            var p = getParams();
-            loadUnitedPivotAndSummary(p.year, p.multiplier, p.limitPrice);
-            loadFinal(p.year, p.multiplier, p.limitPrice);
-        });
-    </script>
+            });
+        </script>
 </body>
 
 </html>
