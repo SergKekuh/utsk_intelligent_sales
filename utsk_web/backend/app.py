@@ -1329,6 +1329,242 @@ def abc_comparison(
     except Exception as e:
         logger.error(f"Ошибка abc_comparison: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+# ====== API: ПОВТОРНЫЕ КЛИЕНТЫ (2-3 накладных) ======
+@app.get("/api/analytics/recurrent-clients")
+def recurrent_clients(
+    token: str = Query(None),
+    year: int = 2026,
+    multiplier: float = 2.9
+):
+    """Детальный список повторных клиентов (2-3 накладных за год) с ABC-группой"""
+    verify_token(token)
+    db = get_db()
+    try:
+        result = db.execute(text("""
+            WITH client_invoices AS (
+                SELECT
+                    d.client_code,
+                    c.name,
+                    c.ipn,
+                    c.okpo_code,
+                    COUNT(DISTINCT d.id) AS invoice_count,
+                    COALESCE(SUM(CASE WHEN COALESCE(pr.is_service, FALSE) = FALSE THEN sl.amount ELSE 0 END), 0) AS goods_revenue,
+                    MIN(d.invoice_date) AS first_date,
+                    MAX(d.invoice_date) AS last_date,
+                    (MAX(d.invoice_date) - MIN(d.invoice_date)) AS days_between
+                FROM documents d
+                JOIN sales_lines sl ON d.id = sl.document_id
+                JOIN clients c ON d.client_code = c.code AND c.is_active_current = TRUE
+                LEFT JOIN products pr ON sl.product_code = pr.code
+                WHERE EXTRACT(YEAR FROM d.invoice_date) = :year
+                GROUP BY d.client_code, c.name, c.ipn, c.okpo_code
+                HAVING COUNT(DISTINCT d.id) BETWEEN 2 AND 3
+            )
+            SELECT
+                client_code,
+                name,
+                ipn,
+                okpo_code,
+                invoice_count,
+                goods_revenue,
+                first_date,
+                last_date,
+                days_between,
+                CASE
+                    WHEN goods_revenue >= 3000000 * :mult THEN 'A1'
+                    WHEN goods_revenue >= 2000000 * :mult THEN 'A2'
+                    WHEN goods_revenue >= 1500000 * :mult THEN 'A3'
+                    WHEN goods_revenue >= 1000000 * :mult THEN 'B1'
+                    WHEN goods_revenue >= 500000  * :mult THEN 'B2'
+                    WHEN goods_revenue >= 150000  * :mult THEN 'C1'
+                    WHEN goods_revenue >= 1000    * :mult THEN 'C2'
+                    ELSE 'Ниже C2'
+                END AS abc_group
+            FROM client_invoices
+            ORDER BY goods_revenue DESC
+        """), {"year": year, "mult": multiplier})
+
+        data = []
+        for row in result:
+            r = dict(row._mapping)
+            days = r.get('days_between') or 0
+            inv_count = int(r.get('invoice_count', 2))
+            # Классификация по паттерну повторности
+            if days <= 7:
+                rec_class = 'g1'
+                rec_label = 'Ближе к разовым'
+                recommendation = 'Стимулировать регулярность'
+            elif inv_count >= 3:
+                rec_class = 'g3'
+                rec_label = 'Ближе к постоянным'
+                recommendation = 'Программа лояльности'
+            else:
+                rec_class = 'g2'
+                rec_label = 'Повторные (Центр)'
+                recommendation = 'Рамочное соглашение'
+
+            data.append({
+                "client_code": r['client_code'],
+                "client_name": r['name'] or '',
+                "ipn": r['ipn'] or '',
+                "okpo": r['okpo_code'] or '',
+                "invoice_count": inv_count,
+                "goods_revenue": float(r['goods_revenue'] or 0),
+                "first_date": str(r['first_date']) if r['first_date'] else '',
+                "last_date": str(r['last_date']) if r['last_date'] else '',
+                "days_between": days,
+                "abc_group": r.get('abc_group', 'C2'),
+                "rec_class": rec_class,
+                "rec_label": rec_label,
+                "recommendation": recommendation
+            })
+
+        return {"status": "ok", "year": year, "data": data, "count": len(data)}
+    except Exception as e:
+        logger.error(f"Ошибка recurrent_clients: {e}")
+        return {"status": "error", "detail": str(e)}
+    finally:
+        db.close()
+
+
+# ====== API: YoY-СРАВНЕНИЕ КЛИЕНТОВ С ABC-ГРУППАМИ ======
+@app.get("/api/analytics/clients-yoy")
+def clients_yoy(
+    token: str = Query(None),
+    year: int = 2026,
+    multiplier: float = 2.9
+):
+    """YoY-сравнение клиентов: ABC-группа текущего и прошлого года, выручка, изменение"""
+    verify_token(token)
+    db = get_db()
+    try:
+        year_prev = year - 1
+
+        result = db.execute(text("""
+            WITH curr AS (
+                SELECT
+                    d.client_code,
+                    COALESCE(SUM(CASE WHEN COALESCE(pr.is_service, FALSE) = FALSE THEN sl.amount ELSE 0 END), 0) AS revenue,
+                    COUNT(DISTINCT d.id) AS invoice_count
+                FROM documents d
+                JOIN sales_lines sl ON d.id = sl.document_id
+                LEFT JOIN products pr ON sl.product_code = pr.code
+                JOIN clients c ON d.client_code = c.code AND c.is_active_current = TRUE
+                WHERE EXTRACT(YEAR FROM d.invoice_date) = :year
+                GROUP BY d.client_code
+            ),
+            prev AS (
+                SELECT
+                    d.client_code,
+                    COALESCE(SUM(CASE WHEN COALESCE(pr.is_service, FALSE) = FALSE THEN sl.amount ELSE 0 END), 0) AS revenue,
+                    COUNT(DISTINCT d.id) AS invoice_count
+                FROM documents d
+                JOIN sales_lines sl ON d.id = sl.document_id
+                LEFT JOIN products pr ON sl.product_code = pr.code
+                JOIN clients c ON d.client_code = c.code AND c.is_active_current = TRUE
+                WHERE EXTRACT(YEAR FROM d.invoice_date) = :year_prev
+                GROUP BY d.client_code
+            ),
+            abc_curr AS (
+                SELECT client_code, revenue,
+                    CASE
+                        WHEN revenue >= 3000000 * :mult THEN 'A1'
+                        WHEN revenue >= 2000000 * :mult THEN 'A2'
+                        WHEN revenue >= 1500000 * :mult THEN 'A3'
+                        WHEN revenue >= 1000000 * :mult THEN 'B1'
+                        WHEN revenue >= 500000  * :mult THEN 'B2'
+                        WHEN revenue >= 150000  * :mult THEN 'C1'
+                        WHEN revenue >= 1000    * :mult THEN 'C2'
+                        ELSE 'Ниже C2'
+                    END AS abc_group,
+                    invoice_count
+                FROM curr
+            ),
+            abc_prev AS (
+                SELECT client_code, revenue,
+                    CASE
+                        WHEN revenue >= 3000000 * :mult THEN 'A1'
+                        WHEN revenue >= 2000000 * :mult THEN 'A2'
+                        WHEN revenue >= 1500000 * :mult THEN 'A3'
+                        WHEN revenue >= 1000000 * :mult THEN 'B1'
+                        WHEN revenue >= 500000  * :mult THEN 'B2'
+                        WHEN revenue >= 150000  * :mult THEN 'C1'
+                        WHEN revenue >= 1000    * :mult THEN 'C2'
+                        ELSE 'Ниже C2'
+                    END AS abc_group,
+                    invoice_count
+                FROM prev
+            )
+            SELECT
+                COALESCE(ac.client_code, ap.client_code) AS client_code,
+                c.name AS client_name,
+                COALESCE(ac.revenue, 0) AS revenue_curr,
+                COALESCE(ap.revenue, 0) AS revenue_prev,
+                COALESCE(ac.invoice_count, 0) AS invoices_curr,
+                COALESCE(ap.invoice_count, 0) AS invoices_prev,
+                COALESCE(ac.abc_group, 'Новый') AS abc_curr,
+                COALESCE(ap.abc_group, 'Новый') AS abc_prev
+            FROM abc_curr ac
+            FULL OUTER JOIN abc_prev ap ON ac.client_code = ap.client_code
+            JOIN clients c ON c.code = COALESCE(ac.client_code, ap.client_code) AND c.is_active_current = TRUE
+            ORDER BY COALESCE(ac.revenue, 0) DESC
+            LIMIT 500
+        """), {"year": year, "year_prev": year_prev, "mult": multiplier})
+
+        data = []
+        for row in result:
+            r = dict(row._mapping)
+            rev_c = float(r.get('revenue_curr') or 0)
+            rev_p = float(r.get('revenue_prev') or 0)
+            delta_pct = round((rev_c - rev_p) / rev_p * 100, 1) if rev_p > 0 else None
+            data.append({
+                "client_code": r['client_code'],
+                "client_name": r['client_name'] or '',
+                "revenue_curr": rev_c,
+                "revenue_prev": rev_p,
+                "invoices_curr": int(r.get('invoices_curr') or 0),
+                "invoices_prev": int(r.get('invoices_prev') or 0),
+                "abc_curr": r.get('abc_curr', 'Новый'),
+                "abc_prev": r.get('abc_prev', 'Новый'),
+                "delta_pct": delta_pct,
+                "is_new": rev_p == 0,
+                "is_lost": rev_c == 0
+            })
+
+        # Агрегированная статистика по группам
+        groups_order = ['A1', 'A2', 'A3', 'B1', 'B2', 'C1', 'C2', 'Ниже C2', 'Новый']
+        stats_curr = {}
+        stats_prev = {}
+        for d in data:
+            g = d['abc_curr']
+            if g not in stats_curr:
+                stats_curr[g] = {'group': g, 'count': 0, 'revenue': 0}
+            stats_curr[g]['count'] += 1
+            stats_curr[g]['revenue'] += d['revenue_curr']
+
+            g2 = d['abc_prev']
+            if g2 not in stats_prev:
+                stats_prev[g2] = {'group': g2, 'count': 0, 'revenue': 0}
+            stats_prev[g2]['count'] += 1
+            stats_prev[g2]['revenue'] += d['revenue_prev']
+
+        return {
+            "status": "ok",
+            "year": year,
+            "year_prev": year_prev,
+            "data": data,
+            "count": len(data),
+            "stats_curr": [stats_curr[g] for g in groups_order if g in stats_curr],
+            "stats_prev": [stats_prev[g] for g in groups_order if g in stats_prev]
+        }
+    except Exception as e:
+        logger.error(f"Ошибка clients_yoy: {e}")
+        return {"status": "error", "detail": str(e)}
+    finally:
+        db.close()
+
+
 # ====== HEALTH CHECK ======
 @app.get("/health")
 def health():

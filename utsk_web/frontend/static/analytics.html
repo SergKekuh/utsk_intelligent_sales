@@ -1123,6 +1123,8 @@
             <button class="tab-btn" data-tab="tab-yoy" id="tab-btn-yoy">📈 Сравнение <span
                     id="tab-yoy-year1">2026</span>/<span id="tab-yoy-year2">2025</span></button>
             <button class="tab-btn" data-tab="tab-abc">🔺 ABC-пирамида</button>
+            <button class="tab-btn" data-tab="tab-recurrent">🔄 Повторные покупки</button>
+            <button class="tab-btn" data-tab="tab-clients-yoy">👥 YoY-анализ клиентов</button>
         </div>
 
         <!-- ====== ВКЛАДКА 1: ОБЪЕДИНЁННАЯ (PIVOT + СВОДНЫЙ + ИТОГОВЫЙ) ====== -->
@@ -1335,6 +1337,186 @@
             </div>
         </div>
 
+        <!-- ====== ВКЛАДКА 4: ПОВТОРНЫЕ ПОКУПКИ ====== -->
+        <div class="tab-content" id="tab-recurrent">
+            <!-- KPI -->
+            <div class="kpi-row" style="margin-bottom:20px;" id="rec-kpi-row">
+                <div class="kpi-card kpi-blue">
+                    <div class="kpi-icon">🔄</div>
+                    <div class="kpi-label">Повторных клиентов</div>
+                    <div class="kpi-value" id="rec-kpi-total">—</div>
+                    <div class="kpi-sub">2-3 накладных за год</div>
+                </div>
+                <div class="kpi-card kpi-green">
+                    <div class="kpi-icon">💰</div>
+                    <div class="kpi-label">Суммарная выручка</div>
+                    <div class="kpi-value" id="rec-kpi-revenue">—</div>
+                    <div class="kpi-sub" id="rec-kpi-rev-sub">от повторных</div>
+                </div>
+                <div class="kpi-card kpi-amber">
+                    <div class="kpi-icon">📦</div>
+                    <div class="kpi-label">Ближе к разовым</div>
+                    <div class="kpi-value" id="rec-kpi-g1">—</div>
+                    <div class="kpi-sub">малый интервал ≤7 дней</div>
+                </div>
+                <div class="kpi-card kpi-purple">
+                    <div class="kpi-icon">🌟</div>
+                    <div class="kpi-label">Ближе к постоянным</div>
+                    <div class="kpi-value" id="rec-kpi-g3">—</div>
+                    <div class="kpi-sub">3 накладных, долгий цикл</div>
+                </div>
+            </div>
+
+            <!-- Диаграмма по группам -->
+            <div class="chart-card" style="margin-bottom:20px;">
+                <div class="card-header">
+                    <h2 class="card-title">🔄 Распределение повторных клиентов по паттерну</h2>
+                    <span style="font-size:12px;color:var(--muted);" id="rec-year-label">2026</span>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;" id="rec-pattern-cards">
+                    <div style="text-align:center;padding:20px;color:#94a3b8;">⏳ Загрузка...</div>
+                </div>
+            </div>
+
+            <!-- Таблица клиентов -->
+            <div class="chart-card">
+                <div class="card-header">
+                    <h2 class="card-title">📋 Детальный список повторных клиентов</h2>
+                    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                        <input type="text" id="rec-search" placeholder="🔍 Поиск по названию..." style="padding:6px 12px;border-radius:8px;border:1px solid var(--border);font-size:13px;width:200px;" oninput="filterRecurrentTable()">
+                        <select id="rec-filter-group" onchange="filterRecurrentTable()" style="padding:6px 10px;border-radius:8px;border:1px solid var(--border);font-size:13px;">
+                            <option value="">Все ABC-группы</option>
+                            <option value="A1">A1</option><option value="A2">A2</option><option value="A3">A3</option>
+                            <option value="B1">B1</option><option value="B2">B2</option>
+                            <option value="C1">C1</option><option value="C2">C2</option>
+                        </select>
+                        <select id="rec-filter-pattern" onchange="filterRecurrentTable()" style="padding:6px 10px;border-radius:8px;border:1px solid var(--border);font-size:13px;">
+                            <option value="">Все паттерны</option>
+                            <option value="g1">Ближе к разовым</option>
+                            <option value="g2">Повторные (Центр)</option>
+                            <option value="g3">Ближе к постоянным</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="overflow-x:auto;">
+                    <table class="pivot-formatted-table" id="table-recurrent">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Клиент</th>
+                                <th class="center">ABC</th>
+                                <th class="right">Выручка</th>
+                                <th class="center">Накладных</th>
+                                <th class="center">Дней между</th>
+                                <th class="center">Паттерн</th>
+                                <th>Рекомендация</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-recurrent">
+                            <tr><td colspan="8" style="text-align:center;padding:40px;">⏳ Загрузка...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div style="margin-top:10px;font-size:12px;color:var(--muted);" id="rec-count-label"></div>
+            </div>
+        </div>
+
+        <!-- ====== ВКЛАДКА 5: YoY-АНАЛИЗ КЛИЕНТОВ ====== -->
+        <div class="tab-content" id="tab-clients-yoy">
+            <!-- KPI -->
+            <div class="kpi-row" style="margin-bottom:20px;">
+                <div class="kpi-card kpi-blue">
+                    <div class="kpi-icon">🆕</div>
+                    <div class="kpi-label">Новые клиенты</div>
+                    <div class="kpi-value" id="cyoy-kpi-new">—</div>
+                    <div class="kpi-sub">не было в прошлом году</div>
+                </div>
+                <div class="kpi-card kpi-green">
+                    <div class="kpi-icon">📈</div>
+                    <div class="kpi-label">Выросли</div>
+                    <div class="kpi-value" id="cyoy-kpi-grew">—</div>
+                    <div class="kpi-sub">выручка выше прошлого года</div>
+                </div>
+                <div class="kpi-card kpi-amber">
+                    <div class="kpi-icon">📉</div>
+                    <div class="kpi-label">Просели</div>
+                    <div class="kpi-value" id="cyoy-kpi-fell">—</div>
+                    <div class="kpi-sub">выручка ниже прошлого года</div>
+                </div>
+                <div class="kpi-card kpi-purple">
+                    <div class="kpi-icon">😶</div>
+                    <div class="kpi-label">Потеряны</div>
+                    <div class="kpi-value" id="cyoy-kpi-lost">—</div>
+                    <div class="kpi-sub">не покупали в текущем году</div>
+                </div>
+            </div>
+
+            <!-- ABC-статистика по группам -->
+            <div class="chart-card" style="margin-bottom:20px;">
+                <div class="card-header">
+                    <h2 class="card-title">📊 ABC-группы: сравнение <span id="cyoy-title-year">2026</span> / <span id="cyoy-title-year-prev">2025</span></h2>
+                </div>
+                <div style="overflow-x:auto;">
+                    <table class="pivot-formatted-table" id="table-cyoy-groups">
+                        <thead>
+                            <tr>
+                                <th>Группа</th>
+                                <th class="right">Клиентов <span id="cyoy-th-curr">2026</span></th>
+                                <th class="right">Клиентов <span id="cyoy-th-prev">2025</span></th>
+                                <th class="right">Δ клиентов</th>
+                                <th class="right">Выручка <span id="cyoy-th-rev-curr">2026</span></th>
+                                <th class="right">Выручка <span id="cyoy-th-rev-prev">2025</span></th>
+                                <th class="right">Δ Выручка</th>
+                                <th class="right">Δ %</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-cyoy-groups">
+                            <tr><td colspan="8" style="text-align:center;padding:30px;">⏳ Загрузка...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Таблица клиентов с изменением -->
+            <div class="chart-card">
+                <div class="card-header">
+                    <h2 class="card-title">👥 Детальная таблица клиентов (Топ-500)</h2>
+                    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                        <input type="text" id="cyoy-search" placeholder="🔍 Поиск клиента..." style="padding:6px 12px;border-radius:8px;border:1px solid var(--border);font-size:13px;width:200px;" oninput="filterClientsYoYTable()">
+                        <select id="cyoy-filter" onchange="filterClientsYoYTable()" style="padding:6px 10px;border-radius:8px;border:1px solid var(--border);font-size:13px;">
+                            <option value="">Все</option>
+                            <option value="new">🆕 Новые</option>
+                            <option value="grew">📈 Выросли</option>
+                            <option value="fell">📉 Просели</option>
+                            <option value="lost">😶 Потеряны</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="overflow-x:auto;">
+                    <table class="pivot-formatted-table" id="table-cyoy-clients">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Клиент</th>
+                                <th class="center">ABC <span id="cyoy-col-curr">2026</span></th>
+                                <th class="center">ABC <span id="cyoy-col-prev">2025</span></th>
+                                <th class="right">Выручка <span id="cyoy-col-rev-curr">2026</span></th>
+                                <th class="right">Выручка <span id="cyoy-col-rev-prev">2025</span></th>
+                                <th class="right">Δ %</th>
+                                <th class="center">Накл. <span id="cyoy-col-inv-curr">2026</span></th>
+                                <th class="center">Накл. <span id="cyoy-col-inv-prev">2025</span></th>
+                                <th class="center">Статус</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-cyoy-clients">
+                            <tr><td colspan="10" style="text-align:center;padding:40px;">⏳ Загрузка...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div style="margin-top:10px;font-size:12px;color:var(--muted);" id="cyoy-count-label"></div>
+            </div>
+        </div>
+
         <!-- ====== JAVASCRIPT ====== -->
         <script>
             var TOKEN = new URLSearchParams(window.location.search).get('token') || 'utsk2026';
@@ -1343,7 +1525,7 @@
             var currentScale = 100;
             var currentSort = { field: null, asc: true };
 
-            function fmtM(v) { if (!v || v === 0) return '0'; if (Math.abs(v) >= 1e6) return (v / 1e6).toFixed(2) + ' млн ₴'; if (Math.abs(v) >= 1e3) return Math.round(v / 1000) + ' тыс ₴'; return Math.round(v).toLocaleString('ru-RU') + ' ₴'; }
+            function fmtM(v) { if (!v || v === 0) return '0 ₴'; if (Math.abs(v) >= 1e6) return (v / 1e6).toFixed(2) + ' млн ₴'; if (Math.abs(v) >= 1e3) return Math.round(v / 1000) + ' тыс ₴'; return Math.round(v).toLocaleString('ru-RU') + ' ₴'; }
             function fmtS(v) { if (!v) return '0'; if (Math.abs(v) >= 1e6) return (v / 1e6).toFixed(1) + 'M'; if (Math.abs(v) >= 1e3) return Math.round(v / 1000) + 'K'; return Math.round(v).toString(); }
             function fmtN(n) { return (n == null) ? '—' : Number(n).toLocaleString('ru-RU'); }
             function formatNumRu(n) { return (n == null) ? '0' : Number(n).toLocaleString('ru-RU'); }
@@ -1398,7 +1580,11 @@
                 loadYoYComparison();
 
                 var activeTab = document.querySelector('.tab-content.active');
-                if (!activeTab) { loadMonthly(p.year); return; }
+                if (!activeTab) {
+                    loadUnitedPivotAndSummary(p.year, p.multiplier, p.limitPrice);
+                    loadFinal(p.year, p.multiplier, p.limitPrice);
+                    return;
+                }
 
                 var tabId = activeTab.id;
                 if (tabId === 'tab-monthly') {
@@ -1407,15 +1593,13 @@
                 }
                 else if (tabId === 'tab-yoy') { } // уже загружено выше
                 else if (tabId === 'tab-abc') loadABC(p.year, p.multiplier);
-                else if (tabId === 'tab-pivot') loadUnitedPivotAndSummary(p.year, p.multiplier, p.limitPrice);
+                else if (tabId === 'tab-recurrent') loadRecurrentAnalysis();
+                else if (tabId === 'tab-clients-yoy') loadClientsYoY();
             }
 
             // ====== ВКЛАДКА 1: МЕСЯЧНАЯ ДИНАМИКА ======
             var monthlyDataCache = [];
             async function loadMonthly(year) {
-
-                // 🔥 Всегда загружаем YoY для KPI роста
-                loadYoYComparison();
                 var tbody = document.getElementById('table-monthly');
                 var chart = document.getElementById('chart-monthly');
                 try {
@@ -1506,8 +1690,11 @@
                     renderMonthlyTable(sorted);
 
                     // Обновляем стрелки в заголовках
-                    document.querySelectorAll('.monthly-table thead th').forEach(el => el.textContent = el.textContent.replace(' ▲', '').replace(' ▼', ''));
-                    th.textContent += currentSort.asc ? ' ▲' : ' ▼';
+                    document.querySelectorAll('.monthly-table thead th .sort-arrow').forEach(el => el.remove());
+                    var arrow = document.createElement('span');
+                    arrow.className = 'sort-arrow';
+                    arrow.textContent = currentSort.asc ? ' ▲' : ' ▼';
+                    th.appendChild(arrow);
                 }
             });
 
@@ -1528,8 +1715,8 @@
                 var year1 = sel ? parseInt(sel.value) : 2026;
                 var year2 = year1 - 1;
 
-                // Обновляем заголовки
-                ['rev', 'inv', 'clients', 'ticket'].forEach(s => {
+                // Обновляем заголовки (только существующие id)
+                ['rev', 'inv'].forEach(s => {
                     var el1 = document.getElementById('yoy-year-label-' + s);
                     var el2 = document.getElementById('yoy-' + s + '-prev');
                     if (el1) el1.textContent = year1;
@@ -1545,12 +1732,10 @@
                 });
 
                 // Обновляем легенду
-                ['yoy-legend-year1', 'yoy-abc-year1', 'yoy-abc-rev-year1'].forEach(id => {
-                    var el = document.getElementById(id); if (el) el.textContent = year1;
-                });
-                ['yoy-legend-year2', 'yoy-abc-year2', 'yoy-abc-rev-year2'].forEach(id => {
-                    var el = document.getElementById(id); if (el) el.textContent = year2;
-                });
+                var legendY1 = document.getElementById('yoy-legend-year1');
+                var legendY2 = document.getElementById('yoy-legend-year2');
+                if (legendY1) legendY1.textContent = year1;
+                if (legendY2) legendY2.textContent = year2;
 
                 document.getElementById('yoy-chart-title').textContent =
                     '📈 Сравнительная сезонность (' +
@@ -1629,6 +1814,7 @@
 
                 var allVals = [];
                 data.forEach(d => {
+                    // Для метрики invoices используется goods_revenue (invoice_count отсутствует в API)
                     var v1 = yoyMetric === 'revenue' ? d.goods_revenue_y1 :
                         yoyMetric === 'clients' ? d.clients_y1 : d.goods_revenue_y1;
                     var v2 = yoyMetric === 'revenue' ? d.goods_revenue_y2 :
@@ -1674,11 +1860,8 @@
                     var revPct = r.goods_revenue_y2 > 0 ? ((r.goods_revenue_y1 - r.goods_revenue_y2) / r.goods_revenue_y2 * 100) : 0;
                     return '<tr>' +
                         '<td style="font-weight:700;">' + MONTHS[r.month] + '</td>' +
-                        '<td class="right">—</td>' +  // Накладные не доступны в YoY API
                         '<td class="right" style="color:#0ea5e9;font-weight:600;">' + fmtM(r.goods_revenue_y1) + '</td>' +
-                        '<td class="right">—</td>' +
                         '<td class="right" style="color:#94a3b8;">' + fmtM(r.goods_revenue_y2) + '</td>' +
-                        '<td class="right">—</td>' +
                         '<td class="right" style="color:' + (revPct >= 0 ? '#059669' : '#dc2626') + ';font-weight:700;">' + (revPct >= 0 ? '+' : '') + revPct.toFixed(1) + '%</td>' +
                         '</tr>';
                 }).join('');
@@ -1696,7 +1879,7 @@
                     var data1 = json1.data.filter(r => r.out_group_name !== 'Total');
                     var data2 = json2.data.filter(r => r.out_group_name !== 'Total');
 
-                    var tbody = document.querySelector('#table-yoy-abc tbody');
+                    var tbody = document.querySelector('#table-yoy-monthly tbody');
                     if (!tbody) return;
 
                     var groups = ['A1', 'A2', 'A3', 'B1', 'B2', 'C1', 'C2'];
@@ -1860,7 +2043,6 @@
             async function loadUnitedPivotAndSummary(year, multiplier, limitPrice) {
                 var container = document.getElementById('pivot-formatted-container');
                 var summaryContainer = document.getElementById('summary-container');
-                if (summaryContainer) summaryContainer.style.display = 'none';
                 if (!container) return;
                 container.innerHTML = '<div style="color:#94a3b8;text-align:center;padding:40px;">⏳ Загрузка объединённого отчёта...</div>';
 
@@ -2105,9 +2287,8 @@
                 }
                 else if (tabId === 'tab-yoy') loadYoYComparison();
                 else if (tabId === 'tab-abc') loadABC(p.year, p.multiplier);
-                else if (tabId === 'tab-pivot') {
-                    loadUnitedPivotAndSummary(p.year, p.multiplier, p.limitPrice);
-                }
+                else if (tabId === 'tab-recurrent') loadRecurrentAnalysis();
+                else if (tabId === 'tab-clients-yoy') loadClientsYoY();
             }
 
             // ====== ИТОГОВЫЙ ABC (вкладка 6) ======
@@ -2119,12 +2300,13 @@
                     var json = await resp.json();
                     if (json.status !== 'ok' || !json.below || !json.above) return;
 
-                    function parseGroup(data) {
+                    // Используем глобальную parseGroup из loadUnitedPivotAndSummary
+                    function parseGroupLocal(data) {
                         var result = {};
                         data.forEach(row => { var m = row.out_metric; result[m] = {}; Object.keys(row).forEach(k => { if (k !== 'out_group_name' && k !== 'out_metric') result[m][k] = row[k] || 0; }); });
                         return result;
                     }
-                    var below = parseGroup(json.below), above = parseGroup(json.above);
+                    var below = parseGroupLocal(json.below), above = parseGroupLocal(json.above);
 
                     var zc = ((below['Кол-во компаний'] && below['Кол-во компаний']['out_1']) || 0) + ((below['Кол-во компаний'] && below['Кол-во компаний']['out_2_3']) || 0);
                     var zs = ((below['Сумма продаж'] && below['Сумма продаж']['out_1']) || 0) + ((below['Сумма продаж'] && below['Сумма продаж']['out_2_3']) || 0);
@@ -2164,6 +2346,229 @@
                     var hPx = Math.max(8, Math.round((d.value / maxVal) * chartHeight));
                     return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;min-width:70px;"><div style="font-size:10px;font-weight:700;color:' + d.color + ';margin-bottom:4px;">' + d.pct.toFixed(1) + '%</div><div style="font-size:9px;color:#64748b;margin-bottom:2px;">' + fmtS(d.value) + '</div><div style="width:100%;max-width:60px;height:' + hPx + 'px;background:' + d.color + ';border-radius:6px 6px 0 0;"></div><div style="font-size:10px;font-weight:700;color:#64748b;margin-top:6px;text-align:center;">' + d.label + '</div></div>';
                 }).join('');
+            }
+
+            // ====== ВКЛАДКА 4: ПОВТОРНЫЕ ПОКУПКИ ======
+            var recurrentData = [];
+
+            async function loadRecurrentAnalysis() {
+                var p = getParams();
+                var year = parseInt(p.year);
+                var multiplier = parseFloat(p.multiplier);
+                var el = document.getElementById('rec-year-label'); if (el) el.textContent = year;
+                var tbody = document.getElementById('tbody-recurrent');
+                if (tbody) tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:30px;">⏳ Загрузка данных...</td></tr>';
+
+                try {
+                    var resp = await fetch('/api/analytics/recurrent-clients?token=' + TOKEN + '&year=' + year + '&multiplier=' + multiplier);
+                    var json = await resp.json();
+                    if (json.status !== 'ok' || !json.data || !json.data.length) {
+                        if (tbody) tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:30px;">⚠️ Нет данных за ' + year + '</td></tr>';
+                        return;
+                    }
+                    recurrentData = json.data;
+                    renderRecurrentTable(recurrentData);
+                    renderRecurrentKPI(recurrentData);
+                    renderRecurrentPatternCards(recurrentData);
+                } catch(e) {
+                    console.error('loadRecurrentAnalysis error:', e);
+                    if (tbody) tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:30px;">⚠️ Ошибка загрузки</td></tr>';
+                }
+            }
+
+            function renderRecurrentKPI(data) {
+                var totalRev = data.reduce((s, c) => s + (c.goods_revenue || 0), 0);
+                var g1 = data.filter(c => c.rec_class === 'g1').length;
+                var g3 = data.filter(c => c.rec_class === 'g3').length;
+                var el;
+                el = document.getElementById('rec-kpi-total'); if (el) el.textContent = fmtN(data.length);
+                el = document.getElementById('rec-kpi-revenue'); if (el) el.textContent = fmtM(totalRev);
+                el = document.getElementById('rec-kpi-g1'); if (el) el.textContent = fmtN(g1);
+                el = document.getElementById('rec-kpi-g3'); if (el) el.textContent = fmtN(g3);
+            }
+
+            function renderRecurrentPatternCards(data) {
+                var groups = {
+                    g1: { label: 'Ближе к разовым', color: '#f59e0b', icon: '📦', items: [] },
+                    g2: { label: 'Повторные (Центр)', color: '#0ea5e9', icon: '🔄', items: [] },
+                    g3: { label: 'Ближе к постоянным', color: '#10b981', icon: '🌟', items: [] }
+                };
+                data.forEach(c => { if (groups[c.rec_class]) groups[c.rec_class].items.push(c); });
+                var container = document.getElementById('rec-pattern-cards');
+                if (!container) return;
+                container.innerHTML = Object.keys(groups).map(k => {
+                    var g = groups[k];
+                    var rev = g.items.reduce((s, c) => s + (c.goods_revenue || 0), 0);
+                    return '<div style="background:#f8fafc;border-radius:12px;padding:20px;border:2px solid ' + g.color + '20;text-align:center;">' +
+                        '<div style="font-size:28px;margin-bottom:8px;">' + g.icon + '</div>' +
+                        '<div style="font-size:13px;font-weight:700;color:' + g.color + ';margin-bottom:12px;">' + g.label + '</div>' +
+                        '<div style="font-size:28px;font-weight:800;color:#1e293b;">' + fmtN(g.items.length) + '</div>' +
+                        '<div style="font-size:11px;color:#64748b;margin-top:4px;">клиентов</div>' +
+                        '<div style="font-size:16px;font-weight:700;color:' + g.color + ';margin-top:8px;">' + fmtM(rev) + '</div>' +
+                        '</div>';
+                }).join('');
+            }
+
+            function renderRecurrentTable(data) {
+                var tbody = document.getElementById('tbody-recurrent');
+                if (!tbody) return;
+                var abcColors = { A1:'#059669',A2:'#059669',A3:'#0ea5e9',B1:'#0ea5e9',B2:'#8b5cf6',C1:'#f59e0b',C2:'#94a3b8' };
+                var patColors = { g1:'#f59e0b', g2:'#0ea5e9', g3:'#10b981' };
+                tbody.innerHTML = data.map((c, i) => {
+                    var abc = c.abc_group || 'C2';
+                    var color = abcColors[abc] || '#94a3b8';
+                    var pcol = patColors[c.rec_class] || '#94a3b8';
+                    return '<tr>' +
+                        '<td style="color:#94a3b8;font-size:12px;">' + (i+1) + '</td>' +
+                        '<td style="font-weight:600;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + (c.client_name||'') + '">' + (c.client_name || '—') + '</td>' +
+                        '<td class="center"><span style="background:' + color + '20;color:' + color + ';font-weight:700;padding:2px 8px;border-radius:6px;font-size:12px;">' + abc + '</span></td>' +
+                        '<td class="right" style="font-weight:600;">' + fmtM(c.goods_revenue) + '</td>' +
+                        '<td class="center">' + (c.invoice_count || 0) + '</td>' +
+                        '<td class="center">' + (c.days_between || 0) + '</td>' +
+                        '<td class="center"><span style="background:' + pcol + '20;color:' + pcol + ';padding:2px 8px;border-radius:6px;font-size:11px;white-space:nowrap;">' + (c.rec_label || '') + '</span></td>' +
+                        '<td style="font-size:12px;color:#64748b;">' + (c.recommendation || '') + '</td>' +
+                        '</tr>';
+                }).join('');
+                var lbl = document.getElementById('rec-count-label');
+                if (lbl) lbl.textContent = 'Показано ' + data.length + ' клиентов';
+            }
+
+            function filterRecurrentTable() {
+                var search = (document.getElementById('rec-search').value || '').toLowerCase();
+                var grp = document.getElementById('rec-filter-group').value;
+                var pat = document.getElementById('rec-filter-pattern').value;
+                var filtered = recurrentData.filter(c => {
+                    var matchName = !search || (c.client_name || '').toLowerCase().includes(search);
+                    var matchGrp = !grp || c.abc_group === grp;
+                    var matchPat = !pat || c.rec_class === pat;
+                    return matchName && matchGrp && matchPat;
+                });
+                renderRecurrentTable(filtered);
+            }
+
+            // ====== ВКЛАДКА 5: YoY-АНАЛИЗ КЛИЕНТОВ ======
+            var clientsYoYData = [];
+
+            async function loadClientsYoY() {
+                var p = getParams();
+                var year = parseInt(p.year);
+                var multiplier = parseFloat(p.multiplier);
+                var yearPrev = year - 1;
+
+                // Обновляем заголовки
+                ['cyoy-title-year','cyoy-th-curr','cyoy-th-rev-curr','cyoy-col-curr','cyoy-col-rev-curr','cyoy-col-inv-curr'].forEach(id => { var e = document.getElementById(id); if (e) e.textContent = year; });
+                ['cyoy-title-year-prev','cyoy-th-prev','cyoy-th-rev-prev','cyoy-col-prev','cyoy-col-rev-prev','cyoy-col-inv-prev'].forEach(id => { var e = document.getElementById(id); if (e) e.textContent = yearPrev; });
+
+                var tbody = document.getElementById('tbody-cyoy-clients');
+                if (tbody) tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:30px;">⏳ Загрузка данных...</td></tr>';
+                var tbodyG = document.getElementById('tbody-cyoy-groups');
+                if (tbodyG) tbodyG.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:20px;">⏳ Загрузка...</td></tr>';
+
+                try {
+                    var resp = await fetch('/api/analytics/clients-yoy?token=' + TOKEN + '&year=' + year + '&multiplier=' + multiplier);
+                    var json = await resp.json();
+                    if (json.status !== 'ok' || !json.data) {
+                        if (tbody) tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:30px;">⚠️ Нет данных</td></tr>';
+                        return;
+                    }
+                    clientsYoYData = json.data;
+                    renderClientsYoYKPI(json.data, year);
+                    renderClientsYoYGroups(json.stats_curr, json.stats_prev);
+                    renderClientsYoYTable(json.data);
+                } catch(e) {
+                    console.error('loadClientsYoY error:', e);
+                    if (tbody) tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:30px;">⚠️ Ошибка загрузки</td></tr>';
+                }
+            }
+
+            function renderClientsYoYKPI(data, year) {
+                var newC = data.filter(c => c.is_new).length;
+                var lost = data.filter(c => c.is_lost).length;
+                var grew = data.filter(c => !c.is_new && !c.is_lost && (c.delta_pct || 0) > 0).length;
+                var fell = data.filter(c => !c.is_new && !c.is_lost && (c.delta_pct || 0) <= 0).length;
+                var set = function(id, val) { var e = document.getElementById(id); if (e) e.textContent = val; };
+                set('cyoy-kpi-new', fmtN(newC)); set('cyoy-kpi-grew', fmtN(grew));
+                set('cyoy-kpi-fell', fmtN(fell)); set('cyoy-kpi-lost', fmtN(lost));
+            }
+
+            function renderClientsYoYGroups(statsCurr, statsPrev) {
+                var tbody = document.getElementById('tbody-cyoy-groups');
+                if (!tbody) return;
+                var allGroups = Array.from(new Set([...(statsCurr||[]).map(g=>g.group), ...(statsPrev||[]).map(g=>g.group)]));
+                var mapCurr = {}; (statsCurr||[]).forEach(g => mapCurr[g.group] = g);
+                var mapPrev = {}; (statsPrev||[]).forEach(g => mapPrev[g.group] = g);
+                var abcOrder = ['A1','A2','A3','B1','B2','C1','C2','Ниже C2','Новый'];
+                allGroups.sort((a,b) => (abcOrder.indexOf(a)+1 || 99) - (abcOrder.indexOf(b)+1 || 99));
+
+                var totalC1=0, totalC2=0, totalR1=0, totalR2=0;
+                var rows = allGroups.map(g => {
+                    var c = mapCurr[g] || {count:0, revenue:0};
+                    var p = mapPrev[g] || {count:0, revenue:0};
+                    var dc = c.count - p.count, dr = c.revenue - p.revenue;
+                    var pct = p.revenue > 0 ? (dr / p.revenue * 100) : 0;
+                    totalC1 += c.count; totalC2 += p.count; totalR1 += c.revenue; totalR2 += p.revenue;
+                    var cls = g.startsWith('A') ? '#059669' : g.startsWith('B') ? '#0ea5e9' : '#94a3b8';
+                    return '<tr>' +
+                        '<td style="font-weight:700;color:' + cls + ';">' + g + '</td>' +
+                        '<td class="right">' + fmtN(c.count) + '</td>' +
+                        '<td class="right" style="color:#94a3b8;">' + fmtN(p.count) + '</td>' +
+                        '<td class="right" style="color:' + (dc>=0?'#059669':'#dc2626') + ';">' + (dc>=0?'+':'') + fmtN(dc) + '</td>' +
+                        '<td class="right">' + fmtM(c.revenue) + '</td>' +
+                        '<td class="right" style="color:#94a3b8;">' + fmtM(p.revenue) + '</td>' +
+                        '<td class="right" style="color:' + (dr>=0?'#059669':'#dc2626') + ';">' + (dr>=0?'+':'') + fmtM(dr) + '</td>' +
+                        '<td class="right" style="font-weight:700;color:' + (pct>=0?'#059669':'#dc2626') + ';">' + (pct>=0?'▲ +':'▼ ') + Math.abs(pct).toFixed(1) + '%</td>' +
+                        '</tr>';
+                }).join('');
+                var tdc = totalC1-totalC2, tdr = totalR1-totalR2, tpct = totalR2>0?(tdr/totalR2*100):0;
+                rows += '<tr style="font-weight:700;background:#f8fafc;border-top:2px solid var(--border);">' +
+                    '<td>Итого</td><td class="right">' + fmtN(totalC1) + '</td><td class="right">' + fmtN(totalC2) + '</td>' +
+                    '<td class="right" style="color:' + (tdc>=0?'#059669':'#dc2626') + ';">' + (tdc>=0?'+':'') + fmtN(tdc) + '</td>' +
+                    '<td class="right">' + fmtM(totalR1) + '</td><td class="right">' + fmtM(totalR2) + '</td>' +
+                    '<td class="right" style="color:' + (tdr>=0?'#059669':'#dc2626') + ';">' + (tdr>=0?'+':'') + fmtM(tdr) + '</td>' +
+                    '<td class="right" style="color:' + (tpct>=0?'#059669':'#dc2626') + ';">' + (tpct>=0?'▲ +':'▼ ') + Math.abs(tpct).toFixed(1) + '%</td></tr>';
+                tbody.innerHTML = rows;
+            }
+
+            function renderClientsYoYTable(data) {
+                var tbody = document.getElementById('tbody-cyoy-clients');
+                if (!tbody) return;
+                var abcColors = { A1:'#059669',A2:'#059669',A3:'#0ea5e9',B1:'#0ea5e9',B2:'#8b5cf6',C1:'#f59e0b',C2:'#94a3b8','Ниже C2':'#e2e8f0','Новый':'#10b981' };
+                tbody.innerHTML = data.map((c, i) => {
+                    var colC = abcColors[c.abc_curr] || '#94a3b8';
+                    var colP = abcColors[c.abc_prev] || '#94a3b8';
+                    var status = c.is_new ? '🆕 Новый' : c.is_lost ? '😶 Потерян' : (c.delta_pct||0)>0 ? '📈 Вырос' : '📉 Просел';
+                    var statusColor = c.is_new ? '#10b981' : c.is_lost ? '#94a3b8' : (c.delta_pct||0)>0 ? '#059669' : '#dc2626';
+                    var dPct = c.delta_pct != null ? ((c.delta_pct>=0?'+':'') + c.delta_pct.toFixed(1) + '%') : '—';
+                    return '<tr>' +
+                        '<td style="color:#94a3b8;font-size:12px;">' + (i+1) + '</td>' +
+                        '<td style="font-weight:600;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + (c.client_name||'') + '">' + (c.client_name||'—') + '</td>' +
+                        '<td class="center"><span style="background:' + colC + '20;color:' + colC + ';font-weight:700;padding:2px 8px;border-radius:6px;font-size:12px;">' + (c.abc_curr||'—') + '</span></td>' +
+                        '<td class="center"><span style="background:' + colP + '20;color:' + colP + ';font-weight:700;padding:2px 8px;border-radius:6px;font-size:12px;">' + (c.abc_prev||'—') + '</span></td>' +
+                        '<td class="right" style="font-weight:600;">' + fmtM(c.revenue_curr) + '</td>' +
+                        '<td class="right" style="color:#94a3b8;">' + fmtM(c.revenue_prev) + '</td>' +
+                        '<td class="right" style="font-weight:700;color:' + ((c.delta_pct||0)>=0?'#059669':'#dc2626') + ';">' + dPct + '</td>' +
+                        '<td class="center">' + (c.invoices_curr||0) + '</td>' +
+                        '<td class="center" style="color:#94a3b8;">' + (c.invoices_prev||0) + '</td>' +
+                        '<td class="center"><span style="color:' + statusColor + ';font-weight:600;font-size:12px;">' + status + '</span></td>' +
+                        '</tr>';
+                }).join('');
+                var lbl = document.getElementById('cyoy-count-label');
+                if (lbl) lbl.textContent = 'Показано ' + data.length + ' клиентов';
+            }
+
+            function filterClientsYoYTable() {
+                var search = (document.getElementById('cyoy-search').value || '').toLowerCase();
+                var filter = document.getElementById('cyoy-filter').value;
+                var filtered = clientsYoYData.filter(c => {
+                    var matchName = !search || (c.client_name||'').toLowerCase().includes(search);
+                    var matchFilter = true;
+                    if (filter === 'new') matchFilter = c.is_new;
+                    else if (filter === 'lost') matchFilter = c.is_lost;
+                    else if (filter === 'grew') matchFilter = !c.is_new && !c.is_lost && (c.delta_pct||0) > 0;
+                    else if (filter === 'fell') matchFilter = !c.is_new && !c.is_lost && (c.delta_pct||0) <= 0;
+                    return matchName && matchFilter;
+                });
+                renderClientsYoYTable(filtered);
             }
 
             // ====== СТАРТ ======
