@@ -1064,6 +1064,7 @@
             <select id="param-year">
                 <option value="2026" selected>2026</option>
                 <option value="2025">2025</option>
+                <option value="2024">2024</option>
             </select>
         </div>
 
@@ -1383,14 +1384,22 @@
                 <div class="card-header">
                     <h2 class="card-title">📋 Детальный список повторных клиентов</h2>
                     <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-                        <input type="text" id="rec-search" placeholder="🔍 Поиск по названию..." style="padding:6px 12px;border-radius:8px;border:1px solid var(--border);font-size:13px;width:200px;" oninput="filterRecurrentTable()">
-                        <select id="rec-filter-group" onchange="filterRecurrentTable()" style="padding:6px 10px;border-radius:8px;border:1px solid var(--border);font-size:13px;">
+                        <input type="text" id="rec-search" placeholder="🔍 Поиск по названию..."
+                            style="padding:6px 12px;border-radius:8px;border:1px solid var(--border);font-size:13px;width:200px;"
+                            oninput="filterRecurrentTable()">
+                        <select id="rec-filter-group" onchange="filterRecurrentTable()"
+                            style="padding:6px 10px;border-radius:8px;border:1px solid var(--border);font-size:13px;">
                             <option value="">Все ABC-группы</option>
-                            <option value="A1">A1</option><option value="A2">A2</option><option value="A3">A3</option>
-                            <option value="B1">B1</option><option value="B2">B2</option>
-                            <option value="C1">C1</option><option value="C2">C2</option>
+                            <option value="A1">A1</option>
+                            <option value="A2">A2</option>
+                            <option value="A3">A3</option>
+                            <option value="B1">B1</option>
+                            <option value="B2">B2</option>
+                            <option value="C1">C1</option>
+                            <option value="C2">C2</option>
                         </select>
-                        <select id="rec-filter-pattern" onchange="filterRecurrentTable()" style="padding:6px 10px;border-radius:8px;border:1px solid var(--border);font-size:13px;">
+                        <select id="rec-filter-pattern" onchange="filterRecurrentTable()"
+                            style="padding:6px 10px;border-radius:8px;border:1px solid var(--border);font-size:13px;">
                             <option value="">Все паттерны</option>
                             <option value="g1">Ближе к разовым</option>
                             <option value="g2">Повторные (Центр)</option>
@@ -1413,7 +1422,9 @@
                             </tr>
                         </thead>
                         <tbody id="tbody-recurrent">
-                            <tr><td colspan="8" style="text-align:center;padding:40px;">⏳ Загрузка...</td></tr>
+                            <tr>
+                                <td colspan="8" style="text-align:center;padding:40px;">⏳ Загрузка...</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -1454,7 +1465,8 @@
             <!-- ABC-статистика по группам -->
             <div class="chart-card" style="margin-bottom:20px;">
                 <div class="card-header">
-                    <h2 class="card-title">📊 ABC-группы: сравнение <span id="cyoy-title-year">2026</span> / <span id="cyoy-title-year-prev">2025</span></h2>
+                    <h2 class="card-title">📊 ABC-группы: сравнение <span id="cyoy-title-year">2026</span> / <span
+                            id="cyoy-title-year-prev">2025</span></h2>
                 </div>
                 <div style="overflow-x:auto;">
                     <table class="pivot-formatted-table" id="table-cyoy-groups">
@@ -1471,7 +1483,9 @@
                             </tr>
                         </thead>
                         <tbody id="tbody-cyoy-groups">
-                            <tr><td colspan="8" style="text-align:center;padding:30px;">⏳ Загрузка...</td></tr>
+                            <tr>
+                                <td colspan="8" style="text-align:center;padding:30px;">⏳ Загрузка...</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -1482,8 +1496,11 @@
                 <div class="card-header">
                     <h2 class="card-title">👥 Детальная таблица клиентов (Топ-500)</h2>
                     <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-                        <input type="text" id="cyoy-search" placeholder="🔍 Поиск клиента..." style="padding:6px 12px;border-radius:8px;border:1px solid var(--border);font-size:13px;width:200px;" oninput="filterClientsYoYTable()">
-                        <select id="cyoy-filter" onchange="filterClientsYoYTable()" style="padding:6px 10px;border-radius:8px;border:1px solid var(--border);font-size:13px;">
+                        <input type="text" id="cyoy-search" placeholder="🔍 Поиск клиента..."
+                            style="padding:6px 12px;border-radius:8px;border:1px solid var(--border);font-size:13px;width:200px;"
+                            oninput="filterClientsYoYTable()">
+                        <select id="cyoy-filter" onchange="filterClientsYoYTable()"
+                            style="padding:6px 10px;border-radius:8px;border:1px solid var(--border);font-size:13px;">
                             <option value="">Все</option>
                             <option value="new">🆕 Новые</option>
                             <option value="grew">📈 Выросли</option>
@@ -1509,7 +1526,9 @@
                             </tr>
                         </thead>
                         <tbody id="tbody-cyoy-clients">
-                            <tr><td colspan="10" style="text-align:center;padding:40px;">⏳ Загрузка...</td></tr>
+                            <tr>
+                                <td colspan="10" style="text-align:center;padding:40px;">⏳ Загрузка...</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -2370,7 +2389,7 @@
                     renderRecurrentTable(recurrentData);
                     renderRecurrentKPI(recurrentData);
                     renderRecurrentPatternCards(recurrentData);
-                } catch(e) {
+                } catch (e) {
                     console.error('loadRecurrentAnalysis error:', e);
                     if (tbody) tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:30px;">⚠️ Ошибка загрузки</td></tr>';
                 }
@@ -2412,15 +2431,15 @@
             function renderRecurrentTable(data) {
                 var tbody = document.getElementById('tbody-recurrent');
                 if (!tbody) return;
-                var abcColors = { A1:'#059669',A2:'#059669',A3:'#0ea5e9',B1:'#0ea5e9',B2:'#8b5cf6',C1:'#f59e0b',C2:'#94a3b8' };
-                var patColors = { g1:'#f59e0b', g2:'#0ea5e9', g3:'#10b981' };
+                var abcColors = { A1: '#059669', A2: '#059669', A3: '#0ea5e9', B1: '#0ea5e9', B2: '#8b5cf6', C1: '#f59e0b', C2: '#94a3b8' };
+                var patColors = { g1: '#f59e0b', g2: '#0ea5e9', g3: '#10b981' };
                 tbody.innerHTML = data.map((c, i) => {
                     var abc = c.abc_group || 'C2';
                     var color = abcColors[abc] || '#94a3b8';
                     var pcol = patColors[c.rec_class] || '#94a3b8';
                     return '<tr>' +
-                        '<td style="color:#94a3b8;font-size:12px;">' + (i+1) + '</td>' +
-                        '<td style="font-weight:600;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + (c.client_name||'') + '">' + (c.client_name || '—') + '</td>' +
+                        '<td style="color:#94a3b8;font-size:12px;">' + (i + 1) + '</td>' +
+                        '<td style="font-weight:600;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + (c.client_name || '') + '">' + (c.client_name || '—') + '</td>' +
                         '<td class="center"><span style="background:' + color + '20;color:' + color + ';font-weight:700;padding:2px 8px;border-radius:6px;font-size:12px;">' + abc + '</span></td>' +
                         '<td class="right" style="font-weight:600;">' + fmtM(c.goods_revenue) + '</td>' +
                         '<td class="center">' + (c.invoice_count || 0) + '</td>' +
@@ -2456,8 +2475,8 @@
                 var yearPrev = year - 1;
 
                 // Обновляем заголовки
-                ['cyoy-title-year','cyoy-th-curr','cyoy-th-rev-curr','cyoy-col-curr','cyoy-col-rev-curr','cyoy-col-inv-curr'].forEach(id => { var e = document.getElementById(id); if (e) e.textContent = year; });
-                ['cyoy-title-year-prev','cyoy-th-prev','cyoy-th-rev-prev','cyoy-col-prev','cyoy-col-rev-prev','cyoy-col-inv-prev'].forEach(id => { var e = document.getElementById(id); if (e) e.textContent = yearPrev; });
+                ['cyoy-title-year', 'cyoy-th-curr', 'cyoy-th-rev-curr', 'cyoy-col-curr', 'cyoy-col-rev-curr', 'cyoy-col-inv-curr'].forEach(id => { var e = document.getElementById(id); if (e) e.textContent = year; });
+                ['cyoy-title-year-prev', 'cyoy-th-prev', 'cyoy-th-rev-prev', 'cyoy-col-prev', 'cyoy-col-rev-prev', 'cyoy-col-inv-prev'].forEach(id => { var e = document.getElementById(id); if (e) e.textContent = yearPrev; });
 
                 var tbody = document.getElementById('tbody-cyoy-clients');
                 if (tbody) tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:30px;">⏳ Загрузка данных...</td></tr>';
@@ -2475,7 +2494,7 @@
                     renderClientsYoYKPI(json.data, year);
                     renderClientsYoYGroups(json.stats_curr, json.stats_prev);
                     renderClientsYoYTable(json.data);
-                } catch(e) {
+                } catch (e) {
                     console.error('loadClientsYoY error:', e);
                     if (tbody) tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:30px;">⚠️ Ошибка загрузки</td></tr>';
                 }
@@ -2486,7 +2505,7 @@
                 var lost = data.filter(c => c.is_lost).length;
                 var grew = data.filter(c => !c.is_new && !c.is_lost && (c.delta_pct || 0) > 0).length;
                 var fell = data.filter(c => !c.is_new && !c.is_lost && (c.delta_pct || 0) <= 0).length;
-                var set = function(id, val) { var e = document.getElementById(id); if (e) e.textContent = val; };
+                var set = function (id, val) { var e = document.getElementById(id); if (e) e.textContent = val; };
                 set('cyoy-kpi-new', fmtN(newC)); set('cyoy-kpi-grew', fmtN(grew));
                 set('cyoy-kpi-fell', fmtN(fell)); set('cyoy-kpi-lost', fmtN(lost));
             }
@@ -2494,16 +2513,16 @@
             function renderClientsYoYGroups(statsCurr, statsPrev) {
                 var tbody = document.getElementById('tbody-cyoy-groups');
                 if (!tbody) return;
-                var allGroups = Array.from(new Set([...(statsCurr||[]).map(g=>g.group), ...(statsPrev||[]).map(g=>g.group)]));
-                var mapCurr = {}; (statsCurr||[]).forEach(g => mapCurr[g.group] = g);
-                var mapPrev = {}; (statsPrev||[]).forEach(g => mapPrev[g.group] = g);
-                var abcOrder = ['A1','A2','A3','B1','B2','C1','C2','Ниже C2','Новый'];
-                allGroups.sort((a,b) => (abcOrder.indexOf(a)+1 || 99) - (abcOrder.indexOf(b)+1 || 99));
+                var allGroups = Array.from(new Set([...(statsCurr || []).map(g => g.group), ...(statsPrev || []).map(g => g.group)]));
+                var mapCurr = {}; (statsCurr || []).forEach(g => mapCurr[g.group] = g);
+                var mapPrev = {}; (statsPrev || []).forEach(g => mapPrev[g.group] = g);
+                var abcOrder = ['A1', 'A2', 'A3', 'B1', 'B2', 'C1', 'C2', 'Ниже C2', 'Новый'];
+                allGroups.sort((a, b) => (abcOrder.indexOf(a) + 1 || 99) - (abcOrder.indexOf(b) + 1 || 99));
 
-                var totalC1=0, totalC2=0, totalR1=0, totalR2=0;
+                var totalC1 = 0, totalC2 = 0, totalR1 = 0, totalR2 = 0;
                 var rows = allGroups.map(g => {
-                    var c = mapCurr[g] || {count:0, revenue:0};
-                    var p = mapPrev[g] || {count:0, revenue:0};
+                    var c = mapCurr[g] || { count: 0, revenue: 0 };
+                    var p = mapPrev[g] || { count: 0, revenue: 0 };
                     var dc = c.count - p.count, dr = c.revenue - p.revenue;
                     var pct = p.revenue > 0 ? (dr / p.revenue * 100) : 0;
                     totalC1 += c.count; totalC2 += p.count; totalR1 += c.revenue; totalR2 += p.revenue;
@@ -2512,43 +2531,43 @@
                         '<td style="font-weight:700;color:' + cls + ';">' + g + '</td>' +
                         '<td class="right">' + fmtN(c.count) + '</td>' +
                         '<td class="right" style="color:#94a3b8;">' + fmtN(p.count) + '</td>' +
-                        '<td class="right" style="color:' + (dc>=0?'#059669':'#dc2626') + ';">' + (dc>=0?'+':'') + fmtN(dc) + '</td>' +
+                        '<td class="right" style="color:' + (dc >= 0 ? '#059669' : '#dc2626') + ';">' + (dc >= 0 ? '+' : '') + fmtN(dc) + '</td>' +
                         '<td class="right">' + fmtM(c.revenue) + '</td>' +
                         '<td class="right" style="color:#94a3b8;">' + fmtM(p.revenue) + '</td>' +
-                        '<td class="right" style="color:' + (dr>=0?'#059669':'#dc2626') + ';">' + (dr>=0?'+':'') + fmtM(dr) + '</td>' +
-                        '<td class="right" style="font-weight:700;color:' + (pct>=0?'#059669':'#dc2626') + ';">' + (pct>=0?'▲ +':'▼ ') + Math.abs(pct).toFixed(1) + '%</td>' +
+                        '<td class="right" style="color:' + (dr >= 0 ? '#059669' : '#dc2626') + ';">' + (dr >= 0 ? '+' : '') + fmtM(dr) + '</td>' +
+                        '<td class="right" style="font-weight:700;color:' + (pct >= 0 ? '#059669' : '#dc2626') + ';">' + (pct >= 0 ? '▲ +' : '▼ ') + Math.abs(pct).toFixed(1) + '%</td>' +
                         '</tr>';
                 }).join('');
-                var tdc = totalC1-totalC2, tdr = totalR1-totalR2, tpct = totalR2>0?(tdr/totalR2*100):0;
+                var tdc = totalC1 - totalC2, tdr = totalR1 - totalR2, tpct = totalR2 > 0 ? (tdr / totalR2 * 100) : 0;
                 rows += '<tr style="font-weight:700;background:#f8fafc;border-top:2px solid var(--border);">' +
                     '<td>Итого</td><td class="right">' + fmtN(totalC1) + '</td><td class="right">' + fmtN(totalC2) + '</td>' +
-                    '<td class="right" style="color:' + (tdc>=0?'#059669':'#dc2626') + ';">' + (tdc>=0?'+':'') + fmtN(tdc) + '</td>' +
+                    '<td class="right" style="color:' + (tdc >= 0 ? '#059669' : '#dc2626') + ';">' + (tdc >= 0 ? '+' : '') + fmtN(tdc) + '</td>' +
                     '<td class="right">' + fmtM(totalR1) + '</td><td class="right">' + fmtM(totalR2) + '</td>' +
-                    '<td class="right" style="color:' + (tdr>=0?'#059669':'#dc2626') + ';">' + (tdr>=0?'+':'') + fmtM(tdr) + '</td>' +
-                    '<td class="right" style="color:' + (tpct>=0?'#059669':'#dc2626') + ';">' + (tpct>=0?'▲ +':'▼ ') + Math.abs(tpct).toFixed(1) + '%</td></tr>';
+                    '<td class="right" style="color:' + (tdr >= 0 ? '#059669' : '#dc2626') + ';">' + (tdr >= 0 ? '+' : '') + fmtM(tdr) + '</td>' +
+                    '<td class="right" style="color:' + (tpct >= 0 ? '#059669' : '#dc2626') + ';">' + (tpct >= 0 ? '▲ +' : '▼ ') + Math.abs(tpct).toFixed(1) + '%</td></tr>';
                 tbody.innerHTML = rows;
             }
 
             function renderClientsYoYTable(data) {
                 var tbody = document.getElementById('tbody-cyoy-clients');
                 if (!tbody) return;
-                var abcColors = { A1:'#059669',A2:'#059669',A3:'#0ea5e9',B1:'#0ea5e9',B2:'#8b5cf6',C1:'#f59e0b',C2:'#94a3b8','Ниже C2':'#e2e8f0','Новый':'#10b981' };
+                var abcColors = { A1: '#059669', A2: '#059669', A3: '#0ea5e9', B1: '#0ea5e9', B2: '#8b5cf6', C1: '#f59e0b', C2: '#94a3b8', 'Ниже C2': '#e2e8f0', 'Новый': '#10b981' };
                 tbody.innerHTML = data.map((c, i) => {
                     var colC = abcColors[c.abc_curr] || '#94a3b8';
                     var colP = abcColors[c.abc_prev] || '#94a3b8';
-                    var status = c.is_new ? '🆕 Новый' : c.is_lost ? '😶 Потерян' : (c.delta_pct||0)>0 ? '📈 Вырос' : '📉 Просел';
-                    var statusColor = c.is_new ? '#10b981' : c.is_lost ? '#94a3b8' : (c.delta_pct||0)>0 ? '#059669' : '#dc2626';
-                    var dPct = c.delta_pct != null ? ((c.delta_pct>=0?'+':'') + c.delta_pct.toFixed(1) + '%') : '—';
+                    var status = c.is_new ? '🆕 Новый' : c.is_lost ? '😶 Потерян' : (c.delta_pct || 0) > 0 ? '📈 Вырос' : '📉 Просел';
+                    var statusColor = c.is_new ? '#10b981' : c.is_lost ? '#94a3b8' : (c.delta_pct || 0) > 0 ? '#059669' : '#dc2626';
+                    var dPct = c.delta_pct != null ? ((c.delta_pct >= 0 ? '+' : '') + c.delta_pct.toFixed(1) + '%') : '—';
                     return '<tr>' +
-                        '<td style="color:#94a3b8;font-size:12px;">' + (i+1) + '</td>' +
-                        '<td style="font-weight:600;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + (c.client_name||'') + '">' + (c.client_name||'—') + '</td>' +
-                        '<td class="center"><span style="background:' + colC + '20;color:' + colC + ';font-weight:700;padding:2px 8px;border-radius:6px;font-size:12px;">' + (c.abc_curr||'—') + '</span></td>' +
-                        '<td class="center"><span style="background:' + colP + '20;color:' + colP + ';font-weight:700;padding:2px 8px;border-radius:6px;font-size:12px;">' + (c.abc_prev||'—') + '</span></td>' +
+                        '<td style="color:#94a3b8;font-size:12px;">' + (i + 1) + '</td>' +
+                        '<td style="font-weight:600;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + (c.client_name || '') + '">' + (c.client_name || '—') + '</td>' +
+                        '<td class="center"><span style="background:' + colC + '20;color:' + colC + ';font-weight:700;padding:2px 8px;border-radius:6px;font-size:12px;">' + (c.abc_curr || '—') + '</span></td>' +
+                        '<td class="center"><span style="background:' + colP + '20;color:' + colP + ';font-weight:700;padding:2px 8px;border-radius:6px;font-size:12px;">' + (c.abc_prev || '—') + '</span></td>' +
                         '<td class="right" style="font-weight:600;">' + fmtM(c.revenue_curr) + '</td>' +
                         '<td class="right" style="color:#94a3b8;">' + fmtM(c.revenue_prev) + '</td>' +
-                        '<td class="right" style="font-weight:700;color:' + ((c.delta_pct||0)>=0?'#059669':'#dc2626') + ';">' + dPct + '</td>' +
-                        '<td class="center">' + (c.invoices_curr||0) + '</td>' +
-                        '<td class="center" style="color:#94a3b8;">' + (c.invoices_prev||0) + '</td>' +
+                        '<td class="right" style="font-weight:700;color:' + ((c.delta_pct || 0) >= 0 ? '#059669' : '#dc2626') + ';">' + dPct + '</td>' +
+                        '<td class="center">' + (c.invoices_curr || 0) + '</td>' +
+                        '<td class="center" style="color:#94a3b8;">' + (c.invoices_prev || 0) + '</td>' +
                         '<td class="center"><span style="color:' + statusColor + ';font-weight:600;font-size:12px;">' + status + '</span></td>' +
                         '</tr>';
                 }).join('');
@@ -2560,12 +2579,12 @@
                 var search = (document.getElementById('cyoy-search').value || '').toLowerCase();
                 var filter = document.getElementById('cyoy-filter').value;
                 var filtered = clientsYoYData.filter(c => {
-                    var matchName = !search || (c.client_name||'').toLowerCase().includes(search);
+                    var matchName = !search || (c.client_name || '').toLowerCase().includes(search);
                     var matchFilter = true;
                     if (filter === 'new') matchFilter = c.is_new;
                     else if (filter === 'lost') matchFilter = c.is_lost;
-                    else if (filter === 'grew') matchFilter = !c.is_new && !c.is_lost && (c.delta_pct||0) > 0;
-                    else if (filter === 'fell') matchFilter = !c.is_new && !c.is_lost && (c.delta_pct||0) <= 0;
+                    else if (filter === 'grew') matchFilter = !c.is_new && !c.is_lost && (c.delta_pct || 0) > 0;
+                    else if (filter === 'fell') matchFilter = !c.is_new && !c.is_lost && (c.delta_pct || 0) <= 0;
                     return matchName && matchFilter;
                 });
                 renderClientsYoYTable(filtered);
