@@ -1182,16 +1182,14 @@ def yearly_clients_count(
     token: str = Query(None),
     year: int = 2026
 ):
-    """Количество уникальных активных клиентов за год"""
+    """Количество активных клиентов за год (из client_year_active)"""
     verify_token(token)
     db = get_db()
     try:
-        result = db.execute(text("""
-            SELECT COUNT(DISTINCT d.client_code) AS active_clients
-            FROM documents d
-            JOIN clients c ON d.client_code = c.code AND c.is_active_current = TRUE
-            WHERE EXTRACT(YEAR FROM d.invoice_date) = :year
-        """), {"year": year}).scalar()
+        result = db.execute(
+            text("SELECT COUNT(*) FROM client_year_active WHERE sales_year = :year AND is_active = TRUE"),
+            {"year": year}
+        ).scalar()
         
         return {"status": "ok", "year": year, "active_clients": result}
     except Exception as e:
@@ -1355,7 +1353,8 @@ def recurrent_clients(
                     (MAX(d.invoice_date) - MIN(d.invoice_date)) AS days_between
                 FROM documents d
                 JOIN sales_lines sl ON d.id = sl.document_id
-                JOIN clients c ON d.client_code = c.code AND c.is_active_current = TRUE
+                JOIN client_year_active cya ON d.client_code = cya.client_code AND cya.sales_year = :year AND cya.is_active = TRUE
+                JOIN clients c ON d.client_code = c.code
                 LEFT JOIN products pr ON sl.product_code = pr.code
                 WHERE EXTRACT(YEAR FROM d.invoice_date) = :year
                 GROUP BY d.client_code, c.name, c.ipn, c.okpo_code
