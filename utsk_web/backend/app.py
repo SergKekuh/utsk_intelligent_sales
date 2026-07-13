@@ -402,7 +402,8 @@ def monthly_revenue(token: str = Query(None), year: int = 2026):
                 FROM documents d
                 JOIN sales_lines sl ON sl.document_id = d.id
                 LEFT JOIN products pr ON sl.product_code = pr.code
-                JOIN clients c ON d.client_code = c.code AND c.is_active_current = TRUE
+                JOIN client_year_active cya ON d.client_code = cya.client_code AND cya.sales_year = :year AND cya.is_active = TRUE
+                JOIN clients c ON d.client_code = c.code
                 WHERE EXTRACT(YEAR FROM d.invoice_date) = :year
                 GROUP BY year, month, month_name
                 ORDER BY month
@@ -1441,7 +1442,11 @@ def clients_yoy(
         year_prev = year - 1
 
         result = db.execute(text("""
-            WITH curr AS (
+                        WITH max_month AS (
+                SELECT COALESCE(MAX(EXTRACT(MONTH FROM invoice_date)), 12) AS max_m
+                FROM documents WHERE EXTRACT(YEAR FROM invoice_date) = :year
+            ),
+            curr AS (
                 SELECT
                     d.client_code,
                     COALESCE(SUM(CASE WHEN COALESCE(pr.is_service, FALSE) = FALSE THEN sl.amount ELSE 0 END), 0) AS revenue,
@@ -1449,7 +1454,7 @@ def clients_yoy(
                 FROM documents d
                 JOIN sales_lines sl ON d.id = sl.document_id
                 LEFT JOIN products pr ON sl.product_code = pr.code
-                JOIN clients c ON d.client_code = c.code AND c.is_active_current = TRUE
+                JOIN client_year_active cya ON d.client_code = cya.client_code AND cya.sales_year = :year AND cya.is_active = TRUE
                 WHERE EXTRACT(YEAR FROM d.invoice_date) = :year
                 GROUP BY d.client_code
             ),
@@ -1461,8 +1466,10 @@ def clients_yoy(
                 FROM documents d
                 JOIN sales_lines sl ON d.id = sl.document_id
                 LEFT JOIN products pr ON sl.product_code = pr.code
-                JOIN clients c ON d.client_code = c.code AND c.is_active_current = TRUE
+                JOIN client_year_active cya ON d.client_code = cya.client_code AND cya.sales_year = :year_prev AND cya.is_active = TRUE
+                CROSS JOIN max_month m
                 WHERE EXTRACT(YEAR FROM d.invoice_date) = :year_prev
+                  AND EXTRACT(MONTH FROM d.invoice_date) <= m.max_m
                 GROUP BY d.client_code
             ),
             abc_curr AS (
@@ -1474,7 +1481,7 @@ def clients_yoy(
                         WHEN revenue >= 1000000 * :mult THEN 'B1'
                         WHEN revenue >= 500000  * :mult THEN 'B2'
                         WHEN revenue >= 150000  * :mult THEN 'C1'
-                        WHEN revenue >= 1000    * :mult THEN 'C2'
+                        WHEN revenue >= 1000            THEN 'C2'
                         ELSE 'Ниже C2'
                     END AS abc_group,
                     invoice_count
@@ -1489,7 +1496,7 @@ def clients_yoy(
                         WHEN revenue >= 1000000 * :mult THEN 'B1'
                         WHEN revenue >= 500000  * :mult THEN 'B2'
                         WHEN revenue >= 150000  * :mult THEN 'C1'
-                        WHEN revenue >= 1000    * :mult THEN 'C2'
+                        WHEN revenue >= 1000            THEN 'C2'
                         ELSE 'Ниже C2'
                     END AS abc_group,
                     invoice_count
@@ -1506,9 +1513,8 @@ def clients_yoy(
                 COALESCE(ap.abc_group, 'Новый') AS abc_prev
             FROM abc_curr ac
             FULL OUTER JOIN abc_prev ap ON ac.client_code = ap.client_code
-            JOIN clients c ON c.code = COALESCE(ac.client_code, ap.client_code) AND c.is_active_current = TRUE
-            ORDER BY COALESCE(ac.revenue, 0) DESC
-            LIMIT 500
+            JOIN clients c ON c.code = COALESCE(ac.client_code, ap.client_code)
+            ORDER BY COALESCE(ac.revenue, 0) DESC            
         """), {"year": year, "year_prev": year_prev, "mult": multiplier})
 
         data = []
@@ -1532,26 +1538,39 @@ def clients_yoy(
             })
 
         # Агрегированная статистика по группам
-        groups_order = ['A1', 'A2', 'A3', 'B1', 'B2', 'C1', 'C2', 'Ниже C2', 'Новый']
+                # Агрегированная статистика по группам (только основные ABC-группы)
+        groups_order = ['A1', 'A2', 'A3', 'B1', 'B2', 'C1', 'C2']
         stats_curr = {}
         stats_prev = {}
         for d in data:
             g = d['abc_curr']
-            if g not in stats_curr:
-                stats_curr[g] = {'group': g, 'count': 0, 'revenue': 0}
-            stats_curr[g]['count'] += 1
-            stats_curr[g]['revenue'] += d['revenue_curr']
+            if g in groups_order:  # 🔥 Только основные группы
+                if g not in stats_curr:
+                    stats_curr[g] = {'group': g, 'count': 0, 'revenue': 0}
+                stats_curr[g]['count'] += 1
+                stats_curr[g]['revenue'] += d['revenue_curr']
 
             g2 = d['abc_prev']
-            if g2 not in stats_prev:
-                stats_prev[g2] = {'group': g2, 'count': 0, 'revenue': 0}
-            stats_prev[g2]['count'] += 1
-            stats_prev[g2]['revenue'] += d['revenue_prev']
+            if g2 in groups_order:  # 🔥 Только основные группы
+                if g2 not in stats_prev:
+                    stats_prev[g2] = {'group': g2, 'count': 0, 'revenue': 0}
+                stats_prev[g2]['count'] += 1
+                stats_prev[g2]['revenue'] += d['revenue_prev']
+
+                # Определяем максимальный месяц
+        max_month_curr = db.execute(
+            text("SELECT COALESCE(MAX(EXTRACT(MONTH FROM invoice_date)), 12) FROM documents WHERE EXTRACT(YEAR FROM invoice_date) = :year"),
+            {"year": year}
+        ).scalar()
+        
+        month_names = ['','Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь']
 
         return {
             "status": "ok",
             "year": year,
             "year_prev": year_prev,
+            "max_month": int(max_month_curr),
+            "note": f"Сравнение за {int(max_month_curr)} мес. ({month_names[int(max_month_curr)]})",
             "data": data,
             "count": len(data),
             "stats_curr": [stats_curr[g] for g in groups_order if g in stats_curr],
