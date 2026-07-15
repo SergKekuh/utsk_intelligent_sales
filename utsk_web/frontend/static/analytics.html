@@ -167,11 +167,11 @@
         .pivot-formatted-table thead th:first-child,
         .pivot-formatted-table tbody td:first-child,
         .pivot-formatted-table .col-classes {
-            width: 36px !important;
-            min-width: 36px !important;
-            max-width: 36px !important;
-            padding: 4px 2px !important;
-            font-size: 10px !important;
+            width: 48px !important;
+            min-width: 48px !important;
+            max-width: 48px !important;
+            padding: 6px 2px !important;
+            font-size: 11px !important;
             letter-spacing: 0px !important;
             box-sizing: border-box !important;
             text-align: center !important;
@@ -180,7 +180,7 @@
 
         .pivot-formatted-table tbody td.col-classes {
             text-align: center !important;
-            padding: 4px 2px !important;
+            padding: 6px 2px !important;
             font-weight: 800 !important;
         }
 
@@ -714,7 +714,7 @@
             margin-bottom: 24px;
             border: 1px solid var(--border);
             border-radius: 12px;
-            overflow: hidden;
+            overflow: visible;
             box-shadow: 0 4px 15px rgba(15, 23, 42, 0.02);
         }
 
@@ -2141,7 +2141,7 @@
                         var totalCompAll = allComp['out_total'] || 1;
 
                         // Стиль для вертикальной ячейки
-                        var cellStyle = 'vertical-align:middle;text-align:center;writing-mode:vertical-rl;text-orientation:mixed;font-weight:800;font-size:10px;color:#1e293b;background:#f8fafc;border-right:2px solid var(--border);padding:4px 1px;width:36px;min-width:36px;max-width:36px;transform:rotate(180deg);';
+                        var cellStyle = 'vertical-align:middle;text-align:center;font-weight:800;font-size:11px;color:#1e293b;background:#f8fafc;border-right:2px solid var(--border);padding:6px 2px;width:48px;min-width:48px;max-width:48px;';
 
                         // ====== ТАБЛИЦА ======
                         var html = '<table class="pivot-formatted-table" style="margin-bottom:0;">';
@@ -2154,9 +2154,13 @@
                         html += '<th>Описание</th></tr></thead><tbody>';
 
                         // ====== ФУНКЦИЯ ДОБАВЛЕНИЯ СЕКЦИИ ======
-                        function addSection(title, dataComp, dataInv, dataSales, dataAvg, dataPct, cols) {
+                        function addSection(emoji, label, dataComp, dataInv, dataSales, dataAvg, dataPct, cols) {
                             html += '<tr class="row-companies">';
-                            html += '<td rowspan="5" class="col-classes" style="' + cellStyle + '">' + title + '</td>';
+                            html += '<td rowspan="5" class="col-classes" style="' + cellStyle + '">' +
+                                '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;height:100%;min-height:110px;">' +
+                                '<span style="font-size:18px;writing-mode:horizontal-tb;line-height:1;">' + emoji + '</span>' +
+                                '<span style="writing-mode:vertical-rl;transform:rotate(180deg);font-size:10px;font-weight:800;white-space:nowrap;">' + label + '</span>' +
+                                '</div></td>';
                             html += '<td>Кол-во компаний</td>';
                             colsAll.forEach(function (c) {
                                 var val = (cols.indexOf(c) >= 0) ? (dataComp[c] || 0) : null;
@@ -2195,9 +2199,9 @@
                             html += '<td style="font-size:11px;color:#64748b;">Процентное отношение по продажам</td></tr>';
                         }
 
-                        addSection('📥 Случайные C2', c2Comp, c2Inv, c2Sales, c2Avg, c2Pct, colsAll);
-                        addSection('📈 Основные ABC', abcComp, abcInv, abcSales, abcAvg, abcPct, colsAll);
-                        addSection('📊 Все ABC', allComp, allInv, allSales, allAvg, allPct, colsAll);
+                        addSection('📥', 'Случайные C2', c2Comp, c2Inv, c2Sales, c2Avg, c2Pct, colsAll);
+                        addSection('📈', 'Основные ABC', abcComp, abcInv, abcSales, abcAvg, abcPct, colsAll);
+                        addSection('📊', 'Все ABC', allComp, allInv, allSales, allAvg, allPct, colsAll);
 
                         // 🔥 ОБНОВЛЯЕМ KPI-КАРТОЧКИ
                         var kpiTotalGoods = allSales['out_total'] || 0;
@@ -2215,7 +2219,11 @@
                         var pctImpSales = gts > 0 ? (impTotalSales / gts * 100).toFixed(2) : '0';
 
                         html += '<tr class="row-companies">';
-                        html += '<td rowspan="5" class="col-classes" style="' + cellStyle + '">⭐ Важные — ABC</td>';
+                        html += '<td rowspan="5" class="col-classes" style="' + cellStyle + '">' +
+                            '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;height:100%;min-height:110px;">' +
+                            '<span style="font-size:18px;writing-mode:horizontal-tb;line-height:1;">⭐</span>' +
+                            '<span style="writing-mode:vertical-rl;transform:rotate(180deg);font-size:10px;font-weight:800;white-space:nowrap;">Важные ABC</span>' +
+                            '</div></td>';
                         html += '<td>Кол-во компаний</td>';
                         html += '<td>' + fmtN(Math.round(impComp['out_1'] || 0)) + '</td>';
                         html += '<td>' + fmtN(Math.round(impComp['out_2_3'] || 0)) + '</td>';
