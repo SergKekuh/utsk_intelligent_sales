@@ -4,27 +4,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UTSK Intelligent Sales — Bento UI</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>UTSK Intelligent Sales — Аналитика</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
+        rel="stylesheet">
     <style>
         :root {
-            --block-steel: #f1f5f9;
-            --block-blue: #e0f2fe;
-            --block-green: #d1fae5;
-            --block-purple: #f3e8ff;
-            --text-steel: #334155;
-            --text-blue: #0369a1;
-            --text-green: #047857;
-            --text-purple: #6b21a8;
-            --bg-canvas: #dbeafe;
-            --bg-app: #ffffff;
-            --bg-sidebar: #f8fafc;
-            --text-main: #1e293b;
+            --bg-app: #f8fafc;
+            --bg-surface: #ffffff;
+            --bg-sidebar: #ffffff;
+            --text-main: #0f172a;
             --text-muted: #64748b;
-            --sidebar-width: 250px;
-            --header-height: 52px;
-            --radius-app: 20px;
-            --radius-block: 24px;
+            --text-accent: #3b82f6;
+            --border: #e2e8f0;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+            --radius-sm: 12px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
+            --sidebar-width: 240px;
+            --header-height: 64px;
         }
 
         * {
@@ -35,157 +35,143 @@
         }
 
         body {
-            background: linear-gradient(135deg, #e2e8f0 0%, #dbeafe 100%);
+            background: #f1f5f9;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            padding: 20px;
+            padding: 24px;
             color: var(--text-main);
-            font-size: 16px;
+            font-size: 14px;
         }
 
         .app-window {
-            width: 1320px;
-            height: 840px;
+            width: 100%;
+            max-width: 1400px;
+            height: 92vh;
             background: var(--bg-app);
-            border-radius: var(--radius-app);
+            border-radius: var(--radius-lg);
             display: flex;
             flex-direction: column;
-            box-shadow: 0 20px 50px rgba(15, 23, 42, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
             overflow: hidden;
+            border: 1px solid var(--border);
         }
 
-        .error-banner {
-            background: #fee2e2;
-            color: #991b1b;
-            padding: 12px 20px;
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: 500;
-            display: none;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .error-banner.show {
-            display: flex;
-        }
-
-        .error-banner button {
-            margin-left: auto;
-            background: none;
-            border: none;
-            font-size: 18px;
-            cursor: pointer;
-            color: #991b1b;
-        }
-
+        /* Titlebar */
         .titlebar {
             height: var(--header-height);
-            background: var(--bg-app);
+            background: var(--bg-surface);
             display: flex;
             align-items: center;
-            padding: 0 24px;
-            border-bottom: 1px solid #f1f5f9;
-            user-select: none;
+            padding: 0 28px;
+            border-bottom: 1px solid var(--border);
+            gap: 16px;
         }
 
-        .titlebar-controls {
+        .titlebar-dots {
             display: flex;
             gap: 8px;
-            margin-right: 24px;
         }
 
-        .titlebar-btn {
-            width: 13px;
-            height: 13px;
+        .titlebar-dot {
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
-            cursor: pointer;
         }
 
-        .titlebar-btn.close {
-            background: #ff5f56;
+        .titlebar-dot.red {
+            background: #ef4444;
         }
 
-        .titlebar-btn.minimize {
-            background: #ffbd2e;
+        .titlebar-dot.yellow {
+            background: #f59e0b;
         }
 
-        .titlebar-btn.maximize {
-            background: #27c93f;
+        .titlebar-dot.green {
+            background: #10b981;
         }
 
         .titlebar-logo {
-            font-size: 15px;
             font-weight: 700;
-            margin-right: 15px;
+            font-size: 15px;
+            color: var(--text-main);
+            letter-spacing: -0.3px;
         }
 
-        .titlebar-title {
-            font-size: 13px;
-            color: var(--text-muted);
-            font-weight: 500;
+        .titlebar-badge {
+            background: #e0f2fe;
+            color: #0369a1;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
         }
 
+        .titlebar-actions {
+            margin-left: auto;
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Layout */
         .main-content {
             flex: 1;
             display: flex;
             overflow: hidden;
         }
 
+        /* Sidebar */
         .sidebar {
             width: var(--sidebar-width);
             background: var(--bg-sidebar);
+            padding: 20px 12px;
+            border-right: 1px solid var(--border);
             display: flex;
             flex-direction: column;
-            padding: 24px 16px;
-            overflow-y: auto;
-            border-right: 1px solid #f1f5f9;
+            gap: 4px;
         }
 
         .sidebar-section {
-            padding: 0 16px;
-            font-size: 11px;
-            font-weight: 600;
+            font-size: 10px;
+            font-weight: 700;
             text-transform: uppercase;
             color: #94a3b8;
-            letter-spacing: 0.5px;
-            margin: 24px 0 10px 0;
-        }
-
-        .sidebar-section:first-child {
-            margin-top: 0;
+            padding: 16px 12px 6px;
+            letter-spacing: 1px;
         }
 
         .sidebar-item {
-            padding: 10px 16px;
-            color: var(--text-steel);
+            padding: 10px 12px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-muted);
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 12px;
-            font-size: 14px;
-            font-weight: 500;
-            border-radius: 12px;
-            margin-bottom: 4px;
+            gap: 10px;
+            transition: all 0.15s;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
             text-decoration: none;
-            transition: all 0.2s;
         }
 
         .sidebar-item:hover {
-            background: #e2e8f0;
+            background: #f1f5f9;
+            color: var(--text-main);
         }
 
         .sidebar-item.active {
             background: var(--text-main);
             color: white;
+            box-shadow: var(--shadow-md);
         }
 
-        .sidebar-item.external {
-            color: #6366f1;
-        }
-
+        /* Workspace */
         .workspace {
             flex: 1;
             display: flex;
@@ -195,348 +181,226 @@
 
         .content-area {
             flex: 1;
-            padding: 32px 40px;
+            padding: 28px 32px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
             gap: 24px;
         }
 
+        /* Header */
         .page-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 8px;
         }
 
         .page-title {
             font-size: 24px;
             font-weight: 700;
-            color: var(--text-main);
-            white-space: nowrap;
+            letter-spacing: -0.5px;
         }
 
-        .toolbar-actions {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
+        /* Buttons */
         .btn {
-            padding: 10px 18px;
-            border-radius: 12px;
-            font-size: 14px;
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-size: 13px;
             font-weight: 600;
             cursor: pointer;
-            border: none;
-            transition: all 0.2s;
-            text-decoration: none;
+            border: 1px solid var(--border);
+            background: var(--bg-surface);
+            color: var(--text-main);
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            white-space: nowrap;
+            gap: 6px;
+            transition: all 0.15s;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background: #f1f5f9;
         }
 
         .btn-primary {
             background: var(--text-main);
             color: white;
+            border-color: var(--text-main);
         }
 
-        .btn-secondary {
-            background: var(--block-steel);
-            color: var(--text-main);
+        .btn-primary:hover {
+            background: #1e293b;
         }
 
-        .btn-live {
-            background: var(--block-green) !important;
-            color: var(--text-green) !important;
-            font-weight: 700 !important;
+        .btn-accent {
+            background: #10b981;
+            color: white;
+            border-color: #10b981;
+        }
+
+        .btn-accent:hover {
+            background: #059669;
         }
 
         .search-input {
             padding: 10px 16px;
-            border-radius: 12px;
-            border: none;
-            background: var(--block-steel);
-            font-size: 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--bg-surface);
+            font-size: 13px;
             outline: none;
-            width: 220px;
+            width: 240px;
+            transition: border 0.2s;
         }
 
+        .search-input:focus {
+            border-color: #6366f1;
+        }
+
+        /* KPI Cards */
         .kpi-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
+            gap: 18px;
         }
 
-        .kpi-block {
-            border-radius: var(--radius-block);
-            padding: 24px;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .bg-blue {
-            background: var(--block-blue);
-            color: var(--text-blue);
-        }
-
-        .bg-steel {
-            background: var(--block-steel);
-            color: var(--text-steel);
-        }
-
-        .bg-green {
-            background: var(--block-green);
-            color: var(--text-green);
-        }
-
-        .bg-purple {
-            background: var(--block-purple);
-            color: var(--text-purple);
-        }
-
-        .kpi-label {
-            font-size: 13px;
-            font-weight: 600;
-            opacity: 0.8;
-            margin-bottom: 12px;
-        }
-
-        .kpi-value {
-            font-size: 36px;
-            font-weight: 800;
-            margin-bottom: 12px;
-        }
-
-        .kpi-trend {
-            font-size: 12px;
-            font-weight: 600;
-            padding: 6px 12px;
-            border-radius: 20px;
-            background: rgba(255, 255, 255, 0.5);
-            width: fit-content;
-        }
-
-        .middle-grid {
-            display: grid;
-            grid-template-columns: 3fr 1fr;
-            gap: 24px;
-        }
-
-        .middle-grid.full-width {
-            grid-template-columns: 1fr !important;
-        }
-
-        .table-block {
-            background: var(--block-steel);
-            border-radius: var(--radius-block);
-            padding: 24px;
-            overflow-x: auto;
-        }
-
-        .block-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .block-title {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--text-main);
-        }
-
-        .table-block table {
-            width: 100%;
-            border-collapse: collapse;
-            table-layout: fixed;
-            min-width: 600px;
-        }
-
-        th {
-            color: #64748b;
-            padding: 0 12px 12px 12px;
-            font-size: 13px;
-            font-weight: 600;
-            text-align: left;
-            border-bottom: 2px solid #e2e8f0;
-        }
-
-        td {
-            padding: 12px 10px;
-            color: var(--text-main);
-            font-size: 13px;
-            font-weight: 500;
-            border-bottom: 1px solid #e2e8f0;
-            vertical-align: top;
-            word-wrap: break-word;
-        }
-
-        /* Фиксированная ширина для 4-колоночной таблицы */
-        .cols4 th:nth-child(1),
-        .cols4 td:nth-child(1) {
-            width: auto;
-        }
-
-        .cols4 th:nth-child(2),
-        .cols4 td:nth-child(2) {
-            width: 20%;
-            text-align: center;
-        }
-
-        .cols4 th:nth-child(3),
-        .cols4 td:nth-child(3) {
-            width: 20%;
-            text-align: center;
-        }
-
-        .cols4 th:nth-child(4),
-        .cols4 td:nth-child(4) {
-            width: 15%;
-            text-align: center;
-        }
-
-        /* Фиксированная ширина для 5-колоночной таблицы (рекомендации) */
-        .cols5 th:nth-child(1),
-        .cols5 td:nth-child(1) {
-            width: 40px;
-            text-align: center;
-        }
-
-        .cols5 th:nth-child(2),
-        .cols5 td:nth-child(2) {
-            width: auto;
-        }
-
-        .cols5 th:nth-child(3),
-        .cols5 td:nth-child(3) {
-            width: 120px;
-            text-align: center;
-        }
-
-        .cols5 th:nth-child(4),
-        .cols5 td:nth-child(4) {
-            width: 90px;
-            text-align: center;
-        }
-
-        .cols5 th:nth-child(5),
-        .cols5 td:nth-child(5) {
-            width: 110px;
-            text-align: center;
-        }
-
-        .status-pill {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            background: white;
-            display: inline-block;
-            white-space: nowrap;
-        }
-
-        .status-pill.blue {
-            color: var(--text-blue);
-        }
-
-        .status-pill.green {
-            color: var(--text-green);
-        }
-
-        .status-pill.orange {
-            color: #d97706;
-        }
-
-        .side-blocks {
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-        }
-
-        /* Таблица поиска клиентов — своя ширина колонок */
-        #client-list-cell table th:nth-child(1),
-        #client-list-cell table td:nth-child(1) {
-            width: 80px !important;
-        }
-
-        #client-list-cell table th:nth-child(2),
-        #client-list-cell table td:nth-child(2) {
-            width: auto !important;
-        }
-
-        #client-list-cell table th:nth-child(3),
-        #client-list-cell table td:nth-child(3) {
-            width: 150px !important;
-            text-align: center !important;
-        }
-
-        #client-list-cell table th:nth-child(4),
-        #client-list-cell table td:nth-child(4) {
-            width: 130px !important;
-            text-align: center !important;
-        }
-
-        .side-blocks.hidden {
-            display: none !important;
-        }
-
-        .side-blocks {
+        .kpi-card {
+            background: var(--bg-surface);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            border: 1px solid var(--border);
+            transition: all 0.2s;
+            cursor: pointer;
             display: flex;
             flex-direction: column;
             gap: 12px;
         }
 
-        .doc-block {
-            background: var(--block-blue);
-            border-radius: calc(var(--radius-block) * 0.7);
-            padding: 14px 14px;
-            text-decoration: none;
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-value {
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+
+        .kpi-trend {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: #f1f5f9;
+            width: fit-content;
+        }
+
+        /* Main Grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+            flex: 1;
+            min-height: 0;
+        }
+
+        /* Table Block */
+        .table-block {
+            background: var(--bg-surface);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            transition: transform 0.2s;
-            width: 100%;
-            margin-left: auto;
+            overflow: hidden;
         }
 
-        .doc-block:hover {
-            transform: translateY(-2px);
+        .table-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .doc-block.alt {
-            background: var(--block-green);
-        }
-
-        .doc-block.purple {
-            background: var(--block-purple);
-        }
-
-        .doc-block.orange {
-            background: #fff7ed;
-        }
-
-        .doc-icon {
-            font-size: 20px;
-        }
-
-        .doc-title {
-            font-size: 13px;
+        .table-title {
+            font-size: 16px;
             font-weight: 700;
-            color: var(--text-main);
         }
 
-        .doc-desc {
+        .table-scroll {
+            flex: 1;
+            overflow: auto;
+            padding: 0 24px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            color: #94a3b8;
+            padding: 12px 12px;
             font-size: 11px;
-            color: var(--text-muted);
-            line-height: 1.4;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            text-align: left;
+            border-bottom: 2px solid #f1f5f9;
+            white-space: nowrap;
         }
 
+        td {
+            padding: 14px 12px;
+            font-size: 13px;
+            border-bottom: 1px solid #f8fafc;
+            vertical-align: middle;
+        }
+
+        tr:hover td {
+            background: #f8fafc;
+        }
+
+        .status-pill {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status-pill.green {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .status-pill.blue {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .status-pill.orange {
+            background: #fff7ed;
+            color: #c2410c;
+        }
+
+        /* Scrollbar */
         ::-webkit-scrollbar {
-            width: 6px;
+            width: 4px;
+            height: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
         }
 
         ::-webkit-scrollbar-thumb {
@@ -544,147 +408,121 @@
             border-radius: 10px;
         }
 
-        @media (max-width: 1100px) {
-            .kpi-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .middle-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .app-window {
-                height: auto;
-                min-height: 100vh;
-            }
+        /* Кнопки выбора года (воронка) */
+        .year-btn {
+            padding: 5px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--bg-surface);
+            color: var(--text-muted);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .year-btn:hover {
+            background: #f1f5f9;
+            color: var(--text-main);
+        }
+        .year-btn-active {
+            background: var(--text-main) !important;
+            color: white !important;
+            border-color: var(--text-main) !important;
         }
     </style>
 </head>
 
 <body>
-
     <div class="app-window">
+        <!-- Titlebar -->
         <div class="titlebar">
-            <div class="titlebar-controls">
-                <div class="titlebar-btn close"></div>
-                <div class="titlebar-btn minimize"></div>
-                <div class="titlebar-btn maximize"></div>
+            <div class="titlebar-dots">
+                <div class="titlebar-dot red"></div>
+                <div class="titlebar-dot yellow"></div>
+                <div class="titlebar-dot green"></div>
             </div>
             <span class="titlebar-logo">UTSK Studio</span>
-            <span class="titlebar-title">Проект: Intelligent Sales v7.1</span>
+            <span class="titlebar-badge">Intelligent Sales v7.5</span>
+            <div class="titlebar-actions">
+                <button class="btn" onclick="refreshAll()">🔄 Обновить</button>
+                <a href="https://grandkid-unrest-undesired.ngrok-free.dev/?token=utsk2026" target="_blank"
+                    class="btn btn-accent">🌐 Live Demo</a>
+            </div>
         </div>
 
         <div class="main-content">
+            <!-- Sidebar -->
             <div class="sidebar">
-                <div class="sidebar-section">Аналитика</div>
-                <a href="#" class="sidebar-item active" data-page="dashboard">📊 Обзорный Дашборд</a>
-                <a href="#" class="sidebar-item" data-page="clients">👥 Активные клиенты</a>
-                <a href="#" class="sidebar-item" data-page="funnel">🏷️ Воронка продаж</a>
-                <div class="sidebar-section">Модули AI</div>
-                <a href="#" class="sidebar-item" data-page="recommendations">✨ Рекомендации</a>
-                <a href="#" class="sidebar-item" data-page="churn">⚠️ Риск оттока</a>
-                <div class="sidebar-section">База знаний</div>
-                <a href="/db-reference?token=utsk2026" target="_blank" class="sidebar-item external">🗄️ Схема БД
-                    (SQL)</a>
-                <a href="/plan?token=utsk2026" target="_blank" class="sidebar-item external">📄 План разработки</a>
+                <div class="sidebar-section">Мониторинг</div>
+                <button class="sidebar-item active" data-page="dashboard">📊 Дашборд</button>
+                <button class="sidebar-item" data-page="clients">👥 Активные</button>
+                <button class="sidebar-item" data-page="funnel">🏷️ Воронка</button>
+                <div class="sidebar-section">AI Аналитика</div>
+                <button class="sidebar-item" data-page="recommendations">✨ Рекомендации</button>
+                <button class="sidebar-item" data-page="churn">⚠️ Риск оттока</button>
+                <div class="sidebar-section">Инструменты</div>
+                <a href="/analytics?token=utsk2026" target="_blank" class="sidebar-item">📈 ABC-Аналитика</a>
+                <a href="/monthly?token=utsk2026" target="_blank" class="sidebar-item">📅 Месячная</a>
             </div>
 
+            <!-- Workspace -->
             <div class="workspace">
-                <div class="content-area">
-                    <div class="error-banner" id="error-banner">
-                        <span>⚠️</span> <span id="error-message"></span>
-                        <button onclick="this.parentElement.classList.remove('show')">✕</button>
-                    </div>
-
+                <div class="content-area" id="content-area">
+                    <!-- Header -->
                     <div class="page-header">
-                        <h1 class="page-title" id="page-title">Сводка за 30 дней</h1>
-                        <div class="toolbar-actions">
-                            <input type="text" class="search-input" id="search-input"
-                                placeholder="Поиск клиента (Enter)">
-                            <a href="/db-reference?token=utsk2026" target="_blank" class="btn btn-secondary">🗄️
-                                Справочник БД</a>
-                            <a href="https://grandkid-unrest-undesired.ngrok-free.dev/?token=utsk2026" target="_blank"
-                                class="btn btn-live">🌐 Live Demo</a>
-                            <button class="btn btn-primary" onclick="refreshAll()">🔄 Обновить</button>
-                        </div>
+                        <h1 class="page-title" id="page-title">Обзорный дашборд</h1>
+                        <input type="text" class="search-input" id="search-input" placeholder="🔍 Поиск по клиентам...">
                     </div>
 
-                    <div class="kpi-grid">
-                        <div class="kpi-block bg-blue" onclick="window.open('/analytics?token=utsk2026','_self')"
-                            style="cursor:pointer; transition: transform 0.2s;"
-                            onmouseover="this.style.transform='scale(1.02)'"
-                            onmouseout="this.style.transform='scale(1)'">
-                            <span class="kpi-label">👥 Всего клиентов в 2026</span>
+                    <!-- KPI Cards -->
+                    <div class="kpi-grid" id="kpi-grid">
+                        <div class="kpi-card" onclick="window.location.href='/analytics?token=utsk2026'">
+                            <span class="kpi-label">👥 Активных клиентов</span>
                             <span class="kpi-value" id="kpi-total-clients">—</span>
-                            <div class="kpi-trend" id="kpi-total-clients-sub">Нажмите для аналитики →</div>
+                            <span class="kpi-trend">В аналитике 2026</span>
                         </div>
-                        <div class="kpi-block bg-steel" onclick="window.open('/monthly?token=utsk2026','_self')"
-                            style="cursor:pointer; transition: transform 0.2s;"
-                            onmouseover="this.style.transform='scale(1.03)'"
-                            onmouseout="this.style.transform='scale(1)'">
-                            <span class="kpi-label">📅 Активные за 30 дней</span>
+                        <div class="kpi-card" onclick="window.location.href='/monthly?token=utsk2026'">
+                            <span class="kpi-label">📅 Покупок за 30 дн.</span>
                             <span class="kpi-value" id="kpi-active-30d">—</span>
-                            <div class="kpi-trend">Нажмите для аналитики месяца →</div>
+                            <span class="kpi-trend">Активных клиентов</span>
                         </div>
-                        <div class="kpi-block bg-green">
-                            <span class="kpi-label">💰 Общая выручка за 2026</span>
+                        <div class="kpi-card">
+                            <span class="kpi-label">💰 Выручка 2026</span>
                             <span class="kpi-value" id="kpi-total-revenue">—</span>
-                            <div class="kpi-trend" id="kpi-revenue-sub">Товарная выручка</div>
+                            <span class="kpi-trend">Товарная</span>
                         </div>
-                        <div class="kpi-block bg-purple">
-                            <span class="kpi-label">🛒 Средний чек за 2026</span>
+                        <div class="kpi-card">
+                            <span class="kpi-label">🛒 Средний чек</span>
                             <span class="kpi-value" id="kpi-avg-check">—</span>
-                            <div class="kpi-trend" id="kpi-avg-sub">Без услуг</div>
+                            <span class="kpi-trend">Без услуг</span>
                         </div>
                     </div>
 
-                    <div class="middle-grid" id="middle-grid">
-                        <div class="table-block" id="table-block">
-                            <div class="block-header">
-                                <h2 class="block-title" id="block-title">Клиенты (Live из БД)</h2>
-                                <button class="btn btn-secondary" style="padding:6px 12px;font-size:12px;"
-                                    onclick="refreshAll()">🔄 Обновить</button>
+                    <!-- Main Grid -->
+                    <div class="main-grid">
+                        <div class="table-block">
+                            <div class="table-header">
+                                <h2 class="table-title" id="block-title">ТОП клиентов за полгода</h2>
+                                <button class="btn" onclick="refreshAll()">🔄</button>
                             </div>
-                            <table class="cols4" id="main-table">
-                                <thead id="table-head">
-                                    <tr>
-                                        <th>Клиент</th>
-                                        <th>Статус</th>
-                                        <th>Последняя покупка</th>
-                                        <th>Действия</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="clients-table-body">
-                                    <tr>
-                                        <td colspan="4" style="text-align:center;">Загрузка данных...</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <div class="side-blocks" id="side-blocks">
-                            <a href="/db-reference?token=utsk2026" target="_blank" class="doc-block">
-                                <span class="doc-icon">🗄️</span>
-                                <span class="doc-title">Схема Базы Данных</span>
-                                <span class="doc-desc">Справочник по 14 таблицам, 21 связи (ER-диаграмма).</span>
-                            </a>
-                            <a href="/plan?token=utsk2026" target="_blank" class="doc-block alt">
-                                <span class="doc-icon">🚀</span>
-                                <span class="doc-title">План Разработки</span>
-                                <span class="doc-desc">Архитектура C++, API, чек-листы и статусы.</span>
-                            </a>
-                            <a href="https://grandkid-unrest-undesired.ngrok-free.dev/?token=utsk2026" target="_blank"
-                                class="doc-block purple">
-                                <span class="doc-icon">🌐</span>
-                                <span class="doc-title">Web-интерфейс (Live)</span>
-                                <span class="doc-desc">Демо-версия для директора. Доступ через ngrok.</span>
-                            </a>
-                            <a href="https://github.com/SergKekuh/utsk_intelligent_sales/actions" target="_blank"
-                                class="doc-block orange">
-                                <span class="doc-icon">⚙️</span>
-                                <span class="doc-title">CI/CD Pipeline</span>
-                                <span class="doc-desc">GitHub Actions: 20/20 тестов.</span>
-                            </a>
+                            <div id="table-filter-bar" style="display:none; padding:12px 24px 0; border-bottom:1px solid var(--border);"></div>
+                            <div class="table-scroll">
+                                <table>
+                                    <thead id="table-head">
+                                        <tr>
+                                            <th>Клиент</th>
+                                            <th>Статус</th>
+                                            <th>Последняя покупка</th>
+                                            <th>Выручка (тов.)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="clients-table-body">
+                                        <tr>
+                                            <td colspan="4" style="text-align:center;padding:40px;">⏳ Загрузка...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -693,19 +531,12 @@
     </div>
 
     <script>
-        // ====== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ======
         const TOKEN = new URLSearchParams(window.location.search).get('token') || 'utsk2026';
-        localStorage.setItem('utsk_token', TOKEN);
-        var allClientsCache = [];
-        var currentPage = 'dashboard';
+        let currentPage = 'dashboard';
+        let funnelYear = new Date().getFullYear();
 
-        // ====== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ======
-        function showError(msg) {
-            var b = document.getElementById('error-banner');
-            var m = document.getElementById('error-message');
-            if (b && m) { m.textContent = msg; b.classList.add('show'); setTimeout(function () { b.classList.remove('show'); }, 4000); }
-        }
-        function safeText(id, text) { var el = document.getElementById(id); if (el) el.textContent = text; }
+        function $(id) { return document.getElementById(id); }
+        function safeText(id, text) { const el = $(id); if (el) el.textContent = text; }
         function formatNum(n) { return (n == null) ? '—' : Number(n).toLocaleString('ru-RU'); }
         function formatCur(n) {
             if (n == null) return '—';
@@ -715,339 +546,306 @@
             return '₴ ' + formatNum(Math.round(n));
         }
 
-        function toggleSideBlocks(show) {
-            var sb = document.getElementById('side-blocks');
-            var mg = document.getElementById('middle-grid');
-            if (sb && mg) {
-                if (show) { sb.classList.remove('hidden'); mg.classList.remove('full-width'); }
-                else { sb.classList.add('hidden'); mg.classList.add('full-width'); }
-            }
-        }
-
         // ====== KPI ======
         async function loadDashboard() {
             try {
-                // Основные KPI дашборда
-                var r = await fetch('/api/dashboard?token=' + TOKEN);
+                const r = await fetch(`/api/dashboard?token=${TOKEN}`);
                 if (!r.ok) throw new Error(r.status);
-                var d = await r.json();
+                const d = await r.json();
                 safeText('kpi-active-30d', formatNum(d.active_30d));
 
-                // Количество активных клиентов за 2026 год
-                var respClients = await fetch('/api/analytics/yearly-clients-count?token=' + TOKEN + '&year=2026');
-                var jsonClients = await respClients.json();
+                const [respClients, resp2026] = await Promise.all([
+                    fetch(`/api/analytics/yearly-clients-count?token=${TOKEN}&year=2026`),
+                    fetch(`/api/analytics/monthly-revenue?token=${TOKEN}&year=2026`)
+                ]);
+
+                const jsonClients = await respClients.json();
                 if (jsonClients.status === 'ok') {
                     safeText('kpi-total-clients', formatNum(jsonClients.active_clients));
-                    safeText('kpi-total-clients-sub', 'Участвуют в аналитике');
                 }
 
-                // Выручка и средний чек за 2026 год
-                var resp2026 = await fetch('/api/analytics/monthly-revenue?token=' + TOKEN + '&year=2026');
-                var json2026 = await resp2026.json();
-
+                const json2026 = await resp2026.json();
                 if (json2026.status === 'ok' && json2026.data.length) {
-                    var totalGoods = json2026.data.reduce(function (s, r) { return s + (r.goods_revenue || 0); }, 0);
-                    var totalInvoices = json2026.data.reduce(function (s, r) { return s + (r.invoice_count || 0); }, 0);
-                    var avgTicket = totalInvoices > 0 ? Math.round(totalGoods / totalInvoices) : 0;
-
+                    const totalGoods = json2026.data.reduce((s, r) => s + (r.goods_revenue || 0), 0);
+                    const totalInvoices = json2026.data.reduce((s, r) => s + (r.invoice_count || 0), 0);
+                    const avgTicket = totalInvoices > 0 ? Math.round(totalGoods / totalInvoices) : 0;
                     safeText('kpi-total-revenue', formatCur(totalGoods));
                     safeText('kpi-avg-check', formatCur(avgTicket));
-                    safeText('kpi-revenue-sub', 'Товарная выручка');
-                    safeText('kpi-avg-sub', 'Без услуг');
                 }
-            } catch (e) { console.error(e); }
+            } catch (e) { console.error('KPI error:', e); }
         }
 
-        // ====== ВСЕ КЛИЕНТЫ ======
-        async function loadClients(q) {
-            var tb = document.getElementById('clients-table-body');
-            if (!tb) return;
-            setTableCols(4);
+        // ====== ТОП КЛИЕНТЫ ЗА ПОЛ ГОДА ======
+        async function loadTopHalfYear() {
+            const tb = $('clients-table-body');
             tb.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;">⏳ Загрузка...</td></tr>';
             try {
-                var url = '/api/clients?token=' + TOKEN + '&limit=15';
-                if (q) url += '&search=' + encodeURIComponent(q);
-                var r = await fetch(url);
+                const r = await fetch(`/api/clients/top-halfyear?token=${TOKEN}&limit=15`);
                 if (!r.ok) throw new Error(r.status);
-                var data = await r.json();
+                const data = await r.json();
                 tb.innerHTML = '';
-                if (!data.length) { tb.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;">📭 Нет данных</td></tr>'; return; }
-                data.forEach(function (c) {
-                    var cls = 'blue';
+                if (!data.length) {
+                    tb.innerHTML = '<tr><td colspan="4" style="text-align:center;">📭 Нет данных</td></tr>';
+                    return;
+                }
+                data.forEach((c, i) => {
+                    const medalIcon = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1) + '.';
+                    let cls = 'blue';
                     if (c.status && (c.status.includes('Спящ') || c.status.includes('Ушедш'))) cls = 'orange';
                     else if (c.status && !c.status.includes('Новы')) cls = 'green';
-                    tb.innerHTML += '<tr>' +
-                        '<td><b>' + (c.name || '—') + '</b><br><small style="color:var(--text-muted);">Код: ' + (c.code || '—') + '</small></td>' +
-                        '<td><span class="status-pill ' + cls + '">' + (c.status || '—') + '</span></td>' +
-                        '<td style="color:var(--text-muted);">' + (c.last_purchase_date || '—') + '</td>' +
-                        '<td><button onclick="loadRecsForClient(\'' + c.code + '\')" style="background:#6366f1;color:white;border:none;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;">💡</button></td>' +
-                        '</tr>';
+
+                    tb.innerHTML += `<tr>
+                        <td><b>${medalIcon} ${c.name || '—'}</b><br><small style="color:var(--text-muted);">Код: ${c.code} | Счетов: ${c.invoice_count || 0}</small></td>
+                        <td><span class="status-pill ${cls}">${c.status || '—'}</span></td>
+                        <td style="color:var(--text-muted);">${c.last_purchase_date || '—'}</td>
+                        <td style="font-weight:700;color:#047857;">₴ ${formatNum(Math.round(c.goods_revenue || 0))}</td>
+                    </tr>`;
                 });
-            } catch (e) { tb.innerHTML = '<tr><td colspan="4" style="color:#dc2626;text-align:center;padding:20px;">⚠️ Ошибка</td></tr>'; }
+            } catch (e) {
+                tb.innerHTML = '<tr><td colspan="4" style="color:#ef4444;text-align:center;">⚠️ Ошибка загрузки</td></tr>';
+            }
         }
 
         // ====== АКТИВНЫЕ КЛИЕНТЫ ======
         async function loadActive() {
-            var tb = document.getElementById('clients-table-body');
-            if (!tb) return;
-            setTableCols(4);
+            const tb = $('clients-table-body');
             tb.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;">⏳ Загрузка...</td></tr>';
             try {
-                var r = await fetch('/api/clients/active?token=' + TOKEN + '&limit=15');
+                const r = await fetch(`/api/clients/active?token=${TOKEN}&limit=15`);
                 if (!r.ok) throw new Error(r.status);
-                var data = await r.json();
+                const data = await r.json();
                 tb.innerHTML = '';
-                if (!data.length) { tb.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;">📭 Нет активных за 30 дней</td></tr>'; return; }
-                data.forEach(function (c) {
-                    tb.innerHTML += '<tr>' +
-                        '<td><b>' + (c.name || '—') + '</b><br><small style="color:var(--text-muted);">Код: ' + (c.code || '—') + ' | Документов: ' + (c.docs_count || 0) + '</small></td>' +
-                        '<td><span class="status-pill green">' + (c.status || '—') + '</span></td>' +
-                        '<td style="color:var(--text-muted);">' + (c.last_purchase_date || '—') + '</td>' +
-                        '<td style="font-weight:600;color:#047857;">₴ ' + formatNum(Math.round(c.total_revenue || 0)) + '</td>' +
-                        '</tr>';
+                if (!data.length) { tb.innerHTML = '<tr><td colspan="4">📭 Нет активных</td></tr>'; return; }
+                data.forEach(c => {
+                    tb.innerHTML += `<tr>
+                        <td><b>${c.name || '—'}</b><br><small>Код: ${c.code}</small></td>
+                        <td><span class="status-pill green">${c.status || '—'}</span></td>
+                        <td>${c.last_purchase_date || '—'}</td>
+                        <td style="font-weight:600;color:#047857;">₴ ${formatNum(Math.round(c.total_revenue || 0))}</td>
+                    </tr>`;
                 });
-            } catch (e) { tb.innerHTML = '<tr><td colspan="4" style="color:#dc2626;text-align:center;padding:20px;">⚠️ Ошибка</td></tr>'; }
+            } catch (e) { tb.innerHTML = '<tr><td colspan="4" style="color:#ef4444;">⚠️ Ошибка</td></tr>'; }
+        }
+
+        // ====== ВОРОНКА ======
+        async function loadFunnel(year) {
+            if (year) funnelYear = year;
+            // Обновляем активность кнопок
+            document.querySelectorAll('.year-btn').forEach(btn => {
+                btn.classList.toggle('year-btn-active', parseInt(btn.dataset.year) === funnelYear);
+            });
+            const tb = $('clients-table-body');
+            tb.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:24px;">⏳ Загрузка...</td></tr>';
+            try {
+                const r = await fetch(`/api/funnel?token=${TOKEN}&year=${funnelYear}`);
+                if (!r.ok) throw new Error(r.status);
+                const data = await r.json();
+                tb.innerHTML = '';
+                if (!data.length) {
+                    tb.innerHTML = `<tr><td colspan="3" style="text-align:center;padding:24px;">📭 Нет активных клиентов за ${funnelYear}</td></tr>`;
+                    return;
+                }
+                let totalCount = 0;
+                let totalRevenue = 0;
+                data.forEach(s => {
+                    totalCount += s.count || 0;
+                    totalRevenue += s.revenue || 0;
+                    tb.innerHTML += `<tr>
+                        <td><b>${s.stage}</b></td>
+                        <td style="text-align:center;font-weight:600;">${formatNum(s.count)}</td>
+                        <td style="text-align:right;font-weight:700;color:#047857;">${formatCur(s.revenue)}</td>
+                    </tr>`;
+                });
+                // Строка Итого
+                tb.innerHTML += `<tr style="background-color: #f8fafc; border-top: 2px solid #e2e8f0; font-weight: bold;">
+                    <td><b>Итого</b></td>
+                    <td style="text-align:center;font-weight:700;color:var(--text-main);">${formatNum(totalCount)}</td>
+                    <td style="text-align:right;font-weight:800;color:#047857;">${formatCur(totalRevenue)}</td>
+                </tr>`;
+            } catch (e) { tb.innerHTML = '<tr><td colspan="3" style="color:#ef4444;text-align:center;">⚠️ Ошибка</td></tr>'; }
         }
 
         // ====== РИСК ОТТОКА ======
         async function loadChurn() {
-            var tb = document.getElementById('clients-table-body');
-            if (!tb) return;
-            setTableCols(4);
+            const tb = $('clients-table-body');
             tb.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;">⏳ Загрузка...</td></tr>';
             try {
-                var r = await fetch('/api/clients/churn-risk?token=' + TOKEN + '&limit=15');
+                const r = await fetch(`/api/clients/churn-risk?token=${TOKEN}&limit=15`);
                 if (!r.ok) throw new Error(r.status);
-                var data = await r.json();
+                const data = await r.json();
                 tb.innerHTML = '';
-                if (!data.length) { tb.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;">✅ Риска оттока нет!</td></tr>'; return; }
-                data.forEach(function (c) {
-                    var bg = (c.days_since_last > 180) ? ' style="background:#fff5f5;"' : '';
-                    tb.innerHTML += '<tr' + bg + '>' +
-                        '<td><b>' + (c.name || '—') + '</b><br><small style="color:var(--text-muted);">Код: ' + (c.code || '—') + '</small></td>' +
-                        '<td><span class="status-pill orange">' + (c.status || '—') + '</span></td>' +
-                        '<td style="color:var(--text-muted);">' + (c.last_purchase_date || '—') + '</td>' +
-                        '<td style="font-weight:600;color:#dc2626;">⚠️ ' + (c.days_since_last || 0) + ' дн.</td>' +
-                        '</tr>';
+                if (!data.length) { tb.innerHTML = '<tr><td colspan="4">✅ Риска оттока нет</td></tr>'; return; }
+                data.forEach(c => {
+                    tb.innerHTML += `<tr style="background:#fff5f5;">
+                        <td><b>${c.name || '—'}</b><br><small>Код: ${c.code}</small></td>
+                        <td><span class="status-pill orange">${c.status || '—'}</span></td>
+                        <td>${c.last_purchase_date || '—'}</td>
+                        <td style="color:#ef4444;font-weight:700;">⚠️ ${c.days_since_last || 0} дн.</td>
+                    </tr>`;
                 });
-            } catch (e) { tb.innerHTML = '<tr><td colspan="4" style="color:#dc2626;text-align:center;padding:20px;">⚠️ Ошибка</td></tr>'; }
+            } catch (e) { tb.innerHTML = '<tr><td colspan="4" style="color:#ef4444;">⚠️ Ошибка</td></tr>'; }
         }
 
-        // ====== ВОРОНКА ПРОДАЖ ======
-        async function loadFunnel() {
-            var tb = document.getElementById('clients-table-body');
-            if (!tb) return;
-            setTableCols(3);
-            tb.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:20px;">⏳ Загрузка...</td></tr>';
-            try {
-                var r = await fetch('/api/funnel?token=' + TOKEN);
-                if (!r.ok) throw new Error(r.status);
-                var data = await r.json();
-                tb.innerHTML = '';
-                if (!data.length) { tb.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:20px;">📭 Нет данных</td></tr>'; return; }
-                data.forEach(function (s) {
-                    tb.innerHTML += '<tr><td style="padding:16px 12px;"><b>' + s.stage + '</b></td><td style="padding:16px 12px;text-align:center;">' + formatNum(s.count) + ' клиентов</td><td style="padding:16px 12px;text-align:right;">' + formatCur(s.revenue) + '</td></tr>';
-                });
-            } catch (e) { tb.innerHTML = '<tr><td colspan="3" style="color:#dc2626;text-align:center;padding:20px;">⚠️ Ошибка</td></tr>'; }
-        }
-
-        /// ====== РЕКОМЕНДАЦИИ ДЛЯ КЛИЕНТА (4 БЛОКА) ======
-        async function loadRecsForClient(clientCode) {
-            var tb = document.getElementById('clients-table-body');
-            if (!tb) return;
-            setTableCols(5);
-            var thead = document.getElementById('table-head');
-            if (thead) {
-                thead.innerHTML = '<tr><th>№</th><th>Товар</th><th>Причина</th><th>Остаток</th><th>Статус</th></tr>';
-            }
-            tb.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;">⏳ Загрузка рекомендаций...</td></tr>';
-            try {
-                var r = await fetch('/api/recommendations/' + clientCode + '?token=' + TOKEN);
-                if (!r.ok) throw new Error(r.status);
-                var data = await r.json();
-                tb.innerHTML = '';
-
-                if (!data.recommendations || !data.recommendations.length) {
-                    tb.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;">📭 Нет рекомендаций для <b>' + (data.client_name || clientCode) + '</b></td></tr>';
-                    return;
-                }
-
-                // Заголовок
-                tb.innerHTML += '<tr style="background:#f0fdf4;"><td colspan="5" style="text-align:center;font-weight:700;padding:12px;">🎯 Рекомендации для: <b>' + data.client_name + '</b> (код: ' + data.client_code + ')</td></tr>';
-
-                // Кнопка возврата
-                tb.innerHTML += '<tr><td colspan="5" style="text-align:center;padding:8px;"><button onclick="showRecSearch()" style="padding:8px 20px;background:#6366f1;color:white;border:none;border-radius:10px;cursor:pointer;font-size:14px;font-weight:600;">🔍 Искать другого клиента</button></td></tr>';
-
-                // Данные
-                var reasonColors = {
-                    'Часто покупаете': '#047857',
-                    'Новинка в вашем сегменте': '#0369a1',
-                    'С этим обычно берут': '#6b21a8',
-                    'Вы недавно интересовались': '#d97706',
-                    'Популярный товар': '#64748b'
-                };
-
-                var reasonIcons = {
-                    'Часто покупаете': '🔄',
-                    'Новинка в вашем сегменте': '🆕',
-                    'С этим обычно берут': '🔗',
-                    'Вы недавно интересовались': '👣',
-                    'Популярный товар': '⭐'
-                };
-
-                data.recommendations.forEach(function (p, i) {
-                    var reasonText = p.reason || 'Часто покупаете';
-                    var color = reasonColors[reasonText] || '#047857';
-                    var icon = reasonIcons[reasonText] || '✅';
-
-                    tb.innerHTML += '<tr>' +
-                        '<td style="text-align:center;font-weight:600;width:40px;">' + (i + 1) + '</td>' +
-                        '<td style="max-width:300px;"><b>' + (p.name || '—') + '</b><br><small style="color:var(--text-muted);">' + (p.code || '—') + '</small></td>' +
-                        '<td style="text-align:center;width:120px;color:' + color + ';font-weight:600;">' + icon + ' ' + reasonText + '</td>' +
-                        '<td style="text-align:center;width:80px;">' + (p.in_stock || p.in_stock_balance || 0) + '</td>' +
-                        '<td style="text-align:center;"><span class="status-pill green">Рекомендовано</span></td>' +
-                        '</tr>';
-                });
-
-                console.log('✅ Рекомендации для', clientCode, ':', data.recommendations.length, 'шт.');
-            } catch (e) {
-                console.error(e);
-                tb.innerHTML = '<tr><td colspan="5" style="color:#dc2626;text-align:center;padding:20px;">⚠️ Ошибка: ' + e.message + '</td></tr>';
-            }
-        }
-
-        // ====== ВСПОМОГАТЕЛЬНАЯ: ПЕРЕКЛЮЧЕНИЕ КОЛОНОК ======
-        function setTableCols(n) {
-            var tbl = document.getElementById('main-table');
-            if (!tbl) return;
-            tbl.classList.remove('cols3', 'cols4', 'cols5');
-            tbl.classList.add('cols' + n);
-        }
-
-        // ====== ПОЛЕ ПОИСКА ДЛЯ РЕКОМЕНДАЦИЙ ======
+        // ====== РЕКОМЕНДАЦИИ (упрощённый поиск) ======
         async function showRecSearch() {
-            var tb = document.getElementById('clients-table-body');
-            if (!tb) return;
-
-            // Очищаем заголовок таблицы
-            var thead = document.getElementById('table-head');
-            if (thead) thead.innerHTML = '';
-
-            setTableCols(4);
-            tb.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;">' +
-                '<div style="font-size:18px;margin-bottom:12px;">👥 ВЫБЕРИТЕ КЛИЕНТА ДЛЯ РЕКОМЕНДАЦИЙ</div>' +
-                '<input type="text" id="rec-search-input" placeholder="Введите название или код компании..." ' +
-                'style="padding:14px 20px;border-radius:12px;border:2px solid #6366f1;font-size:16px;width:450px;" ' +
-                'oninput="filterClientList()" autofocus>' +
-                '<br><small style="color:var(--text-muted);margin-top:6px;display:block;">Вводите название — список фильтруется автоматически</small>' +
-                '</td></tr>' +
-                '<tr><td colspan="4" id="client-list-cell" style="padding:0;max-height:400px;overflow-y:auto;"></td></tr>';
+            const tb = $('clients-table-body');
+            tb.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:20px;">
+                <div style="font-size:16px;margin-bottom:12px;">🔍 Введите название или код клиента</div>
+                <input type="text" id="rec-search-input" placeholder="Название компании..." 
+                    style="padding:12px 20px;border-radius:10px;border:1px solid var(--border);font-size:14px;width:320px;"
+                    oninput="filterClientList()" autofocus>
+                <br><small style="color:var(--text-muted);">Список обновится автоматически</small>
+            </td></tr>
+            <tr><td colspan="5" id="client-list-cell" style="padding:0;"></td></tr>`;
             loadAllClientsForSearch();
         }
 
         async function loadAllClientsForSearch() {
-            var cell = document.getElementById('client-list-cell');
-            if (!cell) return;
-            cell.innerHTML = '<div style="text-align:center;padding:20px;">⏳ Загрузка списка клиентов...</div>';
+            const cell = $('client-list-cell');
+            cell.innerHTML = '<div style="text-align:center;padding:20px;">⏳ Загрузка...</div>';
             try {
-                var r = await fetch('/api/clients?token=' + TOKEN + '&limit=500');
+                const r = await fetch(`/api/clients?token=${TOKEN}&limit=500`);
                 if (!r.ok) throw new Error(r.status);
-                allClientsCache = await r.json();
+                window.allClientsCache = await r.json();
                 filterClientList();
-            } catch (e) { cell.innerHTML = '<div style="text-align:center;padding:20px;color:#dc2626;">⚠️ Ошибка</div>'; }
+            } catch (e) { cell.innerHTML = '<div style="color:#ef4444;">⚠️ Ошибка</div>'; }
         }
 
         function filterClientList() {
-            var inp = document.getElementById('rec-search-input');
-            var cell = document.getElementById('client-list-cell');
+            const inp = $('rec-search-input');
+            const cell = $('client-list-cell');
             if (!cell) return;
-            var query = (inp && inp.value.trim()) ? inp.value.trim().toLowerCase() : '';
-            var filtered = allClientsCache;
-            if (query) { filtered = allClientsCache.filter(function (c) { return (c.name && c.name.toLowerCase().includes(query)) || (c.code && c.code.toString().includes(query)); }); }
-            var display = filtered.slice(0, 50);
+            const query = (inp && inp.value.trim()) ? inp.value.trim().toLowerCase() : '';
+            let filtered = window.allClientsCache || [];
+            if (query) filtered = filtered.filter(c => (c.name && c.name.toLowerCase().includes(query)) || (c.code && c.code.toString().includes(query)));
+            const display = filtered.slice(0, 50);
             if (!display.length) { cell.innerHTML = '<div style="text-align:center;padding:15px;">Ничего не найдено</div>'; return; }
-            var html = '<table style="width:100%;border-collapse:collapse;"><thead><tr style="background:#f8fafc;">' +
-                '<th style="padding:10px 16px;">Код</th><th style="padding:10px 16px;">Название</th><th style="padding:10px 16px;text-align:center;">Статус</th><th style="padding:10px 16px;text-align:center;">Действие</th></tr></thead><tbody>';
-            display.forEach(function (c) {
-                var cls = 'blue';
+
+            let html = '<table style="width:100%;"><thead><tr><th>Код</th><th>Название</th><th>Статус</th><th></th></tr></thead><tbody>';
+            display.forEach(c => {
+                let cls = 'blue';
                 if (c.status && (c.status.includes('Спящ') || c.status.includes('Ушедш'))) cls = 'orange';
                 else if (c.status && !c.status.includes('Новы')) cls = 'green';
-                html += '<tr style="cursor:pointer;" onclick="loadRecsForClient(\'' + c.code + '\')" onmouseover="this.style.background=\'#e0f2fe\'" onmouseout="this.style.background=\'\'">' +
-                    '<td style="padding:10px 16px;font-weight:600;">' + (c.code || '—') + '</td>' +
-                    '<td style="padding:10px 16px;">' + (c.name || '—') + '</td>' +
-                    '<td style="padding:10px 16px;text-align:center;"><span class="status-pill ' + cls + '">' + (c.status || '—') + '</span></td>' +
-                    '<td style="padding:10px 16px;text-align:center;"><span style="color:#6366f1;font-weight:600;">💡 Выбрать</span></td></tr>';
+                html += `<tr style="cursor:pointer;" onclick="loadRecsForClient('${c.code}')" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background=''">
+                    <td style="padding:10px 16px;font-weight:600;">${c.code}</td>
+                    <td style="padding:10px 16px;">${c.name || '—'}</td>
+                    <td style="padding:10px 16px;"><span class="status-pill ${cls}">${c.status || '—'}</span></td>
+                    <td style="padding:10px 16px;color:#6366f1;font-weight:600;">💡 Выбрать</td>
+                </tr>`;
             });
-            if (filtered.length > 50) html += '<tr><td colspan="4" style="text-align:center;padding:10px;">Показано 50 из ' + filtered.length + '</td></tr>';
             html += '</tbody></table>';
             cell.innerHTML = html;
+        }
+
+        async function loadRecsForClient(clientCode) {
+            const tb = $('clients-table-body');
+            tb.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;">⏳ Загрузка рекомендаций...</td></tr>';
+            try {
+                const r = await fetch(`/api/recommendations/${clientCode}?token=${TOKEN}`);
+                if (!r.ok) throw new Error(r.status);
+                const data = await r.json();
+                tb.innerHTML = '';
+                if (!data.recommendations || !data.recommendations.length) {
+                    tb.innerHTML = `<tr><td colspan="5" style="text-align:center;">📭 Нет рекомендаций для <b>${data.client_name || clientCode}</b></td></tr>`;
+                    return;
+                }
+
+                tb.innerHTML += `<tr style="background:#f0fdf4;"><td colspan="5" style="text-align:center;font-weight:700;padding:12px;">🎯 Рекомендации для: <b>${data.client_name}</b> (${data.client_code})</td></tr>`;
+                tb.innerHTML += '<tr><td colspan="5" style="text-align:center;padding:8px;"><button onclick="showRecSearch()" style="padding:8px 20px;background:#6366f1;color:white;border:none;border-radius:10px;cursor:pointer;font-weight:600;">🔍 Искать другого</button></td></tr>';
+
+                data.recommendations.forEach((p, i) => {
+                    const reasonText = p.reason || 'Часто покупаете';
+                    tb.innerHTML += `<tr>
+                        <td style="text-align:center;font-weight:600;">${i + 1}</td>
+                        <td><b>${p.name || '—'}</b><br><small>${p.code || ''}</small></td>
+                        <td style="text-align:center;color:#047857;font-weight:600;">${reasonText}</td>
+                        <td style="text-align:center;">${p.in_stock || p.in_stock_balance || 0}</td>
+                        <td style="text-align:center;"><span class="status-pill green">Рекомендовано</span></td>
+                    </tr>`;
+                });
+            } catch (e) { tb.innerHTML = '<tr><td colspan="5" style="color:#ef4444;">⚠️ Ошибка</td></tr>'; }
         }
 
         // ====== УМНОЕ ОБНОВЛЕНИЕ ======
         function refreshAll() {
             loadDashboard();
-            if (currentPage === 'recommendations') showRecSearch();
-            else if (currentPage === 'clients') loadActive();
+            if (currentPage === 'clients') loadActive();
             else if (currentPage === 'churn') loadChurn();
             else if (currentPage === 'funnel') loadFunnel();
-            else loadClients();
+            else if (currentPage === 'recommendations') showRecSearch();
+            else loadTopHalfYear();
+        }
+
+        function setTableForPage(page) {
+            const thead = $('table-head');
+            const bt = $('block-title');
+            const pt = $('page-title');
+            const filterBar = $('table-filter-bar');
+
+            const configs = {
+                dashboard:       { title: 'Обзорный дашборд',       block: 'ТОП клиентов за полгода',            cols: 4, headers: ['Клиент', 'Статус', 'Последняя покупка', 'Выручка (тов.)'] },
+                clients:         { title: 'Активные клиенты',       block: 'Покупки за последние 30 дней',        cols: 4, headers: ['Клиент', 'Статус', 'Последняя покупка', 'Выручка'] },
+                funnel:          { title: 'Воронка продаж',          block: `Распределение по статусам — ${funnelYear}`, cols: 3, headers: ['Статус', 'Клиентов', `Выручка ${funnelYear}`] },
+                churn:           { title: 'Риск оттока',            block: 'Без покупок более 90 дней',          cols: 4, headers: ['Клиент', 'Статус', 'Последняя покупка', 'Предупреждение'] },
+                recommendations: { title: 'Рекомендации',           block: 'Персональные для клиента',       cols: 5, headers: ['#', 'Товар', 'Причина', 'Остаток', 'Статус'] }
+            };
+
+            const cfg = configs[page] || configs.dashboard;
+            if (pt) pt.textContent = cfg.title;
+            if (bt) bt.textContent = cfg.block;
+            if (thead) thead.innerHTML = `<tr>${cfg.headers.map(h => `<th>${h}</th>`).join('')}</tr>`;
+
+            // Фильтр-бар: показываем только для воронки
+            if (filterBar) {
+                if (page === 'funnel') {
+                    const years = [2024, 2025, 2026];
+                    filterBar.innerHTML = `
+                        <div style="display:flex;align-items:center;gap:8px;padding-bottom:12px;">
+                            <span style="font-size:12px;font-weight:600;color:var(--text-muted);">Год:</span>
+                            ${years.map(y => `
+                                <button class="year-btn ${y === funnelYear ? 'year-btn-active' : ''}" 
+                                    data-year="${y}" onclick="loadFunnel(${y})">${y}</button>
+                            `).join('')}
+                        </div>`;
+                    filterBar.style.display = 'block';
+                } else {
+                    filterBar.style.display = 'none';
+                    filterBar.innerHTML = '';
+                }
+            }
         }
 
         // ====== ЗАПУСК ======
-        document.addEventListener('DOMContentLoaded', function () {
-            var si = document.getElementById('search-input');
-            if (si) si.addEventListener('keypress', function (e) { if (e.key === 'Enter') loadClients(this.value.trim() || null); });
-
-            document.querySelectorAll('.sidebar-item').forEach(function (item) {
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.sidebar-item[data-page]').forEach(item => {
                 item.addEventListener('click', function (e) {
-                    var href = this.getAttribute('href');
-                    var target = this.getAttribute('target');
-                    var dp = this.getAttribute('data-page');
-                    if (target === '_blank') return;
-                    if (href && href.startsWith('/') && href !== '#' && !href.startsWith('/?')) return;
                     e.preventDefault();
-                    document.querySelectorAll('.sidebar-item').forEach(function (i) { i.classList.remove('active'); });
-                    this.classList.add('active');
-                    currentPage = dp;
-                    var thead = document.getElementById('table-head');
-                    var bt = document.getElementById('block-title');
-                    var pt = document.getElementById('page-title');
+                    const page = this.getAttribute('data-page');
 
-                    if (dp === 'dashboard') {
-                        if (pt) pt.textContent = 'Сводка за 30 дней';
-                        if (bt) bt.textContent = 'Клиенты (Live из БД)';
-                        if (thead) thead.innerHTML = '<tr><th>Клиент</th><th>Статус</th><th>Последняя покупка</th><th>Действия</th></tr>';
-                        toggleSideBlocks(true);
-                        refreshAll();
-                    } else if (dp === 'clients') {
-                        if (pt) pt.textContent = 'Активные клиенты';
-                        if (bt) bt.textContent = 'Покупки за последние 30 дней';
-                        if (thead) thead.innerHTML = '<tr><th>Клиент</th><th>Статус</th><th>Последняя покупка</th><th>Выручка</th></tr>';
-                        toggleSideBlocks(false);
-                        loadActive();
-                    } else if (dp === 'churn') {
-                        if (pt) pt.textContent = 'Риск оттока';
-                        if (bt) bt.textContent = 'Без покупок более 90 дней';
-                        if (thead) thead.innerHTML = '<tr><th>Клиент</th><th>Статус</th><th>Последняя покупка</th><th>Предупреждение</th></tr>';
-                        toggleSideBlocks(false);
-                        loadChurn();
-                    } else if (dp === 'funnel') {
-                        if (pt) pt.textContent = 'Воронка продаж';
-                        if (bt) bt.textContent = 'Распределение по статусам';
-                        if (thead) thead.innerHTML = '<tr><th>Статус</th><th>Клиентов</th><th>Выручка</th></tr>';
-                        toggleSideBlocks(false);
-                        loadFunnel();
-                    } else if (dp === 'recommendations') {
-                        if (pt) pt.textContent = 'Рекомендации';
-                        if (bt) bt.textContent = 'Персональные для клиента';
-                        if (thead) thead.innerHTML = '<tr><th>#</th><th>Товар</th><th>Причина</th><th>Остаток</th><th>Статус</th></tr>';
-                        toggleSideBlocks(false);
-                        showRecSearch();
-                    }
+                    document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                    currentPage = page;
+
+                    setTableForPage(page);
+
+                    if (page === 'dashboard') refreshAll();
+                    else if (page === 'clients') loadActive();
+                    else if (page === 'funnel') loadFunnel();
+                    else if (page === 'churn') loadChurn();
+                    else if (page === 'recommendations') showRecSearch();
                 });
             });
 
-            console.log('🚀 UTSK v7.1 запущен');
+            const searchInput = $('search-input');
+            if (searchInput) {
+                searchInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && currentPage === 'dashboard') {
+                        // Поиск пока не реализован для дашборда
+                    }
+                });
+            }
+
+            console.log('🚀 UTSK v7.5 запущен');
             refreshAll();
         });
     </script>
