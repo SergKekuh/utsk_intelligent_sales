@@ -144,10 +144,54 @@ def active_clients(token: str = Query(None), limit: int = 20):
             JOIN documents d ON d.client_code = c.code
             LEFT JOIN status_rules sr ON c.current_status_id = sr.id
             WHERE d.invoice_date >= CURRENT_DATE - INTERVAL '30 days'
+              AND c.code != ALL(ARRAY['9653', '11230'])  -- исключения: Південтрансбудкомплект ТОВ, НЬЮЕРДЖІ ТОВ
             GROUP BY c.code, c.name, sr.status_name, c.last_purchase_date
             ORDER BY total_revenue DESC LIMIT :limit
         """), {"limit": limit})
         return [dict(row._mapping) for row in result]
+    finally:
+        db.close()
+
+# ====== API: ТОП КЛИЕНТЫ ЗА ПОЛ ГОДА ======
+@app.get("/api/clients/top-halfyear")
+def top_clients_halfyear(token: str = Query(None), limit: int = 15):
+    """Топ клиентов по товарной выручке за последние 6 месяцев"""
+    verify_token(token)
+    db = get_db()
+    try:
+        result = db.execute(text("""
+            SELECT
+                c.code,
+                c.name,
+                sr.status_name AS status,
+                c.last_purchase_date,
+                COUNT(DISTINCT d.id) AS invoice_count,
+                COALESCE(SUM(
+                    CASE WHEN COALESCE(pr.is_service, FALSE) = FALSE
+                         THEN sl.amount ELSE 0 END
+                ), 0) AS goods_revenue
+            FROM clients c
+            JOIN documents d
+                ON d.client_code = c.code
+               AND d.invoice_date >= CURRENT_DATE - INTERVAL '6 months'
+            JOIN sales_lines sl ON sl.document_id = d.id
+            LEFT JOIN products pr ON sl.product_code = pr.code
+            LEFT JOIN status_rules sr ON c.current_status_id = sr.id
+            WHERE c.code != ALL(ARRAY['9653', '11230'])  -- исключения: Південтрансбудкомплект ТОВ, НЬЮЕРДЖІ ТОВ
+            GROUP BY c.code, c.name, sr.status_name, c.last_purchase_date
+            ORDER BY goods_revenue DESC
+            LIMIT :limit
+        """), {"limit": limit})
+        data = []
+        for row in result:
+            r = dict(row._mapping)
+            if r.get("goods_revenue") is not None:
+                r["goods_revenue"] = round(float(r["goods_revenue"]), 2)
+            data.append(r)
+        return data
+    except Exception as e:
+        logger.error(f"Ошибка top_clients_halfyear: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
     finally:
         db.close()
 
@@ -339,19 +383,69 @@ def recommendations_for_client(client_code: str, token: str = Query(None)):
 
 # ====== API: ВОРОНКА ПРОДАЖ ======
 @app.get("/api/funnel")
-def funnel(token: str = Query(None)):
+def funnel(token: str = Query(None), year: int = None):
     verify_token(token)
+    import datetime
+    if year is None:
+        year = datetime.date.today().year
     db = get_db()
     try:
         result = db.execute(text("""
-            SELECT sr.status_name as stage, COUNT(*) as count,
-                   COALESCE(SUM(d.total_amount), 0) as revenue
-            FROM clients c
-            JOIN status_rules sr ON c.current_status_id = sr.id
-            LEFT JOIN documents d ON d.client_code = c.code
-            GROUP BY sr.status_name, sr.priority ORDER BY sr.priority
-        """))
-        return [dict(row._mapping) for row in result]
+            WITH client_stats AS (
+                SELECT 
+                    c.code,
+                    c.name,
+                    COUNT(DISTINCT CASE WHEN EXTRACT(YEAR FROM d.invoice_date) = :year THEN d.id END) AS current_year_count,
+                    COUNT(DISTINCT CASE WHEN EXTRACT(YEAR FROM d.invoice_date) = :year - 1 THEN d.id END) AS prev_year_count,
+                    MAX(CASE WHEN EXTRACT(YEAR FROM d.invoice_date) <= :year THEN d.invoice_date END) AS last_purchase_date,
+                    SUM(CASE WHEN EXTRACT(YEAR FROM d.invoice_date) = :year THEN d.total_amount ELSE 0 END) AS year_revenue
+                FROM clients c
+                LEFT JOIN documents d ON d.client_code = c.code
+                WHERE c.code != ALL(ARRAY['9653', '11230'])
+                GROUP BY c.code, c.name
+            ),
+            client_status_evaluated AS (
+                SELECT 
+                    cs.code,
+                    cs.name,
+                    cs.year_revenue,
+                    (
+                        SELECT sr.id 
+                        FROM status_rules sr
+                        WHERE 
+                            (sr.min_current_year IS NULL OR cs.current_year_count >= sr.min_current_year)
+                            AND (sr.max_current_year IS NULL OR cs.current_year_count <= sr.max_current_year)
+                            AND (sr.min_prev_year IS NULL OR cs.prev_year_count >= sr.min_prev_year)
+                            AND (sr.max_prev_year IS NULL OR cs.prev_year_count <= sr.max_prev_year)
+                            AND (
+                                sr.min_days_since_last_purchase IS NULL 
+                                OR (MAKE_DATE(:year, 12, 31) - cs.last_purchase_date) >= sr.min_days_since_last_purchase
+                            )
+                        ORDER BY sr.priority ASC
+                        LIMIT 1
+                    ) AS status_id
+                FROM client_stats cs
+                WHERE cs.current_year_count > 0 OR cs.year_revenue > 0
+            )
+            SELECT 
+                sr.status_name AS stage,
+                COUNT(DISTINCT cse.code) AS count,
+                COALESCE(SUM(cse.year_revenue), 0) AS revenue
+            FROM status_rules sr
+            LEFT JOIN client_status_evaluated cse ON cse.status_id = sr.id
+            GROUP BY sr.status_name, sr.priority
+            ORDER BY sr.priority
+        """), {"year": year})
+        data = []
+        for row in result:
+            r = dict(row._mapping)
+            if r.get("revenue") is not None:
+                r["revenue"] = round(float(r["revenue"]), 2)
+            data.append(r)
+        return data
+    except Exception as e:
+        logger.error(f"Ошибка funnel: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
     finally:
         db.close()
 
