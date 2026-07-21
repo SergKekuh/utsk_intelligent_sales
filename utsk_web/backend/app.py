@@ -383,62 +383,57 @@ def recommendations_for_client(client_code: str, token: str = Query(None)):
 
 # ====== API: ВОРОНКА ПРОДАЖ ======
 @app.get("/api/funnel")
-def funnel(token: str = Query(None), year: int = None):
+def funnel(token: str = Query(None), year: int = 2026):
+    """
+    Воронка продаж: распределение клиентов по частоте накладных за выбранный год.
+    """
     verify_token(token)
-    import datetime
-    if year is None:
-        year = datetime.date.today().year
     db = get_db()
     try:
         result = db.execute(text("""
-            WITH client_stats AS (
+            WITH client_invoices AS (
                 SELECT 
                     c.code,
-                    c.name,
-                    COUNT(DISTINCT CASE WHEN EXTRACT(YEAR FROM d.invoice_date) = :year THEN d.id END) AS current_year_count,
-                    COUNT(DISTINCT CASE WHEN EXTRACT(YEAR FROM d.invoice_date) = :year - 1 THEN d.id END) AS prev_year_count,
-                    MAX(CASE WHEN EXTRACT(YEAR FROM d.invoice_date) <= :year THEN d.invoice_date END) AS last_purchase_date,
-                    SUM(CASE WHEN EXTRACT(YEAR FROM d.invoice_date) = :year THEN d.total_amount ELSE 0 END) AS year_revenue
+                    COUNT(DISTINCT d.id) AS invoice_count,
+                    COALESCE(SUM(CASE WHEN COALESCE(pr.is_service, FALSE) = FALSE THEN sl.amount ELSE 0 END), 0) AS total_revenue
                 FROM clients c
-                LEFT JOIN documents d ON d.client_code = c.code
-                WHERE c.code != ALL(ARRAY['9653', '11230'])
-                GROUP BY c.code, c.name
+                JOIN client_year_active cya ON cya.client_code = c.code AND cya.sales_year = :year AND cya.is_active = TRUE
+                JOIN documents d ON d.client_code = c.code AND EXTRACT(YEAR FROM d.invoice_date) = :year
+                JOIN sales_lines sl ON sl.document_id = d.id
+                LEFT JOIN products pr ON sl.product_code = pr.code
+                WHERE c.code NOT IN ('9653', '11230')
+                GROUP BY c.code
             ),
-            client_status_evaluated AS (
+            classified AS (
                 SELECT 
-                    cs.code,
-                    cs.name,
-                    cs.year_revenue,
-                    (
-                        SELECT sr.id 
-                        FROM status_rules sr
-                        WHERE 
-                            (sr.min_current_year IS NULL OR cs.current_year_count >= sr.min_current_year)
-                            AND (sr.max_current_year IS NULL OR cs.current_year_count <= sr.max_current_year)
-                            AND (sr.min_prev_year IS NULL OR cs.prev_year_count >= sr.min_prev_year)
-                            AND (sr.max_prev_year IS NULL OR cs.prev_year_count <= sr.max_prev_year)
-                            AND (
-                                sr.min_days_since_last_purchase IS NULL 
-                                OR (MAKE_DATE(:year, 12, 31) - cs.last_purchase_date) >= sr.min_days_since_last_purchase
-                            )
-                        ORDER BY sr.priority ASC
-                        LIMIT 1
-                    ) AS status_id
-                FROM client_stats cs
-                WHERE cs.current_year_count > 0 OR cs.year_revenue > 0
+                    CASE 
+                        WHEN invoice_count = 1 THEN 'Разовые (1)'
+                        WHEN invoice_count BETWEEN 2 AND 3 THEN 'Повторные (2-3)'
+                        WHEN invoice_count BETWEEN 4 AND 10 THEN 'Квартал (4-10)'
+                        WHEN invoice_count BETWEEN 11 AND 40 THEN 'Месяц (11-40)'
+                        WHEN invoice_count BETWEEN 41 AND 170 THEN 'Неделя (41-170)'
+                        ELSE 'День (>170)'
+                    END AS stage,
+                    CASE 
+                        WHEN invoice_count = 1 THEN 1
+                        WHEN invoice_count BETWEEN 2 AND 3 THEN 2
+                        WHEN invoice_count BETWEEN 4 AND 10 THEN 3
+                        WHEN invoice_count BETWEEN 11 AND 40 THEN 4
+                        WHEN invoice_count BETWEEN 41 AND 170 THEN 5
+                        ELSE 6
+                    END AS sort_order,
+                    total_revenue
+                FROM client_invoices
             )
             SELECT 
-                CASE WHEN sr.status_name IN ('Новые', 'Разовые') THEN 'Разовые' ELSE sr.status_name END AS stage,
-                COUNT(DISTINCT cse.code) AS count,
-                COALESCE(SUM(cse.year_revenue), 0) AS revenue,
-                MIN(sr.priority) AS min_priority
-            FROM status_rules sr
-            LEFT JOIN client_status_evaluated cse ON cse.status_id = sr.id
-            WHERE sr.status_name NOT IN ('Спящие', 'Ушедшие')
-            GROUP BY 
-                CASE WHEN sr.status_name IN ('Новые', 'Разовые') THEN 'Разовые' ELSE sr.status_name END
-            ORDER BY min_priority
+                stage,
+                COUNT(*) AS count,
+                ROUND(SUM(total_revenue)::numeric, 2) AS revenue
+            FROM classified
+            GROUP BY stage, sort_order
+            ORDER BY sort_order
         """), {"year": year})
+        
         data = []
         for row in result:
             r = dict(row._mapping)
@@ -609,6 +604,40 @@ async def analytics_page(request: Request, token: str = Query(None)):
         with open(filepath, "r", encoding="utf-8") as f:
             return HTMLResponse(content=f.read())
     raise HTTPException(status_code=404, detail="Страница аналитики не найдена")
+
+# ====== СТРАНИЦА: СРАВНЕНИЕ СЕГМЕНТОВ ======
+@app.get("/comparison", response_class=HTMLResponse)
+async def comparison_page(request: Request, token: str = Query(None)):
+    verify_token(token)
+    search_dirs = [FRONTEND_DIR, os.path.join(PROJECT_DIR, "frontend", "static"), os.path.join(ROOT_DIR, "frontend", "static")]
+    filepath = find_file("comparison.html", search_dirs)
+    if filepath:
+        with open(filepath, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    raise HTTPException(status_code=404, detail="Страница сравнения не найдена")
+
+@app.get("/avg-check", response_class=HTMLResponse)
+async def avg_check_page(request: Request, token: str = Query(None)):
+    """Страница аналитики среднего чека"""
+    verify_token(token)
+    search_dirs = [FRONTEND_DIR, os.path.join(PROJECT_DIR, "frontend", "static"), os.path.join(ROOT_DIR, "frontend", "static")]
+    filepath = find_file("avg-check.html", search_dirs)
+    if filepath:
+        with open(filepath, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    raise HTTPException(status_code=404, detail="Страница аналитики среднего чека не найдена")
+
+@app.get("/advanced", response_class=HTMLResponse)
+async def advanced_page(request: Request, token: str = Query(None)):
+    """Страница расширенной аналитики"""
+    verify_token(token)
+    search_dirs = [FRONTEND_DIR, os.path.join(PROJECT_DIR, "frontend", "static"), os.path.join(ROOT_DIR, "frontend", "static")]
+    filepath = find_file("advanced.html", search_dirs)
+    if filepath:
+        with open(filepath, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    raise HTTPException(status_code=404, detail="Расширенная страница аналитики не найдена")
+
     # ====== API: PIVOT ABC-ОТЧЁТ ======
 @app.get("/api/analytics/pivot-report")
 def pivot_report(
@@ -1676,6 +1705,161 @@ def clients_yoy(
     except Exception as e:
         logger.error(f"Ошибка clients_yoy: {e}")
         return {"status": "error", "detail": str(e)}
+    finally:
+        db.close()
+
+
+# ====== API: СРАВНЕНИЕ СЕГМЕНТОВ ======
+@app.get("/api/analytics/segment-comparison")
+def get_segment_comparison(
+    token: str = Query(None),
+    year_current: int = 2026,
+    year_previous: int = 2025
+):
+    """
+    Полный набор данных для страницы сравнения сегментов.
+    Возвращает 6 групп RFM + 4 альтернативные группы.
+    """
+    verify_token(token)
+    db = get_db()
+    
+    try:
+        rfm_data = {}
+        alt_data = {}
+        
+        for year in [year_current, year_previous]:
+            # Структура по умолчанию для 6 RFM групп
+            groups_rfm = {
+                'one': {'companies': 0, 'invoices': 0, 'sales': 0.0, 'avg_check': 0.0},
+                'repeat': {'companies': 0, 'invoices': 0, 'sales': 0.0, 'avg_check': 0.0},
+                'quarter': {'companies': 0, 'invoices': 0, 'sales': 0.0, 'avg_check': 0.0},
+                'month': {'companies': 0, 'invoices': 0, 'sales': 0.0, 'avg_check': 0.0},
+                'week': {'companies': 0, 'invoices': 0, 'sales': 0.0, 'avg_check': 0.0},
+                'day': {'companies': 0, 'invoices': 0, 'sales': 0.0, 'avg_check': 0.0}
+            }
+            
+            result_rfm = db.execute(text("""
+                WITH client_invoices AS (
+                    SELECT 
+                        c.code,
+                        COUNT(DISTINCT d.id) AS invoice_count,
+                        COALESCE(SUM(CASE WHEN COALESCE(pr.is_service, FALSE) = FALSE THEN sl.amount ELSE 0 END), 0) AS total_revenue
+                    FROM clients c
+                    JOIN client_year_active cya ON cya.client_code = c.code AND cya.sales_year = :year AND cya.is_active = TRUE
+                    JOIN documents d ON d.client_code = c.code AND EXTRACT(YEAR FROM d.invoice_date) = :year
+                    JOIN sales_lines sl ON sl.document_id = d.id
+                    LEFT JOIN products pr ON sl.product_code = pr.code
+                    WHERE c.code NOT IN ('9653', '11230')
+                    GROUP BY c.code
+                ),
+                rfm_groups AS (
+                    SELECT 
+                        CASE 
+                            WHEN invoice_count = 1 THEN 'one'
+                            WHEN invoice_count BETWEEN 2 AND 3 THEN 'repeat'
+                            WHEN invoice_count BETWEEN 4 AND 10 THEN 'quarter'
+                            WHEN invoice_count BETWEEN 11 AND 40 THEN 'month'
+                            WHEN invoice_count BETWEEN 41 AND 170 THEN 'week'
+                            ELSE 'day'
+                        END AS rfm_group,
+                        COUNT(*) AS companies,
+                        SUM(invoice_count) AS invoices,
+                        ROUND(SUM(total_revenue)::numeric, 2) AS sales,
+                        ROUND(AVG(total_revenue / NULLIF(invoice_count, 0))::numeric, 2) AS avg_check
+                    FROM client_invoices
+                    GROUP BY rfm_group
+                )
+                SELECT * FROM rfm_groups
+            """), {"year": year})
+            
+            for row in result_rfm:
+                r = dict(row._mapping)
+                g_key = r['rfm_group']
+                if g_key in groups_rfm:
+                    groups_rfm[g_key] = {
+                        'companies': int(r['companies'] or 0),
+                        'invoices': int(r['invoices'] or 0),
+                        'sales': float(r['sales'] or 0),
+                        'avg_check': float(r['avg_check'] or 0)
+                    }
+            
+            total_companies_rfm = sum(g['companies'] for g in groups_rfm.values())
+            total_sales_rfm = sum(g['sales'] for g in groups_rfm.values())
+            
+            rfm_data[str(year)] = {
+                'groups': groups_rfm,
+                'total_companies': total_companies_rfm,
+                'total_invoices': sum(g['invoices'] for g in groups_rfm.values()),
+                'total_sales': total_sales_rfm,
+                'avg_check': round(total_sales_rfm / total_companies_rfm, 2) if total_companies_rfm else 0
+            }
+            
+            # ===== Альтернативная классификация (4 группы) =====
+            # 🔴 Залётные (random): small/C2 clients (below limit_price) with 1..3 purchases
+            # 🟠 Разовые основные (one_time_main): main/ABC clients (above limit_price) with 1 purchase
+            # 🔵 Повторно основные (repeat_main): main/ABC clients (above limit_price) with 2..3 purchases
+            # 🟢 Постоянные (regular): all clients with 4+ purchases
+            below_data = fetch_pivot_data_sync(year, 2.9, 146000, 'below')
+            above_data = fetch_pivot_data_sync(year, 2.9, 146000, 'above')
+            
+            def get_pivot_row(data, grp, metric):
+                for r in data:
+                    if r.get('out_group_name') == grp and r.get('out_metric') == metric:
+                        return r
+                return {}
+            
+            b_comp = get_pivot_row(below_data, 'Total', 'Итого') or get_pivot_row(below_data, 'C2', 'Кол-во компаний')
+            b_sales = get_pivot_row(below_data, 'C2', 'Сумма продаж')
+            a_comp = get_pivot_row(above_data, 'Total', 'Итого') or get_pivot_row(above_data, 'ABC', 'Кол-во компаний')
+            a_sales = get_pivot_row(above_data, 'ABC', 'Сумма продаж')
+            
+            z_comp = int(b_comp.get('out_1', 0) + b_comp.get('out_2_3', 0))
+            z_sales = float(b_sales.get('out_1', 0) + b_sales.get('out_2_3', 0))
+            z_avg = round((z_sales / z_comp) / 1000, 2) if z_comp else 0.0
+            
+            r_comp = int(a_comp.get('out_1', 0))
+            r_sales = float(a_sales.get('out_1', 0))
+            r_avg = round((r_sales / r_comp) / 1000, 2) if r_comp else 0.0
+            
+            p_comp = int(a_comp.get('out_2_3', 0))
+            p_sales = float(a_sales.get('out_2_3', 0))
+            p_avg = round((p_sales / p_comp) / 1000, 2) if p_comp else 0.0
+            
+            pos_comp = int(
+                b_comp.get('out_4_10', 0) + b_comp.get('out_11_40', 0) + b_comp.get('out_41_170', 0) + b_comp.get('out_171_plus', 0) +
+                a_comp.get('out_4_10', 0) + a_comp.get('out_11_40', 0) + a_comp.get('out_41_170', 0) + a_comp.get('out_171_plus', 0)
+            )
+            pos_sales = float(
+                b_sales.get('out_4_10', 0) + b_sales.get('out_11_40', 0) + b_sales.get('out_41_170', 0) + b_sales.get('out_171_plus', 0) +
+                a_sales.get('out_4_10', 0) + a_sales.get('out_11_40', 0) + a_sales.get('out_41_170', 0) + a_sales.get('out_171_plus', 0)
+            )
+            pos_avg = round((pos_sales / pos_comp) / 1000, 2) if pos_comp else 0.0
+            
+            groups_alt = {
+                'random': {'companies': z_comp, 'sales': round(z_sales, 2), 'avg_check': z_avg},
+                'one_time_main': {'companies': r_comp, 'sales': round(r_sales, 2), 'avg_check': r_avg},
+                'repeat_main': {'companies': p_comp, 'sales': round(p_sales, 2), 'avg_check': p_avg},
+                'regular': {'companies': pos_comp, 'sales': round(pos_sales, 2), 'avg_check': pos_avg}
+            }
+            
+            alt_data[str(year)] = {
+                'groups': groups_alt,
+                'total_companies': z_comp + r_comp + p_comp + pos_comp,
+                'total_sales': round(z_sales + r_sales + p_sales + pos_sales, 2)
+            }
+            
+        return {
+            "status": "ok",
+            "rfm": rfm_data,
+            "alt": alt_data,
+            "years": {
+                "current": year_current,
+                "previous": year_previous
+            }
+        }
+    except Exception as e:
+        logger.error(f"Ошибка в get_segment_comparison: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
     finally:
         db.close()
 

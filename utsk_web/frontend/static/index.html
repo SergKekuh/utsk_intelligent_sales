@@ -420,10 +420,12 @@
             cursor: pointer;
             transition: all 0.15s;
         }
+
         .year-btn:hover {
             background: #f1f5f9;
             color: var(--text-main);
         }
+
         .year-btn-active {
             background: var(--text-main) !important;
             color: white !important;
@@ -461,8 +463,7 @@
                 <button class="sidebar-item" data-page="recommendations">✨ Рекомендации</button>
                 <button class="sidebar-item" data-page="churn">⚠️ Риск оттока</button>
                 <div class="sidebar-section">Инструменты</div>
-                <a href="/analytics?token=utsk2026" target="_blank" class="sidebar-item">📈 ABC-Аналитика</a>
-                <a href="/monthly?token=utsk2026" target="_blank" class="sidebar-item">📅 Месячная</a>
+                <a href="/comparison?token=utsk2026" target="_blank" class="sidebar-item">📊 Расширенная аналитика</a>
             </div>
 
             <!-- Workspace -->
@@ -486,12 +487,14 @@
                             <span class="kpi-value" id="kpi-active-30d">—</span>
                             <span class="kpi-trend">Активных клиентов</span>
                         </div>
-                        <div class="kpi-card">
+                        <div class="kpi-card" onclick="window.location.href='/advanced?token=utsk2026'"
+                            style="cursor:pointer;">
                             <span class="kpi-label">💰 Выручка 2026</span>
                             <span class="kpi-value" id="kpi-total-revenue">—</span>
                             <span class="kpi-trend">Товарная</span>
                         </div>
-                        <div class="kpi-card">
+                        <div class="kpi-card" onclick="window.location.href='/avg-check?token=utsk2026'"
+                            style="cursor:pointer;">
                             <span class="kpi-label">🛒 Средний чек</span>
                             <span class="kpi-value" id="kpi-avg-check">—</span>
                             <span class="kpi-trend">Без услуг</span>
@@ -505,7 +508,8 @@
                                 <h2 class="table-title" id="block-title">ТОП клиентов за полгода</h2>
                                 <button class="btn" onclick="refreshAll()">🔄</button>
                             </div>
-                            <div id="table-filter-bar" style="display:none; padding:12px 24px 0; border-bottom:1px solid var(--border);"></div>
+                            <div id="table-filter-bar"
+                                style="display:none; padding:12px 24px 0; border-bottom:1px solid var(--border);"></div>
                             <div class="table-scroll">
                                 <table>
                                     <thead id="table-head">
@@ -630,7 +634,7 @@
         // ====== ВОРОНКА ======
         async function loadFunnel(year) {
             if (year) funnelYear = year;
-            // Обновляем активность кнопок
+            setTableForPage('funnel');
             document.querySelectorAll('.year-btn').forEach(btn => {
                 btn.classList.toggle('year-btn-active', parseInt(btn.dataset.year) === funnelYear);
             });
@@ -642,7 +646,7 @@
                 const data = await r.json();
                 tb.innerHTML = '';
                 if (!data.length) {
-                    tb.innerHTML = `<tr><td colspan="3" style="text-align:center;padding:24px;">📭 Нет активных клиентов за ${funnelYear}</td></tr>`;
+                    tb.innerHTML = `<tr><td colspan="3" style="text-align:center;padding:24px;">📭 Нет данных за ${funnelYear}</td></tr>`;
                     return;
                 }
                 let totalCount = 0;
@@ -783,11 +787,11 @@
             const filterBar = $('table-filter-bar');
 
             const configs = {
-                dashboard:       { title: 'Обзорный дашборд',       block: 'ТОП клиентов за полгода',            cols: 4, headers: ['Клиент', 'Статус', 'Последняя покупка', 'Выручка (тов.)'] },
-                clients:         { title: 'Активные клиенты',       block: 'Покупки за последние 30 дней',        cols: 4, headers: ['Клиент', 'Статус', 'Последняя покупка', 'Выручка'] },
-                funnel:          { title: 'Воронка продаж',          block: `Распределение по статусам — ${funnelYear}`, cols: 3, headers: ['Статус', 'Клиентов', `Выручка ${funnelYear}`] },
-                churn:           { title: 'Риск оттока',            block: 'Без покупок более 90 дней',          cols: 4, headers: ['Клиент', 'Статус', 'Последняя покупка', 'Предупреждение'] },
-                recommendations: { title: 'Рекомендации',           block: 'Персональные для клиента',       cols: 5, headers: ['#', 'Товар', 'Причина', 'Остаток', 'Статус'] }
+                dashboard: { title: 'Обзорный дашборд', block: 'ТОП клиентов за полгода', cols: 4, headers: ['Клиент', 'Статус', 'Последняя покупка', 'Выручка (тов.)'] },
+                clients: { title: 'Активные клиенты', block: 'Покупки за последние 30 дней', cols: 4, headers: ['Клиент', 'Статус', 'Последняя покупка', 'Выручка'] },
+                funnel: { title: 'Воронка продаж', block: `Распределение по частоте накладных — ${funnelYear}`, cols: 3, headers: ['Группа частоты', 'Количество фирм', `Товарная выручка (${funnelYear})`] },
+                churn: { title: 'Риск оттока', block: 'Без покупок более 90 дней', cols: 4, headers: ['Клиент', 'Статус', 'Последняя покупка', 'Предупреждение'] },
+                recommendations: { title: 'Рекомендации', block: 'Персональные для клиента', cols: 5, headers: ['#', 'Товар', 'Причина', 'Остаток', 'Статус'] }
             };
 
             const cfg = configs[page] || configs.dashboard;
