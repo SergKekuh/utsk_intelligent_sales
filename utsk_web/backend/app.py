@@ -428,13 +428,16 @@ def funnel(token: str = Query(None), year: int = None):
                 WHERE cs.current_year_count > 0 OR cs.year_revenue > 0
             )
             SELECT 
-                sr.status_name AS stage,
+                CASE WHEN sr.status_name IN ('Новые', 'Разовые') THEN 'Разовые' ELSE sr.status_name END AS stage,
                 COUNT(DISTINCT cse.code) AS count,
-                COALESCE(SUM(cse.year_revenue), 0) AS revenue
+                COALESCE(SUM(cse.year_revenue), 0) AS revenue,
+                MIN(sr.priority) AS min_priority
             FROM status_rules sr
             LEFT JOIN client_status_evaluated cse ON cse.status_id = sr.id
-            GROUP BY sr.status_name, sr.priority
-            ORDER BY sr.priority
+            WHERE sr.status_name NOT IN ('Спящие', 'Ушедшие')
+            GROUP BY 
+                CASE WHEN sr.status_name IN ('Новые', 'Разовые') THEN 'Разовые' ELSE sr.status_name END
+            ORDER BY min_priority
         """), {"year": year})
         data = []
         for row in result:
