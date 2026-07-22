@@ -39,3 +39,4 @@ desktop.ini
 
 # SQL файлы (опционально — если не хотите хранить в Git)
 # sql/*.sql
+SQL/my_antigravity_env/
