@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UTSK — Детализация клиента</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-app: #f8fafc;
+            --bg-surface: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --primary: #047857;
+            --primary-light: #ecfdf5;
+            --accent: #0284c7;
+            --radius-lg: 16px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-app);
+            color: var(--text-main);
+            line-height: 1.5;
+            padding: 24px;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        /* Top Header */
+        .top-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-surface);
+            padding: 20px 24px;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 24px;
+        }
+
+        .header-title-area {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #f1f5f9;
+            color: var(--text-main);
+            text-decoration: none;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            border: 1px solid var(--border);
+        }
+
+        .back-btn:hover {
+            background: #e2e8f0;
+            transform: translateX(-2px);
+        }
+
+        .client-info h1 {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .client-info .client-meta {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* KPI Cards Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .kpi-card {
+            background: var(--bg-surface);
+            padding: 20px 24px;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .kpi-value {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--text-main);
+            line-height: 1.2;
+        }
+
+        .kpi-sub {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 6px;
+        }
+
+        /* Status Pills */
+        .status-pill {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .status-pill.green { background: #dcfce7; color: #166534; }
+        .status-pill.blue { background: #e0f2fe; color: #075985; }
+        .status-pill.orange { background: #ffedd5; color: #9a3412; }
+
+        /* Content Grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card-block {
+            background: var(--bg-surface);
+            padding: 24px;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .block-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .block-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 320px;
+            width: 100%;
+        }
+
+        /* Filter Bar */
+        .filter-bar {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            padding: 14px 18px;
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .filter-bar select,
+        .filter-bar input {
+            padding: 8px 14px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+            background: #fff;
+            color: var(--text-main);
+            cursor: pointer;
+        }
+
+        .filter-bar label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .btn-filter {
+            padding: 8px 16px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .btn-filter:hover {
+            background: #0369a1;
+        }
+
+        /* Table */
+        .table-scroll {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px 16px;
+            background: #f8fafc;
+            color: var(--text-muted);
+            font-weight: 600;
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f1f5f9;
+            color: var(--text-main);
+        }
+
+        tr:hover td {
+            background: #f8fafc;
+        }
+
+        /* Recommendation Cards */
+        .rec-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .rec-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px;
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+        }
+
+        .rec-info b {
+            font-size: 13px;
+            display: block;
+            color: var(--text-main);
+        }
+
+        .rec-info small {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .badge-rec {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 6px;
+            background: #e0e7ff;
+            color: #3730a3;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .btn-detail {
+            padding: 6px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: #fff;
+            color: #6366f1;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-family: 'Inter', sans-serif;
+        }
+        .btn-detail:hover {
+            background: #eef2ff;
+            border-color: #6366f1;
+        }
+
+        /* Modal Overlay & Card */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .modal-content {
+            background: var(--bg-surface, #fff);
+            border-radius: 16px;
+            width: min(900px, 95vw);
+            max-height: 85vh;
+            overflow: hidden;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            animation: slideUp 0.3s ease;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border, #e2e8f0);
+            background: #f8fafc;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .modal-subtitle {
+            font-size: 13px;
+            color: var(--text-muted, #64748b);
+            margin: 4px 0 0;
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border: 1px solid var(--border, #e2e8f0);
+            border-radius: 8px;
+            background: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted, #64748b);
+            transition: all 0.15s;
+        }
+        .modal-close:hover {
+            background: #fee2e2;
+            color: #ef4444;
+            border-color: #fecaca;
+        }
+
+        .modal-body {
+            padding: 20px 24px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Top Header -->
+        <div class="top-header">
+            <div class="header-title-area">
+                <a href="/" id="back-link" class="back-btn">← На дашборд</a>
+                <div class="client-info">
+                    <h1 id="client-name">⏳ Загрузка клиента...</h1>
+                    <div class="client-meta" id="client-meta">Код: —</div>
+                </div>
+            </div>
+            <div id="status-badges">
+                <!-- Status Pills -->
+            </div>
+        </div>
+
+        <!-- KPI Grid -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <span class="kpi-label">💰 Выручка 2026</span>
+                <div class="kpi-value" id="kpi-revenue" style="color:#047857;">—</div>
+                <div class="kpi-sub">Товарная без услуг</div>
+            </div>
+            <div class="kpi-card">
+                <span class="kpi-label">📄 Всего накладных</span>
+                <div class="kpi-value" id="kpi-invoices">—</div>
+                <div class="kpi-sub">За 2026 год</div>
+            </div>
+            <div class="kpi-card">
+                <span class="kpi-label">🛒 Средний чек</span>
+                <div class="kpi-value" id="kpi-avg-check">—</div>
+                <div class="kpi-sub">На одну накладную</div>
+            </div>
+            <div class="kpi-card">
+                <span class="kpi-label">🕒 Последняя покупка</span>
+                <div class="kpi-value" id="kpi-last-date" style="font-size:20px;">—</div>
+                <div class="kpi-sub" id="kpi-status-sub">Текущий статус: —</div>
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="main-grid">
+            <!-- Chart Block -->
+            <div class="card-block">
+                <div class="block-header">
+                    <h2 class="block-title">📊 Динамика продаж по месяцам (2026 vs 2025)</h2>
+                </div>
+                <div class="chart-container">
+                    <canvas id="monthlyChart"></canvas>
+                </div>
+            </div>
+
+            <!-- ML Recommendations Block -->
+            <div class="card-block">
+                <div class="block-header">
+                    <h2 class="block-title">💡 Рекомендации для клиента</h2>
+                </div>
+                <div class="rec-list" id="rec-list">
+                    <div class="empty-state">⏳ Загрузка рекомендаций...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Invoices Table Block -->
+        <div class="card-block">
+            <div class="block-header">
+                <h2 class="block-title">🧾 Накладные клиента</h2>
+            </div>
+
+            <!-- Filter Bar -->
+            <div class="filter-bar">
+                <label>Год:</label>
+                <select id="invoice-year">
+                    <option value="2026" selected>2026</option>
+                    <option value="2025">2025</option>
+                    <option value="2024">2024</option>
+                </select>
+
+                <label>Месяц:</label>
+                <select id="invoice-month">
+                    <option value="all" selected>Все месяцы</option>
+                    <option value="1">Январь</option>
+                    <option value="2">Февраль</option>
+                    <option value="3">Март</option>
+                    <option value="4">Апрель</option>
+                    <option value="5">Май</option>
+                    <option value="6">Июнь</option>
+                    <option value="7">Июль</option>
+                    <option value="8">Август</option>
+                    <option value="9">Сентябрь</option>
+                    <option value="10">Октябрь</option>
+                    <option value="11">Ноябрь</option>
+                    <option value="12">Декабрь</option>
+                </select>
+
+                <label>С:</label>
+                <input type="date" id="date-from">
+                
+                <label>По:</label>
+                <input type="date" id="date-to">
+
+                <button class="btn-filter" onclick="loadInvoices()">🔄 Применить</button>
+            </div>
+
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Дата</th>
+                            <th>Номер накладной</th>
+                            <th style="text-align:center;">Позиций</th>
+                            <th style="text-align:right;">Сумма</th>
+                            <th style="text-align:center;">Действие</th>
+                        </tr>
+                    </thead>
+                    <tbody id="invoices-table-body">
+                        <tr><td colspan="6" class="empty-state">⏳ Загрузка накладных...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно детализации накладной -->
+    <div id="invoice-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h3 class="modal-title">📋 Накладная <span id="modal-invoice-number">Н-12345</span></h3>
+                    <p class="modal-subtitle">
+                        Дата: <span id="modal-invoice-date">—</span> | 
+                        Сумма: <span id="modal-invoice-total" style="color:#047857;font-weight:700;">—</span>
+                    </p>
+                </div>
+                <button onclick="closeModal()" class="modal-close">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="table-scroll" style="max-height:400px;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Код товара</th>
+                                <th>Наименование</th>
+                                <th style="text-align:right;">Кол-во</th>
+                                <th style="text-align:right;">Вес (кг)</th>
+                                <th style="text-align:right;">Цена/ед</th>
+                                <th style="text-align:right;">Стоимость</th>
+                            </tr>
+                        </thead>
+                        <tbody id="modal-invoice-items">
+                            <tr><td colspan="7" style="text-align:center;">⏳ Загрузка...</td></tr>
+                        </tbody>
+                        <tfoot id="modal-invoice-footer" style="display:none;">
+                            <tr style="background:#f8fafc;font-weight:700;border-top:2px solid var(--border);">
+                                <td colspan="3" style="text-align:right;">📊 Итого:</td>
+                                <td style="text-align:right;" id="modal-total-quantity">—</td>
+                                <td style="text-align:right;" id="modal-total-weight">—</td>
+                                <td style="text-align:right;">—</td>
+                                <td style="text-align:right;color:#047857;font-size:15px;" id="modal-total-sum">—</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const TOKEN = urlParams.get('token') || 'utsk2026';
+        const CLIENT_CODE = urlParams.get('code') || '';
+
+        // Настройка ссылки назад
+        const backLink = document.getElementById('back-link');
+        if (backLink) backLink.href = `/?token=${TOKEN}`;
+
+        function formatNum(n) { return (n == null) ? '—' : Number(n).toLocaleString('ru-RU'); }
+        function formatCur(n) { return (n == null) ? '—' : '₴ ' + formatNum(Math.round(n)); }
+        
+        function trimProductCode(name) {
+            if (!name) return '—';
+            const parts = name.trim().split(/\s+/);
+            if (parts.length <= 1) return name;
+            const lastWord = parts[parts.length - 1];
+            if (/^\d+$/.test(lastWord) || (lastWord.length > 4 && /^[A-Za-z0-9]+$/.test(lastWord))) {
+                parts.pop();
+            }
+            return parts.join(' ') || name;
+        }
+
+        let monthlyChartInstance = null;
+
+        async function initPage() {
+            if (!CLIENT_CODE) {
+                document.getElementById('client-name').textContent = '⚠️ Код клиента не указан';
+                return;
+            }
+
+            try {
+                // 1. Загрузка основных данных клиента
+                const res = await fetch(`/api/clients/detail/${CLIENT_CODE}?token=${TOKEN}&year=2026`);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+                
+                if (data.status !== 'ok' || !data.client) throw new Error('Invalid payload');
+                
+                const c = data.client;
+
+                // Заполнение заглавной информации
+                document.getElementById('client-name').textContent = c.name || '—';
+                document.getElementById('client-meta').textContent = `Код клиента: ${c.code}`;
+                
+                // Статусы
+                const statusBadges = document.getElementById('status-badges');
+                let cls26 = c.status && (c.status.includes('Спящ') || c.status.includes('Ушедш')) ? 'orange' : 'green';
+                let cls25 = c.status_2025 && (c.status_2025.includes('Спящ') || c.status_2025.includes('Ушедш')) ? 'orange' : 'blue';
+                statusBadges.innerHTML = `
+                    <span class="status-pill ${cls25}" style="margin-right:6px;">2025: ${c.status_2025 || '—'}</span>
+                    <span class="status-pill ${cls26}">2026: ${c.status || '—'}</span>
+                `;
+
+                // KPI Карточки
+                document.getElementById('kpi-revenue').textContent = formatCur(c.total_revenue);
+                document.getElementById('kpi-invoices').textContent = formatNum(c.total_invoices);
+                document.getElementById('kpi-avg-check').textContent = formatCur(c.avg_check);
+                document.getElementById('kpi-last-date').textContent = c.last_purchase_date || '—';
+                document.getElementById('kpi-status-sub').textContent = `Текущий статус: ${c.status || '—'}`;
+
+                // График помесячной динамики
+                renderChart(c.monthly_data || []);
+
+                // Загрузка накладных с фильтрами по умолчанию
+                loadInvoices();
+
+                // 2. Загрузка рекомендаций ML
+                loadRecommendations();
+
+            } catch (err) {
+                console.error('Client detail error:', err);
+                document.getElementById('client-name').textContent = '⚠️ Ошибка загрузки данных клиента';
+            }
+        }
+
+        function renderChart(monthlyData) {
+            const ctx = document.getElementById('monthlyChart').getContext('2d');
+            const monthNames = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'];
+            
+            const data2026 = new Array(12).fill(0);
+            const data2025 = new Array(12).fill(0);
+
+            monthlyData.forEach(m => {
+                const idx = m.month - 1;
+                if (idx >= 0 && idx < 12) {
+                    data2026[idx] = m.revenue_current || 0;
+                    data2025[idx] = m.revenue_previous || 0;
+                }
+            });
+
+            if (monthlyChartInstance) monthlyChartInstance.destroy();
+
+            monthlyChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: monthNames,
+                    datasets: [
+                        {
+                            label: 'Продажи 2026 (₴)',
+                            data: data2026,
+                            backgroundColor: '#047857',
+                            borderRadius: 6,
+                        },
+                        {
+                            label: 'Продажи 2025 (₴)',
+                            data: data2025,
+                            backgroundColor: '#cbd5e1',
+                            borderRadius: 6,
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ₴ ' + formatNum(context.parsed.y);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    if (value >= 1e6) return (value / 1e6).toFixed(1) + 'M';
+                                    if (value >= 1e3) return (value / 1e3).toFixed(0) + 'K';
+                                    return value;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        async function loadInvoices() {
+            const tb = document.getElementById('invoices-table-body');
+            tb.innerHTML = '<tr><td colspan="6" class="empty-state">⏳ Загрузка...</td></tr>';
+
+            const year = document.getElementById('invoice-year')?.value || '2026';
+            const month = document.getElementById('invoice-month')?.value || 'all';
+            const dateFrom = document.getElementById('date-from')?.value || '';
+            const dateTo = document.getElementById('date-to')?.value || '';
+
+            let url = `/api/clients/invoices/${CLIENT_CODE}?token=${TOKEN}`;
+            if (year) url += `&year=${year}`;
+            if (month && month !== 'all') url += `&month=${month}`;
+            if (dateFrom) url += `&date_from=${dateFrom}`;
+            if (dateTo) url += `&date_to=${dateTo}`;
+
+            try {
+                const res = await fetch(url);
+                if (!res.ok) throw new Error(res.status);
+                const data = await res.json();
+
+                renderInvoicesTable(data.invoices || [], data.total_sum || 0, data.total_count || 0, data.total_positions || 0);
+            } catch (err) {
+                console.error('Error loading invoices:', err);
+                tb.innerHTML = '<tr><td colspan="6" class="empty-state" style="color:#ef4444;">⚠️ Ошибка загрузки накладных</td></tr>';
+            }
+        }
+
+        function renderInvoicesTable(invoices, totalSum, totalCount, totalPositions) {
+            const tb = document.getElementById('invoices-table-body');
+            tb.innerHTML = '';
+
+            if (!invoices.length) {
+                tb.innerHTML = '<tr><td colspan="6" class="empty-state">📭 Накладные за выбранный период не найдены</td></tr>';
+                return;
+            }
+
+            invoices.forEach((inv, i) => {
+                tb.innerHTML += `<tr>
+                    <td style="color:var(--text-muted);">${i + 1}</td>
+                    <td><b>${inv.date || '—'}</b></td>
+                    <td style="font-family:monospace;font-weight:600;">${inv.number || '—'}</td>
+                    <td style="text-align:center;">${inv.positions || 0}</td>
+                    <td style="text-align:right;font-weight:700;color:#047857;">₴ ${formatNum(Math.round(inv.total || 0))}</td>
+                    <td style="text-align:center;">
+                        <button onclick="showInvoiceDetail('${inv.number}')" class="btn-detail">📋 Детали</button>
+                    </td>
+                </tr>`;
+            });
+
+            // Итоговая строка
+            tb.innerHTML += `<tr style="background:#f8fafc;font-weight:700;border-top:2px solid var(--border);">
+                <td colspan="3" style="text-align:right;">📊 Итого за период: ${formatNum(totalCount)} накладных</td>
+                <td style="text-align:center;color:var(--text-main);">${formatNum(totalPositions)} поз.</td>
+                <td style="text-align:right;color:#047857;font-size:15px;">₴ ${formatNum(Math.round(totalSum))}</td>
+                <td></td>
+            </tr>`;
+        }
+
+        // Открыть модальное окно с деталями накладной
+        async function showInvoiceDetail(invoiceNumber) {
+            const modal = document.getElementById('invoice-modal');
+            const itemsBody = document.getElementById('modal-invoice-items');
+            const footer = document.getElementById('modal-invoice-footer');
+            
+            modal.style.display = 'flex';
+            document.getElementById('modal-invoice-number').textContent = invoiceNumber;
+            document.getElementById('modal-invoice-date').textContent = '—';
+            document.getElementById('modal-invoice-total').textContent = '—';
+            itemsBody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:20px;">⏳ Загрузка товаров...</td></tr>';
+            footer.style.display = 'none';
+            
+            try {
+                const resp = await fetch(`/api/invoices/${encodeURIComponent(invoiceNumber)}/items?token=${TOKEN}`);
+                if (!resp.ok) throw new Error(resp.status);
+                const data = await resp.json();
+                
+                document.getElementById('modal-invoice-date').textContent = data.date || '—';
+                document.getElementById('modal-invoice-total').textContent = formatCur(data.total || 0);
+                
+                if (!data.items || !data.items.length) {
+                    itemsBody.innerHTML = '<tr><td colspan="7" style="text-align:center;">📭 Содержимое накладной не найдено</td></tr>';
+                    return;
+                }
+                
+                let totalQuantity = 0;
+                let totalWeight = 0;
+                let totalSum = 0;
+                
+                itemsBody.innerHTML = data.items.map((item, i) => {
+                    totalQuantity += (item.quantity || 0);
+                    totalWeight += (item.weight_kg || 0);
+                    totalSum += (item.total || 0);
+                    return `<tr>
+                        <td style="color:var(--text-muted);">${i + 1}</td>
+                        <td style="font-family:monospace;font-weight:600;">${item.code || '—'}</td>
+                        <td><b>${trimProductCode(item.name) || '—'}</b></td>
+                        <td style="text-align:right;">${formatNum(item.quantity || 0)}</td>
+                        <td style="text-align:right;">${formatNum(Math.round(item.weight_kg || 0))} кг</td>
+                        <td style="text-align:right;">₴ ${formatNum(Math.round(item.price || 0))}</td>
+                        <td style="text-align:right;font-weight:700;color:#047857;">₴ ${formatNum(Math.round(item.total || 0))}</td>
+                    </tr>`;
+                }).join('');
+                
+                // Итоговая строка
+                document.getElementById('modal-total-quantity').textContent = formatNum(Math.round(totalQuantity)) + ' шт.';
+                document.getElementById('modal-total-weight').textContent = formatNum(Math.round(totalWeight)) + ' кг';
+                document.getElementById('modal-total-sum').textContent = '₴ ' + formatNum(Math.round(totalSum));
+                footer.style.display = '';
+                
+            } catch (e) {
+                console.error('Invoice items error:', e);
+                itemsBody.innerHTML = '<tr><td colspan="7" style="color:#ef4444;text-align:center;">⚠️ Ошибка загрузки детализации накладной</td></tr>';
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('invoice-modal').style.display = 'none';
+        }
+
+        async function loadRecommendations() {
+            const recList = document.getElementById('rec-list');
+            try {
+                const res = await fetch(`/api/recommendations/${CLIENT_CODE}?token=${TOKEN}`);
+                if (!res.ok) throw new Error(res.status);
+                const data = await res.json();
+                
+                recList.innerHTML = '';
+                const recs = data.recommendations || [];
+                if (!recs.length) {
+                    recList.innerHTML = '<div class="empty-state">💡 Нет активных рекомендаций для этого клиента</div>';
+                    return;
+                }
+
+                recs.forEach(r => {
+                    recList.innerHTML += `
+                        <div class="rec-item">
+                            <div class="rec-info">
+                                <b>${trimProductCode(r.name) || 'Товар'}</b>
+                                <small style="color:#047857;font-weight:600;">Причина: ${r.reason || 'Рекомендовано ML'}</small>
+                            </div>
+                            <div style="text-align:right;">
+                                <span class="badge-rec">Остаток: ${formatNum(r.in_stock || r.in_stock_balance || 0)}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+            } catch (err) {
+                recList.innerHTML = '<div class="empty-state">⚠️ Не удалось загрузить рекомендации</div>';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initPage();
+
+            // Автообновление при изменении года или месяца
+            document.getElementById('invoice-year')?.addEventListener('change', loadInvoices);
+            document.getElementById('invoice-month')?.addEventListener('change', loadInvoices);
+
+            // Закрытие по клику на оверлей
+            const modal = document.getElementById('invoice-modal');
+            if (modal) {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) closeModal();
+                });
+            }
+
+            // Закрытие по Escape
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') closeModal();
+            });
+        });
+    </script>
+</body>
+</html>

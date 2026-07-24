@@ -90,6 +90,17 @@ async def db_reference_page(request: Request, token: str = Query(None)):
             return HTMLResponse(content=f.read())
     raise HTTPException(status_code=404, detail="Справочник не найден")
 
+@app.get("/client-detail", response_class=HTMLResponse)
+async def client_detail_page(request: Request, token: str = Query(None), code: str = Query(None)):
+    """Страница детализации клиента"""
+    verify_token(token)
+    search_dirs = [FRONTEND_DIR, os.path.join(PROJECT_DIR, "frontend", "static"), os.path.join(ROOT_DIR, "frontend", "static")]
+    filepath = find_file("client-detail.html", search_dirs)
+    if filepath:
+        with open(filepath, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    raise HTTPException(status_code=404, detail="Страница детализации клиента не найдена")
+
 # ====== API: ДАШБОРД ======
 @app.get("/api/dashboard")
 def dashboard(token: str = Query(None)):
@@ -152,45 +163,69 @@ def active_clients(token: str = Query(None), limit: int = 20):
     finally:
         db.close()
 
-# ====== API: ТОП КЛИЕНТЫ ЗА ПОЛ ГОДА ======
-@app.get("/api/clients/top-halfyear")
-def top_clients_halfyear(token: str = Query(None), limit: int = 15):
-    """Топ клиентов по товарной выручке за последние 6 месяцев"""
+# ====== API: ТОП ПРОДАЖ (80% RULE) ======
+@app.get("/api/clients/top-sales")
+def get_top_clients_sales(
+    token: str = Query(None),
+    year: int = 2026,
+    date_from: str = Query(None),
+    date_to: str = Query(None)
+):
+    """
+    Топ клиентов по продажам с накопительным процентом (80% rule).
+    Использует хранимую функцию get_top_clients_80pct для быстрой выборки.
+    """
     verify_token(token)
     db = get_db()
     try:
-        result = db.execute(text("""
-            SELECT
-                c.code,
-                c.name,
-                sr.status_name AS status,
-                c.last_purchase_date,
-                COUNT(DISTINCT d.id) AS invoice_count,
-                COALESCE(SUM(
-                    CASE WHEN COALESCE(pr.is_service, FALSE) = FALSE
-                         THEN sl.amount ELSE 0 END
-                ), 0) AS goods_revenue
-            FROM clients c
-            JOIN documents d
-                ON d.client_code = c.code
-               AND d.invoice_date >= CURRENT_DATE - INTERVAL '6 months'
-            JOIN sales_lines sl ON sl.document_id = d.id
-            LEFT JOIN products pr ON sl.product_code = pr.code
-            LEFT JOIN status_rules sr ON c.current_status_id = sr.id
-            WHERE c.code != ALL(ARRAY['9653', '11230'])  -- исключения: Південтрансбудкомплект ТОВ, НЬЮЕРДЖІ ТОВ
-            GROUP BY c.code, c.name, sr.status_name, c.last_purchase_date
-            ORDER BY goods_revenue DESC
-            LIMIT :limit
-        """), {"limit": limit})
-        data = []
-        for row in result:
-            r = dict(row._mapping)
-            if r.get("goods_revenue") is not None:
-                r["goods_revenue"] = round(float(r["goods_revenue"]), 2)
-            data.append(r)
-        return data
+        rows = db.execute(
+            text("SELECT * FROM get_top_clients_80pct(:year, :date_from, :date_to)"),
+            {
+                "year": year,
+                "date_from": date_from if date_from else None,
+                "date_to": date_to if date_to else None
+            }
+        ).fetchall()
+
+        if not rows:
+            return {
+                "status": "ok",
+                "clients": [],
+                "total_revenue": 0,
+                "period_label": "Нет данных"
+            }
+
+        first_row = dict(rows[0]._mapping)
+        total_revenue = float(first_row.get("total_revenue")) if first_row.get("total_revenue") else 0.0
+        period_label = first_row.get("period_label", "")
+
+        result = []
+        for r_raw in rows:
+            r = dict(r_raw._mapping)
+            last_date_str = r["last_purchase_date"].strftime("%d.%m.%Y") if r.get("last_purchase_date") else "—"
+            result.append({
+                "code": r["code"],
+                "name": r["name"] or "—",
+                "status_2025": r["status_2025"] or "—",
+                "status_2026": r["status_2026"] or "—",
+                "goods_revenue": float(r["goods_revenue"]),
+                "invoice_count": r["invoice_count"],
+                "last_purchase_date": last_date_str,
+                "pct_of_total": float(r["pct_of_total"]),
+                "running_pct": float(r["running_pct"]),
+                "is_included": bool(r.get("is_included", True))
+            })
+
+        return {
+            "status": "ok",
+            "clients": result,
+            "total_revenue": total_revenue,
+            "period_label": period_label,
+            "date_from": date_from or f"{year}-01-01",
+            "date_to": date_to or "сегодня"
+        }
     except Exception as e:
-        logger.error(f"Ошибка top_clients_halfyear: {e}")
+        logger.error(f"Ошибка в get_top_clients_sales: {e}")
         raise HTTPException(status_code=500, detail=str(e))
     finally:
         db.close()
@@ -210,6 +245,270 @@ def churn_risk(token: str = Query(None), limit: int = 20):
             ORDER BY days_since_last DESC LIMIT :limit
         """), {"limit": limit})
         return [dict(row._mapping) for row in result]
+    finally:
+        db.close()
+
+# ====== API: ДЕТАЛИЗАЦИЯ КЛИЕНТА ======
+@app.get("/api/clients/detail/{code}")
+def get_client_detail(code: str, token: str = Query(None), year: int = 2026):
+    """Детальная информация о клиенте"""
+    verify_token(token)
+    db = get_db()
+    try:
+        # 1. Основная информация о клиенте
+        q_main = text("""
+            SELECT 
+                c.code,
+                c.name,
+                sr.status_name AS status,
+                COALESCE(ROUND(SUM(sl.amount)::numeric, 0), 0) AS total_revenue,
+                COUNT(DISTINCT d.id) AS total_invoices,
+                COALESCE(ROUND(AVG(sl.amount)::numeric, 0), 0) AS avg_check,
+                MAX(d.invoice_date) AS last_purchase_date
+            FROM clients c
+            LEFT JOIN status_rules sr ON c.current_status_id = sr.id
+            LEFT JOIN documents d ON d.client_code = c.code AND EXTRACT(YEAR FROM d.invoice_date) = :year
+            LEFT JOIN sales_lines sl ON sl.document_id = d.id
+            LEFT JOIN products pr ON sl.product_code = pr.code
+            WHERE c.code = :code AND COALESCE(pr.is_service, FALSE) = FALSE AND (sl.amount IS NULL OR sl.amount > 0)
+            GROUP BY c.code, c.name, sr.status_name
+        """)
+        client_res = db.execute(q_main, {"year": year, "code": code}).fetchone()
+        if not client_res:
+            raise HTTPException(status_code=404, detail=f"Клиент '{code}' не найден")
+        
+        client_data = dict(client_res._mapping)
+
+        # 2. Статус 2025 года
+        q_2025 = text("""
+            SELECT 
+                CASE 
+                    WHEN cya.total_docs = 0 THEN 'Спящие'
+                    WHEN cya.total_docs = 1 THEN 'Разовые'
+                    WHEN cya.total_docs BETWEEN 2 AND 3 THEN 'Повторные'
+                    WHEN cya.total_docs BETWEEN 4 AND 10 THEN 'Ежеквартальные'
+                    WHEN cya.total_docs BETWEEN 11 AND 40 THEN 'Ежемесячные'
+                    WHEN cya.total_docs BETWEEN 41 AND 170 THEN 'Еженедельные'
+                    WHEN cya.total_docs > 170 THEN 'Ежедневные'
+                    ELSE '—'
+                END AS status_2025
+            FROM client_year_activity cya
+            WHERE cya.client_code = :code AND cya.sales_year = :year_prev
+        """)
+        res_2025 = db.execute(q_2025, {"code": code, "year_prev": year - 1}).scalar()
+        status_2025 = res_2025 or "—"
+
+        # 3. Помесячная динамика (2026 vs 2025)
+        q_monthly = text("""
+            SELECT 
+                EXTRACT(MONTH FROM d.invoice_date)::INTEGER AS month,
+                ROUND(SUM(CASE WHEN EXTRACT(YEAR FROM d.invoice_date) = :year THEN sl.amount ELSE 0 END)::numeric, 0) AS revenue_current,
+                ROUND(SUM(CASE WHEN EXTRACT(YEAR FROM d.invoice_date) = :year_prev THEN sl.amount ELSE 0 END)::numeric, 0) AS revenue_previous,
+                COUNT(DISTINCT CASE WHEN EXTRACT(YEAR FROM d.invoice_date) = :year THEN d.id END) AS invoices_current,
+                COUNT(DISTINCT CASE WHEN EXTRACT(YEAR FROM d.invoice_date) = :year_prev THEN d.id END) AS invoices_previous
+            FROM documents d
+            JOIN sales_lines sl ON sl.document_id = d.id
+            LEFT JOIN products pr ON sl.product_code = pr.code
+            WHERE d.client_code = :code
+              AND EXTRACT(YEAR FROM d.invoice_date) IN (:year, :year_prev)
+              AND COALESCE(pr.is_service, FALSE) = FALSE AND sl.amount > 0
+            GROUP BY EXTRACT(MONTH FROM d.invoice_date)
+            ORDER BY month
+        """)
+        monthly_rows = db.execute(q_monthly, {"year": year, "year_prev": year - 1, "code": code}).fetchall()
+        monthly_data = [dict(m._mapping) for m in monthly_rows]
+        for m in monthly_data:
+            m["revenue_current"] = float(m["revenue_current"]) if m.get("revenue_current") else 0.0
+            m["revenue_previous"] = float(m["revenue_previous"]) if m.get("revenue_previous") else 0.0
+
+        # 4. Последние 20 накладных
+        q_invoices = text("""
+            SELECT 
+                TO_CHAR(d.invoice_date, 'DD.MM.YYYY') AS date,
+                d.doc_number AS number,
+                ROUND(SUM(sl.amount)::numeric, 0) AS total,
+                COUNT(sl.id) AS positions
+            FROM documents d
+            JOIN sales_lines sl ON sl.document_id = d.id
+            LEFT JOIN products pr ON sl.product_code = pr.code
+            WHERE d.client_code = :code AND COALESCE(pr.is_service, FALSE) = FALSE AND sl.amount > 0
+            GROUP BY d.id, d.invoice_date, d.doc_number
+            ORDER BY d.invoice_date DESC
+            LIMIT 20
+        """)
+        invoice_rows = db.execute(q_invoices, {"code": code}).fetchall()
+        last_invoices = [dict(i._mapping) for i in invoice_rows]
+        for inv in last_invoices:
+            inv["total"] = float(inv["total"]) if inv.get("total") else 0.0
+
+        last_date_str = client_data["last_purchase_date"].strftime("%d.%m.%Y") if client_data.get("last_purchase_date") else "—"
+
+        return {
+            "status": "ok",
+            "client": {
+                "code": client_data["code"],
+                "name": client_data["name"] or "—",
+                "status": client_data["status"] or "—",
+                "status_2025": status_2025,
+                "total_revenue": float(client_data["total_revenue"]),
+                "total_invoices": client_data["total_invoices"],
+                "avg_check": float(client_data["avg_check"]),
+                "last_purchase_date": last_date_str,
+                "monthly_data": monthly_data,
+                "last_invoices": last_invoices
+            }
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Ошибка get_client_detail {code}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
+
+# ====== API: НАКЛАДНЫЕ КЛИЕНТА С ФИЛЬТРАМИ ======
+@app.get("/api/clients/invoices/{code}")
+def get_client_invoices(
+    code: str,
+    token: str = Query(None),
+    year: int = 2026,
+    month: str = "all",
+    date_from: str = Query(None),
+    date_to: str = Query(None),
+    limit: int = 50
+):
+    """Список накладных клиента с фильтрацией по году, месяцу и датам"""
+    verify_token(token)
+    db = get_db()
+    try:
+        month_int = int(month) if (month and month.isdigit() and month != "all") else None
+        
+        q = text("""
+            SELECT 
+                TO_CHAR(d.invoice_date, 'DD.MM.YYYY') AS date,
+                d.doc_number AS number,
+                ROUND(SUM(sl.amount)::numeric, 0) AS total,
+                COUNT(sl.id) AS positions
+            FROM documents d
+            JOIN sales_lines sl ON sl.document_id = d.id
+            LEFT JOIN products pr ON sl.product_code = pr.code
+            WHERE d.client_code = :code
+              AND COALESCE(pr.is_service, FALSE) = FALSE AND sl.amount > 0
+              AND (
+                  (:date_from IS NOT NULL AND :date_to IS NOT NULL AND d.invoice_date BETWEEN :date_from AND :date_to)
+                  OR
+                  (:date_from IS NULL AND :month_int IS NOT NULL AND EXTRACT(YEAR FROM d.invoice_date) = :year AND EXTRACT(MONTH FROM d.invoice_date) = :month_int)
+                  OR
+                  (:date_from IS NULL AND :month_int IS NULL AND EXTRACT(YEAR FROM d.invoice_date) = :year)
+              )
+            GROUP BY d.id, d.invoice_date, d.doc_number
+            ORDER BY d.invoice_date DESC
+            LIMIT :limit
+        """)
+
+        rows = db.execute(q, {
+            "code": code,
+            "year": year,
+            "month_int": month_int,
+            "date_from": date_from if date_from else None,
+            "date_to": date_to if date_to else None,
+            "limit": limit
+        }).fetchall()
+
+        invoices = [dict(r._mapping) for r in rows]
+        total_sum = 0.0
+        total_positions = 0
+        for inv in invoices:
+            inv_tot = float(inv["total"]) if inv.get("total") else 0.0
+            inv["total"] = inv_tot
+            total_sum += inv_tot
+            total_positions += inv.get("positions", 0)
+
+        return {
+            "status": "ok",
+            "invoices": invoices,
+            "total_count": len(invoices),
+            "total_sum": total_sum,
+            "total_positions": total_positions,
+            "invoice_filters": {
+                "year": year,
+                "month": month,
+                "date_from": date_from,
+                "date_to": date_to
+            }
+        }
+    except Exception as e:
+        logger.error(f"Ошибка get_client_invoices {code}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
+
+# ====== API: ДЕТАЛИЗАЦИЯ НАКЛАДНОЙ (ITEMS) ======
+@app.get("/api/invoices/{number}/items")
+def get_invoice_items(number: str, token: str = Query(None)):
+    """
+    Детализация накладной — список товаров с количеством, весом, ценой и стоимостью.
+    """
+    verify_token(token)
+    db = get_db()
+    try:
+        # 1. Основная информация о накладной
+        q_doc = text("""
+            SELECT 
+                TO_CHAR(d.invoice_date, 'DD.MM.YYYY') AS date,
+                d.doc_number AS number,
+                COALESCE(ROUND(SUM(sl.amount)::numeric, 0), 0) AS total
+            FROM documents d
+            JOIN sales_lines sl ON sl.document_id = d.id
+            WHERE d.doc_number = :number
+            GROUP BY d.id, d.invoice_date, d.doc_number
+        """)
+        invoice_row = db.execute(q_doc, {"number": number}).fetchone()
+        if not invoice_row:
+            raise HTTPException(status_code=404, detail=f"Накладная '{number}' не найдена")
+        
+        inv_data = dict(invoice_row._mapping)
+
+        # 2. Строки накладной (товары)
+        q_items = text("""
+            SELECT 
+                sl.product_code AS code,
+                COALESCE(pr.name, sl.product_code) AS name,
+                COALESCE(sl.quantity, 0) AS quantity,
+                COALESCE(sl.amount, 0) AS total,
+                COALESCE(pr.weight_per_meter, 0) * COALESCE(sl.quantity, 0) AS weight_kg,
+                CASE WHEN COALESCE(sl.quantity, 0) > 0 THEN sl.amount / sl.quantity ELSE 0 END AS price
+            FROM documents d
+            JOIN sales_lines sl ON sl.document_id = d.id
+            LEFT JOIN products pr ON sl.product_code = pr.code
+            WHERE d.doc_number = :number
+            ORDER BY sl.id
+        """)
+        item_rows = db.execute(q_items, {"number": number}).fetchall()
+        items = []
+        for r in item_rows:
+            m = dict(r._mapping)
+            items.append({
+                "code": m["code"],
+                "name": m["name"],
+                "quantity": float(m["quantity"]) if m.get("quantity") else 0.0,
+                "weight_kg": float(m["weight_kg"]) if m.get("weight_kg") else 0.0,
+                "price": float(m["price"]) if m.get("price") else 0.0,
+                "total": float(m["total"]) if m.get("total") else 0.0
+            })
+
+        return {
+            "status": "ok",
+            "date": inv_data["date"],
+            "number": inv_data["number"],
+            "total": float(inv_data["total"]),
+            "items": items
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Ошибка invoice-items {number}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
     finally:
         db.close()
 

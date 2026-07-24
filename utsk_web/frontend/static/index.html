@@ -505,8 +505,14 @@
                     <div class="main-grid">
                         <div class="table-block">
                             <div class="table-header">
-                                <h2 class="table-title" id="block-title">ТОП клиентов за полгода</h2>
-                                <button class="btn" onclick="refreshAll()">🔄</button>
+                                <h2 class="table-title" id="block-title">ТОП продаж</h2>
+                                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                                    <label style="font-size:11px;color:var(--text-muted);font-weight:600;">С:</label>
+                                    <input type="date" id="date-from" style="padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:12px;background:#fff;" onchange="refreshAll()">
+                                    <label style="font-size:11px;color:var(--text-muted);font-weight:600;">По:</label>
+                                    <input type="date" id="date-to" style="padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:12px;background:#fff;" onchange="refreshAll()">
+                                    <button class="btn" onclick="refreshAll()" style="padding:6px 12px;font-size:12px;">🔄</button>
+                                </div>
                             </div>
                             <div id="table-filter-bar"
                                 style="display:none; padding:12px 24px 0; border-bottom:1px solid var(--border);"></div>
@@ -515,14 +521,15 @@
                                     <thead id="table-head">
                                         <tr>
                                             <th>Клиент</th>
-                                            <th>Статус</th>
-                                            <th>Последняя покупка</th>
-                                            <th>Выручка (тов.)</th>
+                                            <th style="text-align:center;">Базовый статус 2025</th>
+                                            <th style="text-align:center;">Текущий статус 2026</th>
+                                            <th style="text-align:right;">Продажи</th>
+                                            <th style="text-align:right;">% от общих</th>
                                         </tr>
                                     </thead>
                                     <tbody id="clients-table-body">
                                         <tr>
-                                            <td colspan="4" style="text-align:center;padding:40px;">⏳ Загрузка...</td>
+                                            <td colspan="5" style="text-align:center;padding:40px;">⏳ Загрузка...</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -542,6 +549,18 @@
         function $(id) { return document.getElementById(id); }
         function safeText(id, text) { const el = $(id); if (el) el.textContent = text; }
         function formatNum(n) { return (n == null) ? '—' : Number(n).toLocaleString('ru-RU'); }
+        
+        function trimProductCode(name) {
+            if (!name) return '—';
+            const parts = name.trim().split(/\s+/);
+            if (parts.length <= 1) return name;
+            const lastWord = parts[parts.length - 1];
+            if (/^\d+$/.test(lastWord) || (lastWord.length > 4 && /^[A-Za-z0-9]+$/.test(lastWord))) {
+                parts.pop();
+            }
+            return parts.join(' ') || name;
+        }
+        const pf = new Intl.NumberFormat('ru-RU', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
         function formatCur(n) {
             if (n == null) return '—';
             n = Number(n);
@@ -579,34 +598,98 @@
             } catch (e) { console.error('KPI error:', e); }
         }
 
-        // ====== ТОП КЛИЕНТЫ ЗА ПОЛ ГОДА ======
-        async function loadTopHalfYear() {
+        // ====== ТОП ПРОДАЖ (80% RULE) ======
+        async function loadTopSales() {
             const tb = $('clients-table-body');
-            tb.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;">⏳ Загрузка...</td></tr>';
+            tb.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;">⏳ Загрузка...</td></tr>';
             try {
-                const r = await fetch(`/api/clients/top-halfyear?token=${TOKEN}&limit=15`);
+                const dateFrom = $('date-from')?.value || '';
+                const dateTo = $('date-to')?.value || '';
+                
+                let url = `/api/clients/top-sales?token=${TOKEN}`;
+                if (dateFrom) url += `&date_from=${dateFrom}`;
+                if (dateTo) url += `&date_to=${dateTo}`;
+                
+                const r = await fetch(url);
                 if (!r.ok) throw new Error(r.status);
                 const data = await r.json();
+                
+                if (data.status !== 'ok') throw new Error('Invalid response');
+                
+                // Обновляем заголовок таблицы
+                const bt = $('block-title');
+                if (bt) bt.textContent = `ТОП продаж — ${data.period_label || 'текущий период'}`;
+                
                 tb.innerHTML = '';
-                if (!data.length) {
-                    tb.innerHTML = '<tr><td colspan="4" style="text-align:center;">📭 Нет данных</td></tr>';
+                if (!data.clients || !data.clients.length) {
+                    tb.innerHTML = '<tr><td colspan="5" style="text-align:center;">📭 Нет данных</td></tr>';
                     return;
                 }
-                data.forEach((c, i) => {
+                
+                data.clients.forEach((c, i) => {
                     const medalIcon = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1) + '.';
-                    let cls = 'blue';
-                    if (c.status && (c.status.includes('Спящ') || c.status.includes('Ушедш'))) cls = 'orange';
-                    else if (c.status && !c.status.includes('Новы')) cls = 'green';
-
-                    tb.innerHTML += `<tr>
-                        <td><b>${medalIcon} ${c.name || '—'}</b><br><small style="color:var(--text-muted);">Код: ${c.code} | Счетов: ${c.invoice_count || 0}</small></td>
-                        <td><span class="status-pill ${cls}">${c.status || '—'}</span></td>
-                        <td style="color:var(--text-muted);">${c.last_purchase_date || '—'}</td>
-                        <td style="font-weight:700;color:#047857;">₴ ${formatNum(Math.round(c.goods_revenue || 0))}</td>
+                    
+                    // Статус 2025
+                    let cls25 = 'blue';
+                    if (c.status_2025 && (c.status_2025.includes('Спящ') || c.status_2025.includes('Ушедш'))) cls25 = 'orange';
+                    else if (c.status_2025 && !c.status_2025.includes('Новы')) cls25 = 'green';
+                    
+                    // Статус 2026
+                    let cls26 = 'blue';
+                    if (c.status_2026 && (c.status_2026.includes('Спящ') || c.status_2026.includes('Ушедш'))) cls26 = 'orange';
+                    else if (c.status_2026 && !c.status_2026.includes('Новы')) cls26 = 'green';
+                    
+                    // Процентная шкала
+                    const pctWidth = Math.min(c.pct_of_total || 0, 30);
+                    const pctColor = c.pct_of_total > 10 ? '#047857' : c.pct_of_total > 5 ? '#0ea5e9' : '#64748b';
+                    
+                    tb.innerHTML += `<tr onclick="window.open('/client-detail?token=${TOKEN}&code=${c.code}', '_blank')" 
+                        style="cursor:pointer;" 
+                        onmouseover="this.style.background='#e0f2fe'" 
+                        onmouseout="this.style.background=''">
+                        <td>
+                            <b style="font-size:22px;line-height:1;">${medalIcon}</b>
+                            <b>${c.name || '—'}</b>
+                            <br><small style="color:var(--text-muted);">Код: ${c.code} | Счетов: ${c.invoice_count || 0}</small>
+                        </td>
+                        <td style="text-align:center;"><span class="status-pill ${cls25}">${c.status_2025 || '—'}</span></td>
+                        <td style="text-align:center;"><span class="status-pill ${cls26}">${c.status_2026 || '—'}</span></td>
+                        <td style="text-align:right;font-weight:700;color:#047857;">₴ ${formatNum(Math.round(c.goods_revenue || 0))}</td>
+                        <td style="text-align:right;">
+                            <div style="display:flex;align-items:center;gap:8px;justify-content:flex-end;">
+                                <div style="flex:1;max-width:80px;height:6px;background:#f1f5f9;border-radius:3px;overflow:hidden;">
+                                    <div style="width:${pctWidth * 2.5}%;height:100%;background:${pctColor};border-radius:3px;"></div>
+                                </div>
+                                <span style="font-weight:700;font-size:13px;color:${pctColor};min-width:50px;text-align:right;">${pf.format(c.pct_of_total)}%</span>
+                            </div>
+                            <small style="color:var(--text-muted);font-size:10px;">накоп. ${pf.format(c.running_pct)}%</small>
+                        </td>
                     </tr>`;
                 });
+                
+                // Итоговые строки
+                if (data.total_revenue) {
+                    // Строка 1: Сумма выбранных (80%)
+                    const selectedSum = data.clients.reduce((sum, c) => sum + (c.goods_revenue || 0), 0);
+                    const lastRunningPct = data.clients.length > 0 ? data.clients[data.clients.length - 1].running_pct : 80;
+                    
+                    tb.innerHTML += `<tr style="background:#f0fdf4;font-weight:700;border-top:1px solid var(--border);">
+                        <td colspan="3" style="text-align:right;">Общие продажи выбранных:</td>
+                        <td style="text-align:right;color:#047857;font-size:14px;">₴ ${formatNum(Math.round(selectedSum))}</td>
+                        <td style="text-align:right;color:#047857;">${pf.format(lastRunningPct)}%</td>
+                    </tr>`;
+                    
+                    // Строка 2: Общие продажи за период (100%)
+                    tb.innerHTML += `<tr style="background:#f8fafc;font-weight:700;border-top:2px solid var(--border);">
+                        <td colspan="3" style="text-align:right;">📊 Общие продажи за период:</td>
+                        <td style="text-align:right;color:#047857;font-size:15px;">₴ ${formatNum(Math.round(data.total_revenue))}</td>
+                        <td style="text-align:right;color:var(--text-muted);">100%</td>
+                    </tr>`;
+                }
+                
             } catch (e) {
-                tb.innerHTML = '<tr><td colspan="4" style="color:#ef4444;text-align:center;">⚠️ Ошибка загрузки</td></tr>';
+                console.error('Top sales error:', e);
+                tb.innerHTML = '<tr><td colspan="5" style="color:#ef4444;text-align:center;">⚠️ Ошибка загрузки</td></tr>';
             }
         }
 
@@ -761,7 +844,7 @@
                     const reasonText = p.reason || 'Часто покупаете';
                     tb.innerHTML += `<tr>
                         <td style="text-align:center;font-weight:600;">${i + 1}</td>
-                        <td><b>${p.name || '—'}</b><br><small>${p.code || ''}</small></td>
+                        <td><b>${trimProductCode(p.name) || '—'}</b><br><small>${p.code || ''}</small></td>
                         <td style="text-align:center;color:#047857;font-weight:600;">${reasonText}</td>
                         <td style="text-align:center;">${p.in_stock || p.in_stock_balance || 0}</td>
                         <td style="text-align:center;"><span class="status-pill green">Рекомендовано</span></td>
@@ -777,7 +860,7 @@
             else if (currentPage === 'churn') loadChurn();
             else if (currentPage === 'funnel') loadFunnel();
             else if (currentPage === 'recommendations') showRecSearch();
-            else loadTopHalfYear();
+            else loadTopSales();
         }
 
         function setTableForPage(page) {
@@ -787,7 +870,7 @@
             const filterBar = $('table-filter-bar');
 
             const configs = {
-                dashboard: { title: 'Обзорный дашборд', block: 'ТОП клиентов за полгода', cols: 4, headers: ['Клиент', 'Статус', 'Последняя покупка', 'Выручка (тов.)'] },
+                dashboard: { title: 'Обзорный дашборд', block: 'ТОП продаж', cols: 5, headers: ['Клиент', 'Базовый статус 2025', 'Текущий статус 2026', 'Продажи', '% от общих'] },
                 clients: { title: 'Активные клиенты', block: 'Покупки за последние 30 дней', cols: 4, headers: ['Клиент', 'Статус', 'Последняя покупка', 'Выручка'] },
                 funnel: { title: 'Воронка продаж', block: `Распределение по частоте накладных — ${funnelYear}`, cols: 3, headers: ['Группа частоты', 'Количество фирм', `Товарная выручка (${funnelYear})`] },
                 churn: { title: 'Риск оттока', block: 'Без покупок более 90 дней', cols: 4, headers: ['Клиент', 'Статус', 'Последняя покупка', 'Предупреждение'] },
