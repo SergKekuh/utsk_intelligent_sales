@@ -2163,6 +2163,793 @@ def get_segment_comparison(
         db.close()
 
 
+# ====== API: СТРУКТУРНЫЙ АНАЛИЗ ABC ======
+@app.get("/api/analytics/abc-structure")
+def abc_structure(
+    token: str = Query(None),
+    year: int = 2026,
+    multiplier: float = 2.9,
+    limit_price: float = 146000
+):
+    """Возвращает структурированные данные для 4 секций ABC-анализа"""
+    verify_token(token)
+    db = get_db()
+    try:
+        # Получаем данные через функцию generate_custom_sales_report
+        below_result = db.execute(
+            text("SELECT * FROM generate_custom_sales_report(:year, :multiplier, :limit_price, 'below')"),
+            {"year": year, "multiplier": multiplier, "limit_price": limit_price}
+        ).fetchall()
+        above_result = db.execute(
+            text("SELECT * FROM generate_custom_sales_report(:year, :multiplier, :limit_price, 'above')"),
+            {"year": year, "multiplier": multiplier, "limit_price": limit_price}
+        ).fetchall()
+        
+        def parse_data(result):
+            """Парсит результат в структуру {группа: {метрика: {диапазон: значение}}}"""
+            data = {}
+            for row in result:
+                r = dict(row._mapping)
+                group = r.get('out_group_name')
+                metric = r.get('out_metric')
+                if group not in data:
+                    data[group] = {}
+                data[group][metric] = {
+                    '1': float(r.get('out_1', 0) or 0),
+                    '2_3': float(r.get('out_2_3', 0) or 0),
+                    '4_10': float(r.get('out_4_10', 0) or 0),
+                    '11_40': float(r.get('out_11_40', 0) or 0),
+                    '41_170': float(r.get('out_41_170', 0) or 0),
+                    '171_plus': float(r.get('out_171_plus', 0) or 0),
+                    'total': float(r.get('out_total', 0) or 0)
+                }
+            return data
+        
+        below = parse_data(below_result)
+        above = parse_data(above_result)
+
+        def get_metric_dict(data_dict, default_grp, metric_name):
+            if metric_name == 'Накладных':
+                return data_dict.get('Всего', {}).get('Накладных', {}) or data_dict.get(default_grp, {}).get('Накладных', {})
+            return data_dict.get(default_grp, {}).get(metric_name, {})
+
+        metric_names = ['Кол-во компаний', 'Накладных', 'Сумма продаж', 'Средний чек', '% от общ']
+        metric_keys = ['companies', 'invoices', 'sales', 'avg_ticket', 'pct']
+        ranges = ['1', '2_3', '4_10', '11_40', '41_170', '171_plus']
+
+        c2_sec = {}
+        abc_sec = {}
+        for i, metric in enumerate(metric_names):
+            k = metric_keys[i]
+            c2_sec[k] = get_metric_dict(below, 'C2', metric) or {'1': 0, '2_3': 0, '4_10': 0, '11_40': 0, '41_170': 0, '171_plus': 0, 'total': 0}
+            abc_sec[k] = get_metric_dict(above, 'ABC', metric) or {'1': 0, '2_3': 0, '4_10': 0, '11_40': 0, '41_170': 0, '171_plus': 0, 'total': 0}
+
+        grand_sales = (c2_sec['sales'].get('total', 0) + abc_sec['sales'].get('total', 0)) or 1.0
+
+        # Корректируем % от общ относительного общего итога (C2 + ABC)
+        c2_sec['pct'] = {r: round(c2_sec['sales'].get(r, 0) / grand_sales * 100, 2) for r in ranges}
+        c2_sec['pct']['total'] = round(c2_sec['sales'].get('total', 0) / grand_sales * 100, 2)
+
+        abc_sec['pct'] = {r: round(abc_sec['sales'].get(r, 0) / grand_sales * 100, 2) for r in ranges}
+        abc_sec['pct']['total'] = round(abc_sec['sales'].get('total', 0) / grand_sales * 100, 2)
+
+        # Рассчитываем Total (Случайные C2 + Основные ABC)
+        total_sec = {
+            'companies': {r: c2_sec['companies'].get(r, 0) + abc_sec['companies'].get(r, 0) for r in ranges},
+            'invoices': {r: c2_sec['invoices'].get(r, 0) + abc_sec['invoices'].get(r, 0) for r in ranges},
+            'sales': {r: c2_sec['sales'].get(r, 0) + abc_sec['sales'].get(r, 0) for r in ranges},
+        }
+        total_sec['companies']['total'] = sum(total_sec['companies'][r] for r in ranges)
+        total_sec['invoices']['total'] = sum(total_sec['invoices'][r] for r in ranges)
+        total_sec['sales']['total'] = sum(total_sec['sales'][r] for r in ranges)
+        total_sec['avg_ticket'] = {
+            r: round(total_sec['sales'][r] / total_sec['invoices'][r], 2) if total_sec['invoices'][r] else 0.0 for r in ranges
+        }
+        total_sec['avg_ticket']['total'] = round(total_sec['sales']['total'] / total_sec['invoices']['total'], 2) if total_sec['invoices']['total'] else 0.0
+        total_sec['pct'] = {r: round(total_sec['sales'][r] / grand_sales * 100, 2) for r in ranges}
+        total_sec['pct']['total'] = round(total_sec['sales']['total'] / grand_sales * 100, 2)
+
+        # Рассчитываем Important (ABC + C2 с 4+ документами)
+        c2_4plus_ranges = ['4_10', '11_40', '41_170', '171_plus']
+        imp_sec = {
+            'companies': {r: abc_sec['companies'].get(r, 0) + (c2_sec['companies'].get(r, 0) if r in c2_4plus_ranges else 0) for r in ranges},
+            'invoices': {r: abc_sec['invoices'].get(r, 0) + (c2_sec['invoices'].get(r, 0) if r in c2_4plus_ranges else 0) for r in ranges},
+            'sales': {r: abc_sec['sales'].get(r, 0) + (c2_sec['sales'].get(r, 0) if r in c2_4plus_ranges else 0) for r in ranges},
+        }
+        imp_sec['companies']['total'] = sum(imp_sec['companies'][r] for r in ranges)
+        imp_sec['invoices']['total'] = sum(imp_sec['invoices'][r] for r in ranges)
+        imp_sec['sales']['total'] = sum(imp_sec['sales'][r] for r in ranges)
+        imp_sec['avg_ticket'] = {
+            r: round(imp_sec['sales'][r] / imp_sec['invoices'][r], 2) if imp_sec['invoices'][r] else 0.0 for r in ranges
+        }
+        imp_sec['avg_ticket']['total'] = round(imp_sec['sales']['total'] / imp_sec['invoices']['total'], 2) if imp_sec['invoices']['total'] else 0.0
+        imp_sec['pct'] = {r: round(imp_sec['sales'][r] / grand_sales * 100, 2) for r in ranges}
+        imp_sec['pct']['total'] = round(imp_sec['sales']['total'] / grand_sales * 100, 2)
+
+        c2_sec['name'] = 'Случайные C2'
+        c2_sec['icon'] = '📥'
+        abc_sec['name'] = 'Основные ABC'
+        abc_sec['icon'] = '📈'
+        total_sec['name'] = 'Все ABC'
+        total_sec['icon'] = '📊'
+        imp_sec['name'] = 'Важные — ABC'
+        imp_sec['icon'] = '⭐'
+
+        result = {
+            'year': year,
+            'multiplier': multiplier,
+            'limit_price': limit_price,
+            'sections': {
+                'c2': c2_sec,
+                'abc': abc_sec,
+                'total': total_sec,
+                'important': imp_sec
+            }
+        }
+        return {'status': 'ok', 'data': result}
+
+    except Exception as e:
+        logger.error(f"Ошибка abc_structure: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
+
+
+# ====== API: ДЕТАЛЬНЫЙ АНАЛИЗ C2 ======
+@app.get("/api/analytics/c2-detail")
+def c2_detail(
+    token: str = Query(None),
+    year: int = 2026,
+    multiplier: float = 2.9,
+    limit_price: float = 146000
+):
+    """Глубокий анализ сегмента C2 с распаковкой повторных и внутренней ABC-классификацией"""
+    verify_token(token)
+    db = get_db()
+    try:
+        sql = text("""
+            WITH client_stats AS (
+                SELECT 
+                    d.client_code,
+                    COUNT(DISTINCT d.id) AS invoices_count,
+                    COUNT(DISTINCT d.invoice_date) AS distinct_dates,
+                    COALESCE(SUM(CASE WHEN pr.is_service = FALSE THEN sl.amount ELSE 0 END), 0) AS goods_revenue
+                FROM documents d
+                JOIN sales_lines sl ON sl.document_id = d.id
+                LEFT JOIN products pr ON sl.product_code = pr.code
+                JOIN clients c ON d.client_code = c.code AND c.is_active_current = TRUE
+                WHERE EXTRACT(YEAR FROM d.invoice_date) = :year
+                GROUP BY d.client_code
+            ),
+            c2_clients AS (
+                SELECT 
+                    client_code,
+                    invoices_count,
+                    distinct_dates,
+                    goods_revenue,
+                    CASE
+                        WHEN invoices_count = 1 THEN '1'
+                        WHEN invoices_count = 2 AND distinct_dates = 1 THEN '2_1d'
+                        WHEN invoices_count = 2 AND distinct_dates = 2 THEN '2_diff'
+                        WHEN invoices_count = 3 THEN '3'
+                        WHEN invoices_count BETWEEN 4 AND 10 THEN '4_10'
+                        WHEN invoices_count BETWEEN 11 AND 40 THEN '11_40'
+                        ELSE '41_plus'
+                    END AS freq_group
+                FROM client_stats
+                WHERE goods_revenue < :limit_price
+            ),
+            c2_with_cum AS (
+                SELECT 
+                    *,
+                    SUM(goods_revenue) OVER (ORDER BY goods_revenue DESC, client_code) AS cum_revenue,
+                    SUM(goods_revenue) OVER () AS total_c2_revenue
+                FROM c2_clients
+            )
+            SELECT 
+                client_code,
+                invoices_count,
+                goods_revenue,
+                freq_group,
+                CASE
+                    WHEN total_c2_revenue IS NULL OR total_c2_revenue = 0 THEN 'C'
+                    WHEN cum_revenue <= total_c2_revenue * 0.80 OR (cum_revenue - goods_revenue) < total_c2_revenue * 0.80 THEN 'A'
+                    WHEN cum_revenue <= total_c2_revenue * 0.95 OR (cum_revenue - goods_revenue) < total_c2_revenue * 0.95 THEN 'B'
+                    ELSE 'C'
+                END AS internal_class
+            FROM c2_with_cum
+        """)
+        rows = db.execute(sql, {"year": year, "limit_price": limit_price}).fetchall()
+        rows_prev = db.execute(sql, {"year": year - 1, "limit_price": limit_price}).fetchall()
+        
+        freq_groups = ['1', '2_1d', '2_diff', '3', '4_10', '11_40', '41_plus']
+        classes = ['A', 'B', 'C']
+        
+        matrix = {cls: {fg: {'comp': 0, 'inv': 0, 'sales': 0.0} for fg in freq_groups} for cls in classes}
+        matrix_prev = {cls: {fg: {'comp': 0, 'inv': 0, 'sales': 0.0} for fg in freq_groups} for cls in classes}
+        local_abc = {cls: {'comp': 0, 'inv': 0, 'sales': 0.0} for cls in classes}
+        repeat_decomp = {fg: {'comp': 0, 'inv': 0, 'sales': 0.0} for fg in freq_groups}
+        
+        total_comp = 0
+        total_inv = 0
+        total_sales = 0.0
+        
+        for r in rows:
+            cls = r.internal_class
+            fg = r.freq_group
+            sales = float(r.goods_revenue or 0)
+            inv = int(r.invoices_count or 0)
+            
+            total_comp += 1
+            total_inv += inv
+            total_sales += sales
+            
+            local_abc[cls]['comp'] += 1
+            local_abc[cls]['inv'] += inv
+            local_abc[cls]['sales'] += sales
+            
+            repeat_decomp[fg]['comp'] += 1
+            repeat_decomp[fg]['inv'] += inv
+            repeat_decomp[fg]['sales'] += sales
+            
+            matrix[cls][fg]['comp'] += 1
+            matrix[cls][fg]['inv'] += inv
+            matrix[cls][fg]['sales'] += sales
+
+        for r in rows_prev:
+            cls = r.internal_class
+            fg = r.freq_group
+            sales = float(r.goods_revenue or 0)
+            inv = int(r.invoices_count or 0)
+            matrix_prev[cls][fg]['comp'] += 1
+            matrix_prev[cls][fg]['inv'] += inv
+            matrix_prev[cls][fg]['sales'] += sales
+
+        comp_2_1d = repeat_decomp['2_1d']['comp']
+        comp_2_diff = repeat_decomp['2_diff']['comp']
+        total_2_comp = comp_2_1d + comp_2_diff
+        false_repeat_pct = round(comp_2_1d / total_2_comp * 100, 1) if total_2_comp > 0 else 0.0
+        
+        class_a_sales_pct = round(local_abc['A']['sales'] / total_sales * 100, 1) if total_sales > 0 else 0.0
+        class_a_comp_pct = round(local_abc['A']['comp'] / total_comp * 100, 1) if total_comp > 0 else 0.0
+
+        return {
+            "status": "ok",
+            "year": year,
+            "year_prev": year - 1,
+            "limit_price": limit_price,
+            "data": {
+                "total_companies": total_comp,
+                "total_invoices": total_inv,
+                "total_sales": round(total_sales, 2),
+                "avg_ticket": round(total_sales / total_inv, 2) if total_inv else 0.0,
+                "local_abc": local_abc,
+                "repeat_decomp": repeat_decomp,
+                "matrix": matrix,
+                "matrix_prev": matrix_prev,
+                "kpis": {
+                    "false_repeat_pct": false_repeat_pct,
+                    "class_a_sales_pct": class_a_sales_pct,
+                    "class_a_comp_pct": class_a_comp_pct,
+                    "false_repeat_comp": comp_2_1d,
+                    "true_repeat_comp": comp_2_diff
+                }
+            }
+        }
+    except Exception as e:
+        logger.error(f"Ошибка c2_detail: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
+
+
+# ====== API: УНИВЕРСАЛЬНЫЙ ДЕТАЛЬНЫЙ АНАЛИЗ СЕГМЕНТОВ ======
+@app.get("/api/analytics/segment-detail")
+def segment_detail(
+    token: str = Query(None),
+    segment: str = Query("abc"),
+    year: int = 2026,
+    multiplier: float = 2.9,
+    limit_price: float = 146000
+):
+    """Детальный анализ любого сегмента (c2, abc, total, important) с матрицей и локальным ABC"""
+    verify_token(token)
+    db = get_db()
+    try:
+        where_clauses = {
+            'c2': 'WHERE goods_revenue < :limit_price',
+            'abc': 'WHERE goods_revenue >= :limit_price',
+            'total': '',
+            'important': 'WHERE goods_revenue >= :limit_price OR invoices_count >= 4'
+        }
+        where_sql = where_clauses.get(segment.lower(), where_clauses['abc'])
+
+        sql = text(f"""
+            WITH client_stats AS (
+                SELECT 
+                    d.client_code,
+                    COUNT(DISTINCT d.id) AS invoices_count,
+                    COUNT(DISTINCT d.invoice_date) AS distinct_dates,
+                    COALESCE(SUM(CASE WHEN pr.is_service = FALSE THEN sl.amount ELSE 0 END), 0) AS goods_revenue
+                FROM documents d
+                JOIN sales_lines sl ON sl.document_id = d.id
+                LEFT JOIN products pr ON sl.product_code = pr.code
+                JOIN clients c ON d.client_code = c.code AND c.is_active_current = TRUE
+                WHERE EXTRACT(YEAR FROM d.invoice_date) = :year
+                GROUP BY d.client_code
+            ),
+            filtered_clients AS (
+                SELECT 
+                    client_code,
+                    invoices_count,
+                    distinct_dates,
+                    goods_revenue,
+                    CASE
+                        WHEN invoices_count = 1 THEN '1'
+                        WHEN invoices_count = 2 AND distinct_dates = 1 THEN '2_1d'
+                        WHEN invoices_count = 2 AND distinct_dates = 2 THEN '2_diff'
+                        WHEN invoices_count = 3 THEN '3'
+                        WHEN invoices_count BETWEEN 4 AND 10 THEN '4_10'
+                        WHEN invoices_count BETWEEN 11 AND 40 THEN '11_40'
+                        WHEN invoices_count BETWEEN 41 AND 170 THEN '41_170'
+                        ELSE '171_plus'
+                    END AS freq_group
+                FROM client_stats
+                {where_sql}
+            ),
+            clients_with_cum AS (
+                SELECT 
+                    *,
+                    SUM(goods_revenue) OVER (ORDER BY goods_revenue DESC, client_code) AS cum_revenue,
+                    SUM(goods_revenue) OVER () AS total_segment_revenue
+                FROM filtered_clients
+            )
+            SELECT 
+                client_code,
+                invoices_count,
+                goods_revenue,
+                freq_group,
+                CASE
+                    WHEN total_segment_revenue IS NULL OR total_segment_revenue = 0 THEN 'C'
+                    WHEN cum_revenue <= total_segment_revenue * 0.80 OR (cum_revenue - goods_revenue) < total_segment_revenue * 0.80 THEN 'A'
+                    WHEN cum_revenue <= total_segment_revenue * 0.95 OR (cum_revenue - goods_revenue) < total_segment_revenue * 0.95 THEN 'B'
+                    ELSE 'C'
+                END AS internal_class
+            FROM clients_with_cum
+        """)
+        
+        rows = db.execute(sql, {"year": year, "limit_price": limit_price}).fetchall()
+        rows_prev = db.execute(sql, {"year": year - 1, "limit_price": limit_price}).fetchall()
+        
+        freq_groups = ['1', '2_1d', '2_diff', '3', '4_10', '11_40', '41_170', '171_plus']
+        classes = ['A', 'B', 'C']
+        
+        matrix = {cls: {fg: {'comp': 0, 'inv': 0, 'sales': 0.0} for fg in freq_groups} for cls in classes}
+        matrix_prev = {cls: {fg: {'comp': 0, 'inv': 0, 'sales': 0.0} for fg in freq_groups} for cls in classes}
+        local_abc = {cls: {'comp': 0, 'inv': 0, 'sales': 0.0} for cls in classes}
+        repeat_decomp = {fg: {'comp': 0, 'inv': 0, 'sales': 0.0} for fg in freq_groups}
+        
+        total_comp = 0
+        total_inv = 0
+        total_sales = 0.0
+        
+        for r in rows:
+            cls = r.internal_class
+            fg = r.freq_group
+            sales = float(r.goods_revenue or 0)
+            inv = int(r.invoices_count or 0)
+            
+            total_comp += 1
+            total_inv += inv
+            total_sales += sales
+            
+            local_abc[cls]['comp'] += 1
+            local_abc[cls]['inv'] += inv
+            local_abc[cls]['sales'] += sales
+            
+            repeat_decomp[fg]['comp'] += 1
+            repeat_decomp[fg]['inv'] += inv
+            repeat_decomp[fg]['sales'] += sales
+            
+            matrix[cls][fg]['comp'] += 1
+            matrix[cls][fg]['inv'] += inv
+            matrix[cls][fg]['sales'] += sales
+
+        for r in rows_prev:
+            cls = r.internal_class
+            fg = r.freq_group
+            sales = float(r.goods_revenue or 0)
+            inv = int(r.invoices_count or 0)
+            matrix_prev[cls][fg]['comp'] += 1
+            matrix_prev[cls][fg]['inv'] += inv
+            matrix_prev[cls][fg]['sales'] += sales
+
+        comp_2_1d = repeat_decomp['2_1d']['comp']
+        comp_2_diff = repeat_decomp['2_diff']['comp']
+        total_2_comp = comp_2_1d + comp_2_diff
+        false_repeat_pct = round(comp_2_1d / total_2_comp * 100, 1) if total_2_comp > 0 else 0.0
+        
+        class_a_sales_pct = round(local_abc['A']['sales'] / total_sales * 100, 1) if total_sales > 0 else 0.0
+        class_a_comp_pct = round(local_abc['A']['comp'] / total_comp * 100, 1) if total_comp > 0 else 0.0
+
+        return {
+            "status": "ok",
+            "segment": segment,
+            "year": year,
+            "year_prev": year - 1,
+            "limit_price": limit_price,
+            "data": {
+                "total_companies": total_comp,
+                "total_invoices": total_inv,
+                "total_sales": round(total_sales, 2),
+                "avg_ticket": round(total_sales / total_inv, 2) if total_inv else 0.0,
+                "local_abc": local_abc,
+                "repeat_decomp": repeat_decomp,
+                "matrix": matrix,
+                "matrix_prev": matrix_prev,
+                "kpis": {
+                    "false_repeat_pct": false_repeat_pct,
+                    "class_a_sales_pct": class_a_sales_pct,
+                    "class_a_comp_pct": class_a_comp_pct,
+                    "false_repeat_comp": comp_2_1d,
+                    "true_repeat_comp": comp_2_diff
+                }
+            }
+        }
+    except Exception as e:
+        logger.error(f"Ошибка segment_detail: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
+
+
+# ====== API: ДЕТАЛЬНЫЙ АНАЛИЗ ОСНОВНЫХ ABC ======
+@app.get("/api/analytics/abc-groups-detail")
+def abc_groups_detail(
+    token: str = Query(None),
+    year: int = 2026,
+    multiplier: float = 2.9,
+    limit_price: float = 146000
+):
+    """Детальный анализ ABC-сегмента по группам A1, A2, A3, B1, B2, C1"""
+    verify_token(token)
+    db = get_db()
+    try:
+        sql = text("""
+            WITH stats AS (
+                SELECT 
+                    d.client_code,
+                    COUNT(DISTINCT d.id) AS invoices_count,
+                    COALESCE(SUM(CASE WHEN pr.is_service = FALSE THEN sl.amount ELSE 0 END), 0) AS goods_revenue
+                FROM documents d
+                JOIN sales_lines sl ON sl.document_id = d.id
+                LEFT JOIN products pr ON sl.product_code = pr.code
+                JOIN clients c ON d.client_code = c.code AND c.is_active_current = TRUE
+                WHERE EXTRACT(YEAR FROM d.invoice_date) = :year
+                GROUP BY d.client_code
+            ),
+            categorized AS (
+                SELECT 
+                    *,
+                    CASE
+                        WHEN goods_revenue >= 3000000 * :mult THEN 'A1'
+                        WHEN goods_revenue >= 2000000 * :mult THEN 'A2'
+                        WHEN goods_revenue >= 1500000 * :mult THEN 'A3'
+                        WHEN goods_revenue >= 1000000 * :mult THEN 'B1'
+                        WHEN goods_revenue >= 500000  * :mult THEN 'B2'
+                        WHEN goods_revenue >= 150000  * :mult THEN 'C1'
+                        ELSE 'C2_above'
+                    END AS abc_group
+                FROM stats
+                WHERE goods_revenue >= :limit_price
+            )
+            SELECT 
+                abc_group,
+                COUNT(*) AS companies,
+                SUM(invoices_count) AS invoices,
+                SUM(goods_revenue) AS sales
+            FROM categorized
+            GROUP BY abc_group
+            ORDER BY abc_group;
+        """)
+        rows = db.execute(sql, {"year": year, "mult": multiplier, "limit_price": limit_price}).fetchall()
+        
+        group_names = {
+            'A1': 'A1 (>8.7 млн ₴)',
+            'A2': 'A2 (5.8 - 8.7 млн ₴)',
+            'A3': 'A3 (4.35 - 5.8 млн ₴)',
+            'B1': 'B1 (2.9 - 4.35 млн ₴)',
+            'B2': 'B2 (1.45 - 2.9 млн ₴)',
+            'C1': 'C1 (435 тыс - 1.45 млн ₴)',
+            'C2_above': 'C2 выше границы'
+        }
+        
+        total_sales = sum(float(r.sales or 0) for r in rows)
+        total_comp = sum(int(r.companies or 0) for r in rows)
+        total_inv = sum(int(r.invoices or 0) for r in rows)
+        
+        groups_data = {}
+        for r in rows:
+            grp = r.abc_group
+            sales = float(r.sales or 0)
+            comp = int(r.companies or 0)
+            inv = int(r.invoices or 0)
+            groups_data[grp] = {
+                'name': group_names.get(grp, grp),
+                'companies': comp,
+                'invoices': inv,
+                'sales': round(sales, 2),
+                'avg_ticket': round(sales / inv, 2) if inv else 0.0,
+                'pct_of_abc': round(sales / total_sales * 100, 1) if total_sales else 0.0
+            }
+            
+        a1_sales = groups_data.get('A1', {}).get('sales', 0.0)
+        a1_share = round(a1_sales / total_sales * 100, 1) if total_sales else 0.0
+
+        return {
+            "status": "ok",
+            "year": year,
+            "multiplier": multiplier,
+            "limit_price": limit_price,
+            "data": {
+                "total_companies": total_comp,
+                "total_invoices": total_inv,
+                "total_sales": round(total_sales, 2),
+                "avg_ticket": round(total_sales / total_inv, 2) if total_inv else 0.0,
+                "groups": groups_data,
+                "kpis": {
+                    "top_group_share": a1_share,
+                    "avg_sales_per_client": round(total_sales / total_comp, 2) if total_comp else 0.0
+                }
+            }
+        }
+    except Exception as e:
+        logger.error(f"Ошибка abc_groups_detail: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
+
+
+# ====== API: ДЕТАЛЬНЫЙ АНАЛИЗ ВАЖНЫХ ABC ======
+@app.get("/api/analytics/important-detail")
+def important_detail(
+    token: str = Query(None),
+    year: int = 2026,
+    multiplier: float = 2.9,
+    limit_price: float = 146000
+):
+    """Детальный анализ Важных клиентов (ABC + C2 с 4+ накладными)"""
+    verify_token(token)
+    db = get_db()
+    try:
+        sql = text("""
+            WITH stats AS (
+                SELECT 
+                    d.client_code,
+                    c.name AS client_name,
+                    COUNT(DISTINCT d.id) AS invoices_count,
+                    COALESCE(SUM(CASE WHEN pr.is_service = FALSE THEN sl.amount ELSE 0 END), 0) AS goods_revenue
+                FROM documents d
+                JOIN sales_lines sl ON sl.document_id = d.id
+                LEFT JOIN products pr ON sl.product_code = pr.code
+                JOIN clients c ON d.client_code = c.code AND c.is_active_current = TRUE
+                WHERE EXTRACT(YEAR FROM d.invoice_date) = :year
+                GROUP BY d.client_code, c.name
+            ),
+            all_sales AS (
+                SELECT COALESCE(SUM(goods_revenue), 1) AS grand_total FROM stats
+            )
+            SELECT 
+                s.client_code,
+                s.client_name,
+                s.invoices_count,
+                s.goods_revenue,
+                CASE 
+                    WHEN s.goods_revenue >= :limit_price THEN 'ABC' 
+                    ELSE 'C2 (4+ накладных)' 
+                END AS category,
+                a.grand_total
+            FROM stats s, all_sales a
+            WHERE s.goods_revenue >= :limit_price OR s.invoices_count >= 4
+            ORDER BY s.goods_revenue DESC;
+        """)
+        rows = db.execute(sql, {"year": year, "limit_price": limit_price}).fetchall()
+        
+        grand_total = float(rows[0].grand_total) if rows else 1.0
+        total_comp = len(rows)
+        total_inv = sum(int(r.invoices_count or 0) for r in rows)
+        total_sales = sum(float(r.goods_revenue or 0) for r in rows)
+        
+        top_clients = []
+        for r in rows[:15]:
+            sales = float(r.goods_revenue or 0)
+            inv = int(r.invoices_count or 0)
+            top_clients.append({
+                "client_code": r.client_code,
+                "client_name": r.client_name,
+                "invoices_count": inv,
+                "goods_revenue": round(sales, 2),
+                "avg_ticket": round(sales / inv, 2) if inv else 0.0,
+                "category": r.category
+            })
+
+        vip_sales_share = round(total_sales / grand_total * 100, 1)
+
+        return {
+            "status": "ok",
+            "year": year,
+            "limit_price": limit_price,
+            "data": {
+                "total_companies": total_comp,
+                "total_invoices": total_inv,
+                "total_sales": round(total_sales, 2),
+                "avg_ticket": round(total_sales / total_inv, 2) if total_inv else 0.0,
+                "vip_sales_share": vip_sales_share,
+                "top_clients": top_clients
+            }
+        }
+    except Exception as e:
+        logger.error(f"Ошибка important_detail: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
+
+
+
+# ====== API: ТОП КЛИЕНТОВ ЗА МЕСЯЦ (С ИСКЛЮЧЕНИЕМ И 80% ПРАВИЛОМ) ======
+@app.get("/api/analytics/top-clients")
+def top_clients(
+    token: str = Query(None),
+    year: int = Query(None),
+    month: int = Query(None),
+    limit: int = 50,
+    exclude_client: str = Query("9653")
+):
+    """
+    Топ-клиенты за указанный или последний доступный месяц с исключением указанного клиента.
+    Возвращает клиентов для расчёта 80% на фронтенде.
+    """
+    verify_token(token)
+    db = get_db()
+    try:
+        # Авто-выбор года и месяца, если не переданы или за указанный месяц нет документов
+        target_year = year or 2026
+        target_month = month or 7
+        
+        check_count = db.execute(text("""
+            SELECT COUNT(*) FROM documents
+            WHERE EXTRACT(YEAR FROM invoice_date) = :year AND EXTRACT(MONTH FROM invoice_date) = :month
+        """), {"year": target_year, "month": target_month}).scalar()
+
+        if check_count == 0:
+            latest = db.execute(text("""
+                SELECT EXTRACT(YEAR FROM invoice_date)::integer AS yr, EXTRACT(MONTH FROM invoice_date)::integer AS mo
+                FROM documents
+                ORDER BY invoice_date DESC LIMIT 1
+            """)).fetchone()
+            if latest:
+                target_year = latest.yr
+                target_month = latest.mo
+
+        # Основной запрос без исключённого клиента
+        result = db.execute(text("""
+            WITH month_revenue AS (
+                SELECT 
+                    d.client_code,
+                    COUNT(DISTINCT d.id) as invoice_count,
+                    COALESCE(SUM(CASE WHEN pr.is_service = FALSE THEN sl.amount ELSE 0 END), 0) AS goods_revenue
+                FROM documents d
+                JOIN sales_lines sl ON sl.document_id = d.id
+                LEFT JOIN products pr ON sl.product_code = pr.code
+                WHERE EXTRACT(YEAR FROM d.invoice_date) = :year
+                  AND EXTRACT(MONTH FROM d.invoice_date) = :month
+                  AND d.client_code != :exclude_client
+                GROUP BY d.client_code
+            ),
+            status_2025 AS (
+                SELECT 
+                    client_code,
+                    sr.status_name as status_name
+                FROM client_year_activity cya
+                LEFT JOIN status_rules sr ON sr.id = cya.abc_group::integer
+                WHERE cya.sales_year = :year - 1
+                  AND cya.is_active = TRUE
+            ),
+            status_2026 AS (
+                SELECT 
+                    c.code as client_code,
+                    sr.status_name as status_name
+                FROM clients c
+                LEFT JOIN status_rules sr ON sr.id = c.current_status_id
+                WHERE c.is_active_current = TRUE
+            )
+            SELECT 
+                mr.client_code,
+                c.name as client_name,
+                mr.invoice_count,
+                mr.goods_revenue,
+                COALESCE(s25.status_name, '—') as status_2025,
+                COALESCE(s26.status_name, '—') as status_2026
+            FROM month_revenue mr
+            JOIN clients c ON c.code = mr.client_code
+            LEFT JOIN status_2025 s25 ON s25.client_code = mr.client_code
+            LEFT JOIN status_2026 s26 ON s26.client_code = mr.client_code
+            WHERE mr.goods_revenue > 0
+            ORDER BY mr.goods_revenue DESC
+            LIMIT :limit
+        """), {
+            "year": target_year,
+            "month": target_month,
+            "exclude_client": exclude_client,
+            "limit": limit
+        })
+        
+        data = []
+        total_revenue = 0
+        for row in result:
+            r = dict(row._mapping)
+            for key in r:
+                if r[key] is not None and isinstance(r[key], (int, float)):
+                    r[key] = round(float(r[key]), 2)
+            total_revenue += r.get('goods_revenue', 0)
+            data.append(r)
+        
+        # Получаем данные исключённого клиента для плашки внизу
+        excluded_info = None
+        if exclude_client:
+            excl_row = db.execute(text("""
+                SELECT 
+                    d.client_code,
+                    c.name as client_name,
+                    COUNT(DISTINCT d.id) as invoice_count,
+                    COALESCE(SUM(CASE WHEN pr.is_service = FALSE THEN sl.amount ELSE 0 END), 0) AS goods_revenue
+                FROM documents d
+                JOIN sales_lines sl ON sl.document_id = d.id
+                LEFT JOIN products pr ON sl.product_code = pr.code
+                JOIN clients c ON c.code = d.client_code
+                WHERE EXTRACT(YEAR FROM d.invoice_date) = :year
+                  AND EXTRACT(MONTH FROM d.invoice_date) = :month
+                  AND d.client_code = :exclude_client
+                GROUP BY d.client_code, c.name
+            """), {
+                "year": target_year,
+                "month": target_month,
+                "exclude_client": exclude_client
+            }).fetchone()
+            if excl_row:
+                excluded_info = dict(excl_row._mapping)
+                if excluded_info.get('goods_revenue'):
+                    excluded_info['goods_revenue'] = round(float(excluded_info['goods_revenue']), 2)
+        
+        return {
+            "status": "ok",
+            "year": target_year,
+            "month": target_month,
+            "data": data,
+            "total_revenue": round(total_revenue, 2),
+            "excluded_client": exclude_client,
+            "excluded_client_info": excluded_info,
+            "count": len(data)
+        }
+    except Exception as e:
+        logger.error(f"Ошибка top_clients: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
+
+
+# ====== СТРАНИЦА: ABC-СТРУКТУРА ======
+@app.get("/abc-structure", response_class=HTMLResponse)
+async def abc_structure_page(request: Request, token: str = Query(None)):
+    verify_token(token)
+    search_dirs = [FRONTEND_DIR, os.path.join(PROJECT_DIR, "frontend", "static")]
+    filepath = find_file("abc_structure.html", search_dirs)
+    if filepath:
+        with open(filepath, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    raise HTTPException(status_code=404, detail="Страница ABC-структуры не найдена")
+
+
 # ====== HEALTH CHECK ======
 @app.get("/health")
 def health():
