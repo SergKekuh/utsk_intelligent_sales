@@ -101,6 +101,17 @@ async def client_detail_page(request: Request, token: str = Query(None), code: s
             return HTMLResponse(content=f.read())
     raise HTTPException(status_code=404, detail="Страница детализации клиента не найдена")
 
+@app.get("/product-recommendations", response_class=HTMLResponse)
+async def product_recommendations_page(request: Request, token: str = Query(None)):
+    """Страница-заглушка: рекомендации по продукту"""
+    verify_token(token)
+    search_dirs = [FRONTEND_DIR, os.path.join(PROJECT_DIR, "frontend", "static")]
+    filepath = find_file("product-recommendations.html", search_dirs)
+    if filepath:
+        with open(filepath, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    raise HTTPException(status_code=404, detail="Страница не найдена")
+
 # ====== API: ДАШБОРД ======
 @app.get("/api/dashboard")
 def dashboard(token: str = Query(None)):
@@ -561,23 +572,87 @@ def recommendations_for_client(client_code: str, token: str = Query(None)):
 
         recommendations = []
         
-        # ====== БЛОК 1: История покупок ======
+        # ====== БЛОК 1: История покупок (РАСШИРЕННЫЙ: 2026 vs 2025 + тренд) ======
         result = db.execute(text("""
-            SELECT p.code, p.name, 'Часто покупаете' as reason, 1 as priority,
-                   COALESCE(p.in_stock_balance, 0) as in_stock, COUNT(sl.id) as purchase_count
-            FROM clients c
-            JOIN documents d ON d.client_code = c.code
-            JOIN sales_lines sl ON sl.document_id = d.id
-            JOIN products p ON sl.product_code = p.code
-            WHERE c.code = :client_code AND COALESCE(p.in_stock_balance, 0) > 0
-            GROUP BY p.code, p.name, p.in_stock_balance
-            HAVING COUNT(sl.id) >= 2
-            ORDER BY COUNT(sl.id) DESC
+            WITH client_total_current AS (
+                SELECT COALESCE(SUM(sl.amount), 0) AS total_revenue
+                FROM documents d
+                JOIN sales_lines sl ON sl.document_id = d.id
+                LEFT JOIN products pr ON sl.product_code = pr.code
+                WHERE d.client_code = :client_code
+                  AND EXTRACT(YEAR FROM d.invoice_date) = EXTRACT(YEAR FROM CURRENT_DATE)
+                  AND COALESCE(pr.is_service, FALSE) = FALSE AND sl.amount > 0
+            ),
+            client_total_prev AS (
+                SELECT COALESCE(SUM(sl.amount), 0) AS total_revenue
+                FROM documents d
+                JOIN sales_lines sl ON sl.document_id = d.id
+                LEFT JOIN products pr ON sl.product_code = pr.code
+                WHERE d.client_code = :client_code
+                  AND EXTRACT(YEAR FROM d.invoice_date) = EXTRACT(YEAR FROM CURRENT_DATE) - 1
+                  AND COALESCE(pr.is_service, FALSE) = FALSE AND sl.amount > 0
+            ),
+            product_stats AS (
+                SELECT 
+                    p.code, 
+                    p.name, 
+                    COALESCE(p.in_stock_balance, 0) as in_stock,
+                    -- Всего покупок за всю историю
+                    COUNT(sl.id) as purchase_count_total,
+                    -- Текущий год
+                    COUNT(DISTINCT CASE WHEN EXTRACT(YEAR FROM d.invoice_date) = EXTRACT(YEAR FROM CURRENT_DATE) THEN d.id END) as purchases_current_year,
+                    COALESCE(SUM(CASE WHEN EXTRACT(YEAR FROM d.invoice_date) = EXTRACT(YEAR FROM CURRENT_DATE) THEN sl.amount ELSE 0 END), 0) as revenue_current_year,
+                    -- Прошлый год
+                    COUNT(DISTINCT CASE WHEN EXTRACT(YEAR FROM d.invoice_date) = EXTRACT(YEAR FROM CURRENT_DATE) - 1 THEN d.id END) as purchases_prev_year,
+                    COALESCE(SUM(CASE WHEN EXTRACT(YEAR FROM d.invoice_date) = EXTRACT(YEAR FROM CURRENT_DATE) - 1 THEN sl.amount ELSE 0 END), 0) as revenue_prev_year,
+                    -- Последняя покупка
+                    MAX(d.invoice_date) as last_purchase_date
+                FROM clients c
+                JOIN documents d ON d.client_code = c.code
+                JOIN sales_lines sl ON sl.document_id = d.id
+                JOIN products p ON sl.product_code = p.code
+                LEFT JOIN products pr ON sl.product_code = pr.code
+                WHERE c.code = :client_code 
+                  AND COALESCE(pr.is_service, FALSE) = FALSE AND sl.amount > 0
+                GROUP BY p.code, p.name, p.in_stock_balance
+                HAVING COUNT(sl.id) >= 2
+            )
+            SELECT 
+                ps.*,
+                -- % от выручки текущего года
+                ROUND(ps.revenue_current_year / NULLIF((SELECT total_revenue FROM client_total_current), 0) * 100, 1) as pct_current_year,
+                -- % от выручки прошлого года
+                ROUND(ps.revenue_prev_year / NULLIF((SELECT total_revenue FROM client_total_prev), 0) * 100, 1) as pct_prev_year,
+                -- Тренд: рост/падение
+                CASE 
+                    WHEN ps.purchases_current_year > ps.purchases_prev_year THEN '📈 Рост'
+                    WHEN ps.purchases_current_year < ps.purchases_prev_year THEN '📉 Спад'
+                    WHEN ps.purchases_current_year = ps.purchases_prev_year AND ps.purchases_current_year > 0 THEN '➡️ Стабильно'
+                    ELSE '🆕 Новый'
+                END as trend,
+                -- Дней с последней покупки
+                (CURRENT_DATE - ps.last_purchase_date::DATE)::INTEGER as days_since_last
+            FROM product_stats ps
+            ORDER BY ps.revenue_current_year DESC, ps.purchase_count_total DESC
             LIMIT 5
         """), {"client_code": client_code})
-        
+
         for row in result:
-            recommendations.append(dict(row._mapping))
+            r = dict(row._mapping)
+            # Приводим типы
+            r['purchases_current_year'] = int(r.get('purchases_current_year') or 0)
+            r['purchases_prev_year'] = int(r.get('purchases_prev_year') or 0)
+            r['pct_current_year'] = float(r.get('pct_current_year') or 0.0)
+            r['pct_prev_year'] = float(r.get('pct_prev_year') or 0.0)
+            r['revenue_current_year'] = float(r.get('revenue_current_year') or 0.0)
+            r['revenue_prev_year'] = float(r.get('revenue_prev_year') or 0.0)
+            r['in_stock'] = float(r.get('in_stock') or 0.0)
+            r['days_since_last'] = int(r.get('days_since_last') or 0)
+            r['purchase_count'] = int(r.get('purchase_count_total') or 0)  # для обратной совместимости
+            r['purchase_count_total'] = int(r.get('purchase_count_total') or 0)
+            r['priority'] = 1
+            r['reason'] = 'Часто покупаете'
+            recommendations.append(r)
         
         # ====== БЛОК 2: Новинки по направлению ======
         if client.activity_direction_id:
@@ -696,7 +771,7 @@ def funnel(token: str = Query(None), year: int = 2026):
                     COUNT(DISTINCT d.id) AS invoice_count,
                     COALESCE(SUM(CASE WHEN COALESCE(pr.is_service, FALSE) = FALSE THEN sl.amount ELSE 0 END), 0) AS total_revenue
                 FROM clients c
-                JOIN client_year_active cya ON cya.client_code = c.code AND cya.sales_year = :year AND cya.is_active = TRUE
+                JOIN client_year_activity cya ON cya.client_code = c.code AND cya.sales_year = :year AND cya.is_active = TRUE
                 JOIN documents d ON d.client_code = c.code AND EXTRACT(YEAR FROM d.invoice_date) = :year
                 JOIN sales_lines sl ON sl.document_id = d.id
                 LEFT JOIN products pr ON sl.product_code = pr.code
@@ -793,7 +868,7 @@ def monthly_revenue(token: str = Query(None), year: int = 2026):
                 FROM documents d
                 JOIN sales_lines sl ON sl.document_id = d.id
                 LEFT JOIN products pr ON sl.product_code = pr.code
-                JOIN client_year_active cya ON d.client_code = cya.client_code AND cya.sales_year = :year AND cya.is_active = TRUE
+                JOIN client_year_activity cya ON d.client_code = cya.client_code AND cya.sales_year = :year AND cya.is_active = TRUE
                 JOIN clients c ON d.client_code = c.code
                 WHERE EXTRACT(YEAR FROM d.invoice_date) = :year
                 GROUP BY year, month, month_name
@@ -1608,12 +1683,12 @@ def yearly_clients_count(
     token: str = Query(None),
     year: int = 2026
 ):
-    """Количество активных клиентов за год (из client_year_active)"""
+    """Количество активных клиентов за год (из client_year_activity)"""
     verify_token(token)
     db = get_db()
     try:
         result = db.execute(
-            text("SELECT COUNT(*) FROM client_year_active WHERE sales_year = :year AND is_active = TRUE"),
+            text("SELECT COUNT(*) FROM client_year_activity WHERE sales_year = :year AND is_active = TRUE"),
             {"year": year}
         ).scalar()
         
@@ -1779,7 +1854,7 @@ def recurrent_clients(
                     (MAX(d.invoice_date) - MIN(d.invoice_date)) AS days_between
                 FROM documents d
                 JOIN sales_lines sl ON d.id = sl.document_id
-                JOIN client_year_active cya ON d.client_code = cya.client_code AND cya.sales_year = :year AND cya.is_active = TRUE
+                JOIN client_year_activity cya ON d.client_code = cya.client_code AND cya.sales_year = :year AND cya.is_active = TRUE
                 JOIN clients c ON d.client_code = c.code
                 LEFT JOIN products pr ON sl.product_code = pr.code
                 WHERE EXTRACT(YEAR FROM d.invoice_date) = :year
@@ -1879,7 +1954,7 @@ def clients_yoy(
                 FROM documents d
                 JOIN sales_lines sl ON d.id = sl.document_id
                 LEFT JOIN products pr ON sl.product_code = pr.code
-                JOIN client_year_active cya ON d.client_code = cya.client_code AND cya.sales_year = :year AND cya.is_active = TRUE
+                JOIN client_year_activity cya ON d.client_code = cya.client_code AND cya.sales_year = :year AND cya.is_active = TRUE
                 WHERE EXTRACT(YEAR FROM d.invoice_date) = :year
                 GROUP BY d.client_code
             ),
@@ -1891,7 +1966,7 @@ def clients_yoy(
                 FROM documents d
                 JOIN sales_lines sl ON d.id = sl.document_id
                 LEFT JOIN products pr ON sl.product_code = pr.code
-                JOIN client_year_active cya ON d.client_code = cya.client_code AND cya.sales_year = :year_prev AND cya.is_active = TRUE
+                JOIN client_year_activity cya ON d.client_code = cya.client_code AND cya.sales_year = :year_prev AND cya.is_active = TRUE
                 CROSS JOIN max_month m
                 WHERE EXTRACT(YEAR FROM d.invoice_date) = :year_prev
                   AND EXTRACT(MONTH FROM d.invoice_date) <= m.max_m
@@ -2044,7 +2119,7 @@ def get_segment_comparison(
                         COUNT(DISTINCT d.id) AS invoice_count,
                         COALESCE(SUM(CASE WHEN COALESCE(pr.is_service, FALSE) = FALSE THEN sl.amount ELSE 0 END), 0) AS total_revenue
                     FROM clients c
-                    JOIN client_year_active cya ON cya.client_code = c.code AND cya.sales_year = :year AND cya.is_active = TRUE
+                    JOIN client_year_activity cya ON cya.client_code = c.code AND cya.sales_year = :year AND cya.is_active = TRUE
                     JOIN documents d ON d.client_code = c.code AND EXTRACT(YEAR FROM d.invoice_date) = :year
                     JOIN sales_lines sl ON sl.document_id = d.id
                     LEFT JOIN products pr ON sl.product_code = pr.code
@@ -2169,12 +2244,27 @@ def abc_structure(
     token: str = Query(None),
     year: int = 2026,
     multiplier: float = 2.9,
-    limit_price: float = 146000
+    limit_price: float = 146000,
+    active_only: bool = True
 ):
     """Возвращает структурированные данные для 4 секций ABC-анализа"""
     verify_token(token)
     db = get_db()
     try:
+        # Получаем список активных компаний за год
+        active_clients = db.execute(text("""
+            SELECT DISTINCT client_code
+            FROM client_year_activity
+            WHERE sales_year = :year
+              AND is_active = TRUE
+              AND client_code != '9653'
+        """), {"year": year}).fetchall()
+        
+        active_codes = [row[0] for row in active_clients]
+        
+        if not active_codes:
+            return {"status": "ok", "data": {"sections": {}, "year": year, "active_count": 0}}
+        
         # Получаем данные через функцию generate_custom_sales_report
         below_result = db.execute(
             text("SELECT * FROM generate_custom_sales_report(:year, :multiplier, :limit_price, 'below')"),
@@ -2279,6 +2369,7 @@ def abc_structure(
             'year': year,
             'multiplier': multiplier,
             'limit_price': limit_price,
+            'active_count': len(active_codes),
             'sections': {
                 'c2': c2_sec,
                 'abc': abc_sec,
@@ -2301,14 +2392,22 @@ def c2_detail(
     token: str = Query(None),
     year: int = 2026,
     multiplier: float = 2.9,
-    limit_price: float = 146000
+    limit_price: float = 146000,
+    active_only: bool = True
 ):
     """Глубокий анализ сегмента C2 с распаковкой повторных и внутренней ABC-классификацией"""
     verify_token(token)
     db = get_db()
     try:
         sql = text("""
-            WITH client_stats AS (
+            WITH active_clients AS (
+                SELECT DISTINCT client_code
+                FROM client_year_activity
+                WHERE sales_year = :year
+                  AND is_active = TRUE
+                  AND client_code != '9653'
+            ),
+            client_stats AS (
                 SELECT 
                     d.client_code,
                     COUNT(DISTINCT d.id) AS invoices_count,
@@ -2317,7 +2416,7 @@ def c2_detail(
                 FROM documents d
                 JOIN sales_lines sl ON sl.document_id = d.id
                 LEFT JOIN products pr ON sl.product_code = pr.code
-                JOIN clients c ON d.client_code = c.code AND c.is_active_current = TRUE
+                JOIN active_clients ac ON d.client_code = ac.client_code
                 WHERE EXTRACT(YEAR FROM d.invoice_date) = :year
                 GROUP BY d.client_code
             ),
@@ -2450,7 +2549,8 @@ def segment_detail(
     segment: str = Query("abc"),
     year: int = 2026,
     multiplier: float = 2.9,
-    limit_price: float = 146000
+    limit_price: float = 146000,
+    active_only: bool = True
 ):
     """Детальный анализ любого сегмента (c2, abc, total, important) с матрицей и локальным ABC"""
     verify_token(token)
@@ -2465,7 +2565,14 @@ def segment_detail(
         where_sql = where_clauses.get(segment.lower(), where_clauses['abc'])
 
         sql = text(f"""
-            WITH client_stats AS (
+            WITH active_clients AS (
+                SELECT DISTINCT client_code
+                FROM client_year_activity
+                WHERE sales_year = :year
+                  AND is_active = TRUE
+                  AND client_code != '9653'
+            ),
+            client_stats AS (
                 SELECT 
                     d.client_code,
                     COUNT(DISTINCT d.id) AS invoices_count,
@@ -2474,7 +2581,7 @@ def segment_detail(
                 FROM documents d
                 JOIN sales_lines sl ON sl.document_id = d.id
                 LEFT JOIN products pr ON sl.product_code = pr.code
-                JOIN clients c ON d.client_code = c.code AND c.is_active_current = TRUE
+                JOIN active_clients ac ON d.client_code = ac.client_code
                 WHERE EXTRACT(YEAR FROM d.invoice_date) = :year
                 GROUP BY d.client_code
             ),
@@ -2616,7 +2723,14 @@ def abc_groups_detail(
     db = get_db()
     try:
         sql = text("""
-            WITH stats AS (
+            WITH active_clients AS (
+                SELECT DISTINCT client_code
+                FROM client_year_activity
+                WHERE sales_year = :year
+                  AND is_active = TRUE
+                  AND client_code != '9653'
+            ),
+            stats AS (
                 SELECT 
                     d.client_code,
                     COUNT(DISTINCT d.id) AS invoices_count,
@@ -2624,7 +2738,7 @@ def abc_groups_detail(
                 FROM documents d
                 JOIN sales_lines sl ON sl.document_id = d.id
                 LEFT JOIN products pr ON sl.product_code = pr.code
-                JOIN clients c ON d.client_code = c.code AND c.is_active_current = TRUE
+                JOIN active_clients ac ON d.client_code = ac.client_code
                 WHERE EXTRACT(YEAR FROM d.invoice_date) = :year
                 GROUP BY d.client_code
             ),
@@ -2723,7 +2837,13 @@ def important_detail(
     db = get_db()
     try:
         sql = text("""
-            WITH stats AS (
+            WITH active_clients AS (
+                SELECT DISTINCT client_code
+                FROM client_year_activity
+                WHERE sales_year = :year
+                  AND is_active = TRUE
+                  AND client_code != '9653'
+            ),
                 SELECT 
                     d.client_code,
                     c.name AS client_name,
@@ -2732,7 +2852,8 @@ def important_detail(
                 FROM documents d
                 JOIN sales_lines sl ON sl.document_id = d.id
                 LEFT JOIN products pr ON sl.product_code = pr.code
-                JOIN clients c ON d.client_code = c.code AND c.is_active_current = TRUE
+                JOIN active_clients ac ON d.client_code = ac.client_code
+                JOIN clients c ON d.client_code = c.code
                 WHERE EXTRACT(YEAR FROM d.invoice_date) = :year
                 GROUP BY d.client_code, c.name
             ),

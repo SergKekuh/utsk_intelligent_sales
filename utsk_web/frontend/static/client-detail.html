@@ -274,28 +274,74 @@
         .rec-list {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 6px;
         }
 
         .rec-item {
+            display: block;
+            padding: 8px 14px;
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.15s ease;
+            cursor: pointer;
+        }
+
+        .rec-item:hover {
+            background: #eef2ff;
+            border-color: #818cf8;
+        }
+
+        .rec-left {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .rec-top-row {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 14px 16px;
-            background: #f8fafc;
-            border: 1px solid var(--border);
-            border-radius: 12px;
+            gap: 12px;
         }
 
-        .rec-info b {
+        .rec-top-row b {
             font-size: 13px;
-            display: block;
             color: var(--text-main);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex: 1;
+            min-width: 0;
         }
 
-        .rec-info small {
+        .rec-top-stats {
+            display: flex;
+            gap: 14px;
+            flex-shrink: 0;
+            font-size: 13px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .rec-bottom-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .rec-bottom-row small {
             font-size: 11px;
-            color: var(--text-muted);
+            color: #047857;
+            font-weight: 600;
+        }
+
+        .rec-stock {
+            font-size: 12px;
+            font-weight: 600;
+            color: #d97706;
         }
 
         .badge-rec {
@@ -472,7 +518,7 @@
             <!-- ML Recommendations Block -->
             <div class="card-block">
                 <div class="block-header">
-                    <h2 class="block-title">💡 Рекомендации для клиента</h2>
+                    <h2 class="block-title">💡 Рекомендации для клиента — <span id="rec-year"></span></h2>
                 </div>
                 <div class="rec-list" id="rec-list">
                     <div class="empty-state">⏳ Загрузка рекомендаций...</div>
@@ -848,6 +894,8 @@
 
         async function loadRecommendations() {
             const recList = document.getElementById('rec-list');
+            document.getElementById('rec-year').textContent = new Date().getFullYear();
+            
             try {
                 const res = await fetch(`/api/recommendations/${CLIENT_CODE}?token=${TOKEN}`);
                 if (!res.ok) throw new Error(res.status);
@@ -861,16 +909,26 @@
                 }
 
                 recs.forEach(r => {
+                    const productName = trimProductCode(r.name) || 'Товар';
+                    const productCode = r.code || '';
+                    
                     recList.innerHTML += `
-                        <div class="rec-item">
-                            <div class="rec-info">
-                                <b>${trimProductCode(r.name) || 'Товар'}</b>
-                                <small style="color:#047857;font-weight:600;">Причина: ${r.reason || 'Рекомендовано ML'}</small>
+                        <a href="/product-recommendations?token=${TOKEN}&client_code=${CLIENT_CODE}&product_code=${productCode}" 
+                           class="rec-item rec-item-clickable">
+                            <div class="rec-left">
+                                <div class="rec-top-row">
+                                    <b>${productName}</b>
+                                    <div class="rec-top-stats">
+                                        <span>${r.purchases_current_year || 0} раз</span>
+                                        <span>${r.pct_current_year || 0}%</span>
+                                    </div>
+                                </div>
+                                <div class="rec-bottom-row">
+                                    <small>${r.reason || 'Часто покупаете'}</small>
+                                    <span class="rec-stock">Остаток: ${formatNum(r.in_stock || 0)}</span>
+                                </div>
                             </div>
-                            <div style="text-align:right;">
-                                <span class="badge-rec">Остаток: ${formatNum(r.in_stock || r.in_stock_balance || 0)}</span>
-                            </div>
-                        </div>
+                        </a>
                     `;
                 });
             } catch (err) {

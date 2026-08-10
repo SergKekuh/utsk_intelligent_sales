@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UTSK — Аналитика продуктов клиента</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #0ea5e9;
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --border: #e2e8f0;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
+            line-height: 1.5;
+            padding: 24px;
+        }
+
+        .container {
+            max-width: 1320px;
+            margin: 0 auto;
+        }
+
+        /* Top Header */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--surface);
+            padding: 20px 24px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .header-title-group {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            background: #f1f5f9;
+            color: #475569;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.15s ease;
+        }
+
+        .back-btn:hover {
+            background: #e2e8f0;
+            color: var(--text-main);
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .client-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            background: #e0e7ff;
+            color: var(--primary);
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-left: 8px;
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .select-input {
+            padding: 8px 16px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-main);
+            background: var(--surface);
+            cursor: pointer;
+            outline: none;
+        }
+
+        /* KPI Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .kpi-card {
+            background: var(--surface);
+            padding: 20px;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .kpi-value {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .kpi-sub {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            border-bottom: 2px solid var(--border);
+            margin-bottom: 24px;
+        }
+
+        .tab-btn {
+            padding: 12px 20px;
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.15s ease;
+            margin-bottom: -2px;
+        }
+
+        .tab-btn:hover {
+            color: var(--primary);
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Grid Layouts */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 992px) {
+            .analytics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--surface);
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            margin-bottom: 24px;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        /* Tables */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        th {
+            text-align: left;
+            padding: 10px 14px;
+            background: #f8fafc;
+            color: var(--text-muted);
+            font-weight: 600;
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-main);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: #f8fafc;
+        }
+
+        td.right, th.right {
+            text-align: right;
+        }
+
+        /* Badges & Progress Bars */
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .badge.abc-a { background: #d1fae5; color: #065f46; }
+        .badge.warning { background: #fef3c7; color: #92400e; }
+        .badge.neutral { background: #e2e8f0; color: #475569; }
+        .badge.stock { background: #e0f2fe; color: #0369a1; }
+        .badge.up { background: #d1fae5; color: #065f46; }
+        .badge.down { background: #fee2e2; color: #991b1b; }
+
+        .prog-bar-bg {
+            width: 100%;
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 3px;
+            margin-top: 4px;
+            overflow: hidden;
+        }
+
+        .prog-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+        }
+
+        /* ML Recommendation Grid */
+        .ml-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .card-full-width {
+            grid-column: 1 / -1;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 280px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-title-group">
+                <a href="javascript:history.back()" class="back-btn">← Назад</a>
+                <h1>Аналитика продуктов <span id="client-name" class="client-badge">Загрузка...</span></h1>
+            </div>
+            <div class="controls">
+                <select id="year-select" class="select-input" onchange="initData()">
+                    <option value="2026" selected>2026 год</option>
+                    <option value="2025">2025 год</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- KPI Grid -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <span class="kpi-label">Общая выручка</span>
+                <span class="kpi-value" id="kpi-total">0 ₴</span>
+                <span class="kpi-sub">за выбранный год</span>
+            </div>
+            <div class="kpi-card">
+                <span class="kpi-label">Товарная выручка</span>
+                <span class="kpi-value" id="kpi-goods" style="color:var(--primary)">0 ₴</span>
+                <span class="kpi-sub">без учета услуг</span>
+            </div>
+            <div class="kpi-card">
+                <span class="kpi-label">Услуги</span>
+                <span class="kpi-value" id="kpi-services" style="color:var(--info)">0 ₴</span>
+                <span class="kpi-sub">порезка и доставка</span>
+            </div>
+            <div class="kpi-card">
+                <span class="kpi-label">Уникальных товаров</span>
+                <span class="kpi-value" id="kpi-unique">0 шт</span>
+                <span class="kpi-sub">позиций в накладных</span>
+            </div>
+            <div class="kpi-card">
+                <span class="kpi-label">Потенциал роста</span>
+                <span class="kpi-value" id="kpi-potential" style="color:var(--success)">~0 ₴</span>
+                <span class="kpi-sub">кросс-сейл и расширение</span>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="openTab('tab-portfolio', this)">📊 Портфель продуктов</button>
+            <button class="tab-btn" onclick="openTab('tab-yoy', this)">🔄 Динамика 2026 vs 2025</button>
+            <button class="tab-btn" onclick="openTab('tab-ml', this)">🤖 ML-Рекомендации</button>
+        </div>
+
+        <!-- TAB 1: PORTFOLIO -->
+        <div id="tab-portfolio" class="tab-content active">
+            <div class="analytics-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Топ-продукты клиента (ABC-анализ)</h2>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Класс</th>
+                                    <th>Товар</th>
+                                    <th class="right">Закупок</th>
+                                    <th class="right">Выручка</th>
+                                    <th class="right">Доля %</th>
+                                    <th class="right">Остаток</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-portfolio">
+                                <tr><td colspan="6" style="text-align:center;color:var(--text-muted);">Загрузка...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">Топ-5 позиций (выручка)</h2>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="chartTopProducts"></canvas>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">Распределение по ABC</h2>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="chartABC"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: YoY COMPARE -->
+        <div id="tab-yoy" class="tab-content">
+            <div class="analytics-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Сравнение продаж по товарам (2026 vs 2025)</h2>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Товар</th>
+                                    <th class="right">2025 год</th>
+                                    <th class="right">2026 год</th>
+                                    <th class="right">Разница (₴)</th>
+                                    <th class="right">Рост %</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-yoy">
+                                <tr><td colspan="5" style="text-align:center;color:var(--text-muted);">Загрузка...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Динамика ключевых товаров</h2>
+                    </div>
+                    <div class="chart-container" style="height:400px;">
+                        <canvas id="chartYoY"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: ML RECOMMENDATIONS -->
+        <div id="tab-ml" class="tab-content">
+            <div class="ml-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">🔗 Сопутствующие товары (Cross-sell)</h2>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Товар</th>
+                                    <th class="right">Причина</th>
+                                    <th class="right">Склад</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rec-cross">
+                                <tr><td colspan="3" style="text-align:center;">Загрузка...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">📐 Похожие типоразмеры</h2>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Товар</th>
+                                    <th class="right">Параметры</th>
+                                    <th class="right">Склад</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rec-similar">
+                                <tr><td colspan="3" style="text-align:center;">Загрузка...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">🏢 Популярное в вашем сегменте</h2>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Товар</th>
+                                    <th class="right">Популярность</th>
+                                    <th class="right">Склад</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rec-industry">
+                                <tr><td colspan="3" style="text-align:center;">Загрузка...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card card-full-width">
+                    <div class="card-header">
+                        <h2 class="card-title">🛠️ Использование сервисов и услуг</h2>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Услуга</th>
+                                    <th class="right">Закупок в 2026</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rec-services">
+                                <tr><td colspan="2" style="text-align:center;">Загрузка...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    const TOKEN = new URLSearchParams(window.location.search).get('token') || 'utsk2026';
+    const CLIENT_CODE = new URLSearchParams(window.location.search).get('code') || new URLSearchParams(window.location.search).get('client_code') || '';
+
+    let charts = {};
+
+    const fmtM = (n) => (n / 1e6).toFixed(2) + 'M ₴';
+    const fmtFull = (n) => Number(n || 0).toLocaleString('ru-RU') + ' ₴';
+    const fmtNum = (n) => Number(n || 0).toLocaleString('ru-RU');
+
+    function openTab(tabId, btn) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(tabId).classList.add('active');
+    }
+
+    async function initData() {
+        const year = document.getElementById('year-select').value;
+        
+        try {
+            // Загружаем все данные параллельно
+            const [resProducts, resCompare, resRec] = await Promise.all([
+                fetch(`/api/analytics/client-products/${CLIENT_CODE}?token=${TOKEN}&year=${year}`),
+                fetch(`/api/analytics/client-products-compare/${CLIENT_CODE}?token=${TOKEN}`),
+                fetch(`/api/analytics/client-products-recommendations/${CLIENT_CODE}?token=${TOKEN}`)
+            ]);
+            
+            const dataProducts = await resProducts.json();
+            const dataCompare = await resCompare.json();
+            const dataRec = await resRec.json();
+            
+            // Обновляем KPI
+            updateKPIs(dataProducts);
+            
+            // Обновляем заголовок
+            document.getElementById('client-name').textContent = dataProducts.client_name || CLIENT_CODE;
+            
+            // Рендерим вкладки
+            renderPortfolio(dataProducts.products || [], dataProducts.goods_revenue || 0);
+            renderYoY(dataCompare.products || []);
+            renderML(dataRec);
+            
+        } catch (err) {
+            console.error('Ошибка загрузки:', err);
+        }
+    }
+
+    function updateKPIs(data) {
+        document.getElementById('kpi-total').textContent = fmtFull(data.total_revenue);
+        document.getElementById('kpi-goods').textContent = fmtFull(data.goods_revenue);
+        document.getElementById('kpi-services').textContent = fmtFull(data.services_revenue);
+        document.getElementById('kpi-unique').textContent = (data.unique_products || 0) + ' шт';
+        
+        // Потенциал ~6% от товарной выручки
+        const potential = (data.goods_revenue || 0) * 0.06;
+        document.getElementById('kpi-potential').textContent = '~' + fmtFull(potential);
+    }
+
+    function renderPortfolio(products, totalGoods) {
+        const tbody = document.getElementById('table-portfolio');
+        
+        if (!products || products.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);">Нет позиций за этот год</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = products.map(p => {
+            const pct = p.pct_of_total || 0;
+            const group = p.abc_group || 'C';
+            let badgeClass = group === 'A' ? 'abc-a' : (group === 'B' ? 'warning' : 'neutral');
+            
+            return `
+                <tr>
+                    <td><span class="badge ${badgeClass}">Класс ${group}</span></td>
+                    <td><strong>${p.product_name || p.product_code}</strong></td>
+                    <td class="right">${p.invoice_count}</td>
+                    <td class="right">${fmtFull(p.total_sales)}</td>
+                    <td class="right">
+                        <div style="display:flex;justify-content:space-between;font-size:11px;"><span>${pct}%</span></div>
+                        <div class="prog-bar-bg"><div class="prog-bar-fill" style="width:${Math.min(pct*2, 100)}%;background:${group==='A'?'var(--primary)':'var(--info)'}"></div></div>
+                    </td>
+                    <td class="right"><span class="badge stock">${fmtNum(p.in_stock)}</span></td>
+                </tr>
+            `;
+        }).join('');
+
+        // График топ-продуктов
+        const top5 = products.slice(0, 5);
+        if(charts.top) charts.top.destroy();
+        charts.top = new Chart(document.getElementById('chartTopProducts'), {
+            type: 'bar',
+            data: {
+                labels: top5.map(p => (p.product_name || '').substring(0, 22) + '...'),
+                datasets: [{label: 'Выручка (₴)', data: top5.map(p => p.total_sales), backgroundColor: '#4f46e5', borderRadius: 6}]
+            },
+            options: {indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: {legend: {display: false}}}
+        });
+
+        // ABC-пирог
+        const abcData = [
+            products.filter(p => p.abc_group === 'A').reduce((s, p) => s + p.total_sales, 0),
+            products.filter(p => p.abc_group === 'B').reduce((s, p) => s + p.total_sales, 0),
+            products.filter(p => p.abc_group === 'C').reduce((s, p) => s + p.total_sales, 0)
+        ];
+        if(charts.abc) charts.abc.destroy();
+        charts.abc = new Chart(document.getElementById('chartABC'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Группа A', 'Группа B', 'Группа C'],
+                datasets: [{data: abcData, backgroundColor: ['#10b981', '#f59e0b', '#cbd5e1'], borderWidth: 0}]
+            },
+            options: {cutout: '75%', responsive: true, maintainAspectRatio: false, plugins: {legend: {position: 'bottom'}}}
+        });
+    }
+
+    function renderYoY(products) {
+        const tbody = document.getElementById('table-yoy');
+        
+        if (!products || products.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);">Нет данных для сравнения</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = products.map(p => {
+            const diff = (p.sales_2026 || 0) - (p.sales_2025 || 0);
+            const pct = p.growth_pct || 0;
+            let badgeHtml = diff > 0 ? `<span class="badge up">▲ +${pct}%</span>` 
+                          : diff < 0 ? `<span class="badge down">▼ ${pct}%</span>` 
+                          : `<span class="badge neutral">0%</span>`;
+            
+            return `
+                <tr>
+                    <td><strong>${p.product_name || '—'}</strong></td>
+                    <td class="right">${fmtFull(p.sales_2025)}</td>
+                    <td class="right" style="font-weight:800;">${fmtFull(p.sales_2026)}</td>
+                    <td class="right" style="color:${diff>0?'var(--success)':diff<0?'var(--danger)':'var(--text-muted)'}">${diff>0?'+':''}${fmtFull(diff)}</td>
+                    <td class="right">${badgeHtml}</td>
+                </tr>
+            `;
+        }).join('');
+
+        // График сравнения
+        const top6 = products.slice(0, 6);
+        if(charts.yoy) charts.yoy.destroy();
+        charts.yoy = new Chart(document.getElementById('chartYoY'), {
+            type: 'bar',
+            data: {
+                labels: top6.map(p => (p.product_name || '').substring(0, 15) + '...'),
+                datasets: [
+                    {label: '2025', data: top6.map(p => p.sales_2025 || 0), backgroundColor: '#cbd5e1', borderRadius: 4},
+                    {label: '2026', data: top6.map(p => p.sales_2026 || 0), backgroundColor: '#0ea5e9', borderRadius: 4}
+                ]
+            },
+            options: {responsive: true, maintainAspectRatio: false}
+        });
+    }
+
+    function renderML(data) {
+        const makeRows = (arr, showStock = true) => {
+            if (!arr || arr.length === 0) return '<tr><td colspan="3" style="text-align:center;color:var(--text-muted);padding:20px;">Нет данных</td></tr>';
+            return arr.map(i => `
+                <tr>
+                    <td><strong>${i.product_name || i.name || '—'}</strong></td>
+                    <td class="right" style="color:var(--text-muted);font-size:12px;">${i.reason || i.popularity || i.usage_count || '—'}</td>
+                    ${showStock ? `<td class="right"><span class="badge stock">${fmtNum(i.in_stock || 0)}</span></td>` : ''}
+                </tr>
+            `).join('');
+        };
+
+        document.getElementById('rec-cross').innerHTML = makeRows(data.cross_sell || [], true);
+        document.getElementById('rec-similar').innerHTML = makeRows(data.similar_size || [], true);
+        document.getElementById('rec-industry').innerHTML = makeRows(data.direction_variety || [], true);
+
+        // В renderML, блок услуг:
+        const servicesData = data.services || [];
+        if (servicesData.length === 0) {
+            document.getElementById('rec-services').innerHTML = 
+                '<tr><td colspan="2" style="text-align:center;color:var(--text-muted);padding:20px;">Нет данных</td></tr>';
+        } else {
+            document.getElementById('rec-services').innerHTML = servicesData.map(s => {
+                const isRecommended = s.usage_count === 'Рекомендовано' || s.usage_count === 'Доступно';
+                return `
+                <tr>
+                    <td><strong>${s.product_name || s.name || '—'}</strong></td>
+                    <td class="right" style="color:${isRecommended ? 'var(--primary)' : 'var(--text-muted)'};font-size:12px;font-weight:${isRecommended ? '700' : '400'};">
+                        ${s.usage_count || '—'}
+                    </td>
+                </tr>
+                `;
+            }).join('');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', initData);
+    </script>
+</body>
+</html>

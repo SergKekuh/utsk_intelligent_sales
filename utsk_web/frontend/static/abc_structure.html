@@ -609,7 +609,7 @@ function onMetricChange() {
 // =====================================================
 async function fetchOverviewData(year, multiplier, limitPrice) {
     try {
-        const res = await fetch(`/api/analytics/abc-structure?token=${TOKEN}&year=${year}&multiplier=${multiplier}&limit_price=${limitPrice}`);
+        const res = await fetch(`/api/analytics/abc-structure?token=${TOKEN}&year=${year}&multiplier=${multiplier}&limit_price=${limitPrice}&active_only=true`);
         const json = await res.json();
         if (json.status === 'ok') currentOverviewData = json.data;
     } catch (e) { console.error('Overview error:', e); }
@@ -617,7 +617,7 @@ async function fetchOverviewData(year, multiplier, limitPrice) {
 
 async function fetchSegmentData(segKey, year, multiplier, limitPrice) {
     try {
-        const res = await fetch(`/api/analytics/segment-detail?token=${TOKEN}&segment=${segKey}&year=${year}&multiplier=${multiplier}&limit_price=${limitPrice}`);
+        const res = await fetch(`/api/analytics/segment-detail?token=${TOKEN}&segment=${segKey}&year=${year}&multiplier=${multiplier}&limit_price=${limitPrice}&active_only=true`);
         const json = await res.json();
         if (json.status === 'ok') currentSegmentData[segKey] = json.data;
     } catch (e) { console.error(`Segment error (${segKey}):`, e); }
@@ -729,7 +729,7 @@ function renderOverviewTab() {
     });
     tbody.innerHTML = html;
 
-    document.getElementById('status-text').textContent = `Актуально за ${currentOverviewData.year} год`;
+    document.getElementById('status-text').textContent = `Актуально за ${currentOverviewData.year} год (${currentOverviewData.active_count || 0} активных компаний)`;
 }
 
 // =====================================================
