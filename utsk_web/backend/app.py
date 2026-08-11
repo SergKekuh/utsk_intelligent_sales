@@ -369,18 +369,11 @@ def get_invoice_items(number: str, token: str = Query(None)):
     verify_token(token)
     db = get_db()
     try:
-        # 1. Основная информация о накладной
-        q_doc = text("""
-            SELECT 
-                TO_CHAR(d.invoice_date, 'DD.MM.YYYY') AS date,
-                d.doc_number AS number,
-                COALESCE(ROUND(SUM(sl.amount)::numeric, 0), 0) AS total
-            FROM documents d
-            JOIN sales_lines sl ON sl.document_id = d.id
-            WHERE d.doc_number = :number
-            GROUP BY d.id, d.invoice_date, d.doc_number
-        """)
-        invoice_row = db.execute(q_doc, {"number": number}).fetchone()
+        # 1. Основная информация о накладной (через функцию)
+        invoice_row = db.execute(
+            text("SELECT * FROM get_invoice_header(:number)"),
+            {"number": number}
+        ).fetchone()
         if not invoice_row:
             raise HTTPException(status_code=404, detail=f"Накладная '{number}' не найдена")
         
