@@ -341,7 +341,7 @@ BEGIN
         END)::TEXT as trend,
         (CURRENT_DATE - ps.last_purchase_date::DATE)::INTEGER as days_since_last
     FROM product_stats ps
-    ORDER BY ps.revenue_current_year DESC, ps.purchase_count_total DESC
+    ORDER BY ROUND(ps.revenue_current_year / NULLIF((SELECT total_revenue FROM client_total_current), 0) * 100, 1) DESC, ps.purchase_count_total DESC
     LIMIT 5;
 END;
 $function$;

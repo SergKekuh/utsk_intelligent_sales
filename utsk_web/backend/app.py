@@ -256,42 +256,17 @@ def get_client_detail(code: str, token: str = Query(None), year: int = 2026):
         client_data = dict(client_res._mapping)
 
         # 2. Статус 2025 года
-        q_2025 = text("""
-            SELECT 
-                CASE 
-                    WHEN cya.total_docs = 0 THEN 'Спящие'
-                    WHEN cya.total_docs = 1 THEN 'Разовые'
-                    WHEN cya.total_docs BETWEEN 2 AND 3 THEN 'Повторные'
-                    WHEN cya.total_docs BETWEEN 4 AND 10 THEN 'Ежеквартальные'
-                    WHEN cya.total_docs BETWEEN 11 AND 40 THEN 'Ежемесячные'
-                    WHEN cya.total_docs BETWEEN 41 AND 170 THEN 'Еженедельные'
-                    WHEN cya.total_docs > 170 THEN 'Ежедневные'
-                    ELSE '—'
-                END AS status_2025
-            FROM client_year_activity cya
-            WHERE cya.client_code = :code AND cya.sales_year = :year_prev
-        """)
-        res_2025 = db.execute(q_2025, {"code": code, "year_prev": year - 1}).scalar()
+        res_2025 = db.execute(
+            text("SELECT get_client_status_2025(:code, :year_prev)"),
+            {"code": code, "year_prev": year - 1}
+        ).scalar()
         status_2025 = res_2025 or "—"
 
         # 3. Помесячная динамика (2026 vs 2025)
-        q_monthly = text("""
-            SELECT 
-                EXTRACT(MONTH FROM d.invoice_date)::INTEGER AS month,
-                ROUND(SUM(CASE WHEN EXTRACT(YEAR FROM d.invoice_date) = :year THEN sl.amount ELSE 0 END)::numeric, 0) AS revenue_current,
-                ROUND(SUM(CASE WHEN EXTRACT(YEAR FROM d.invoice_date) = :year_prev THEN sl.amount ELSE 0 END)::numeric, 0) AS revenue_previous,
-                COUNT(DISTINCT CASE WHEN EXTRACT(YEAR FROM d.invoice_date) = :year THEN d.id END) AS invoices_current,
-                COUNT(DISTINCT CASE WHEN EXTRACT(YEAR FROM d.invoice_date) = :year_prev THEN d.id END) AS invoices_previous
-            FROM documents d
-            JOIN sales_lines sl ON sl.document_id = d.id
-            LEFT JOIN products pr ON sl.product_code = pr.code
-            WHERE d.client_code = :code
-              AND EXTRACT(YEAR FROM d.invoice_date) IN (:year, :year_prev)
-              AND COALESCE(pr.is_service, FALSE) = FALSE AND sl.amount > 0
-            GROUP BY EXTRACT(MONTH FROM d.invoice_date)
-            ORDER BY month
-        """)
-        monthly_rows = db.execute(q_monthly, {"year": year, "year_prev": year - 1, "code": code}).fetchall()
+        monthly_rows = db.execute(
+            text("SELECT * FROM get_client_monthly_dynamics(:code, :year, :year_prev)"),
+            {"code": code, "year": year, "year_prev": year - 1}
+        ).fetchall()
         monthly_data = [dict(m._mapping) for m in monthly_rows]
         for m in monthly_data:
             m["revenue_current"] = float(m["revenue_current"]) if m.get("revenue_current") else 0.0
@@ -503,88 +478,42 @@ def recommendations_for_client(client_code: str, token: str = Query(None)):
         
         # ====== БЛОК 2: Новинки по направлению ======
         if client.activity_direction_id:
-            result = db.execute(text("""
-                SELECT p.code, p.name, 'Новинка в вашем сегменте' as reason, 2 as priority,
-                       COALESCE(p.in_stock_balance, 0) as in_stock, 0 as purchase_count
-                FROM products p
-                WHERE p.anchor_direction_id = :direction_id
-                  AND p.is_new_arrival = TRUE
-                  AND COALESCE(p.in_stock_balance, 0) > 0
-                  AND p.code NOT IN (
-                      SELECT sl2.product_code FROM sales_lines sl2
-                      JOIN documents d2 ON sl2.document_id = d2.id
-                      WHERE d2.client_code = :client_code
-                  )
-                ORDER BY p.in_stock_balance DESC
-                LIMIT 5
-            """), {"direction_id": client.activity_direction_id, "client_code": client_code})
-            
+            result = db.execute(
+                text("SELECT * FROM get_recommendations_block2(:direction_id, :client_code)"),
+                {"direction_id": client.activity_direction_id, "client_code": client_code}
+            )
             for row in result:
                 recommendations.append(dict(row._mapping))
         
         # ====== БЛОК 3: Сопутствующие товары (cross-sells) ======
-        result = db.execute(text("""
-            SELECT p_related.code, p_related.name, 'С этим обычно берут' as reason, 3 as priority,
-                   COALESCE(p_related.in_stock_balance, 0) as in_stock, 0 as priority,
-                   COALESCE(p_related.in_stock_balance, 0) as in_stock, 0 as purchase_count
-            FROM clients c
-            JOIN documents d ON d.client_code = c.code
-            JOIN sales_lines sl ON sl.document_id = d.id
-            JOIN product_cross_sells pcs ON sl.product_code = pcs.main_product_code
-            JOIN products p_related ON pcs.related_product_code = p_related.code
-            WHERE c.code = :client_code
-              AND COALESCE(p_related.in_stock_balance, 0) > 0
-              AND p_related.code NOT IN (
-                  SELECT sl2.product_code FROM sales_lines sl2
-                  JOIN documents d2 ON sl2.document_id = d2.id
-                  WHERE d2.client_code = :client_code
-              )
-            GROUP BY p_related.code, p_related.name, p_related.in_stock_balance
-            LIMIT 5
-        """), {"client_code": client_code})
-        
+        result = db.execute(
+            text("SELECT * FROM get_recommendations_block3(:client_code)"),
+            {"client_code": client_code}
+        )
         for row in result:
             recommendations.append(dict(row._mapping))
         
         # ====== БЛОК 4: Цифровой след (просмотры за 7 дней) ======
-        result = db.execute(text("""
-            SELECT p.code, p.name, 'Вы недавно интересовались' as reason, 4 as priority,
-                   COALESCE(p.in_stock_balance, 0) as in_stock, 0 as purchase_count
-            FROM website_behavior_log wbl
-            JOIN products p ON wbl.product_code = p.code
-            WHERE wbl.client_code = :client_code
-              AND wbl.timestamp >= CURRENT_TIMESTAMP - INTERVAL '7 days'
-              AND COALESCE(p.in_stock_balance, 0) > 0
-              AND p.code NOT IN (
-                  SELECT sl2.product_code FROM sales_lines sl2
-                  JOIN documents d2 ON sl2.document_id = d2.id
-                  WHERE d2.client_code = :client_code
-              )
-            GROUP BY p.code, p.name, p.in_stock_balance
-            ORDER BY MAX(wbl.timestamp) DESC
-            LIMIT 5
-        """), {"client_code": client_code})
-        
+        result = db.execute(
+            text("SELECT * FROM get_recommendations_block4(:client_code)"),
+            {"client_code": client_code}
+        )
         for row in result:
             recommendations.append(dict(row._mapping))
         
-        # ====== СОРТИРОВКА: по приоритету, затем по весу ======
-        recommendations.sort(key=lambda r: (r.get('priority', 99), -(r.get('in_stock', 0))))
+        # ====== СОРТИРОВКА: по приоритету, затем по % от выручки в текущем году (убывание) ======
+        recommendations.sort(key=lambda r: (
+            r.get('priority', 99),
+            -float(r.get('pct_current_year', 0) or 0),
+            -int(r.get('purchases_current_year', 0) or r.get('purchase_count_total', 0) or 0)
+        ))
         
         # ====== Ограничиваем 5 рекомендациями ======
         recommendations = recommendations[:5]
         
         # ====== FALLBACK: популярные товары ======
         if not recommendations:
-            result = db.execute(text("""
-                SELECT p.code, p.name, 'Популярный товар' as reason, 99 as priority,
-                       COALESCE(p.in_stock_balance, 0) as in_stock, 0 as purchase_count
-                FROM products p
-                WHERE COALESCE(p.in_stock_balance, 0) > 0
-                ORDER BY p.code
-                LIMIT 5
-            """))
-            
+            result = db.execute(text("SELECT * FROM get_recommendations_fallback()"))
             for row in result:
                 recommendations.append(dict(row._mapping))
         
@@ -689,15 +618,10 @@ def top_recommendations(token: str = Query(None), limit: int = 10):
     verify_token(token)
     db = get_db()
     try:
-        result = db.execute(text("""
-            SELECT p.code, p.name, COUNT(sl.id) as total_sales,
-                   COALESCE(p.in_stock_balance, 0) as in_stock_balance
-            FROM products p
-            JOIN sales_lines sl ON sl.product_code = p.code
-            WHERE COALESCE(p.in_stock_balance, 0) > 0
-            GROUP BY p.code, p.name, p.in_stock_balance
-            ORDER BY total_sales DESC LIMIT :limit
-        """), {"limit": limit})
+        result = db.execute(
+            text("SELECT * FROM get_top_recommendations(:limit)"),
+            {"limit": limit}
+        )
         return [dict(row._mapping) for row in result]
     finally:
         db.close()
@@ -953,22 +877,10 @@ def daily_revenue(
     verify_token(token)
     db = get_db()
     try:
-        result = db.execute(text("""
-            SELECT 
-                EXTRACT(DAY FROM d.invoice_date)::INTEGER AS day,
-                COUNT(DISTINCT d.client_code) AS active_clients,
-                COUNT(DISTINCT d.id) AS invoice_count,
-                COALESCE(SUM(CASE WHEN pr.is_service = FALSE THEN sl.amount ELSE 0 END), 0) AS goods_revenue,
-                COALESCE(SUM(sl.amount), 0) AS total_revenue
-            FROM documents d
-            JOIN sales_lines sl ON sl.document_id = d.id
-            LEFT JOIN products pr ON sl.product_code = pr.code
-            JOIN clients c ON d.client_code = c.code AND c.is_active_current = TRUE
-            WHERE EXTRACT(YEAR FROM d.invoice_date) = :year
-              AND EXTRACT(MONTH FROM d.invoice_date) = :month
-            GROUP BY day
-            ORDER BY day
-        """), {"year": year, "month": month})
+        result = db.execute(
+            text("SELECT * FROM get_daily_revenue(:year, :month)"),
+            {"year": year, "month": month}
+        )
         
         data = []
         for row in result:
@@ -998,20 +910,10 @@ def monthly_detail(
     db = get_db()
     try:
         # Текущий месяц
-        current = db.execute(text("""
-            SELECT 
-                COUNT(DISTINCT d.client_code) AS active_clients,
-                COUNT(DISTINCT d.id) AS invoice_count,
-                COALESCE(SUM(CASE WHEN COALESCE(pr.is_service, FALSE) = FALSE THEN sl.amount ELSE 0 END), 0) AS goods_revenue,
-                COALESCE(SUM(CASE WHEN COALESCE(pr.is_service, FALSE) = TRUE THEN sl.amount ELSE 0 END), 0) AS services_revenue,
-                COALESCE(SUM(sl.amount), 0) AS total_revenue
-            FROM documents d
-            JOIN sales_lines sl ON sl.document_id = d.id
-            LEFT JOIN products pr ON sl.product_code = pr.code
-            JOIN clients c ON d.client_code = c.code AND c.is_active_current = TRUE
-            WHERE EXTRACT(YEAR FROM d.invoice_date) = :year
-              AND EXTRACT(MONTH FROM d.invoice_date) = :month
-        """), {"year": year, "month": month}).first()
+        current = db.execute(
+            text("SELECT * FROM get_monthly_detail_metrics(:year, :month)"),
+            {"year": year, "month": month}
+        ).first()
         
         # Прошлый месяц
         prev_month = month - 1
@@ -1020,20 +922,10 @@ def monthly_detail(
             prev_month = 12
             prev_year = year - 1
         
-        previous = db.execute(text("""
-            SELECT 
-                COUNT(DISTINCT d.client_code) AS active_clients,
-                COUNT(DISTINCT d.id) AS invoice_count,
-                COALESCE(SUM(CASE WHEN COALESCE(pr.is_service, FALSE) = FALSE THEN sl.amount ELSE 0 END), 0) AS goods_revenue,
-                COALESCE(SUM(CASE WHEN COALESCE(pr.is_service, FALSE) = TRUE THEN sl.amount ELSE 0 END), 0) AS services_revenue,
-                COALESCE(SUM(sl.amount), 0) AS total_revenue
-            FROM documents d
-            JOIN sales_lines sl ON sl.document_id = d.id
-            LEFT JOIN products pr ON sl.product_code = pr.code
-            JOIN clients c ON d.client_code = c.code AND c.is_active_current = TRUE
-            WHERE EXTRACT(YEAR FROM d.invoice_date) = :year
-              AND EXTRACT(MONTH FROM d.invoice_date) = :month
-        """), {"year": prev_year, "month": prev_month}).first()
+        previous = db.execute(
+            text("SELECT * FROM get_monthly_detail_metrics(:year, :month)"),
+            {"year": prev_year, "month": prev_month}
+        ).first()
         
         def row_to_dict(row):
             if not row: return {}
@@ -1175,23 +1067,10 @@ def monthly_directions(
     verify_token(token)
     db = get_db()
     try:
-        result = db.execute(text("""
-            SELECT 
-                COALESCE(ad.name, 'Не указано') AS direction_name,
-                COUNT(DISTINCT d.client_code) AS companies_count,
-                COUNT(DISTINCT d.id) AS invoice_count,
-                COALESCE(SUM(CASE WHEN pr.is_service = FALSE THEN sl.amount ELSE 0 END), 0) AS goods_revenue
-            FROM documents d
-            JOIN sales_lines sl ON sl.document_id = d.id
-            LEFT JOIN products pr ON sl.product_code = pr.code
-            JOIN clients c ON d.client_code = c.code AND c.is_active_current = TRUE
-            LEFT JOIN activity_directions ad ON c.activity_direction_id = ad.id
-            WHERE EXTRACT(YEAR FROM d.invoice_date) = :year
-              AND EXTRACT(MONTH FROM d.invoice_date) = :month
-            GROUP BY ad.name
-            ORDER BY goods_revenue DESC
-            LIMIT 10
-        """), {"year": year, "month": month})
+        result = db.execute(
+            text("SELECT * FROM get_monthly_directions(:year, :month)"),
+            {"year": year, "month": month}
+        )
         
         data = []
         for row in result:
@@ -1221,23 +1100,10 @@ def monthly_products(
     verify_token(token)
     db = get_db()
     try:
-        result = db.execute(text("""
-            SELECT 
-                p.code AS product_code,
-                p.name AS product_name,
-                COUNT(DISTINCT d.id) AS invoice_count,
-                COALESCE(SUM(sl.amount), 0) AS total_sales,
-                COALESCE(SUM(sl.quantity), 0) AS total_quantity
-            FROM documents d
-            JOIN sales_lines sl ON sl.document_id = d.id
-            JOIN products p ON sl.product_code = p.code
-            WHERE EXTRACT(YEAR FROM d.invoice_date) = :year
-              AND EXTRACT(MONTH FROM d.invoice_date) = :month
-              AND COALESCE(p.is_service, FALSE) = FALSE
-            GROUP BY p.code, p.name
-            ORDER BY total_sales DESC
-            LIMIT :limit
-        """), {"year": year, "month": month, "limit": limit})
+        result = db.execute(
+            text("SELECT * FROM get_monthly_products(:year, :month, :limit)"),
+            {"year": year, "month": month, "limit": limit}
+        )
         
         data = []
         for row in result:
@@ -1270,62 +1136,16 @@ def monthly_top_clients(
     try:
         year_prev = year - 1
         
-        result = db.execute(text("""
-            WITH month_data AS (
-                SELECT 
-                    d.client_code,
-                    COUNT(DISTINCT d.id) AS invoice_count,
-                    COALESCE(SUM(CASE WHEN pr.is_service = FALSE THEN sl.amount ELSE 0 END), 0) AS goods_revenue
-                FROM documents d
-                JOIN sales_lines sl ON sl.document_id = d.id
-                LEFT JOIN products pr ON sl.product_code = pr.code
-                WHERE EXTRACT(YEAR FROM d.invoice_date) = :year
-                  AND EXTRACT(MONTH FROM d.invoice_date) = :month
-                GROUP BY d.client_code
-            ),
-            abc_prev AS (
-                SELECT 
-                    d.client_code,
-                    COALESCE(SUM(CASE WHEN pr.is_service = FALSE THEN sl.amount ELSE 0 END), 0) AS goods_revenue_prev
-                FROM documents d
-                JOIN sales_lines sl ON sl.document_id = d.id
-                LEFT JOIN products pr ON sl.product_code = pr.code
-                WHERE EXTRACT(YEAR FROM d.invoice_date) = :year_prev
-                GROUP BY d.client_code
-            ),
-            abc_grouped AS (
-                SELECT 
-                    client_code,
-                    CASE
-                        WHEN goods_revenue_prev >= 3000000 * :mult THEN 'A1'
-                        WHEN goods_revenue_prev >= 2000000 * :mult THEN 'A2'
-                        WHEN goods_revenue_prev >= 1500000 * :mult THEN 'A3'
-                        WHEN goods_revenue_prev >= 1000000 * :mult THEN 'B1'
-                        WHEN goods_revenue_prev >= 500000  * :mult THEN 'B2'
-                        WHEN goods_revenue_prev >= 150000  * :mult THEN 'C1'
-                        WHEN goods_revenue_prev >= 1000    * :mult THEN 'C2'
-                        ELSE 'Новый'
-                    END AS abc_group_prev
-                FROM abc_prev
-            )
-            SELECT 
-                c.name AS client_name,
-                COALESCE(ag.abc_group_prev, 'Новый') AS group_prev,
-                md.invoice_count,
-                md.goods_revenue
-            FROM month_data md
-            JOIN clients c ON c.code = md.client_code
-            LEFT JOIN abc_grouped ag ON ag.client_code = md.client_code
-            WHERE c.is_active_current = TRUE
-            ORDER BY md.goods_revenue DESC
-            LIMIT :limit
-        """), {
-            "year": year,
-            "month": month,
-            "year_prev": year_prev,
-            "mult": multiplier,
-            "limit": limit
-        })
+        result = db.execute(
+            text("SELECT * FROM get_monthly_top_clients(:year, :month, :year_prev, :mult, :limit)"),
+            {
+                "year": year,
+                "month": month,
+                "year_prev": year_prev,
+                "mult": multiplier,
+                "limit": limit
+            }
+        )
         
         data = []
         for i, row in enumerate(result):
@@ -1366,7 +1186,7 @@ def yearly_clients_count(
     db = get_db()
     try:
         result = db.execute(
-            text("SELECT COUNT(*) FROM client_year_activity WHERE sales_year = :year AND is_active = TRUE"),
+            text("SELECT get_yearly_clients_count(:year)"),
             {"year": year}
         ).scalar()
         
@@ -2268,25 +2088,14 @@ def top_clients(
         # Получаем данные исключённого клиента для плашки внизу
         excluded_info = None
         if exclude_client:
-            excl_row = db.execute(text("""
-                SELECT 
-                    d.client_code,
-                    c.name as client_name,
-                    COUNT(DISTINCT d.id) as invoice_count,
-                    COALESCE(SUM(CASE WHEN pr.is_service = FALSE THEN sl.amount ELSE 0 END), 0) AS goods_revenue
-                FROM documents d
-                JOIN sales_lines sl ON sl.document_id = d.id
-                LEFT JOIN products pr ON sl.product_code = pr.code
-                JOIN clients c ON c.code = d.client_code
-                WHERE EXTRACT(YEAR FROM d.invoice_date) = :year
-                  AND EXTRACT(MONTH FROM d.invoice_date) = :month
-                  AND d.client_code = :exclude_client
-                GROUP BY d.client_code, c.name
-            """), {
-                "year": target_year,
-                "month": target_month,
-                "exclude_client": exclude_client
-            }).fetchone()
+            excl_row = db.execute(
+                text("SELECT * FROM get_excluded_client_info(:year, :month, :exclude_client)"),
+                {
+                    "year": target_year,
+                    "month": target_month,
+                    "exclude_client": exclude_client
+                }
+            ).fetchone()
             if excl_row:
                 excluded_info = dict(excl_row._mapping)
                 if excluded_info.get('goods_revenue'):
@@ -2716,30 +2525,217 @@ def inactive_clients_abc(
     except Exception as e:
         logger.error(f"Ошибка inactive_clients_abc: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-@app.get("/api/analytics/client-products/{code}")
+@app.get("/api/analytics/client-products/{client_code}")
 def client_products_analytics(
-    code: str,
+    client_code: str,
     token: str = Query(None),
     year: int = 2026
 ):
-    """Товары клиента за год с вызовом хранимой функции get_client_products"""
+    """Товары клиента за год: использует get_client_products, расчитывает ABC и проценты"""
     verify_token(token)
     db = get_db()
     try:
-        result = db.execute(
+        client = db.execute(
+            text("SELECT name FROM clients WHERE code = :code"),
+            {"code": client_code}
+        ).fetchone()
+        client_name = client[0] if client else client_code
+
+        services_rev = db.execute(text("""
+            SELECT COALESCE(SUM(sl.amount), 0)
+            FROM documents d
+            JOIN sales_lines sl ON sl.document_id = d.id
+            JOIN products p ON sl.product_code = p.code
+            WHERE d.client_code = :code
+              AND EXTRACT(YEAR FROM d.invoice_date) = :year
+              AND p.is_service = TRUE
+        """), {"code": client_code, "year": year}).scalar() or 0.0
+
+        rows = db.execute(
             text("SELECT * FROM get_client_products(:code, :year)"),
-            {"code": code, "year": year}
+            {"code": client_code, "year": year}
         ).fetchall()
-        products = [dict(r._mapping) for r in result]
+
+        stock_rows = db.execute(text("SELECT code, COALESCE(in_stock_balance, 0) as in_stock FROM products")).fetchall()
+        stock_map = {r.code: float(r.in_stock or 0) for r in stock_rows}
+
+        goods_rev = sum(float(r._mapping['total_sales'] or 0) for r in rows)
+        total_rev = goods_rev + float(services_rev)
+
+        products = []
+        cum_rev = 0.0
+        for r in rows:
+            rm = dict(r._mapping)
+            sales = float(rm.get('total_sales') or 0)
+            cum_rev += sales
+            
+            if goods_rev > 0:
+                pct = round(sales / goods_rev * 100, 1)
+                prev_cum = cum_rev - sales
+                if cum_rev <= goods_rev * 0.80 or prev_cum < goods_rev * 0.80:
+                    abc_grp = 'A'
+                elif cum_rev <= goods_rev * 0.95 or prev_cum < goods_rev * 0.95:
+                    abc_grp = 'B'
+                else:
+                    abc_grp = 'C'
+            else:
+                pct = 0.0
+                abc_grp = 'C'
+
+            rm['pct_of_total'] = pct
+            rm['abc_group'] = abc_grp
+            rm['in_stock'] = stock_map.get(rm['product_code'], 0.0)
+            rm['total_sales'] = round(sales, 2)
+            rm['total_quantity'] = round(float(rm.get('total_quantity') or 0), 2)
+            rm['invoice_count'] = int(rm.get('invoice_count') or 0)
+            products.append(rm)
+
         return {
             "status": "ok",
-            "client_code": code,
+            "client_code": client_code,
+            "client_name": client_name,
             "year": year,
+            "total_revenue": round(total_rev, 2),
+            "goods_revenue": round(goods_rev, 2),
+            "services_revenue": round(float(services_rev), 2),
+            "unique_products": len(products),
             "products": products,
             "count": len(products)
         }
     except Exception as e:
         logger.error(f"Ошибка client_products_analytics: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
+
+
+@app.get("/api/analytics/client-products-compare/{client_code}")
+def client_products_compare(
+    client_code: str,
+    token: str = Query(None)
+):
+    """Сравнение покупок 2026 vs 2025 из хранимой функции get_client_products_compare"""
+    verify_token(token)
+    db = get_db()
+    try:
+        rows = db.execute(
+            text("SELECT * FROM get_client_products_compare(:code)"),
+            {"code": client_code}
+        ).fetchall()
+
+        products = []
+        for r in rows:
+            rm = dict(r._mapping)
+            rev_2026 = float(rm.get('revenue_curr') or 0.0)
+            rev_2025 = float(rm.get('revenue_prev') or 0.0)
+            diff = rev_2026 - rev_2025
+            if rev_2025 > 0:
+                growth_pct = round(diff / rev_2025 * 100, 1)
+            elif rev_2026 > 0:
+                growth_pct = 100.0
+            else:
+                growth_pct = 0.0
+
+            products.append({
+                "product_code": rm.get('product_code'),
+                "product_name": rm.get('product_name'),
+                "sales_2025": round(rev_2025, 2),
+                "sales_2026": round(rev_2026, 2),
+                "qty_2025": round(float(rm.get('qty_prev') or 0.0), 2),
+                "qty_2026": round(float(rm.get('qty_curr') or 0.0), 2),
+                "diff": round(diff, 2),
+                "growth_pct": growth_pct
+            })
+
+        return {
+            "status": "ok",
+            "client_code": client_code,
+            "products": products,
+            "count": len(products)
+        }
+    except Exception as e:
+        logger.error(f"Ошибка client_products_compare: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
+
+
+@app.get("/api/analytics/client-products-recommendations/{client_code}")
+def client_products_recommendations(
+    client_code: str,
+    token: str = Query(None)
+):
+    """Рекомендации товаров для клиента: 4 блока"""
+    verify_token(token)
+    db = get_db()
+    try:
+        # Блок 1: Cross-sell (трубы)
+        cross_rows = db.execute(
+            text("SELECT * FROM get_client_cross_sell_pipes(:code)"),
+            {"code": client_code}
+        ).fetchall()
+        cross_sell = [
+            {"product_code": r.product_code, "product_name": r.product_name, 
+             "reason": r.reason, "in_stock": float(r.in_stock or 0)} 
+            for r in cross_rows
+        ]
+
+        # Блок 2: Похожие типоразмеры
+        similar_rows = db.execute(
+            text("SELECT * FROM get_client_similar_sizes(:code)"),
+            {"code": client_code}
+        ).fetchall()
+        similar_size = [
+            {"product_code": r.product_code, "product_name": r.product_name,
+             "diameter": float(r.diameter) if r.diameter is not None else None,
+             "wall_thickness": float(r.wall_thickness) if r.wall_thickness is not None else None,
+             "reason": r.reason, "in_stock": float(r.in_stock or 0)} 
+            for r in similar_rows
+        ]
+
+        # Fallback для similar_size
+        if len(similar_size) < 5:
+            existing = {s["product_code"] for s in similar_size}
+            fallback_rows = db.execute(
+                text("SELECT * FROM get_client_similar_fallback(:code)"),
+                {"code": client_code}
+            ).fetchall()
+            for r in fallback_rows:
+                if r.product_code not in existing and len(similar_size) < 5:
+                    similar_size.append({
+                        "product_code": r.product_code, "product_name": r.product_name,
+                        "diameter": float(r.diameter) if r.diameter is not None else None,
+                        "wall_thickness": float(r.wall_thickness) if r.wall_thickness is not None else None,
+                        "reason": r.reason, "in_stock": float(r.in_stock or 0)
+                    })
+
+        # Блок 3: Популярное в сегменте
+        dir_rows = db.execute(
+            text("SELECT * FROM get_client_direction_variety(:code)"),
+            {"code": client_code}
+        ).fetchall()
+        direction_variety = [
+            {"product_code": r.product_code, "product_name": r.product_name,
+             "popularity": int(r.popularity or 0), "reason": r.reason, 
+             "in_stock": float(r.in_stock or 0)} 
+            for r in dir_rows
+        ]
+
+        # Блок 4: Услуги
+        services = [
+            {"product_name": "Послуги порізки та різання металопрокату", "usage_count": "Рекомендовано", "code": "service_cut"},
+            {"product_name": "Послуги доставки по Україні", "usage_count": "Рекомендовано", "code": "service_delivery"},
+            {"product_name": "Послуги бронювання", "usage_count": "Рекомендовано", "code": "service_reserve"},
+            {"product_name": "Послуги розрахунок профільної труби", "usage_count": "Рекомендовано", "code": "service_profile"}
+        ]
+
+        return {
+            "status": "ok", "client_code": client_code,
+            "cross_sell": cross_sell, "similar_size": similar_size,
+            "direction_variety": direction_variety, "services": services
+        }
+    except Exception as e:
+        logger.error(f"Ошибка client_products_recommendations: {e}")
         raise HTTPException(status_code=500, detail=str(e))
     finally:
         db.close()
