@@ -509,6 +509,8 @@
                 <button class="sidebar-item" data-page="recommendations">✨ Рекомендации</button>
                 <button class="sidebar-item" data-page="churn">⚠️ Риск оттока</button>
                 <div class="sidebar-section">Инструменты</div>
+                <a href="/new-clients-analytics?token=utsk2026" target="_blank" class="sidebar-item">🌱 Аналитика Новых клиентов</a>
+                <a href="/inactive-clients-analytics?token=utsk2026" target="_blank" class="sidebar-item">💤 Аналитика Неактивных клиентов</a>
                 <a href="/comparison?token=utsk2026" target="_blank" class="sidebar-item">📊 Расширенная аналитика</a>
                 <a href="/abc-structure?token=utsk2026" target="_blank" class="sidebar-item">🏗️ Аналитика ABC</a>
             </div>
@@ -563,7 +565,7 @@
                             </div>
                             <div id="table-filter-bar"
                                 style="display:none; padding:12px 24px 0; border-bottom:1px solid var(--border);"></div>
-                            <div class="table-scroll">
+                            <div class="table-scroll" id="table-scroll-container">
                                 <table>
                                     <thead id="table-head">
                                         <tr>
@@ -611,7 +613,7 @@
             }
             return parts.join(' ') || name;
         }
-        const pf = new Intl.NumberFormat('ru-RU', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+        const pf = new Intl.NumberFormat('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         function formatCur(n) {
             if (n == null) return '—';
             n = Number(n);
@@ -776,35 +778,212 @@
             document.querySelectorAll('.year-btn').forEach(btn => {
                 btn.classList.toggle('year-btn-active', parseInt(btn.dataset.year) === funnelYear);
             });
-            const tb = $('clients-table-body');
-            tb.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:24px;">⏳ Загрузка...</td></tr>';
+            const container = $('table-scroll-container') || document.querySelector('.table-scroll');
+            if (!container) return;
+
+            container.innerHTML = `<div style="text-align:center;padding:30px;color:var(--text-muted);font-weight:600;">⏳ Загрузка воронки продаж за ${funnelYear} год...</div>`;
+
             try {
                 const r = await fetch(`/api/funnel?token=${TOKEN}&year=${funnelYear}`);
                 if (!r.ok) throw new Error(r.status);
                 const data = await r.json();
-                tb.innerHTML = '';
-                if (!data.length) {
-                    tb.innerHTML = `<tr><td colspan="3" style="text-align:center;padding:24px;">📭 Нет данных за ${funnelYear}</td></tr>`;
-                    return;
+
+                const activeList = Array.isArray(data) ? data : (data.funnel || []);
+                const lifecycleList = Array.isArray(data) ? [] : (data.lifecycle || []);
+                const newClientsList = Array.isArray(data) ? [] : (data.new_clients_funnel || []);
+
+                let html = '<div style="display:flex; flex-direction:column; gap:20px; padding: 4px 0;">';
+
+                // ====== ТАБЛИЦА 1: Жизненный цикл клиентов (Спящие / Ушедшие) ======
+                html += `
+                <div class="lifecycle-table-card" 
+                     onclick="window.location.href='/inactive-clients-analytics?token=' + TOKEN + '&year=' + funnelYear" 
+                     style="background:#fff; border-radius:12px; padding:16px; border:1px solid #e2e8f0; box-shadow:0 1px 3px rgba(0,0,0,0.02); cursor:pointer; transition:all 0.2s ease;"
+                     onmouseover="this.style.borderColor='#ef4444'; this.style.boxShadow='0 6px 16px rgba(239, 68, 68, 0.15)'; this.style.transform='translateY(-2px)';"
+                     onmouseout="this.style.borderColor='#e2e8f0'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.02)'; this.style.transform='none';">
+                    <div style="margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid #f1f5f9; display:flex; align-items:center; justify-content:space-between;">
+                        <div>
+                            <div style="font-size:14px; font-weight:700; color:#1e293b; display:flex; align-items:center; gap:8px;">
+                                <span>💤</span> Жизненный цикл клиентов 🔗
+                            </div>
+                            <div style="font-size:11px; color:#64748b; margin-top:2px;">Показывает неактивных клиентов за ${funnelYear} год</div>
+                        </div>
+                        <div style="font-size:12px; font-weight:700; color:#ef4444; background:#fee2e2; padding:4px 10px; border-radius:8px; display:flex; align-items:center; gap:4px; transition:background 0.2s;">
+                            Аналитика 🔗
+                        </div>
+                    </div>
+                    <table style="width:100%; border-collapse:collapse;">
+                        <thead>
+                            <tr style="background:#f8fafc; border-bottom:1px solid #e2e8f0;">
+                                <th style="padding:10px 14px; text-align:left; font-size:12px; font-weight:700; color:#475569;">Статус</th>
+                                <th style="padding:10px 14px; text-align:center; font-size:12px; font-weight:700; color:#475569;">Количество</th>
+                                <th style="padding:10px 14px; text-align:left; font-size:12px; font-weight:700; color:#475569;">Описание</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                if (!lifecycleList.length) {
+                    html += `<tr><td colspan="3" style="text-align:center; padding:14px; color:#94a3b8; font-size:13px;">📭 Нет данных о неактивных клиентах</td></tr>`;
+                } else {
+                    lifecycleList.forEach(item => {
+                        const isSleeping = item.status_id === 8 || (item.status_name && item.status_name.includes('Спящие'));
+                        const icon = isSleeping ? '💤' : '👻';
+                        const pillBg = isSleeping ? '#fef3c7' : '#fee2e2';
+                        const pillColor = isSleeping ? '#92400e' : '#991b1b';
+
+                        html += `
+                            <tr style="border-bottom:1px solid #f1f5f9;">
+                                <td style="padding:10px 14px; font-size:13px;">
+                                    <span style="display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:12px; background:${pillBg}; color:${pillColor}; font-weight:700; font-size:12px;">
+                                        ${icon} ${item.status_name}
+                                    </span>
+                                </td>
+                                <td style="padding:10px 14px; text-align:center; font-weight:700; font-size:14px; color:#1e293b;">${formatNum(item.count)}</td>
+                                <td style="padding:10px 14px; font-size:12px; color:#64748b;">${item.description || '—'}</td>
+                            </tr>
+                        `;
+                    });
                 }
-                let totalCount = 0;
-                let totalRevenue = 0;
-                data.forEach(s => {
-                    totalCount += s.count || 0;
-                    totalRevenue += s.revenue || 0;
-                    tb.innerHTML += `<tr>
-                        <td><b>${s.stage}</b></td>
-                        <td style="text-align:center;font-weight:600;">${formatNum(s.count)}</td>
-                        <td style="text-align:right;font-weight:700;color:#047857;">${formatCur(s.revenue)}</td>
-                    </tr>`;
-                });
-                // Строка Итого
-                tb.innerHTML += `<tr style="background-color: #f8fafc; border-top: 2px solid #e2e8f0; font-weight: bold;">
-                    <td><b>Итого</b></td>
-                    <td style="text-align:center;font-weight:700;color:var(--text-main);">${formatNum(totalCount)}</td>
-                    <td style="text-align:right;font-weight:800;color:#047857;">${formatCur(totalRevenue)}</td>
-                </tr>`;
-            } catch (e) { tb.innerHTML = '<tr><td colspan="3" style="color:#ef4444;text-align:center;">⚠️ Ошибка</td></tr>'; }
+
+                html += `
+                        </tbody>
+                    </table>
+                </div>
+                `;
+
+                // ====== ТАБЛИЦА 2: Новые клиенты по частоте покупок (status_id=1) ======
+                html += `
+                <div class="funnel-table-card" 
+                     onclick="window.location.href='/new-clients-analytics?token=' + TOKEN + '&year=' + funnelYear" 
+                     style="background:#fff; border-radius:12px; padding:16px; border:1px solid #e2e8f0; box-shadow:0 1px 3px rgba(0,0,0,0.02); cursor:pointer; transition:all 0.2s ease;"
+                     onmouseover="this.style.borderColor='#8b5cf6'; this.style.boxShadow='0 6px 16px rgba(139, 92, 246, 0.18)'; this.style.transform='translateY(-2px)';"
+                     onmouseout="this.style.borderColor='#e2e8f0'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.02)'; this.style.transform='none';">
+                    <div style="margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid #f1f5f9; display:flex; align-items:center; justify-content:space-between;">
+                        <div>
+                            <div style="font-size:14px; font-weight:700; color:#1e293b; display:flex; align-items:center; gap:8px;">
+                                <span>🆕</span> Новые клиенты по частоте покупок
+                            </div>
+                            <div style="font-size:11px; color:#64748b; margin-top:2px;">Распределение только Новых клиентов (status_id=1) за ${funnelYear} год</div>
+                        </div>
+                        <div style="font-size:12px; font-weight:700; color:#8b5cf6; background:#f5f3ff; padding:4px 10px; border-radius:8px; display:flex; align-items:center; gap:4px; transition:background 0.2s;">
+                            Аналитика 🔗
+                        </div>
+                    </div>
+                    <table style="width:100%; border-collapse:collapse;">
+                        <thead>
+                            <tr style="background:#f8fafc; border-bottom:1px solid #e2e8f0;">
+                                <th style="padding:10px 14px; text-align:left; font-size:12px; font-weight:700; color:#475569;">Группа частоты</th>
+                                <th style="padding:10px 14px; text-align:center; font-size:12px; font-weight:700; color:#475569;">Количество</th>
+                                <th style="padding:10px 14px; text-align:right; font-size:12px; font-weight:700; color:#475569;">Товарная выручка (${funnelYear})</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                if (!newClientsList.length) {
+                    html += `<tr><td colspan="3" style="text-align:center; padding:14px; color:#94a3b8; font-size:13px;">📭 Нет новых клиентов за ${funnelYear}</td></tr>`;
+                } else {
+                    let totalNewCount = 0;
+                    let totalNewRevenue = 0;
+
+                    newClientsList.forEach(item => {
+                        totalNewCount += item.count || 0;
+                        totalNewRevenue += item.revenue || 0;
+
+                        html += `
+                            <tr style="border-bottom:1px solid #f1f5f9;">
+                                <td style="padding:10px 14px; font-size:13px; font-weight:600; color:#334155;">${item.stage}</td>
+                                <td style="padding:10px 14px; text-align:center; font-weight:600; font-size:13px; color:#1e293b;">${formatNum(item.count)}</td>
+                                <td style="padding:10px 14px; text-align:right; font-weight:700; font-size:13px; color:#047857;">${formatCur(item.revenue)}</td>
+                            </tr>
+                        `;
+                    });
+
+                    html += `
+                        <tr style="background:#f8fafc; border-top:2px solid #e2e8f0;">
+                            <td style="padding:10px 14px; font-size:13px; font-weight:800; color:#0f172a;">Итого Новых</td>
+                            <td style="padding:10px 14px; text-align:center; font-weight:800; font-size:14px; color:#0f172a;">${formatNum(totalNewCount)}</td>
+                            <td style="padding:10px 14px; text-align:right; font-weight:800; font-size:14px; color:#047857;">${formatCur(totalNewRevenue)}</td>
+                        </tr>
+                    `;
+                }
+
+                html += `
+                        </tbody>
+                    </table>
+                </div>
+                `;
+
+                // ====== ТАБЛИЦА 3: Активные клиенты по частоте (Существующая воронка) ======
+                html += `
+                <div class="funnel-table-card" 
+                     onclick="window.location.href='/analytics?token=' + TOKEN" 
+                     style="background:#fff; border-radius:12px; padding:16px; border:1px solid #e2e8f0; box-shadow:0 1px 3px rgba(0,0,0,0.02); cursor:pointer; transition:all 0.2s ease;"
+                     onmouseover="this.style.borderColor='#4f46e5'; this.style.boxShadow='0 4px 12px rgba(79, 70, 229, 0.15)'; this.style.transform='translateY(-1px)';"
+                     onmouseout="this.style.borderColor='#e2e8f0'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.02)'; this.style.transform='none';">
+                    <div style="margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid #f1f5f9; display:flex; align-items:center; justify-content:space-between;">
+                        <div>
+                            <div style="font-size:14px; font-weight:700; color:#1e293b; display:flex; align-items:center; gap:8px;">
+                                <span>📈</span> Активные клиенты по частоте 🔗
+                            </div>
+                            <div style="font-size:11px; color:#64748b; margin-top:2px;">Распределение всех активных клиентов за ${funnelYear} год</div>
+                        </div>
+                        <div style="font-size:12px; font-weight:700; color:#4f46e5; background:#e0e7ff; padding:4px 10px; border-radius:8px; display:flex; align-items:center; gap:4px; transition:background 0.2s;">
+                            Аналитика 🔗
+                        </div>
+                    </div>
+                    <table style="width:100%; border-collapse:collapse;">
+                        <thead>
+                            <tr style="background:#f8fafc; border-bottom:1px solid #e2e8f0;">
+                                <th style="padding:10px 14px; text-align:left; font-size:12px; font-weight:700; color:#475569;">Группа частоты</th>
+                                <th style="padding:10px 14px; text-align:center; font-size:12px; font-weight:700; color:#475569;">Количество фирм</th>
+                                <th style="padding:10px 14px; text-align:right; font-size:12px; font-weight:700; color:#475569;">Товарная выручка (${funnelYear})</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                if (!activeList.length) {
+                    html += `<tr><td colspan="3" style="text-align:center; padding:14px; color:#94a3b8; font-size:13px;">📭 Нет данных за ${funnelYear}</td></tr>`;
+                } else {
+                    let totalActiveCount = 0;
+                    let totalActiveRevenue = 0;
+
+                    activeList.forEach(item => {
+                        totalActiveCount += item.count || 0;
+                        totalActiveRevenue += item.revenue || 0;
+
+                        html += `
+                            <tr style="border-bottom:1px solid #f1f5f9;">
+                                <td style="padding:10px 14px; font-size:13px; font-weight:600; color:#334155;">${item.stage}</td>
+                                <td style="padding:10px 14px; text-align:center; font-weight:600; font-size:13px; color:#1e293b;">${formatNum(item.count)}</td>
+                                <td style="padding:10px 14px; text-align:right; font-weight:700; font-size:13px; color:#047857;">${formatCur(item.revenue)}</td>
+                            </tr>
+                        `;
+                    });
+
+                    html += `
+                        <tr style="background:#f8fafc; border-top:2px solid #e2e8f0;">
+                            <td style="padding:10px 14px; font-size:13px; font-weight:800; color:#0f172a;">Итого</td>
+                            <td style="padding:10px 14px; text-align:center; font-weight:800; font-size:14px; color:#0f172a;">${formatNum(totalActiveCount)}</td>
+                            <td style="padding:10px 14px; text-align:right; font-weight:800; font-size:14px; color:#047857;">${formatCur(totalActiveRevenue)}</td>
+                        </tr>
+                    `;
+                }
+
+                html += `
+                        </tbody>
+                    </table>
+                </div>
+                `;
+
+                html += '</div>';
+                container.innerHTML = html;
+
+            } catch (e) {
+                container.innerHTML = `<div style="padding:24px; color:#ef4444; text-align:center; font-weight:600;">⚠️ Ошибка загрузки воронки: ${e.message}</div>`;
+            }
         }
 
         // ====== РИСК ОТТОКА ======
@@ -918,11 +1097,28 @@
             else loadTopSales();
         }
 
+        function ensureStandardTable() {
+            const container = $('table-scroll-container') || document.querySelector('.table-scroll');
+            if (container && !$('clients-table-body')) {
+                container.innerHTML = `
+                    <table id="main-table">
+                        <thead id="table-head"></thead>
+                        <tbody id="clients-table-body"></tbody>
+                    </table>
+                `;
+            }
+        }
+
         function setTableForPage(page) {
-            const thead = $('table-head');
             const bt = $('block-title');
             const pt = $('page-title');
             const filterBar = $('table-filter-bar');
+
+            if (page !== 'funnel') {
+                ensureStandardTable();
+            }
+
+            const thead = $('table-head');
 
             if (page === 'dashboard') {
                 if (pt) pt.textContent = 'Обзорный дашборд';
@@ -948,7 +1144,7 @@
 
             const configs = {
                 clients: { title: 'Активные клиенты', block: 'Покупки за последние 30 дней', cols: 4, headers: ['Клиент', 'Статус', 'Последняя покупка', 'Выручка'] },
-                funnel: { title: 'Воронка продаж', block: `Распределение по частоте накладных — ${funnelYear}`, cols: 3, headers: ['Группа частоты', 'Количество фирм', `Товарная выручка (${funnelYear})`] },
+                funnel: { title: 'Воронка продаж', block: `Воронка продаж и жизненный цикл клиентов — ${funnelYear}`, cols: 3, headers: ['Группа частоты', 'Количество фирм', `Товарная выручка (${funnelYear})`] },
                 churn: { title: 'Риск оттока', block: 'Без покупок более 90 дней', cols: 4, headers: ['Клиент', 'Статус', 'Последняя покупка', 'Предупреждение'] },
                 recommendations: { title: 'Рекомендации', block: 'Персональные для клиента', cols: 5, headers: ['#', 'Товар', 'Причина', 'Остаток', 'Статус'] }
             };
@@ -956,7 +1152,7 @@
             const cfg = configs[page] || configs.clients;
             if (pt) pt.textContent = cfg.title;
             if (bt) bt.textContent = cfg.block;
-            if (thead) thead.innerHTML = `<tr>${cfg.headers.map(h => `<th>${h}</th>`).join('')}</tr>`;
+            if (thead && page !== 'funnel') thead.innerHTML = `<tr>${cfg.headers.map(h => `<th>${h}</th>`).join('')}</tr>`;
 
             // Фильтр-бар: показываем только для воронки
             if (filterBar) {

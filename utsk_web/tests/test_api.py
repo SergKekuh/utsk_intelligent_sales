@@ -58,6 +58,18 @@ def test_recommendations_nonexistent_client():
     assert response.status_code == 404
     assert "detail" in response.json()
 
+# ====== ВОРОНКА ПРОДАЖ ======
+def test_funnel_extended_structure():
+    response = client.get("/api/funnel?token=" + TOKEN + "&year=2026")
+    assert response.status_code == 200
+    data = response.json()
+    assert "funnel" in data
+    assert "lifecycle" in data
+    assert "new_clients_funnel" in data
+    assert isinstance(data["lifecycle"], list)
+    assert isinstance(data["new_clients_funnel"], list)
+
+
 # ====== ГЛАВНАЯ СТРАНИЦА ======
 def test_index_html():
     response = client.get("/?token=" + TOKEN)
@@ -88,3 +100,95 @@ def test_db_reference_no_auth():
     """Справочник без токена = 403"""
     response = client.get("/db-reference")
     assert response.status_code == 403
+
+
+# ====== АНАЛИТИКА НОВЫХ КЛИЕНТОВ ======
+def test_new_clients_analytics_page():
+    response = client.get("/new-clients-analytics?token=" + TOKEN)
+    assert response.status_code == 200
+    assert "Аналитика новых клиентов" in response.text or "UTSK" in response.text
+
+def test_new_clients_overview():
+    response = client.get("/api/analytics/new-clients-overview?token=" + TOKEN + "&year=2026")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "ok"
+    assert "total_new" in data
+    assert "total_revenue" in data
+    assert "avg_ticket" in data
+
+def test_new_clients_frequency():
+    response = client.get("/api/analytics/new-clients-frequency?token=" + TOKEN + "&year=2026")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "ok"
+    assert "data" in data
+    assert isinstance(data["data"], list)
+
+def test_new_clients_abc():
+    response = client.get("/api/analytics/new-clients-abc?token=" + TOKEN + "&year=2026")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "ok"
+    assert "data" in data
+
+def test_new_clients_abc_compare():
+    response = client.get("/api/analytics/new-clients-abc-compare?token=" + TOKEN + "&year=2026")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "ok"
+    assert "data" in data
+
+def test_new_clients_list():
+    response = client.get("/api/analytics/new-clients-list?token=" + TOKEN + "&year=2026&limit=10")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "ok"
+    assert "data" in data
+    assert len(data["data"]) > 0
+
+
+# ====== АНАЛИТИКА НЕАКТИВНЫХ КЛИЕНТОВ ======
+def test_inactive_clients_analytics_page():
+    response = client.get("/inactive-clients-analytics?token=" + TOKEN)
+    assert response.status_code == 200
+    assert "Неактивные клиенты" in response.text or "UTSK" in response.text
+
+def test_inactive_clients_overview():
+    response = client.get("/api/analytics/inactive-clients-overview?token=" + TOKEN + "&year=2026")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "ok"
+    assert "sleeping_count" in data
+    assert "churned_count" in data
+    assert data["sleeping_count"] > 0
+
+def test_inactive_clients_list_sleeping():
+    response = client.get("/api/analytics/inactive-clients-list?token=" + TOKEN + "&status_id=8&limit=10")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "ok"
+    assert len(data["data"]) > 0
+
+def test_inactive_clients_list_churned():
+    response = client.get("/api/analytics/inactive-clients-list?token=" + TOKEN + "&status_id=9&limit=10")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "ok"
+    assert len(data["data"]) > 0
+
+def test_inactive_clients_distribution():
+    response = client.get("/api/analytics/inactive-clients-distribution?token=" + TOKEN + "&status_id=8")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "ok"
+    assert "data" in data
+
+def test_inactive_clients_abc():
+    response = client.get("/api/analytics/inactive-clients-abc?token=" + TOKEN + "&status_id=8")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "ok"
+    assert "data" in data
+
+

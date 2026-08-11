@@ -399,8 +399,9 @@
             });
         }
 
-        function renderFunnel(funnelData) {
-            if (!Array.isArray(funnelData) || !funnelData.length) {
+        function renderFunnel(data) {
+            const funnelData = Array.isArray(data) ? data : (data && data.funnel ? data.funnel : []);
+            if (!funnelData || !funnelData.length) {
                 $('funnelContainer').innerHTML = '<div class="loading">📭 Нет данных</div>';
                 return;
             }

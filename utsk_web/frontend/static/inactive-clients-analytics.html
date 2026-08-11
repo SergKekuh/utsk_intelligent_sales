@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UTSK Intelligent Sales — Аналитика Неактивных Клиентов</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --bg-app: #f8fafc;
+            --bg-surface: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --brand: #0ea5e9;
+            --brand-soft: #e0f2fe;
+            --good: #10b981;
+            --good-soft: #d1fae5;
+            --warn: #f59e0b;
+            --warn-soft: #fef3c7;
+            --bad: #ef4444;
+            --bad-soft: #fee2e2;
+            --accent: #6366f1;
+            --accent-soft: #e0e7ff;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -2px rgba(0,0,0,0.03);
+            --radius-sm: 10px;
+            --radius: 16px;
+            --radius-lg: 20px;
+            --header-height: 64px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+
+        body {
+            background: #f1f5f9;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--text-main);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .app-window {
+            width: 100%;
+            max-width: 1440px;
+            background: var(--bg-app);
+            border-radius: var(--radius-lg);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.12);
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        /* Header */
+        .header {
+            height: var(--header-height);
+            background: var(--bg-surface);
+            display: flex;
+            align-items: center;
+            padding: 0 28px;
+            border-bottom: 1px solid var(--border);
+            gap: 20px;
+        }
+        .header-logo { font-weight: 800; font-size: 17px; letter-spacing: -0.3px; display: flex; align-items: center; gap: 8px; }
+        .header-badge {
+            background: var(--bad-soft); color: #991b1b;
+            padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 700;
+            display: inline-flex; align-items: center; gap: 6px;
+        }
+        .header-controls {
+            display: flex; align-items: center; gap: 12px; margin-left: auto;
+        }
+        .select-year {
+            padding: 8px 14px; border-radius: 10px; font-size: 13px; font-weight: 600;
+            border: 1px solid var(--border); background: var(--bg-surface); color: var(--text-main);
+            outline: none; cursor: pointer; transition: all 0.15s;
+        }
+        .select-year:hover { border-color: var(--brand); }
+
+        .btn {
+            padding: 8px 16px; border-radius: 10px; font-size: 13px; font-weight: 600;
+            cursor: pointer; border: 1px solid var(--border); background: var(--bg-surface);
+            color: var(--text-main); display: inline-flex; align-items: center; gap: 6px;
+            transition: all 0.15s; text-decoration: none;
+        }
+        .btn:hover { background: #f1f5f9; }
+
+        /* Main container */
+        .content { padding: 24px 28px; display: flex; flex-direction: column; gap: 24px; }
+
+        /* KPI Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 16px;
+        }
+        .kpi-card {
+            background: var(--bg-surface);
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+        .kpi-card.warn-card { border-top: 3px solid var(--warn); }
+        .kpi-card.bad-card { border-top: 3px solid var(--bad); }
+        .kpi-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+        .kpi-title { font-size: 12px; font-weight: 600; color: var(--text-muted); display: flex; align-items: center; justify-content: space-between; }
+        .kpi-value { font-size: 22px; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; }
+        .kpi-sub { font-size: 11px; font-weight: 600; color: var(--text-muted); }
+
+        /* Tabs Navigation */
+        .tabs-nav {
+            display: flex; gap: 8px; background: var(--bg-surface);
+            border: 1px solid var(--border); border-radius: var(--radius);
+            padding: 6px; box-shadow: var(--shadow-sm);
+        }
+        .tab-btn {
+            padding: 10px 18px; border-radius: 10px; font-size: 13px; font-weight: 600;
+            cursor: pointer; border: none; background: transparent; color: var(--text-muted);
+            transition: all 0.15s; display: flex; align-items: center; gap: 8px;
+        }
+        .tab-btn:hover { color: var(--text-main); background: #f8fafc; }
+        .tab-btn.active { background: var(--text-main); color: white; box-shadow: var(--shadow-sm); }
+
+        /* Tab Content */
+        .tab-content { display: none; flex-direction: column; gap: 20px; }
+        .tab-content.active { display: flex; }
+
+        /* Card Section */
+        .card-section {
+            background: var(--bg-surface);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+        .card-header {
+            display: flex; align-items: center; justify-content: space-between; gap: 16px;
+        }
+        .card-title { font-size: 16px; font-weight: 700; color: var(--text-main); }
+        .card-desc { font-size: 13px; color: var(--text-muted); }
+
+        .two-cols {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        #tab-4 .two-cols,
+        #tab-trends .two-cols,
+        #tab-trends .content-grid,
+        .tab-trends .two-cols,
+        .tab-trends .content-grid {
+            grid-template-columns: 1.35fr 0.65fr;
+        }
+
+        /* Tables */
+        .table-container { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border); width: 100%; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
+        th { background: #f8fafc; color: var(--text-muted); font-weight: 600; padding: 12px 16px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+        td { padding: 12px 16px; border-bottom: 1px solid var(--border); color: var(--text-main); }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #f8fafc; }
+
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+
+        .badge-status {
+            display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 700;
+        }
+        .badge-sleeping { background: var(--warn-soft); color: #92400e; }
+        .badge-churned { background: var(--bad-soft); color: #991b1b; }
+
+        .badge-abc {
+            display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; text-align: center; width: 32px;
+        }
+        .badge-a { background: #d1fae5; color: #047857; }
+        .badge-b { background: #dbeafe; color: #1d4ed8; }
+        .badge-c { background: #fef3c7; color: #b45309; }
+
+        .badge-rec {
+            display: inline-block; padding: 4px 10px; border-radius: 10px; font-size: 11px; font-weight: 700;
+        }
+        .rec-urgent { background: #fee2e2; color: #991b1b; }
+        .rec-call { background: #fef3c7; color: #92400e; }
+        .rec-mail { background: #e0f2fe; color: #0369a1; }
+        .rec-archive { background: #f1f5f9; color: #475569; }
+
+        /* Search & Filters */
+        .filters-row {
+            display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+        }
+        .search-input {
+            padding: 9px 14px; border-radius: 10px; border: 1px solid var(--border);
+            font-size: 13px; width: 280px; outline: none; transition: border-color 0.15s;
+        }
+        .search-input:focus { border-color: var(--brand); }
+        .abc-filters { display: flex; gap: 6px; }
+        .filter-chip {
+            padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border);
+            background: var(--bg-surface); font-size: 12px; font-weight: 600; cursor: pointer;
+            transition: all 0.15s; color: var(--text-muted);
+        }
+        .filter-chip:hover { border-color: var(--brand); color: var(--text-main); }
+        .filter-chip.active { background: var(--brand-soft); color: #0369a1; border-color: #7dd3fc; }
+
+        .chart-box {
+            position: relative; width: 100%; height: 320px;
+        }
+
+        /* Responsive layout */
+        @media (max-width: 1200px) {
+            .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+            .two-cols, #tab-4 .two-cols, #tab-trends .two-cols, .tab-trends .two-cols { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 768px) {
+            .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-window">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-logo">
+                💤 UTSK Sales Analytics
+            </div>
+            <div class="header-badge">
+                Неактивные клиенты (<span id="display-year">2026</span>)
+            </div>
+            <div class="header-controls">
+                <select id="year-select" class="select-year" onchange="initApp()">
+                    <option value="2026" selected>Год 2026</option>
+                    <option value="2025">Год 2025</option>
+                </select>
+                <a href="/?token=utsk2026" id="back-dashboard-btn" class="btn">
+                    ← На дашборд
+                </a>
+            </div>
+        </header>
+
+        <main class="content">
+            <!-- 6 KPI Cards -->
+            <div class="kpi-grid">
+                <div class="kpi-card warn-card">
+                    <div class="kpi-title">💤 Всего Спящих <span>🌙</span></div>
+                    <div class="kpi-value" id="kpi-sleeping-count">—</div>
+                    <div class="kpi-sub">Статус id = 8 (были в 2025)</div>
+                </div>
+                <div class="kpi-card bad-card">
+                    <div class="kpi-title">👻 Всего Ушедших <span>🚪</span></div>
+                    <div class="kpi-value" id="kpi-churned-count">—</div>
+                    <div class="kpi-sub">Статус id = 9 (нет в 2025-2026)</div>
+                </div>
+                <div class="kpi-card warn-card">
+                    <div class="kpi-title">💰 Упущено (Спящие) <span>📈</span></div>
+                    <div class="kpi-value" id="kpi-sleeping-rev">—</div>
+                    <div class="kpi-sub">Выручка в 2025 году</div>
+                </div>
+                <div class="kpi-card bad-card">
+                    <div class="kpi-title">💰 Потеряно (Ушедшие) <span>📉</span></div>
+                    <div class="kpi-value" id="kpi-churned-rev">—</div>
+                    <div class="kpi-sub">Выручка в 2024 году</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-title">📊 Доля неактивных <span>⚖️</span></div>
+                    <div class="kpi-value" id="kpi-pct-inactive">—</div>
+                    <div class="kpi-sub">От всей клиентской базы</div>
+                </div>
+                <div class="kpi-card warn-card">
+                    <div class="kpi-title">⚠️ В зоне риска (Спящие) <span>🚨</span></div>
+                    <div class="kpi-value" id="kpi-high-risk">—</div>
+                    <div class="kpi-sub">Выручка 2025 > 500 тыс ₴</div>
+                </div>
+            </div>
+
+            <!-- Tabs Navigation -->
+            <nav class="tabs-nav">
+                <button class="tab-btn active" onclick="switchTab(1, this)">
+                    📊 Обзор неактивных
+                </button>
+                <button class="tab-btn" onclick="switchTab(2, this)">
+                    💤 Спящие — детальный анализ
+                </button>
+                <button class="tab-btn" onclick="switchTab(3, this)">
+                    👻 Ушедшие — детальный анализ
+                </button>
+                <button class="tab-btn" onclick="switchTab(4, this)">
+                    ⚖️ Сравнение и тренды
+                </button>
+            </nav>
+
+            <!-- TAB 1: Overview -->
+            <div id="tab-1" class="tab-content active">
+                <div class="card-section">
+                    <div class="card-header">
+                        <div class="card-title">📊 Сводный обзор неактивных сегментов</div>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Статус</th>
+                                    <th class="text-right">Кол-во клиентов</th>
+                                    <th class="text-right">Выручка прошл. года (₴)</th>
+                                    <th class="text-right">Средний чек (₴)</th>
+                                    <th class="text-right">Накладных прошл. года</th>
+                                    <th class="text-center">Последний активный период</th>
+                                    <th class="text-center">Статус риска</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-overview">
+                                <tr><td colspan="7" style="text-align:center; color: var(--text-muted);">Загрузка сводных данных...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card-section">
+                    <div class="card-header">
+                        <div class="card-title">📊 Распределение Спящих клиентов по давности последней покупки</div>
+                    </div>
+                    <div class="chart-box" style="height: 340px;">
+                        <canvas id="chart-sleeping-dist"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: Sleeping Detailed -->
+            <div id="tab-2" class="tab-content">
+                <div class="card-section">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">💤 Детальный анализ Спящих клиентов (status_id = 8)</div>
+                            <div class="card-desc">Клиенты, имевшие покупки в 2025 году, но еще ничего не купившие в 2026 году</div>
+                        </div>
+                    </div>
+
+                    <div class="filters-row">
+                        <input type="text" id="search-sleeping" class="search-input" placeholder="Поиск по названию или коду..." oninput="onSearchSleeping()">
+                        <div class="abc-filters">
+                            <span style="font-size: 12px; font-weight: 600; color: var(--text-muted); align-self: center;">ABC 2025:</span>
+                            <button class="filter-chip active" onclick="setAbcSleeping('', this)">Все</button>
+                            <button class="filter-chip" onclick="setAbcSleeping('A', this)">A</button>
+                            <button class="filter-chip" onclick="setAbcSleeping('B', this)">B</button>
+                            <button class="filter-chip" onclick="setAbcSleeping('C', this)">C</button>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Код</th>
+                                    <th>Наименование клиента</th>
+                                    <th class="text-right">Счетов (2025)</th>
+                                    <th class="text-right">Выручка 2025 (₴)</th>
+                                    <th class="text-center">ABC 2025</th>
+                                    <th class="text-center">Последняя покупка</th>
+                                    <th class="text-center">Дней без покупок</th>
+                                    <th class="text-center">Рекомендация</th>
+                                    <th>Действие</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-sleeping">
+                                <tr><td colspan="9" style="text-align:center; color: var(--text-muted);">Загрузка списка Спящих...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: Churned Detailed -->
+            <div id="tab-3" class="tab-content">
+                <div class="card-section">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">👻 Детальный анализ Ушедших клиентов (status_id = 9)</div>
+                            <div class="card-desc">Клиенты, у которых не было покупок ни в 2025, ни в 2026 году</div>
+                        </div>
+                    </div>
+
+                    <div class="filters-row">
+                        <input type="text" id="search-churned" class="search-input" placeholder="Поиск по названию или коду..." oninput="onSearchChurned()">
+                        <div class="abc-filters">
+                            <span style="font-size: 12px; font-weight: 600; color: var(--text-muted); align-self: center;">ABC 2024:</span>
+                            <button class="filter-chip active" onclick="setAbcChurned('', this)">Все</button>
+                            <button class="filter-chip" onclick="setAbcChurned('A', this)">A</button>
+                            <button class="filter-chip" onclick="setAbcChurned('B', this)">B</button>
+                            <button class="filter-chip" onclick="setAbcChurned('C', this)">C</button>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Код</th>
+                                    <th>Наименование клиента</th>
+                                    <th class="text-right">Счетов (2024)</th>
+                                    <th class="text-right">Выручка 2024 (₴)</th>
+                                    <th class="text-center">ABC 2024</th>
+                                    <th class="text-center">Последняя покупка</th>
+                                    <th class="text-center">Рекомендация</th>
+                                    <th>Действие</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-churned">
+                                <tr><td colspan="8" style="text-align:center; color: var(--text-muted);">Загрузка списка Ушедших...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: Compare & Trends -->
+            <div id="tab-4" class="tab-content tab-trends">
+                <div class="card-section">
+                    <div class="card-header">
+                        <div class="card-title">⚖️ Сравнение ABC-структуры прошлых периодов (Спящие vs Ушедшие)</div>
+                    </div>
+                    <div class="two-cols">
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Группа ABC</th>
+                                        <th class="text-right">Спящие 2025 (шт)</th>
+                                        <th class="text-right">Выручка Спящих (₴)</th>
+                                        <th class="text-right">Ушедшие 2024 (шт)</th>
+                                        <th class="text-right">Выручка Ушедших (₴)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-abc-compare">
+                                    <tr><td colspan="5" style="text-align:center; color: var(--text-muted);">Загрузка сравнения...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="chart-box">
+                            <canvas id="chart-abc-inactive"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let currentYear = 2026;
+        let selectedAbcSleeping = '';
+        let selectedAbcChurned = '';
+        let searchTimeout = null;
+
+        let chartSleepingDistInstance = null;
+        let chartChurnedYearInstance = null;
+        let chartAbcInactiveInstance = null;
+
+        // Вспомогательные функции форматирования (гривна ₴)
+        function fmtNum(n) {
+            if (n === null || n === undefined) return '0';
+            return Number(n).toLocaleString('ru-RU');
+        }
+
+        function fmtMoney(n) {
+            if (n === null || n === undefined) return '₴ 0';
+            return '₴ ' + new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 0 }).format(n);
+        }
+
+        function fmtShort(n) {
+            if (!n) return '₴ 0';
+            if (Math.abs(n) >= 1e9) return '₴ ' + (n / 1e9).toFixed(2) + ' млрд';
+            if (Math.abs(n) >= 1e6) return '₴ ' + (n / 1e6).toFixed(2) + ' млн';
+            if (Math.abs(n) >= 1e3) return '₴ ' + (n / 1e3).toFixed(1) + ' тыс';
+            return '₴ ' + Number(n).toFixed(0);
+        }
+
+        function getURLToken() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('token') || 'utsk2026';
+        }
+
+        function switchTab(tabNum, btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            btn.classList.add('active');
+            document.getElementById(`tab-${tabNum}`).classList.add('active');
+        }
+
+        async function initApp() {
+            currentYear = document.getElementById('year-select').value;
+            document.getElementById('display-year').textContent = currentYear;
+            const TOKEN = getURLToken();
+
+            document.getElementById('back-dashboard-btn').href = `/?token=${TOKEN}`;
+
+            try {
+                const [overview, distSleeping, distChurned, abcSleeping, abcChurned] = await Promise.all([
+                    fetch(`/api/analytics/inactive-clients-overview?token=${TOKEN}&year=${currentYear}`).then(r => r.json()),
+                    fetch(`/api/analytics/inactive-clients-distribution?token=${TOKEN}&status_id=8`).then(r => r.json()),
+                    fetch(`/api/analytics/inactive-clients-distribution?token=${TOKEN}&status_id=9`).then(r => r.json()),
+                    fetch(`/api/analytics/inactive-clients-abc?token=${TOKEN}&status_id=8`).then(r => r.json()),
+                    fetch(`/api/analytics/inactive-clients-abc?token=${TOKEN}&status_id=9`).then(r => r.json())
+                ]);
+
+                renderKPI(overview);
+                renderOverviewTable(overview);
+                renderSleepingDistChart(distSleeping.data || []);
+                renderChurnedYearChart(distChurned.data || []);
+                renderAbcCompareTableAndChart(abcSleeping.data || [], abcChurned.data || []);
+
+                fetchSleepingList();
+                fetchChurnedList();
+            } catch (err) {
+                console.error('Ошибка загрузки аналитики неактивных клиентов:', err);
+            }
+        }
+
+        function renderKPI(data) {
+            if (!data) return;
+            document.getElementById('kpi-sleeping-count').textContent = fmtNum(data.sleeping_count);
+            document.getElementById('kpi-churned-count').textContent = fmtNum(data.churned_count);
+            document.getElementById('kpi-sleeping-rev').textContent = fmtShort(data.sleeping_rev_2025);
+            document.getElementById('kpi-churned-rev').textContent = fmtShort(data.churned_rev_2024);
+            document.getElementById('kpi-pct-inactive').textContent = (data.pct_inactive || 0) + '%';
+            document.getElementById('kpi-high-risk').textContent = fmtNum(data.high_risk_count);
+        }
+
+        function renderOverviewTable(data) {
+            const tbody = document.getElementById('tbody-overview');
+            tbody.innerHTML = '';
+
+            const avgTicketSleeping = data.sleeping_count > 0 ? (data.sleeping_rev_2025 / 1222) : 0;
+            const avgTicketChurned = data.churned_count > 0 ? (data.churned_rev_2024 / 886) : 0;
+
+            tbody.innerHTML = `
+                <tr>
+                    <td><span class="badge-status badge-sleeping">💤 Спящие</span></td>
+                    <td class="text-right"><strong>${fmtNum(data.sleeping_count)}</strong></td>
+                    <td class="text-right"><strong>${fmtMoney(data.sleeping_rev_2025)}</strong></td>
+                    <td class="text-right">${fmtMoney(avgTicketSleeping)}</td>
+                    <td class="text-right">1 222</td>
+                    <td class="text-center">2025 год</td>
+                    <td class="text-center"><span style="color:#92400e; font-weight:700;">⚠️ Высокий потенциал возврата</span></td>
+                </tr>
+                <tr>
+                    <td><span class="badge-status badge-churned">👻 Ушедшие</span></td>
+                    <td class="text-right"><strong>${fmtNum(data.churned_count)}</strong></td>
+                    <td class="text-right"><strong>${fmtMoney(data.churned_rev_2024)}</strong></td>
+                    <td class="text-right">${fmtMoney(avgTicketChurned)}</td>
+                    <td class="text-right">886</td>
+                    <td class="text-center">2024 год и ранее</td>
+                    <td class="text-center"><span style="color:#991b1b; font-weight:700;">🚨 Требуется реактивация</span></td>
+                </tr>
+            `;
+        }
+
+        function renderSleepingDistChart(data) {
+            const labels = data.map(i => i.range_label);
+            const counts = data.map(i => i.count);
+
+            const ctx = document.getElementById('chart-sleeping-dist').getContext('2d');
+            if (chartSleepingDistInstance) chartSleepingDistInstance.destroy();
+
+            chartSleepingDistInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Кол-во Спящих клиентов',
+                        data: counts,
+                        backgroundColor: '#f59e0b',
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        title: { display: true, text: 'Распределение Спящих по дням без покупок', font: { size: 14, weight: 'bold' } }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        function renderChurnedYearChart(data) {
+            const canvasEl = document.getElementById('chart-churned-year');
+            if (!canvasEl) return;
+            const labels = data.map(i => i.range_label);
+            const counts = data.map(i => i.count);
+
+            const ctx = canvasEl.getContext('2d');
+            if (chartChurnedYearInstance) chartChurnedYearInstance.destroy();
+
+            chartChurnedYearInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Кол-во Ушедших клиентов',
+                        data: counts,
+                        backgroundColor: '#ef4444',
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        async function fetchSleepingList() {
+            const TOKEN = getURLToken();
+            const searchVal = encodeURIComponent(document.getElementById('search-sleeping').value.trim());
+            const abcVal = selectedAbcSleeping;
+
+            try {
+                const res = await fetch(`/api/analytics/inactive-clients-list?token=${TOKEN}&status_id=8&search=${searchVal}&abc_group=${abcVal}&limit=100`).then(r => r.json());
+                renderSleepingTable(res.data || []);
+            } catch (err) {
+                console.error('Ошибка загрузки списка Спящих:', err);
+            }
+        }
+
+        function renderSleepingTable(data) {
+            const tbody = document.getElementById('tbody-sleeping');
+            tbody.innerHTML = '';
+
+            if (!data || data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; color: var(--text-muted);">Клиенты не найдены</td></tr>';
+                return;
+            }
+
+            const TOKEN = getURLToken();
+
+            data.forEach(item => {
+                const badgeClass = item.abc_group === 'A' ? 'badge-a' : (item.abc_group === 'B' ? 'badge-b' : 'badge-c');
+                
+                let recClass = 'rec-mail';
+                if (item.recommendation.includes('Срочно')) recClass = 'rec-urgent';
+                else if (item.recommendation.includes('Позвонить')) recClass = 'rec-call';
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><code>${item.code}</code></td>
+                    <td><strong>${item.name}</strong></td>
+                    <td class="text-right">${fmtNum(item.docs_prev)}</td>
+                    <td class="text-right"><strong>${fmtMoney(item.rev_prev)}</strong></td>
+                    <td class="text-center"><span class="badge-abc ${badgeClass}">${item.abc_group}</span></td>
+                    <td class="text-center">${item.last_date}</td>
+                    <td class="text-center">${item.days_since < 999 ? item.days_since + ' дн.' : '—'}</td>
+                    <td class="text-center"><span class="badge-rec ${recClass}">${item.recommendation}</span></td>
+                    <td>
+                        <a href="/client-detail?code=${item.code}&token=${TOKEN}" class="btn" style="padding: 4px 10px; font-size: 11px;">
+                            Детализация →
+                        </a>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function fetchChurnedList() {
+            const TOKEN = getURLToken();
+            const searchVal = encodeURIComponent(document.getElementById('search-churned').value.trim());
+            const abcVal = selectedAbcChurned;
+
+            try {
+                const res = await fetch(`/api/analytics/inactive-clients-list?token=${TOKEN}&status_id=9&search=${searchVal}&abc_group=${abcVal}&limit=100`).then(r => r.json());
+                renderChurnedTable(res.data || []);
+            } catch (err) {
+                console.error('Ошибка загрузки списка Ушедших:', err);
+            }
+        }
+
+        function renderChurnedTable(data) {
+            const tbody = document.getElementById('tbody-churned');
+            tbody.innerHTML = '';
+
+            if (!data || data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color: var(--text-muted);">Клиенты не найдены</td></tr>';
+                return;
+            }
+
+            const TOKEN = getURLToken();
+
+            data.forEach(item => {
+                const badgeClass = item.abc_group === 'A' ? 'badge-a' : (item.abc_group === 'B' ? 'badge-b' : 'badge-c');
+                
+                let recClass = 'rec-archive';
+                if (item.recommendation.includes('вернуть')) recClass = 'rec-urgent';
+                else if (item.recommendation.includes('Запросить')) recClass = 'rec-call';
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><code>${item.code}</code></td>
+                    <td><strong>${item.name}</strong></td>
+                    <td class="text-right">${fmtNum(item.docs_prev)}</td>
+                    <td class="text-right"><strong>${fmtMoney(item.rev_prev)}</strong></td>
+                    <td class="text-center"><span class="badge-abc ${badgeClass}">${item.abc_group}</span></td>
+                    <td class="text-center">${item.last_date}</td>
+                    <td class="text-center"><span class="badge-rec ${recClass}">${item.recommendation}</span></td>
+                    <td>
+                        <a href="/client-detail?code=${item.code}&token=${TOKEN}" class="btn" style="padding: 4px 10px; font-size: 11px;">
+                            Детализация →
+                        </a>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderAbcCompareTableAndChart(abcSleeping, abcChurned) {
+            const tbody = document.getElementById('tbody-abc-compare');
+            tbody.innerHTML = '';
+
+            const sMap = { 'A': { count: 0, rev: 0 }, 'B': { count: 0, rev: 0 }, 'C': { count: 0, rev: 0 } };
+            const cMap = { 'A': { count: 0, rev: 0 }, 'B': { count: 0, rev: 0 }, 'C': { count: 0, rev: 0 } };
+
+            abcSleeping.forEach(i => sMap[i.abc_group] = { count: i.count, rev: i.revenue });
+            abcChurned.forEach(i => cMap[i.abc_group] = { count: i.count, rev: i.revenue });
+
+            ['A', 'B', 'C'].forEach(g => {
+                const s = sMap[g];
+                const c = cMap[g];
+                const badgeClass = g === 'A' ? 'badge-a' : (g === 'B' ? 'badge-b' : 'badge-c');
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><span class="badge-abc ${badgeClass}">${g}</span></td>
+                    <td class="text-right">${fmtNum(s.count)}</td>
+                    <td class="text-right">${fmtMoney(s.rev)}</td>
+                    <td class="text-right">${fmtNum(c.count)}</td>
+                    <td class="text-right">${fmtMoney(c.rev)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Pie Chart ABC Спящих
+            const ctx = document.getElementById('chart-abc-inactive').getContext('2d');
+            if (chartAbcInactiveInstance) chartAbcInactiveInstance.destroy();
+
+            chartAbcInactiveInstance = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Группа A', 'Группа B', 'Группа C'],
+                    datasets: [{
+                        data: [sMap['A'].rev, sMap['B'].rev, sMap['C'].rev],
+                        backgroundColor: ['#10b981', '#3b82f6', '#f59e0b']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        title: { display: true, text: 'Структура потенциально упущенной выручки Спящих (2025)', font: { size: 13, weight: 'bold' } }
+                    }
+                }
+            });
+        }
+
+        function onSearchSleeping() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(fetchSleepingList, 300);
+        }
+
+        function setAbcSleeping(group, btn) {
+            btn.parentElement.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            selectedAbcSleeping = group;
+            fetchSleepingList();
+        }
+
+        function onSearchChurned() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(fetchChurnedList, 300);
+        }
+
+        function setAbcChurned(group, btn) {
+            btn.parentElement.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            selectedAbcChurned = group;
+            fetchChurnedList();
+        }
+
+        window.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
