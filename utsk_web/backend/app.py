@@ -147,7 +147,8 @@ def clients(token: str = Query(None), limit: int = 50, search: str = ""):
     db = get_db()
     try:
         result = db.execute(text("SELECT * FROM get_clients_list(:limit, :search)"), {"limit": limit, "search": search})
-        return [dict(row._mapping) for row in result]
+        data = [dict(row._mapping) for row in result]
+        return {"status": "ok", "data": data, "count": len(data)}
     finally:
         db.close()
 
@@ -158,7 +159,8 @@ def active_clients(token: str = Query(None), limit: int = 20):
     db = get_db()
     try:
         result = db.execute(text("SELECT * FROM get_active_clients(:limit)"), {"limit": limit})
-        return [dict(row._mapping) for row in result]
+        data = [dict(row._mapping) for row in result]
+        return {"status": "ok", "data": data, "count": len(data)}
     finally:
         db.close()
 
@@ -236,7 +238,8 @@ def churn_risk(token: str = Query(None), limit: int = 20):
     db = get_db()
     try:
         result = db.execute(text("SELECT * FROM get_churn_risk_clients(:limit)"), {"limit": limit})
-        return [dict(row._mapping) for row in result]
+        data = [dict(row._mapping) for row in result]
+        return {"status": "ok", "data": data, "count": len(data)}
     finally:
         db.close()
 
@@ -416,7 +419,8 @@ def statuses(token: str = Query(None)):
     db = get_db()
     try:
         result = db.execute(text("SELECT * FROM get_statuses_distribution()"))
-        return [dict(row._mapping) for row in result]
+        data = [dict(row._mapping) for row in result]
+        return {"status": "ok", "data": data, "count": len(data)}
     finally:
         db.close()
 
@@ -427,7 +431,8 @@ def products(token: str = Query(None), limit: int = 50, search: str = ""):
     db = get_db()
     try:
         result = db.execute(text("SELECT * FROM get_products_list(:limit, :search)"), {"limit": limit, "search": search})
-        return [dict(row._mapping) for row in result]
+        data = [dict(row._mapping) for row in result]
+        return {"status": "ok", "data": data, "count": len(data)}
     finally:
         db.close()
 
@@ -511,6 +516,7 @@ def recommendations_for_client(client_code: str, token: str = Query(None)):
                 recommendations.append(dict(row._mapping))
         
         return {
+            "status": "ok",
             "client_code": client.code,
             "client_name": client.name,
             "recommendations": recommendations,
@@ -615,7 +621,8 @@ def top_recommendations(token: str = Query(None), limit: int = 10):
             text("SELECT * FROM get_top_recommendations(:limit)"),
             {"limit": limit}
         )
-        return [dict(row._mapping) for row in result]
+        data = [dict(row._mapping) for row in result]
+        return {"status": "ok", "data": data, "count": len(data)}
     finally:
         db.close()
 # ====== API: АНАЛИТИКА — МЕСЯЧНАЯ ДИНАМИКА ======

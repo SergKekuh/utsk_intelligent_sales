@@ -801,7 +801,8 @@
             try {
                 const r = await fetch(`/api/clients/active?token=${TOKEN}&limit=15`);
                 if (!r.ok) throw new Error(r.status);
-                const data = await r.json();
+                const raw = await r.json();
+                const data = Array.isArray(raw) ? raw : (raw.data || []);
                 tb.innerHTML = '';
                 if (!data.length) { tb.innerHTML = '<tr><td colspan="4">📭 Нет активных</td></tr>'; return; }
                 data.forEach(c => {
@@ -1037,7 +1038,8 @@
             try {
                 const r = await fetch(`/api/clients/churn-risk?token=${TOKEN}&limit=15`);
                 if (!r.ok) throw new Error(r.status);
-                const data = await r.json();
+                const raw = await r.json();
+                const data = Array.isArray(raw) ? raw : (raw.data || []);
                 tb.innerHTML = '';
                 if (!data.length) { tb.innerHTML = '<tr><td colspan="4">✅ Риска оттока нет</td></tr>'; return; }
                 data.forEach(c => {
@@ -1071,7 +1073,8 @@
             try {
                 const r = await fetch(`/api/clients?token=${TOKEN}&limit=500`);
                 if (!r.ok) throw new Error(r.status);
-                window.allClientsCache = await r.json();
+                const raw = await r.json();
+                window.allClientsCache = Array.isArray(raw) ? raw : (raw.data || []);
                 filterClientList();
             } catch (e) { cell.innerHTML = '<div style="color:#ef4444;">⚠️ Ошибка</div>'; }
         }
