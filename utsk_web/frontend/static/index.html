@@ -468,13 +468,48 @@
             text-align: center;
         }
 
-        /* Подзаголовок "текущий 2026" */
-        #table-head tr:last-child th:nth-child(2) {
-            background: #ecfdf5;
-            color: #065f46;
+        /* Кнопка-ободок для заголовка ТОП продаж */
+        .top-sales-link {
+            padding: 10px 16px;
+            background: #ffffff;
+            border: 2px solid #4f46e5;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 2px 6px rgba(79, 70, 229, 0.1);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .top-sales-link:hover {
+            background: #eef2ff;
+            border-color: #4338ca;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .top-sales-link:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 3px rgba(79, 70, 229, 0.15);
+        }
+
+        .top-sales-title {
+            font-size: 15px;
             font-weight: 700;
-            border-bottom: 2px solid #86efac;
-            text-align: center;
+            color: #0f172a;
+        }
+
+        .top-sales-badge {
+            font-size: 12px;
+            font-weight: 700;
+            color: white;
+            background: #4f46e5;
+            padding: 4px 10px;
+            border-radius: 20px;
+            letter-spacing: 0.3px;
+            white-space: nowrap;
         }
 
     </style>
@@ -509,6 +544,7 @@
                 <button class="sidebar-item" data-page="recommendations">✨ Рекомендации</button>
                 <button class="sidebar-item" data-page="churn">⚠️ Риск оттока</button>
                 <div class="sidebar-section">Инструменты</div>
+                <a href="/top-sales-analytics?token=utsk2026" target="_blank" class="sidebar-item">🏆 ТОП продаж — Визуализация</a>
                 <a href="/new-clients-analytics?token=utsk2026" target="_blank" class="sidebar-item">🌱 Аналитика Новых клиентов</a>
                 <a href="/inactive-clients-analytics?token=utsk2026" target="_blank" class="sidebar-item">💤 Аналитика Неактивных клиентов</a>
                 <a href="/comparison?token=utsk2026" target="_blank" class="sidebar-item">📊 Расширенная аналитика</a>
@@ -554,7 +590,10 @@
                     <div class="main-grid">
                         <div class="table-block">
                             <div class="table-header">
-                                <h2 class="table-title" id="block-title">ТОП продаж</h2>
+                                <a href="/top-sales-analytics?token=utsk2026" id="top-sales-link" class="top-sales-link">
+                                    <span class="top-sales-title" id="block-title">📊 ТОП продаж (80% правило)</span>
+                                    <span class="top-sales-badge">📈 Визуализация</span>
+                                </a>
                                 <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
                                     <label style="font-size:11px;color:var(--text-muted);font-weight:600;">С:</label>
                                     <input type="date" id="date-from" style="padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:12px;background:#fff;" onchange="refreshAll()">
@@ -671,7 +710,12 @@
                 
                 // Обновляем заголовок таблицы
                 const bt = $('block-title');
-                if (bt) bt.textContent = `🏆 ТОП продаж — ${data.period_label || 'текущий период'}`;
+                if (bt) {
+                    const periodText = data.period_label ? ` — ${data.period_label}` : '';
+                    bt.textContent = `📊 ТОП продаж (80% правило)${periodText}`;
+                }
+                const topSalesLink = $('top-sales-link');
+                if (topSalesLink) topSalesLink.href = `/top-sales-analytics?token=${TOKEN}`;
                 
                 tb.innerHTML = '';
                 if (!data.clients || !data.clients.length) {

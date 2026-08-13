@@ -2734,6 +2734,196 @@ def client_products_recommendations(
         db.close()
 
 
+# ====== ТОП ПРОДАЖ ВИЗУАЛИЗАЦИЯ (7 ВКЛАДОК) ======
+@app.get("/top-sales-analytics", response_class=HTMLResponse)
+async def top_sales_analytics_page(request: Request, token: str = Query(None)):
+    """Страница визуализации ТОП продаж (7 вкладок)"""
+    verify_token(token)
+    search_dirs = [FRONTEND_DIR, os.path.join(PROJECT_DIR, "frontend", "static"), os.path.join(ROOT_DIR, "frontend", "static")]
+    filepath = find_file("top-sales-analytics.html", search_dirs)
+    if filepath:
+        with open(filepath, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    raise HTTPException(status_code=404, detail="Страница визуализации ТОП продаж не найдена")
+
+
+@app.get("/api/analytics/top-sales/kpi")
+def get_top_sales_kpi_api(
+    token: str = Query(None),
+    year: int = Query(2026)
+):
+    """KPI для страницы ТОП продаж"""
+    verify_token(token)
+    db = get_db()
+    try:
+        row = db.execute(text("SELECT * FROM get_top_sales_kpi(:year)"), {"year": year}).fetchone()
+        if not row:
+            return {
+                "status": "ok",
+                "year": year,
+                "total_revenue": 0.0,
+                "active_clients_count": 0,
+                "top1_share_pct": 0.0,
+                "top10_share_pct": 0.0,
+                "clients_for_80pct": 0,
+                "avg_check": 0.0
+            }
+        r = dict(row._mapping)
+        return {
+            "status": "ok",
+            "year": year,
+            "total_revenue": float(r["total_revenue"] or 0.0),
+            "active_clients_count": int(r["active_clients_count"] or 0),
+            "top1_share_pct": float(r["top1_share_pct"] or 0.0),
+            "top10_share_pct": float(r["top10_share_pct"] or 0.0),
+            "clients_for_80pct": int(r["clients_for_80pct"] or 0),
+            "avg_check": float(r["avg_check"] or 0.0)
+        }
+    except Exception as e:
+        logger.error(f"Ошибка в get_top_sales_kpi_api: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
+
+
+@app.get("/api/analytics/top-sales/companies")
+def get_top_companies_api(
+    token: str = Query(None),
+    year: int = Query(2026),
+    limit: int = Query(25)
+):
+    """Список ТОП-N компаний"""
+    verify_token(token)
+    db = get_db()
+    try:
+        rows = db.execute(text("SELECT * FROM get_top_companies(:year, :limit)"), {"year": year, "limit": limit}).fetchall()
+        result = []
+        for r_raw in rows:
+            r = dict(r_raw._mapping)
+            result.append({
+                "rank": int(r["rank"]),
+                "code": str(r["code"]),
+                "name": str(r["name"] or "—"),
+                "goods_revenue": float(r["goods_revenue"] or 0.0),
+                "pct_of_total": float(r["pct_of_total"] or 0.0),
+                "running_pct": float(r["running_pct"] or 0.0),
+                "status_name": str(r["status_name"] or "—"),
+                "invoice_count": int(r["invoice_count"] or 0),
+                "avg_check": float(r["avg_check"] or 0.0),
+                "prev_year_revenue": float(r["prev_year_revenue"] or 0.0),
+                "growth_yoy_pct": float(r["growth_yoy_pct"]) if r.get("growth_yoy_pct") is not None else None,
+                "abc_group": str(r["abc_group"] or "—")
+            })
+        return {
+            "status": "ok",
+            "year": year,
+            "limit": limit,
+            "companies": result
+        }
+    except Exception as e:
+        logger.error(f"Ошибка в get_top_companies_api: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
+
+
+@app.get("/api/analytics/top-sales/company-detail")
+def get_top_company_detail_api(
+    token: str = Query(None),
+    code: str = Query(None),
+    year: int = Query(2026)
+):
+    """Детализация для 1 компании (например, ТОП-1)"""
+    verify_token(token)
+    db = get_db()
+    try:
+        target_code = code if isinstance(code, str) and code and not hasattr(code, "default") else None
+        if not target_code:
+            top1 = db.execute(text("SELECT code FROM get_top_companies(:year, 1)"), {"year": year}).fetchone()
+            if top1:
+                target_code = str(top1[0])
+            else:
+                raise HTTPException(status_code=404, detail="ТОП-1 компания не найдена")
+        data = db.execute(text("SELECT get_top_company_detail(:code, :year)"), {"code": target_code, "year": year}).scalar()
+        return {
+            "status": "ok",
+            "data": data
+        }
+    except Exception as e:
+        logger.error(f"Ошибка в get_top_company_detail_api: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
+
+
+@app.get("/api/analytics/top-sales/core")
+def get_top_revenue_core_api(
+    token: str = Query(None),
+    year: int = Query(2026),
+    pct: float = Query(80.0)
+):
+    """Клиенты, формирующие N% выручки (50%, 70%, 80%)"""
+    verify_token(token)
+    db = get_db()
+    try:
+        rows = db.execute(text("SELECT * FROM get_top_revenue_core(:year, :pct)"), {"year": year, "pct": pct}).fetchall()
+        result = []
+        for r_raw in rows:
+            r = dict(r_raw._mapping)
+            result.append({
+                "rank": int(r["rank"]),
+                "code": str(r["code"]),
+                "name": str(r["name"] or "—"),
+                "goods_revenue": float(r["goods_revenue"] or 0.0),
+                "pct_of_total": float(r["pct_of_total"] or 0.0),
+                "running_pct": float(r["running_pct"] or 0.0),
+                "status_name": str(r["status_name"] or "—"),
+                "invoice_count": int(r["invoice_count"] or 0),
+                "avg_check": float(r["avg_check"] or 0.0),
+                "abc_group": str(r["abc_group"] or "—"),
+                "prev_year_revenue": float(r["prev_year_revenue"] or 0.0),
+                "growth_yoy_pct": float(r["growth_yoy_pct"]) if r.get("growth_yoy_pct") is not None else None
+            })
+        
+        prev_rows = db.execute(text("SELECT COUNT(*) FROM get_top_revenue_core(:prev_year, :pct)"), {"prev_year": year - 1, "pct": pct}).scalar()
+
+        return {
+            "status": "ok",
+            "year": year,
+            "pct": pct,
+            "count": len(result),
+            "prev_year_count": int(prev_rows or 0),
+            "companies": result
+        }
+    except Exception as e:
+        logger.error(f"Ошибка в get_top_revenue_core_api: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
+
+
+@app.get("/api/analytics/top-sales/compare-yoy")
+def get_top_compare_yoy_api(
+    token: str = Query(None),
+    year: int = Query(2026),
+    limit: int = Query(10)
+):
+    """Сравнение ТОП-N по годам"""
+    verify_token(token)
+    db = get_db()
+    try:
+        data = db.execute(text("SELECT get_top_compare_yoy(:year, :limit)"), {"year": year, "limit": limit}).scalar()
+        return {
+            "status": "ok",
+            "data": data
+        }
+    except Exception as e:
+        logger.error(f"Ошибка в get_top_compare_yoy_api: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
+
+
 # ====== HEALTH CHECK ======
 @app.get("/health")
 def health():
