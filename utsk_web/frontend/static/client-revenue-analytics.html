@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💰 UTSK — Анализ выручки клиента</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-main: #f1f5f9;
+            --bg-card: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --primary: #4f46e5;
+            --primary-light: #e0e7ff;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+            --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.05);
+            --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        /* Top Bar Header */
+        .top-header {
+            background: var(--bg-card);
+            padding: 20px 24px;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #f1f5f9;
+            color: var(--text-main);
+            text-decoration: none;
+            padding: 10px 18px;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 14px;
+            border: 1px solid var(--border);
+            transition: all 0.2s ease;
+        }
+
+        .btn-back:hover {
+            background: var(--primary-light);
+            color: var(--primary);
+            border-color: #c7d2fe;
+            transform: translateX(-2px);
+        }
+
+        .client-title h1 {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .client-meta {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 2px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        select.year-select {
+            padding: 9px 16px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            background: #fff;
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--primary);
+            cursor: pointer;
+            outline: none;
+        }
+
+        /* KPI Cards Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .kpi-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            border-top: 4px solid var(--primary);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .kpi-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-value {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--text-main);
+            margin: 8px 0 4px;
+        }
+
+        .kpi-subtext {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* Grid Layouts */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 1024px) {
+            .grid-2 { grid-template-columns: 1fr; }
+        }
+
+        .panel-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .panel-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 320px;
+            width: 100%;
+        }
+
+        /* Tables */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+        }
+
+        table.custom-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        table.custom-table th {
+            background: #f8fafc;
+            color: var(--text-muted);
+            font-weight: 700;
+            padding: 12px 16px;
+            border-bottom: 2px solid var(--border);
+            text-align: left;
+        }
+
+        table.custom-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-main);
+        }
+
+        table.custom-table tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .badge-positive { background: #d1fae5; color: #047857; }
+        .badge-negative { background: #fee2e2; color: #b91c1c; }
+        .badge-neutral { background: #f1f5f9; color: #475569; }
+        .badge-status { background: #e0f2fe; color: #0369a1; }
+        .badge-abc { background: #f3e8ff; color: #6b21a8; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Top Header -->
+        <header class="top-header">
+            <div class="header-left">
+                <a href="#" id="btn-client-detail" class="btn-back">← В карточку клиента</a>
+                <div class="client-title">
+                    <h1 id="client-name">💰 Анализ выручки клиента</h1>
+                    <div class="client-meta">
+                        <span>Код: <strong id="client-code">—</strong></span>
+                        <span>•</span>
+                        <span class="badge badge-status" id="client-status">—</span>
+                        <span class="badge badge-abc" id="client-abc">ABC</span>
+                    </div>
+                </div>
+            </div>
+            <div class="header-right">
+                <label style="font-size:13px;font-weight:600;color:var(--text-muted);">Год:</label>
+                <select id="year-select" class="year-select" onchange="loadData()">
+                    <option value="2026" selected>2026</option>
+                    <option value="2025">2025</option>
+                    <option value="2024">2024</option>
+                </select>
+            </div>
+        </header>
+
+        <!-- KPI Cards Grid -->
+        <section class="kpi-grid">
+            <div class="kpi-card" style="border-top-color: #4f46e5;">
+                <span class="kpi-title">💰 Выручка за текущий год</span>
+                <span class="kpi-value" id="kpi-rev-curr" style="color:#4f46e5;">—</span>
+                <span class="kpi-subtext">Товарная без услуг</span>
+            </div>
+            <div class="kpi-card" style="border-top-color: #64748b;">
+                <span class="kpi-title">📅 Выручка за прошлый год</span>
+                <span class="kpi-value" id="kpi-rev-prev">—</span>
+                <span class="kpi-subtext">Сравнение YoY</span>
+            </div>
+            <div class="kpi-card" style="border-top-color: #10b981;">
+                <span class="kpi-title">📈 Динамика выручки YoY</span>
+                <span class="kpi-value" id="kpi-growth">—</span>
+                <span class="kpi-subtext">Рост к прошлому году</span>
+            </div>
+            <div class="kpi-card" style="border-top-color: #06b6d4;">
+                <span class="kpi-title">📊 Среднемесячная выручка</span>
+                <span class="kpi-value" id="kpi-avg-monthly">—</span>
+                <span class="kpi-subtext">За 12 месяцев</span>
+            </div>
+        </section>
+
+        <!-- Charts Row -->
+        <div class="grid-2">
+            <div class="panel-card">
+                <div class="panel-title">
+                    <span>📊 Помесячная выручка (2026 vs 2025)</span>
+                    <span style="font-size:12px;color:var(--text-muted);">Сравнение помесячно</span>
+                </div>
+                <div class="chart-container">
+                    <canvas id="chart-monthly-bar"></canvas>
+                </div>
+            </div>
+
+            <div class="panel-card">
+                <div class="panel-title">
+                    <span>📈 Накопительная выручка (Cumulative Trend)</span>
+                    <span style="font-size:12px;color:var(--text-muted);">Сумма с начала года</span>
+                </div>
+                <div class="chart-container">
+                    <canvas id="chart-cumulative-line"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table Panel -->
+        <div class="panel-card" style="margin-bottom:24px;">
+            <div class="panel-title">
+                <span>📋 Помесячный детализированный отчёт по выручке</span>
+                <span id="client-share-badge" class="badge badge-neutral">Доля в продажах компании: —</span>
+            </div>
+            <div class="table-responsive">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>Месяц</th>
+                            <th style="text-align:right;">Выручка 2026 (₴)</th>
+                            <th style="text-align:right;">Выручка 2025 (₴)</th>
+                            <th style="text-align:center;">Рост YoY %</th>
+                            <th style="text-align:right;">Накопительно 2026 (₴)</th>
+                            <th style="text-align:right;">Накопительно 2025 (₴)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="revenue-table-body">
+                        <tr><td colspan="6" style="text-align:center;">⏳ Загрузка данных...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const TOKEN = urlParams.get('token') || 'utsk2026';
+        const CLIENT_CODE = urlParams.get('code') || '';
+        let chartInstances = {};
+
+        function fmtNum(n) {
+            if (n === null || n === undefined) return '—';
+            return new Intl.NumberFormat('ru-RU').format(Math.round(n));
+        }
+
+        function fmtCur(n) {
+            if (n === null || n === undefined) return '—';
+            return '₴ ' + fmtNum(n);
+        }
+
+        function fmtPct(n) {
+            if (n === null || n === undefined) return '—';
+            return (n > 0 ? '+' : '') + n.toFixed(1) + '%';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const btnBack = document.getElementById('btn-client-detail');
+            if (btnBack) btnBack.href = `/client-detail?token=${TOKEN}&code=${CLIENT_CODE}`;
+            loadData();
+        });
+
+        async function loadData() {
+            const year = document.getElementById('year-select').value;
+            try {
+                const res = await fetch(`/api/analytics/client/revenue?token=${TOKEN}&code=${CLIENT_CODE}&year=${year}`);
+                const data = await res.json();
+                if (data.status !== 'ok') return;
+
+                // Client Info
+                const info = data.client_info;
+                document.getElementById('client-name').textContent = `💰 Анализ выручки: ${info.name}`;
+                document.getElementById('client-code').textContent = info.code;
+                document.getElementById('client-status').textContent = info.status_name;
+                document.getElementById('client-abc').textContent = info.abc_group;
+                document.getElementById('client-share-badge').textContent = `Доля в общей выручке компании: ${info.client_share_pct}%`;
+
+                // KPI Cards
+                const kpi = data.kpi;
+                document.getElementById('kpi-rev-curr').textContent = fmtCur(kpi.rev_curr);
+                document.getElementById('kpi-rev-prev').textContent = fmtCur(kpi.rev_prev);
+                
+                const growthElem = document.getElementById('kpi-growth');
+                if (kpi.growth_yoy_pct !== null && kpi.growth_yoy_pct !== undefined) {
+                    growthElem.textContent = fmtPct(kpi.growth_yoy_pct);
+                    growthElem.style.color = kpi.growth_yoy_pct >= 0 ? '#10b981' : '#ef4444';
+                } else {
+                    growthElem.textContent = '—';
+                    growthElem.style.color = '#64748b';
+                }
+
+                document.getElementById('kpi-avg-monthly').textContent = fmtCur(kpi.avg_monthly_rev);
+
+                // Monthly Table
+                const tbody = document.getElementById('revenue-table-body');
+                tbody.innerHTML = '';
+                const monthly = data.monthly || [];
+
+                const monthsLabels = [];
+                const currRevs = [];
+                const prevRevs = [];
+                const cumCurrs = [];
+                const cumPrevs = [];
+
+                monthly.forEach(m => {
+                    monthsLabels.push(m.month_name);
+                    currRevs.push(m.rev_curr);
+                    prevRevs.push(m.rev_prev);
+                    cumCurrs.push(m.cum_curr);
+                    cumPrevs.push(m.cum_prev);
+
+                    const growthStr = m.growth_pct !== null ? fmtPct(m.growth_pct) : '—';
+                    const growthClass = m.growth_pct >= 0 ? 'badge-positive' : (m.growth_pct < 0 ? 'badge-negative' : 'badge-neutral');
+
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td style="font-weight:700;">${m.month_name}</td>
+                        <td style="text-align:right;font-weight:700;color:#4f46e5;">₴ ${fmtNum(m.rev_curr)}</td>
+                        <td style="text-align:right;">₴ ${fmtNum(m.rev_prev)}</td>
+                        <td style="text-align:center;"><span class="badge ${growthClass}">${growthStr}</span></td>
+                        <td style="text-align:right;font-weight:700;">₴ ${fmtNum(m.cum_curr)}</td>
+                        <td style="text-align:right;color:var(--text-muted);">₴ ${fmtNum(m.cum_prev)}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+                // Chart 1: Bar Chart Monthly
+                renderChart('chart-monthly-bar', 'bar', {
+                    labels: monthsLabels,
+                    datasets: [
+                        { label: `${year} (₴)`, data: currRevs, backgroundColor: '#4f46e5', borderRadius: 4 },
+                        { label: `${year - 1} (₴)`, data: prevRevs, backgroundColor: '#94a3b8', borderRadius: 4 }
+                    ]
+                });
+
+                // Chart 2: Cumulative Line Chart
+                renderChart('chart-cumulative-line', 'line', {
+                    labels: monthsLabels,
+                    datasets: [
+                        { label: `Накопительно ${year}`, data: cumCurrs, borderColor: '#4f46e5', backgroundColor: 'rgba(79,70,229,0.1)', fill: true, tension: 0.3 },
+                        { label: `Накопительно ${year - 1}`, data: cumPrevs, borderColor: '#94a3b8', borderDash: [4, 4], fill: false, tension: 0.3 }
+                    ]
+                });
+
+            } catch (err) {
+                console.error('Error loading revenue analytics:', err);
+            }
+        }
+
+        function renderChart(canvasId, type, configData) {
+            if (chartInstances[canvasId]) chartInstances[canvasId].destroy();
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            chartInstances[canvasId] = new Chart(ctx, {
+                type: type,
+                data: configData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: '#475569', font: { family: 'Inter', size: 12, weight: 600 } } } },
+                    scales: {
+                        x: { grid: { color: '#e2e8f0' }, ticks: { color: '#64748b', font: { family: 'Inter', size: 11 } } },
+                        y: { grid: { color: '#e2e8f0' }, ticks: { color: '#64748b', font: { family: 'Inter', size: 11 } } }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

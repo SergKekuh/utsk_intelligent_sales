@@ -2924,6 +2924,147 @@ def get_top_compare_yoy_api(
         db.close()
 
 
+# ====== ГЛУБОКАЯ АНАЛИТИКА КАРТОЧКИ КЛИЕНТА (4 СТРАНИЦЫ И МЕСЯЦ) ======
+
+@app.get("/client-revenue-analytics", response_class=HTMLResponse)
+async def client_revenue_analytics_page(request: Request, token: str = Query(None)):
+    verify_token(token)
+    search_dirs = [FRONTEND_DIR, os.path.join(PROJECT_DIR, "frontend", "static"), os.path.join(ROOT_DIR, "frontend", "static")]
+    filepath = find_file("client-revenue-analytics.html", search_dirs)
+    if filepath:
+        with open(filepath, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    raise HTTPException(status_code=404, detail="Страница анализа выручки не найдена")
+
+@app.get("/client-invoices-analytics", response_class=HTMLResponse)
+async def client_invoices_analytics_page(request: Request, token: str = Query(None)):
+    verify_token(token)
+    search_dirs = [FRONTEND_DIR, os.path.join(PROJECT_DIR, "frontend", "static"), os.path.join(ROOT_DIR, "frontend", "static")]
+    filepath = find_file("client-invoices-analytics.html", search_dirs)
+    if filepath:
+        with open(filepath, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    raise HTTPException(status_code=404, detail="Страница анализа накладных не найдена")
+
+@app.get("/client-avg-check-analytics", response_class=HTMLResponse)
+async def client_avg_check_analytics_page(request: Request, token: str = Query(None)):
+    verify_token(token)
+    search_dirs = [FRONTEND_DIR, os.path.join(PROJECT_DIR, "frontend", "static"), os.path.join(ROOT_DIR, "frontend", "static")]
+    filepath = find_file("client-avg-check-analytics.html", search_dirs)
+    if filepath:
+        with open(filepath, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    raise HTTPException(status_code=404, detail="Страница анализа среднего чека не найдена")
+
+@app.get("/client-last-purchase-analytics", response_class=HTMLResponse)
+async def client_last_purchase_analytics_page(request: Request, token: str = Query(None)):
+    verify_token(token)
+    search_dirs = [FRONTEND_DIR, os.path.join(PROJECT_DIR, "frontend", "static"), os.path.join(ROOT_DIR, "frontend", "static")]
+    filepath = find_file("client-last-purchase-analytics.html", search_dirs)
+    if filepath:
+        with open(filepath, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    raise HTTPException(status_code=404, detail="Страница анализа последней покупки не найдена")
+
+@app.get("/client-invoices-month", response_class=HTMLResponse)
+async def client_invoices_month_page(request: Request, token: str = Query(None)):
+    verify_token(token)
+    search_dirs = [FRONTEND_DIR, os.path.join(PROJECT_DIR, "frontend", "static"), os.path.join(ROOT_DIR, "frontend", "static")]
+    filepath = find_file("client-invoices-month.html", search_dirs)
+    if filepath:
+        with open(filepath, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    raise HTTPException(status_code=404, detail="Страница накладных за месяц не найдена")
+
+
+# --- API Endpoints ---
+
+@app.get("/api/analytics/client/revenue")
+def get_client_revenue_analytics_api(
+    code: str = Query(...),
+    year: int = Query(2026),
+    token: str = Query(None)
+):
+    verify_token(token)
+    db = get_db()
+    try:
+        val = db.execute(text("SELECT public.get_client_revenue_analytics(:code, :year)"), {"code": code, "year": year}).scalar()
+        return val if isinstance(val, dict) else json.loads(val) if isinstance(val, str) else val
+    except Exception as e:
+        logger.error(f"Ошибка get_client_revenue_analytics_api: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
+
+@app.get("/api/analytics/client/invoices")
+def get_client_invoices_analytics_api(
+    code: str = Query(...),
+    year: int = Query(2026),
+    token: str = Query(None)
+):
+    verify_token(token)
+    db = get_db()
+    try:
+        val = db.execute(text("SELECT public.get_client_invoices_analytics(:code, :year)"), {"code": code, "year": year}).scalar()
+        return val if isinstance(val, dict) else json.loads(val) if isinstance(val, str) else val
+    except Exception as e:
+        logger.error(f"Ошибка get_client_invoices_analytics_api: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
+
+@app.get("/api/analytics/client/avg-check")
+def get_client_avg_check_analytics_api(
+    code: str = Query(...),
+    year: int = Query(2026),
+    token: str = Query(None)
+):
+    verify_token(token)
+    db = get_db()
+    try:
+        val = db.execute(text("SELECT public.get_client_avg_check_analytics(:code, :year)"), {"code": code, "year": year}).scalar()
+        return val if isinstance(val, dict) else json.loads(val) if isinstance(val, str) else val
+    except Exception as e:
+        logger.error(f"Ошибка get_client_avg_check_analytics_api: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
+
+@app.get("/api/analytics/client/last-purchase")
+def get_client_last_purchase_analytics_api(
+    code: str = Query(...),
+    token: str = Query(None)
+):
+    verify_token(token)
+    db = get_db()
+    try:
+        val = db.execute(text("SELECT public.get_client_last_purchase_analytics(:code)"), {"code": code}).scalar()
+        return val if isinstance(val, dict) else json.loads(val) if isinstance(val, str) else val
+    except Exception as e:
+        logger.error(f"Ошибка get_client_last_purchase_analytics_api: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
+
+@app.get("/api/analytics/client/invoices-month")
+def get_client_invoices_by_month_api(
+    code: str = Query(...),
+    year: int = Query(2026),
+    month: int = Query(1),
+    token: str = Query(None)
+):
+    verify_token(token)
+    db = get_db()
+    try:
+        val = db.execute(text("SELECT public.get_client_invoices_by_month(:code, :year, :month)"), {"code": code, "year": year, "month": month}).scalar()
+        return val if isinstance(val, dict) else json.loads(val) if isinstance(val, str) else val
+    except Exception as e:
+        logger.error(f"Ошибка get_client_invoices_by_month_api: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
+
+
 # ====== HEALTH CHECK ======
 @app.get("/health")
 def health():

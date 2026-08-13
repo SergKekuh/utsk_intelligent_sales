@@ -93,6 +93,20 @@
             margin-top: 2px;
         }
 
+        /* KPI Card Links */
+        .kpi-card-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            cursor: pointer;
+        }
+
+        .kpi-card-link:hover .kpi-card {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(79, 70, 229, 0.15);
+            border-color: #4f46e5;
+        }
+
         /* KPI Cards Grid */
         .kpi-grid {
             display: grid;
@@ -107,7 +121,7 @@
             border-radius: var(--radius-lg);
             border: 1px solid var(--border);
             box-shadow: var(--shadow-sm);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
         }
 
         .kpi-card:hover {
@@ -481,26 +495,46 @@
 
         <!-- KPI Grid -->
         <div class="kpi-grid">
-            <div class="kpi-card">
-                <span class="kpi-label">💰 Выручка 2026</span>
-                <div class="kpi-value" id="kpi-revenue" style="color:#047857;">—</div>
-                <div class="kpi-sub">Товарная без услуг</div>
-            </div>
-            <div class="kpi-card">
-                <span class="kpi-label">📄 Всего накладных</span>
-                <div class="kpi-value" id="kpi-invoices">—</div>
-                <div class="kpi-sub">За 2026 год</div>
-            </div>
-            <div class="kpi-card">
-                <span class="kpi-label">🛒 Средний чек</span>
-                <div class="kpi-value" id="kpi-avg-check">—</div>
-                <div class="kpi-sub">На одну накладную</div>
-            </div>
-            <div class="kpi-card">
-                <span class="kpi-label">🕒 Последняя покупка</span>
-                <div class="kpi-value" id="kpi-last-date" style="font-size:20px;">—</div>
-                <div class="kpi-sub" id="kpi-status-sub">Текущий статус: —</div>
-            </div>
+            <a href="#" id="kpi-link-revenue" class="kpi-card-link">
+                <div class="kpi-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span class="kpi-label">💰 Выручка 2026</span>
+                        <span style="font-size:11px; background:#e0e7ff; color:#4f46e5; padding:2px 8px; border-radius:12px; font-weight:700;">Анализ ➔</span>
+                    </div>
+                    <div class="kpi-value" id="kpi-revenue" style="color:#047857;">—</div>
+                    <div class="kpi-sub">Товарная без услуг</div>
+                </div>
+            </a>
+            <a href="#" id="kpi-link-invoices" class="kpi-card-link">
+                <div class="kpi-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span class="kpi-label">📄 Всего накладных</span>
+                        <span style="font-size:11px; background:#e0e7ff; color:#4f46e5; padding:2px 8px; border-radius:12px; font-weight:700;">Анализ ➔</span>
+                    </div>
+                    <div class="kpi-value" id="kpi-invoices">—</div>
+                    <div class="kpi-sub">За 2026 год</div>
+                </div>
+            </a>
+            <a href="#" id="kpi-link-avg-check" class="kpi-card-link">
+                <div class="kpi-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span class="kpi-label">🛒 Средний чек</span>
+                        <span style="font-size:11px; background:#e0e7ff; color:#4f46e5; padding:2px 8px; border-radius:12px; font-weight:700;">Анализ ➔</span>
+                    </div>
+                    <div class="kpi-value" id="kpi-avg-check">—</div>
+                    <div class="kpi-sub">На одну накладную</div>
+                </div>
+            </a>
+            <a href="#" id="kpi-link-last-purchase" class="kpi-card-link">
+                <div class="kpi-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span class="kpi-label">🕒 Последняя покупка</span>
+                        <span style="font-size:11px; background:#e0e7ff; color:#4f46e5; padding:2px 8px; border-radius:12px; font-weight:700;">Анализ ➔</span>
+                    </div>
+                    <div class="kpi-value" id="kpi-last-date" style="font-size:20px;">—</div>
+                    <div class="kpi-sub" id="kpi-status-sub">Текущий статус: —</div>
+                </div>
+            </a>
         </div>
 
         <!-- Main Content Grid -->
@@ -640,6 +674,16 @@
         // Настройка ссылки назад
         const backLink = document.getElementById('back-link');
         if (backLink) backLink.href = `/?token=${TOKEN}`;
+
+        // Настройка ссылок KPI-карточек
+        const kpiRevLink = document.getElementById('kpi-link-revenue');
+        if (kpiRevLink) kpiRevLink.href = `/client-revenue-analytics?token=${TOKEN}&code=${CLIENT_CODE}`;
+        const kpiInvLink = document.getElementById('kpi-link-invoices');
+        if (kpiInvLink) kpiInvLink.href = `/client-invoices-analytics?token=${TOKEN}&code=${CLIENT_CODE}`;
+        const kpiAvgLink = document.getElementById('kpi-link-avg-check');
+        if (kpiAvgLink) kpiAvgLink.href = `/client-avg-check-analytics?token=${TOKEN}&code=${CLIENT_CODE}`;
+        const kpiLastLink = document.getElementById('kpi-link-last-purchase');
+        if (kpiLastLink) kpiLastLink.href = `/client-last-purchase-analytics?token=${TOKEN}&code=${CLIENT_CODE}`;
 
         function formatNum(n) { return (n == null) ? '—' : Number(n).toLocaleString('ru-RU'); }
         function formatCur(n) { return (n == null) ? '—' : '₴ ' + formatNum(Math.round(n)); }

@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🕒 UTSK — Анализ последней покупки клиента</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-main: #f1f5f9;
+            --bg-card: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --primary: #4f46e5;
+            --primary-light: #e0e7ff;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.05);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        /* Top Header */
+        .top-header {
+            background: var(--bg-card);
+            padding: 20px 24px;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #f1f5f9;
+            color: var(--text-main);
+            text-decoration: none;
+            padding: 10px 18px;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 14px;
+            border: 1px solid var(--border);
+            transition: all 0.2s ease;
+        }
+
+        .btn-back:hover {
+            background: var(--primary-light);
+            color: var(--primary);
+            border-color: #c7d2fe;
+            transform: translateX(-2px);
+        }
+
+        .client-title h1 {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .client-meta {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 2px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Banner Card */
+        .last-purchase-banner {
+            background: linear-gradient(135deg, #e0e7ff 0%, #ffffff 100%);
+            border: 1px solid #c7d2fe;
+            border-radius: var(--radius-lg);
+            padding: 24px 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .banner-metrics {
+            display: flex;
+            gap: 32px;
+            flex-wrap: wrap;
+        }
+
+        .banner-box {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .banner-val {
+            font-size: 24px;
+            font-weight: 800;
+            color: #4f46e5;
+        }
+
+        .banner-lbl {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 1024px) {
+            .grid-2 { grid-template-columns: 1fr; }
+        }
+
+        .panel-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .panel-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        /* Tables */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+        }
+
+        table.custom-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        table.custom-table th {
+            background: #f8fafc;
+            color: var(--text-muted);
+            font-weight: 700;
+            padding: 12px 16px;
+            border-bottom: 2px solid var(--border);
+            text-align: left;
+        }
+
+        table.custom-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-main);
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .badge-status { background: #e0f2fe; color: #0369a1; }
+        .badge-days { background: #fee2e2; color: #b91c1c; font-size: 13px; padding: 6px 14px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Top Header -->
+        <header class="top-header">
+            <div class="header-left">
+                <a href="#" id="btn-client-detail" class="btn-back">← В карточку клиента</a>
+                <div class="client-title">
+                    <h1 id="client-name">🕒 Анализ последней покупки клиента</h1>
+                    <div class="client-meta">
+                        <span>Код: <strong id="client-code">—</strong></span>
+                        <span>•</span>
+                        <span class="badge badge-status" id="client-status">—</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Banner Card -->
+        <div class="last-purchase-banner">
+            <div>
+                <div style="font-size:12px;font-weight:700;color:#6366f1;text-transform:uppercase;">Последняя накладная</div>
+                <div style="font-size:26px;font-weight:800;color:#0f172a;margin-top:4px;" id="banner-date">—</div>
+                <div style="font-size:13px;color:var(--text-muted);margin-top:2px;">
+                    № накладной: <strong id="banner-number" style="color:#0f172a;">—</strong>
+                </div>
+            </div>
+            <div class="banner-metrics">
+                <div class="banner-box">
+                    <span class="banner-val" id="banner-amount">—</span>
+                    <span class="banner-lbl">Сумма накладной</span>
+                </div>
+                <div class="banner-box">
+                    <span class="banner-val" id="banner-days" style="color:#ef4444;">—</span>
+                    <span class="banner-lbl">Прошло дней</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2 Column Section -->
+        <div class="grid-2">
+            <!-- Comparison 2026 vs 2025 -->
+            <div class="panel-card">
+                <div class="panel-title">⚖️ Сравнение последних покупок (2026 vs 2025)</div>
+                <div style="display:flex;flex-direction:column;gap:14px;">
+                    <div style="background:#ecfdf5;padding:16px;border-radius:12px;border:1px solid #a7f3d0;">
+                        <div style="font-size:12px;color:#047857;font-weight:700;text-transform:uppercase;">📅 Последняя покупка в 2026 году</div>
+                        <div style="font-size:18px;font-weight:800;color:#065f46;margin-top:4px;" id="comp-2026-date">—</div>
+                        <div style="font-size:13px;color:#047857;margin-top:2px;" id="comp-2026-amount">Сумма: —</div>
+                    </div>
+                    <div style="background:#f8fafc;padding:16px;border-radius:12px;border:1px solid var(--border);">
+                        <div style="font-size:12px;color:var(--text-muted);font-weight:700;text-transform:uppercase;">📅 Последняя покупка в 2025 году</div>
+                        <div style="font-size:18px;font-weight:800;color:var(--text-main);margin-top:4px;" id="comp-2025-date">—</div>
+                        <div style="font-size:13px;color:var(--text-muted);margin-top:2px;" id="comp-2025-amount">Сумма: —</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recommendation & Next Purchase AI Prediction -->
+            <div class="panel-card">
+                <div class="panel-title">🔮 Прогноз и частота закупок</div>
+                <div style="display:flex;flex-direction:column;gap:14px;">
+                    <div style="background:#f8fafc;padding:14px;border-radius:12px;border:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+                        <span style="font-size:13px;color:var(--text-muted);font-weight:600;">Средний интервал между покупками:</span>
+                        <strong style="font-size:16px;color:#4f46e5;" id="rec-interval">— дн.</strong>
+                    </div>
+                    <div style="background:#f8fafc;padding:14px;border-radius:12px;border:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+                        <span style="font-size:13px;color:var(--text-muted);font-weight:600;">Всего накладных за всё время:</span>
+                        <strong style="font-size:16px;color:#0f172a;" id="rec-total-inv">— шт.</strong>
+                    </div>
+                    <div style="background:#e0e7ff;padding:16px;border-radius:12px;border:1px solid #c7d2fe;">
+                        <div style="font-size:12px;color:#3730a3;font-weight:700;text-transform:uppercase;">📅 Ожидаемая дата следующей покупки</div>
+                        <div style="font-size:22px;font-weight:800;color:#312e81;margin-top:4px;" id="rec-next-date">—</div>
+                        <div style="font-size:12px;color:#4338ca;margin-top:2px;" id="rec-status-note">На основе математической модели частоты отгрузок</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Items Table -->
+        <div class="panel-card">
+            <div class="panel-title">🛍️ Товары в последней накладной</div>
+            <div class="table-responsive">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Код товара</th>
+                            <th>Наименование товара</th>
+                            <th style="text-align:right;">Количество</th>
+                            <th style="text-align:right;">Цена/ед (₴)</th>
+                            <th style="text-align:right;">Сумма (₴)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="items-table-body">
+                        <tr><td colspan="6" style="text-align:center;">⏳ Загрузка позиций...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const TOKEN = urlParams.get('token') || 'utsk2026';
+        const CLIENT_CODE = urlParams.get('code') || '';
+
+        function fmtNum(n) { return (n == null) ? '—' : Number(n).toLocaleString('ru-RU'); }
+        function fmtCur(n) { return (n == null) ? '—' : '₴ ' + fmtNum(Math.round(n)); }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const btnBack = document.getElementById('btn-client-detail');
+            if (btnBack) btnBack.href = `/client-detail?token=${TOKEN}&code=${CLIENT_CODE}`;
+            loadData();
+        });
+
+        async function loadData() {
+            try {
+                const res = await fetch(`/api/analytics/client/last-purchase?token=${TOKEN}&code=${CLIENT_CODE}`);
+                const data = await res.json();
+                if (data.status !== 'ok') return;
+
+                const info = data.client_info;
+                document.getElementById('client-name').textContent = `🕒 Анализ последней покупки: ${info.name}`;
+                document.getElementById('client-code').textContent = info.code;
+                document.getElementById('client-status').textContent = info.status_name;
+
+                document.getElementById('banner-date').textContent = info.last_doc_date || '—';
+                document.getElementById('banner-number').textContent = info.last_doc_number || '—';
+                document.getElementById('banner-amount').textContent = fmtCur(info.last_doc_amount);
+                document.getElementById('banner-days').textContent = info.days_since_last !== null ? `${info.days_since_last} дн.` : '—';
+
+                // Comparison
+                const comp = data.comparison_2025;
+                document.getElementById('comp-2026-date').textContent = info.last_doc_date || '—';
+                document.getElementById('comp-2026-amount').textContent = `Сумма: ${fmtCur(info.last_doc_amount)}`;
+
+                document.getElementById('comp-2025-date').textContent = comp.last_2025_date || 'Нет заказов в 2025';
+                document.getElementById('comp-2025-amount').textContent = comp.last_2025_date ? `Сумма: ${fmtCur(comp.last_2025_amount)}` : '—';
+
+                // Recommendation
+                const rec = data.recommendation;
+                document.getElementById('rec-interval').textContent = `${rec.avg_interval_days} дн.`;
+                document.getElementById('rec-total-inv').textContent = `${rec.total_invoices_all_time} шт.`;
+                document.getElementById('rec-next-date').textContent = rec.expected_next_date || '—';
+
+                // Items Table
+                const tbody = document.getElementById('items-table-body');
+                tbody.innerHTML = '';
+                const items = data.last_invoice_items || [];
+
+                if (!items.length) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Нет данных по товарам в последней накладной</td></tr>';
+                    return;
+                }
+
+                items.forEach((p, idx) => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td style="font-weight:700;">${idx + 1}</td>
+                        <td><code>${p.product_code}</code></td>
+                        <td style="font-weight:600;">${p.product_name}</td>
+                        <td style="text-align:right;">${p.quantity}</td>
+                        <td style="text-align:right;">₴ ${fmtNum(p.price)}</td>
+                        <td style="text-align:right;font-weight:700;color:#4f46e5;">₴ ${fmtNum(p.amount)}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+            } catch (err) {
+                console.error('Error loading last purchase analytics:', err);
+            }
+        }
+    </script>
+</body>
+</html>
