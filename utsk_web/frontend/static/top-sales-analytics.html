@@ -415,6 +415,20 @@
             background: #f8fafc;
         }
 
+        table.custom-table tbody tr.clickable-row {
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        table.custom-table tbody tr.clickable-row:hover {
+            background: #eef2ff;
+        }
+
+        table.custom-table tbody tr.clickable-row:hover .client-link {
+            text-decoration: underline;
+            color: #4338ca;
+        }
+
         /* Badges */
         .badge {
             display: inline-flex;
@@ -453,6 +467,18 @@
             color: #475569;
         }
 
+        .client-link {
+            color: #4f46e5;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.15s;
+            cursor: pointer;
+        }
+        .client-link:hover {
+            text-decoration: underline;
+            color: #4338ca;
+        }
+
         /* Top 1 Company Banner */
         .company-banner {
             background: linear-gradient(135deg, #e0e7ff 0%, #ffffff 100%);
@@ -465,6 +491,15 @@
             position: relative;
             overflow: hidden;
             box-shadow: var(--shadow-sm);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .company-banner:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary);
+            background: linear-gradient(135deg, #dbeafe 0%, #ffffff 100%);
         }
 
         .company-banner-info {
@@ -952,6 +987,11 @@
             return (n > 0 ? '+' : '') + n.toFixed(1) + '%';
         }
 
+        function renderClientLink(code, name) {
+            if (!name) return '—';
+            return `<a href="/client-detail?token=${TOKEN}&code=${encodeURIComponent(code)}" class="client-link">${name}</a>`;
+        }
+
         // Initialize page
         document.addEventListener('DOMContentLoaded', () => {
             const dashLink = document.getElementById('btn-dashboard-link');
@@ -1012,7 +1052,14 @@
             if (res.status !== 'ok' || !res.data) return;
 
             const c = res.data;
-            document.getElementById('top1-name').textContent = c.name;
+            const banner = document.getElementById('top1-banner');
+            if (banner) {
+                banner.onclick = () => {
+                    window.location.href = `/client-detail?token=${TOKEN}&code=${encodeURIComponent(c.code)}`;
+                };
+                banner.title = `Перейти в детализацию клиента ${c.name}`;
+            }
+            document.getElementById('top1-name').innerHTML = renderClientLink(c.code, c.name);
             document.getElementById('top1-code').textContent = c.code;
             document.getElementById('top1-status').textContent = c.status_name;
             document.getElementById('top1-abc').textContent = c.abc_group;
@@ -1101,10 +1148,15 @@
                 const growthClass = c.growth_yoy_pct >= 0 ? 'badge-positive' : (c.growth_yoy_pct < 0 ? 'badge-negative' : 'badge-neutral');
 
                 const tr = document.createElement('tr');
+                tr.className = 'clickable-row';
+                tr.title = `Перейти в карточку клиента ${c.name}`;
+                tr.onclick = () => {
+                    window.location.href = `/client-detail?token=${TOKEN}&code=${encodeURIComponent(c.code)}`;
+                };
                 tr.innerHTML = `
                     <td style="font-weight:800;">${c.rank}</td>
                     <td><code>${c.code}</code></td>
-                    <td style="font-weight:600;">${c.name}</td>
+                    <td style="font-weight:600;">${renderClientLink(c.code, c.name)}</td>
                     <td style="text-align:right;font-weight:700;color:#4f46e5;">₴ ${fmtNum(c.goods_revenue)}</td>
                     <td style="text-align:center;">${c.pct_of_total}%</td>
                     <td style="text-align:center;font-weight:700;">${c.running_pct}%</td>
@@ -1156,10 +1208,15 @@
                     const growthStr = c.growth_yoy_pct !== null ? fmtPct(c.growth_yoy_pct) : '—';
                     const growthClass = c.growth_yoy_pct >= 0 ? 'badge-positive' : (c.growth_yoy_pct < 0 ? 'badge-negative' : 'badge-neutral');
                     const tr = document.createElement('tr');
+                    tr.className = 'clickable-row';
+                    tr.title = `Перейти в карточку клиента ${c.name}`;
+                    tr.onclick = () => {
+                        window.location.href = `/client-detail?token=${TOKEN}&code=${encodeURIComponent(c.code)}`;
+                    };
                     tr.innerHTML = `
                         <td style="font-weight:800;">${c.rank}</td>
                         <td><code>${c.code}</code></td>
-                        <td style="font-weight:600;">${c.name}</td>
+                        <td style="font-weight:600;">${renderClientLink(c.code, c.name)}</td>
                         <td style="text-align:right;font-weight:700;color:#4f46e5;">₴ ${fmtNum(c.goods_revenue)}</td>
                         <td style="text-align:center;">${c.pct_of_total}%</td>
                         <td style="text-align:center;font-weight:700;">${c.running_pct}%</td>
@@ -1211,10 +1268,15 @@
                 statusCounts[c.status_name] = (statusCounts[c.status_name] || 0) + 1;
 
                 const tr = document.createElement('tr');
+                tr.className = 'clickable-row';
+                tr.title = `Перейти в карточку клиента ${c.name}`;
+                tr.onclick = () => {
+                    window.location.href = `/client-detail?token=${TOKEN}&code=${encodeURIComponent(c.code)}`;
+                };
                 tr.innerHTML = `
                     <td style="font-weight:800;">${c.rank}</td>
                     <td><code>${c.code}</code></td>
-                    <td style="font-weight:600;">${c.name}</td>
+                    <td style="font-weight:600;">${renderClientLink(c.code, c.name)}</td>
                     <td style="text-align:right;font-weight:700;color:#4f46e5;">₴ ${fmtNum(c.goods_revenue)}</td>
                     <td style="text-align:center;">${c.pct_of_total}%</td>
                     <td style="text-align:center;font-weight:700;">${c.running_pct}%</td>
@@ -1271,10 +1333,15 @@
                 runningPcts.push(c.running_pct);
 
                 const tr = document.createElement('tr');
+                tr.className = 'clickable-row';
+                tr.title = `Перейти в карточку клиента ${c.name}`;
+                tr.onclick = () => {
+                    window.location.href = `/client-detail?token=${TOKEN}&code=${encodeURIComponent(c.code)}`;
+                };
                 tr.innerHTML = `
                     <td style="font-weight:800;">${c.rank}</td>
                     <td><code>${c.code}</code></td>
-                    <td style="font-weight:600;">${c.name}</td>
+                    <td style="font-weight:600;">${renderClientLink(c.code, c.name)}</td>
                     <td style="text-align:right;font-weight:700;color:#4f46e5;">₴ ${fmtNum(c.goods_revenue)}</td>
                     <td style="text-align:center;">${c.pct_of_total}%</td>
                     <td style="text-align:center;font-weight:700;">${c.running_pct}%</td>
@@ -1317,10 +1384,15 @@
                 runningPcts.push(c.running_pct);
 
                 const tr = document.createElement('tr');
+                tr.className = 'clickable-row';
+                tr.title = `Перейти в карточку клиента ${c.name}`;
+                tr.onclick = () => {
+                    window.location.href = `/client-detail?token=${TOKEN}&code=${encodeURIComponent(c.code)}`;
+                };
                 tr.innerHTML = `
                     <td style="font-weight:800;">${c.rank}</td>
                     <td><code>${c.code}</code></td>
-                    <td style="font-weight:600;">${c.name}</td>
+                    <td style="font-weight:600;">${renderClientLink(c.code, c.name)}</td>
                     <td style="text-align:right;font-weight:700;color:#4f46e5;">₴ ${fmtNum(c.goods_revenue)}</td>
                     <td style="text-align:center;">${c.pct_of_total}%</td>
                     <td style="text-align:center;font-weight:700;">${c.running_pct}%</td>
@@ -1363,10 +1435,15 @@
                 runningPcts.push(c.running_pct);
 
                 const tr = document.createElement('tr');
+                tr.className = 'clickable-row';
+                tr.title = `Перейти в карточку клиента ${c.name}`;
+                tr.onclick = () => {
+                    window.location.href = `/client-detail?token=${TOKEN}&code=${encodeURIComponent(c.code)}`;
+                };
                 tr.innerHTML = `
                     <td style="font-weight:800;">${c.rank}</td>
                     <td><code>${c.code}</code></td>
-                    <td style="font-weight:600;">${c.name}</td>
+                    <td style="font-weight:600;">${renderClientLink(c.code, c.name)}</td>
                     <td style="text-align:right;font-weight:700;color:#4f46e5;">₴ ${fmtNum(c.goods_revenue)}</td>
                     <td style="text-align:center;">${c.pct_of_total}%</td>
                     <td style="text-align:center;font-weight:700;">${c.running_pct}%</td>
