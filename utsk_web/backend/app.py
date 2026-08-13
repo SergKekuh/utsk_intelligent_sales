@@ -3065,6 +3065,90 @@ def get_client_invoices_by_month_api(
         db.close()
 
 
+@app.get("/client-month-analytics", response_class=HTMLResponse)
+async def client_month_analytics_page(request: Request, token: str = Query(None)):
+    verify_token(token)
+    search_dirs = [FRONTEND_DIR, os.path.join(PROJECT_DIR, "frontend", "static"), os.path.join(ROOT_DIR, "frontend", "static")]
+    filepath = find_file("client-month-analytics.html", search_dirs)
+    if filepath:
+        with open(filepath, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    raise HTTPException(status_code=404, detail="Страница анализа месяца не найдена")
+
+
+@app.get("/api/analytics/client/month-summary")
+def get_client_month_summary_api(
+    code: str = Query(...),
+    year: int = Query(2026),
+    month: int = Query(1),
+    token: str = Query(None)
+):
+    verify_token(token)
+    db = get_db()
+    try:
+        val = db.execute(text("SELECT public.get_client_month_summary(:code, :year, :month)"), {"code": code, "year": year, "month": month}).scalar()
+        return val if isinstance(val, dict) else json.loads(val) if isinstance(val, str) else val
+    except Exception as e:
+        logger.error(f"Ошибка get_client_month_summary_api: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
+
+@app.get("/api/analytics/client/month-invoices")
+def get_client_month_invoices_api(
+    code: str = Query(...),
+    year: int = Query(2026),
+    month: int = Query(1),
+    token: str = Query(None)
+):
+    verify_token(token)
+    db = get_db()
+    try:
+        val = db.execute(text("SELECT public.get_client_month_invoices(:code, :year, :month)"), {"code": code, "year": year, "month": month}).scalar()
+        return val if isinstance(val, dict) else json.loads(val) if isinstance(val, str) else val
+    except Exception as e:
+        logger.error(f"Ошибка get_client_month_invoices_api: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
+
+@app.get("/api/analytics/client/month-products")
+def get_client_month_products_api(
+    code: str = Query(...),
+    year: int = Query(2026),
+    month: int = Query(1),
+    token: str = Query(None)
+):
+    verify_token(token)
+    db = get_db()
+    try:
+        val = db.execute(text("SELECT public.get_client_month_products(:code, :year, :month)"), {"code": code, "year": year, "month": month}).scalar()
+        return val if isinstance(val, dict) else json.loads(val) if isinstance(val, str) else val
+    except Exception as e:
+        logger.error(f"Ошибка get_client_month_products_api: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
+
+@app.get("/api/analytics/client/month-daily")
+def get_client_month_daily_api(
+    code: str = Query(...),
+    year: int = Query(2026),
+    month: int = Query(1),
+    token: str = Query(None)
+):
+    verify_token(token)
+    db = get_db()
+    try:
+        val = db.execute(text("SELECT public.get_client_month_daily(:code, :year, :month)"), {"code": code, "year": year, "month": month}).scalar()
+        return val if isinstance(val, dict) else json.loads(val) if isinstance(val, str) else val
+    except Exception as e:
+        logger.error(f"Ошибка get_client_month_daily_api: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
+
+
 # ====== HEALTH CHECK ======
 @app.get("/health")
 def health():

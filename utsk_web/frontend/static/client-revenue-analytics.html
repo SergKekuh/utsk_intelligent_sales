@@ -427,9 +427,21 @@
                     const growthStr = m.growth_pct !== null ? fmtPct(m.growth_pct) : '—';
                     const growthClass = m.growth_pct >= 0 ? 'badge-positive' : (m.growth_pct < 0 ? 'badge-negative' : 'badge-neutral');
 
+                    const monthUrl = `/client-month-analytics?token=${TOKEN}&code=${CLIENT_CODE}&year=${year}&month=${m.month}`;
+
                     const tr = document.createElement('tr');
+                    tr.className = 'month-row';
+                    tr.style.cursor = 'pointer';
+                    tr.style.transition = 'background 0.15s';
+                    tr.title = `Открыть детальный анализ за ${m.month_name} ${year}`;
+                    tr.onclick = () => { window.location.href = monthUrl; };
+
                     tr.innerHTML = `
-                        <td style="font-weight:700;">${m.month_name}</td>
+                        <td>
+                            <a href="${monthUrl}" style="color: #4f46e5; font-weight: 700; text-decoration: none;" onclick="event.stopPropagation();">
+                                ${m.month_name} 🔗
+                            </a>
+                        </td>
                         <td style="text-align:right;font-weight:700;color:#4f46e5;">₴ ${fmtNum(m.rev_curr)}</td>
                         <td style="text-align:right;">₴ ${fmtNum(m.rev_prev)}</td>
                         <td style="text-align:center;"><span class="badge ${growthClass}">${growthStr}</span></td>
