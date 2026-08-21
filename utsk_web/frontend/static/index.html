@@ -242,6 +242,10 @@
             background: #059669;
         }
 
+        .search-wrapper {
+            position: relative;
+        }
+
         .search-input {
             padding: 10px 16px;
             border-radius: 10px;
@@ -249,12 +253,90 @@
             background: var(--bg-surface);
             font-size: 13px;
             outline: none;
-            width: 240px;
-            transition: border 0.2s;
+            width: 280px;
+            transition: border 0.2s, box-shadow 0.2s;
         }
 
         .search-input:focus {
             border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        }
+
+        /* Search Dropdown */
+        .search-dropdown {
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0;
+            width: 360px;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.15), 0 8px 10px -6px rgba(15, 23, 42, 0.1);
+            z-index: 1000;
+            max-height: 320px;
+            overflow-y: auto;
+        }
+
+        .search-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            cursor: pointer;
+            transition: background 0.15s;
+            border-bottom: 1px solid #f8fafc;
+        }
+
+        .search-dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .search-dropdown-item:hover {
+            background: #eef2ff;
+        }
+
+        .search-client-code {
+            font-weight: 700;
+            color: #4f46e5;
+            min-width: 50px;
+            font-size: 12px;
+        }
+
+        .search-client-name {
+            color: var(--text-main);
+            font-weight: 500;
+            font-size: 13px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .search-results-table-wrapper {
+            background: var(--bg-surface);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .search-result-row {
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .search-result-row:hover td {
+            background: #eef2ff !important;
+        }
+
+        .badge-link {
+            color: #4f46e5;
+            font-weight: 700;
+            font-size: 12px;
+            transition: transform 0.15s;
+            display: inline-block;
+        }
+
+        .search-result-row:hover .badge-link {
+            transform: translateX(3px);
         }
 
         /* KPI Cards */
@@ -393,6 +475,12 @@
             color: #c2410c;
         }
 
+        .medal-top3 {
+            font-size: 24px;
+            line-height: 1;
+            display: inline-block;
+        }
+
         /* Scrollbar */
         ::-webkit-scrollbar {
             width: 4px;
@@ -502,14 +590,19 @@
         }
 
         .top-sales-badge {
-            font-size: 12px;
-            font-weight: 700;
-            color: white;
-            background: #4f46e5;
+            font-size: 13px;
+            font-weight: 800;
+            color: #1e293b;
+            background: #bae6fd;
             padding: 4px 10px;
             border-radius: 20px;
             letter-spacing: 0.3px;
             white-space: nowrap;
+            transition: background 0.15s;
+        }
+
+        .top-sales-link:hover .top-sales-badge {
+            background: #93c5fd;
         }
 
     </style>
@@ -557,7 +650,9 @@
                     <!-- Header -->
                     <div class="page-header">
                         <h1 class="page-title" id="page-title">Обзорный дашборд</h1>
-                        <input type="text" class="search-input" id="search-input" placeholder="🔍 Поиск по клиентам...">
+                        <div class="search-wrapper">
+                            <input type="text" class="search-input" id="search-input" placeholder="🔍 Поиск по клиентам...">
+                        </div>
                     </div>
 
                     <!-- KPI Cards -->
@@ -724,7 +819,9 @@
                 }
                 
                 data.clients.forEach((c, i) => {
-                    const medalIcon = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1) + '.';
+                    const rankCell = i < 3 
+                        ? `<span class="medal-top3">${i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉'}</span>` 
+                        : `<span style="font-weight:700;font-size:16px;color:#0f172a;">${i + 1}.</span>`;
                     
                     // Статус 2025
                     const status2025 = c.status_2025 || '—';
@@ -747,7 +844,7 @@
                             style="cursor:pointer;" 
                             onmouseover="this.style.background='#e0f2fe'" 
                             onmouseout="this.style.background=''">
-                            <td style="text-align:center;font-weight:700;font-size:20px;">${medalIcon}</td>
+                            <td style="text-align:center;vertical-align:middle;">${rankCell}</td>
                             <td>
                                 <b>${c.name || '—'}</b>
                                 <br><small style="color:var(--text-muted);">Код: ${c.code} | Счетов: ${c.invoice_count || 0}</small>
@@ -1221,12 +1318,188 @@
             }
         }
 
+        // ====== ЖИВОЙ ПОИСК КЛИЕНТОВ ======
+        let searchTimer = null;
+
+        function initClientSearch() {
+            const searchInput = $('search-input');
+            if (!searchInput) return;
+
+            searchInput.addEventListener('input', (e) => {
+                clearTimeout(searchTimer);
+                const query = e.target.value.trim();
+                
+                if (query.length < 1) {
+                    hideDropdown();
+                    return;
+                }
+                
+                searchTimer = setTimeout(() => {
+                    searchClients(query);
+                }, 300);
+            });
+            
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    const query = e.target.value.trim();
+                    if (query.length >= 1) {
+                        hideDropdown();
+                        showSearchResults(query);
+                    }
+                }
+            });
+
+            // Закрывать dropdown при клике вне поискового блока
+            document.addEventListener('click', (e) => {
+                const searchWrapper = document.querySelector('.search-wrapper');
+                if (searchWrapper && !searchWrapper.contains(e.target)) {
+                    hideDropdown();
+                }
+            });
+        }
+
+        // Поиск клиентов (dropdown)
+        async function searchClients(query) {
+            try {
+                const res = await fetch(`/api/clients?token=${TOKEN}&search=${encodeURIComponent(query)}&limit=10`);
+                const response = await res.json();
+                const data = response.data || response;
+                
+                if (data && data.length > 0) {
+                    showDropdown(data);
+                } else {
+                    hideDropdown();
+                }
+            } catch (err) {
+                console.error('Ошибка поиска клиентов:', err);
+            }
+        }
+
+        // Показать dropdown
+        function showDropdown(clients) {
+            hideDropdown();
+            
+            const searchInput = $('search-input');
+            if (!searchInput || !searchInput.parentElement) return;
+
+            const dropdown = document.createElement('div');
+            dropdown.id = 'search-dropdown';
+            dropdown.className = 'search-dropdown';
+            
+            dropdown.innerHTML = clients.map(c => {
+                const safeName = (c.name || '').replace(/'/g, "\\'");
+                return `
+                    <div class="search-dropdown-item" onclick="selectClient('${c.code}', '${safeName}')">
+                        <span class="search-client-code">${c.code}</span>
+                        <span class="search-client-name">${c.name || '—'}</span>
+                    </div>
+                `;
+            }).join('');
+            
+            searchInput.parentElement.appendChild(dropdown);
+        }
+
+        function hideDropdown() {
+            const existing = document.getElementById('search-dropdown');
+            if (existing) existing.remove();
+        }
+
+        // Выбор клиента из dropdown
+        function selectClient(code, name) {
+            const searchInput = $('search-input');
+            if (searchInput) searchInput.value = name;
+            hideDropdown();
+            showSearchResults(name || code);
+        }
+
+        // Показать результаты поиска (таблица)
+        async function showSearchResults(query) {
+            hideDropdown();
+            
+            // Скрыть основной контент дашборда
+            const contentArea = document.getElementById('content-area');
+            if (contentArea) contentArea.style.display = 'none';
+            
+            // Получить или создать блок результатов
+            let resultsBlock = document.getElementById('search-results-block');
+            if (!resultsBlock) {
+                resultsBlock = document.createElement('div');
+                resultsBlock.id = 'search-results-block';
+                resultsBlock.className = 'content-area';
+                document.querySelector('.workspace').appendChild(resultsBlock);
+            }
+            
+            resultsBlock.style.display = 'flex';
+            resultsBlock.innerHTML = `
+                <div class="page-header">
+                    <h2 class="page-title" style="font-size: 20px;">🔍 Результаты поиска: "${query}"</h2>
+                    <button class="btn btn-primary" onclick="backToDashboard()">← Назад на дашборд</button>
+                </div>
+                <div class="search-results-table-wrapper table-block">
+                    <div class="table-scroll" style="max-height: 65vh;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width: 100px;">Код</th>
+                                    <th>Название компании</th>
+                                    <th style="width: 160px; text-align: center;">Статус</th>
+                                    <th style="width: 140px; text-align: right;">Действие</th>
+                                </tr>
+                            </thead>
+                            <tbody id="search-results-body">
+                                <tr><td colspan="4" style="text-align:center; padding: 30px;">⏳ Поиск клиентов...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+            
+            try {
+                const res = await fetch(`/api/clients?token=${TOKEN}&search=${encodeURIComponent(query)}&limit=50`);
+                const response = await res.json();
+                const data = response.data || response;
+                const tbody = document.getElementById('search-results-body');
+                
+                if (data && data.length > 0) {
+                    tbody.innerHTML = data.map(c => `
+                        <tr class="search-result-row clickable-row" onclick="window.location.href='/client-detail?token=${TOKEN}&code=${encodeURIComponent(c.code)}'">
+                            <td><code style="font-weight:700;color:#4f46e5;">${c.code}</code></td>
+                            <td style="color:#0f172a;font-weight:600;">${c.name || '—'}</td>
+                            <td style="text-align:center;"><span class="status-pill blue">${c.status || '—'}</span></td>
+                            <td style="text-align:right;"><span class="badge-link">Открыть →</span></td>
+                        </tr>
+                    `).join('');
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding: 40px; color: var(--text-muted);">Ничего не найдено по запросу "${query}"</td></tr>`;
+                }
+            } catch (err) {
+                console.error('Ошибка загрузки результатов поиска:', err);
+                const tbody = document.getElementById('search-results-body');
+                if (tbody) {
+                    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding: 30px; color: #ef4444;">Ошибка при поиске</td></tr>`;
+                }
+            }
+        }
+
+        // Вернуться на дашборд
+        function backToDashboard() {
+            const contentArea = document.getElementById('content-area');
+            if (contentArea) contentArea.style.display = 'flex';
+            const resultsBlock = document.getElementById('search-results-block');
+            if (resultsBlock) resultsBlock.remove();
+            const searchInput = $('search-input');
+            if (searchInput) searchInput.value = '';
+            hideDropdown();
+        }
+
         // ====== ЗАПУСК ======
         document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.sidebar-item[data-page]').forEach(item => {
                 item.addEventListener('click', function (e) {
                     e.preventDefault();
                     const page = this.getAttribute('data-page');
+
+                    backToDashboard();
 
                     document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
                     this.classList.add('active');
@@ -1242,14 +1515,7 @@
                 });
             });
 
-            const searchInput = $('search-input');
-            if (searchInput) {
-                searchInput.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter' && currentPage === 'dashboard') {
-                        // Поиск пока не реализован для дашборда
-                    }
-                });
-            }
+            initClientSearch();
 
             console.log('🚀 UTSK v7.5 запущен');
             refreshAll();

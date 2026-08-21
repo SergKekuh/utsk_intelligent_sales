@@ -193,33 +193,122 @@
             border-color: var(--text-main);
         }
 
-        /* KPI Grid (6 cards) */
+        /* Checkpoint Cards & Top Section */
+        .checkpoints-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .checkpoint-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 0px;
+        }
+
+        .checkpoint-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            background: #eef2ff;
+            border: 1px solid #c7d2fe;
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-size: 13px;
+        }
+
+        .cp-label {
+            font-weight: 700;
+            color: #3730a3;
+            min-width: 50px;
+        }
+
+        .cp-pct {
+            font-weight: 800;
+            color: #4f46e5;
+            min-width: 50px;
+            text-align: center;
+        }
+
+        .cp-sum {
+            font-weight: 600;
+            color: #1e293b;
+            text-align: right;
+            font-size: 12px;
+        }
+
+        /* KPI Grid (1 ряд — все 6 карточек) */
         .kpi-grid {
             display: grid;
             grid-template-columns: repeat(6, 1fr);
-            gap: 16px;
+            gap: 12px;
         }
 
-        @media (max-width: 1400px) {
+        @media (max-width: 1200px) {
             .kpi-grid {
                 grid-template-columns: repeat(3, 1fr);
             }
         }
+
         @media (max-width: 768px) {
+            .checkpoint-row {
+                grid-template-columns: 1fr;
+            }
             .kpi-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
+            .checkpoint-wide {
+                flex-direction: column;
+                gap: 8px;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .checkpoint-wide {
+            background: #fef3c7;
+            border: 1px solid #fbbf24;
+            border-radius: 10px;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 14px;
+            font-weight: 600;
+            color: #92400e;
+        }
+
+        .checkpoint-label {
+            font-weight: 700;
+        }
+
+        .checkpoint-pct {
+            font-weight: 800;
+            color: #d97706;
+            font-size: 18px;
+        }
+
+        .checkpoint-sum {
+            font-weight: 800;
+            color: #b45309;
         }
 
         .kpi-card {
             background: var(--card-bg);
             border: 1px solid var(--border);
             border-radius: var(--radius);
-            padding: 18px 20px;
+            padding: 14px 16px;
             box-shadow: var(--shadow-sm);
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 4px;
             position: relative;
             overflow: hidden;
             transition: transform 0.15s, box-shadow 0.15s;
@@ -248,26 +337,31 @@
         .kpi-card:nth-child(6)::before { background: #ec4899; }
 
         .kpi-title {
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
             color: var(--text-muted);
             display: flex;
             align-items: center;
             gap: 6px;
+            white-space: nowrap;
         }
 
         .kpi-value {
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 800;
             color: var(--text-main);
             letter-spacing: -0.5px;
             margin-top: 2px;
+            white-space: nowrap;
         }
 
         .kpi-subtext {
             font-size: 11px;
             color: var(--text-muted);
             font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         /* Tabs Header */
@@ -484,7 +578,7 @@
             background: linear-gradient(135deg, #e0e7ff 0%, #ffffff 100%);
             border: 1px solid #c7d2fe;
             border-radius: var(--radius-lg);
-            padding: 28px;
+            padding: 16px 38px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -505,43 +599,46 @@
         .company-banner-info {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 4px;
         }
 
         .company-name-large {
-            font-size: 24px;
+            font-size: 20px;
             font-weight: 900;
             color: var(--text-main);
             letter-spacing: -0.5px;
+            line-height: 1.2;
         }
 
         .company-code-status {
             display: flex;
             align-items: center;
-            gap: 12px;
-            font-size: 13px;
+            gap: 10px;
+            font-size: 12px;
             color: var(--text-muted);
         }
 
         .company-banner-metrics {
             display: flex;
-            gap: 28px;
+            gap: 24px;
         }
 
         .banner-metric-box {
             display: flex;
             flex-direction: column;
             align-items: flex-end;
+            gap: 2px;
         }
 
         .banner-metric-val {
-            font-size: 26px;
+            font-size: 22px;
             font-weight: 800;
             color: var(--primary);
+            line-height: 1.2;
         }
 
         .banner-metric-lbl {
-            font-size: 12px;
+            font-size: 11px;
             color: var(--text-muted);
         }
 
@@ -582,7 +679,16 @@
             </div>
         </header>
 
-        <!-- KPI Cards Grid (6 cards) -->
+        <!-- РЯД 1: Checkpoint-карточки над KPI -->
+        <div class="checkpoints-wrapper">
+            <!-- Под-ряд 1A -->
+            <div class="checkpoint-row" id="checkpoint-row-1"></div>
+
+            <!-- Под-ряд 1B -->
+            <div class="checkpoint-row" id="checkpoint-row-2"></div>
+        </div>
+
+        <!-- РЯД 2: KPI-карточки (6 штук в 2 ряда по 3) -->
         <section class="kpi-grid">
             <div class="kpi-card">
                 <span class="kpi-title">💰 Общая выручка</span>
@@ -605,7 +711,7 @@
                 <span class="kpi-subtext">Совокупная доля ТОП-10</span>
             </div>
             <div class="kpi-card">
-                <span class="kpi-title">🎯 Клиентов для 80%</span>
+                <span class="kpi-title">🎯 Клиентов 80%</span>
                 <span class="kpi-value" id="kpi-clients-80">—</span>
                 <span class="kpi-subtext">Ядро продаж компании</span>
             </div>
@@ -615,6 +721,13 @@
                 <span class="kpi-subtext">Выручка / накладные</span>
             </div>
         </section>
+
+        <!-- РЯД 3: Широкий блок 80% -->
+        <div class="checkpoint-wide">
+            <span class="checkpoint-label" id="cp-wide-label">—</span>
+            <span class="checkpoint-pct" id="cp-wide-pct">—</span>
+            <span class="checkpoint-sum" id="cp-wide-sum">—</span>
+        </div>
 
         <!-- 7 Tabs Navigation -->
         <nav class="tabs-header">
@@ -1029,6 +1142,54 @@
             } catch (err) {
                 console.error('Error loading analytics:', err);
             }
+        }
+
+        // ==================== CHECKPOINT BLOCKS & WIDE BLOCK ====================
+        function renderCheckpointBlocks(cpData) {
+            // Под-ряд 1A: ТОП-1, ТОП-10, ТОП-50
+            const row1 = [
+                { label: "ТОП-1",  pct: cpData.top1_pct,  sum: cpData.top1_revenue },
+                { label: "ТОП-10", pct: cpData.top10_pct, sum: cpData.top10_revenue },
+                { label: "ТОП-50", pct: cpData.top50_pct, sum: cpData.top50_revenue }
+            ];
+            
+            // Под-ряд 1B: ТОП-5, ТОП-25, ТОП-70
+            const row2 = [
+                { label: "ТОП-5",  pct: cpData.top5_pct,  sum: cpData.top5_revenue },
+                { label: "ТОП-25", pct: cpData.top25_pct, sum: cpData.top25_revenue },
+                { label: "ТОП-70", pct: cpData.top70_pct, sum: cpData.top70_revenue }
+            ];
+            
+            const row1El = document.getElementById('checkpoint-row-1');
+            if (row1El) {
+                row1El.innerHTML = row1.map(cp => `
+                    <div class="checkpoint-card">
+                        <span class="cp-label">${cp.label}</span>
+                        <span class="cp-pct">${cp.pct}%</span>
+                        <span class="cp-sum">₴ ${fmtNum(cp.sum)}</span>
+                    </div>
+                `).join('');
+            }
+            
+            const row2El = document.getElementById('checkpoint-row-2');
+            if (row2El) {
+                row2El.innerHTML = row2.map(cp => `
+                    <div class="checkpoint-card">
+                        <span class="cp-label">${cp.label}</span>
+                        <span class="cp-pct">${cp.pct}%</span>
+                        <span class="cp-sum">₴ ${fmtNum(cp.sum)}</span>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function renderWideBlock(coreData) {
+            const wideLabel = document.getElementById('cp-wide-label');
+            const widePct = document.getElementById('cp-wide-pct');
+            const wideSum = document.getElementById('cp-wide-sum');
+            if (wideLabel) wideLabel.textContent = `~${coreData.count} (Ядро)`;
+            if (widePct) widePct.textContent = `${coreData.pct}%`;
+            if (wideSum) wideSum.textContent = `₴ ${fmtNum(coreData.sum)}`;
         }
 
         // ==================== KPI CARDS ====================
@@ -1454,32 +1615,75 @@
                 tbody.appendChild(tr);
             });
 
-            // Checkpoints Table
+            // Extract Checkpoints Data
+            const getCpInfo = (rk) => {
+                const item = list.find(c => c.rank === rk) || (rk <= list.length ? list[rk - 1] : null);
+                if (!item) return { pct: 0, sum: 0 };
+                const idx = list.indexOf(item);
+                const sum = list.slice(0, idx + 1).reduce((s, x) => s + x.goods_revenue, 0);
+                return { pct: item.running_pct, sum: sum };
+            };
+
+            const cp1 = getCpInfo(1);
+            const cp5 = getCpInfo(5);
+            const cp10 = getCpInfo(10);
+            const cp25 = getCpInfo(25);
+            const cp50 = getCpInfo(50);
+            const cp70 = getCpInfo(70);
+
+            const lastItem = list[list.length - 1];
+            const coreSum = list.reduce((s, x) => s + x.goods_revenue, 0);
+            const corePct = lastItem ? lastItem.running_pct : 0;
+
+            // 1. Render checkpoint blocks above KPI
+            renderCheckpointBlocks({
+                top1_pct: cp1.pct, top1_revenue: cp1.sum,
+                top5_pct: cp5.pct, top5_revenue: cp5.sum,
+                top10_pct: cp10.pct, top10_revenue: cp10.sum,
+                top25_pct: cp25.pct, top25_revenue: cp25.sum,
+                top50_pct: cp50.pct, top50_revenue: cp50.sum,
+                top70_pct: cp70.pct, top70_revenue: cp70.sum
+            });
+
+            // 2. Render wide block 80%
+            renderWideBlock({
+                count: res.count || list.length,
+                pct: corePct,
+                sum: coreSum
+            });
+
+            // 3. Checkpoints Table on Tab 7
             const cpTbody = document.getElementById('checkpoints-table-body');
             cpTbody.innerHTML = '';
 
-            const checkpoints = [1, 5, 10, 25, 50, 70];
+            const checkpoints = [
+                { rank: 1, info: cp1 },
+                { rank: 5, info: cp5 },
+                { rank: 10, info: cp10 },
+                { rank: 25, info: cp25 },
+                { rank: 50, info: cp50 },
+                { rank: 70, info: cp70 }
+            ];
+
             checkpoints.forEach(cp => {
-                const item = list.find(c => c.rank === cp) || (cp <= list.length ? list[cp - 1] : null);
-                if (item) {
+                if (cp.info.sum > 0) {
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
-                        <td style="font-weight:800;">ТОП-${cp}</td>
-                        <td style="text-align:center;font-weight:700;color:#10b981;">${item.running_pct}%</td>
-                        <td style="text-align:right;font-weight:700;color:#4f46e5;">₴ ${fmtNum(item.goods_revenue * (item.running_pct / item.pct_of_total))}</td>
+                        <td style="font-weight:800;">ТОП-${cp.rank}</td>
+                        <td style="text-align:center;font-weight:700;color:#10b981;">${cp.info.pct}%</td>
+                        <td style="text-align:right;font-weight:700;color:#4f46e5;">₴ ${fmtNum(cp.info.sum)}</td>
                     `;
                     cpTbody.appendChild(tr);
                 }
             });
 
             // Core Checkpoint item (~150 / last item)
-            const lastItem = list[list.length - 1];
             if (lastItem) {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td style="font-weight:800;color:#a855f7;">~${lastItem.rank} (Ядро)</td>
                     <td style="text-align:center;font-weight:700;color:#a855f7;">${lastItem.running_pct}%</td>
-                    <td style="text-align:right;font-weight:700;color:#a855f7;">₴ ${fmtNum(list.reduce((sum, x) => sum + x.goods_revenue, 0))}</td>
+                    <td style="text-align:right;font-weight:700;color:#a855f7;">₴ ${fmtNum(coreSum)}</td>
                 `;
                 cpTbody.appendChild(tr);
             }
