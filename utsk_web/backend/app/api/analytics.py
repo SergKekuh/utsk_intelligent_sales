@@ -36,7 +36,7 @@ def yoy_comparison(token: str=Query(None), year1: int=2026, year2: int=2025, db:
                 if r[key] is not None and isinstance(r[key], (int, float)):
                     r[key] = round(float(r[key]), 2)
             if r.get('goods_revenue_y2', 0) > 0:
-                r['growth_pct'] = round((r.get('goods_revenue_y1', 0) - r.get('goods_revenue_y2', 0)) / r['goods_revenue_y2'] * 100, 1)
+                r['growth_pct'] = round(r.get('goods_revenue_y1', 0) / r['goods_revenue_y2'] * 100, 1)
             else:
                 r['growth_pct'] = None
             data.append(r)

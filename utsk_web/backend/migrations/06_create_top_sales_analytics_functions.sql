@@ -149,7 +149,8 @@ $$ LANGUAGE plpgsql STABLE;
 -- 2. get_top_companies(p_year, p_limit)
 -- Filtered strictly by active clients (client_year_activity is_active = TRUE)
 -- --------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION public.get_top_companies(p_year INTEGER DEFAULT 2026, p_limit INTEGER DEFAULT 25)
+DROP FUNCTION IF EXISTS public.get_top_companies(INTEGER, INTEGER) CASCADE;
+CREATE OR REPLACE FUNCTION public.get_top_companies(p_year INTEGER DEFAULT 2026, p_limit INTEGER DEFAULT 5)
 RETURNS TABLE(
     rank BIGINT,
     code VARCHAR,
@@ -162,11 +163,18 @@ RETURNS TABLE(
     avg_check NUMERIC,
     prev_year_revenue NUMERIC,
     growth_yoy_pct NUMERIC,
-    abc_group VARCHAR
+    abc_group VARCHAR,
+    prev_period_revenue NUMERIC
 ) AS $$
 DECLARE
     v_total_revenue NUMERIC := 0;
+    v_max_month INTEGER := 12;
 BEGIN
+    SELECT COALESCE(MAX(EXTRACT(MONTH FROM d.invoice_date))::int, 12)
+    INTO v_max_month
+    FROM documents d
+    WHERE EXTRACT(YEAR FROM d.invoice_date) = p_year;
+
     SELECT COALESCE(SUM(sl.amount)::numeric, 0)
     INTO v_total_revenue
     FROM clients c
@@ -197,7 +205,7 @@ BEGIN
           AND sl.amount > 0
         GROUP BY c.code, c.name, sr.status_name
     ),
-    prev_sales AS (
+    prev_sales_total AS (
         SELECT 
             c.code as client_code,
             ROUND(SUM(sl.amount)::numeric, 2) as rev
@@ -211,6 +219,21 @@ BEGIN
           AND sl.amount > 0
         GROUP BY c.code
     ),
+    prev_sales_period AS (
+        SELECT 
+            c.code as client_code,
+            ROUND(SUM(sl.amount)::numeric, 2) as rev
+        FROM clients c
+        JOIN client_year_activity cya ON cya.client_code = c.code AND cya.sales_year = (p_year - 1) AND cya.is_active = TRUE
+        JOIN documents d ON d.client_code = c.code AND EXTRACT(YEAR FROM d.invoice_date) = (p_year - 1)
+        JOIN sales_lines sl ON sl.document_id = d.id
+        LEFT JOIN products pr ON sl.product_code = pr.code
+        WHERE c.code NOT IN ('9653', '11230')
+          AND COALESCE(pr.is_service, FALSE) = FALSE
+          AND sl.amount > 0
+          AND EXTRACT(MONTH FROM d.invoice_date) <= v_max_month
+        GROUP BY c.code
+    ),
     ranked AS (
         SELECT 
             cs.client_code,
@@ -218,11 +241,13 @@ BEGIN
             cs.curr_status,
             cs.rev,
             cs.inv_cnt,
-            COALESCE(ps.rev, 0.0) as prev_rev,
+            COALESCE(pst.rev, 0.0) as prev_total_rev,
+            COALESCE(psp.rev, 0.0) as prev_period_rev,
             SUM(cs.rev) OVER (ORDER BY cs.rev DESC) as run_tot,
             ROW_NUMBER() OVER (ORDER BY cs.rev DESC) as rk
         FROM curr_sales cs
-        LEFT JOIN prev_sales ps ON ps.client_code = cs.client_code
+        LEFT JOIN prev_sales_total pst ON pst.client_code = cs.client_code
+        LEFT JOIN prev_sales_period psp ON psp.client_code = cs.client_code
     )
     SELECT 
         r.rk::BIGINT as rank,
@@ -234,12 +259,13 @@ BEGIN
         COALESCE(r.curr_status, '—')::VARCHAR as status_name,
         r.inv_cnt::BIGINT as invoice_count,
         ROUND((r.rev / NULLIF(r.inv_cnt, 0))::numeric, 2)::NUMERIC as avg_check,
-        r.prev_rev::NUMERIC as prev_year_revenue,
+        r.prev_total_rev::NUMERIC as prev_year_revenue,
         CASE 
-            WHEN r.prev_rev > 0 THEN ROUND((100.0 * (r.rev - r.prev_rev) / r.prev_rev)::numeric, 2)
+            WHEN r.prev_total_rev > 0 THEN ROUND((100.0 * r.rev / r.prev_total_rev)::numeric, 2)
             ELSE NULL
         END::NUMERIC as growth_yoy_pct,
-        get_abc_group_for_revenue(r.rev)::VARCHAR as abc_group
+        get_abc_group_for_revenue(r.rev)::VARCHAR as abc_group,
+        r.prev_period_rev::NUMERIC as prev_period_revenue
     FROM ranked r
     ORDER BY r.rk ASC
     LIMIT p_limit;
@@ -249,23 +275,31 @@ $$ LANGUAGE plpgsql STABLE;
 
 -- --------------------------------------------------------------------
 -- 3. get_top_company_detail(p_code, p_year)
--- Deep analysis for 1 company filtered strictly by active clients
+-- Returns full details for TOP-1 (or any selected) company
 -- --------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION public.get_top_company_detail(p_code VARCHAR, p_year INTEGER DEFAULT 2026)
 RETURNS JSON AS $$
 DECLARE
     v_total_revenue NUMERIC := 0;
     v_curr_rev NUMERIC := 0;
-    v_prev_rev NUMERIC := 0;
+    v_prev_total_rev NUMERIC := 0;
+    v_prev_period_rev NUMERIC := 0;
     v_inv_cnt BIGINT := 0;
     v_client_name VARCHAR := '—';
     v_status_name VARCHAR := '—';
     v_abc_group VARCHAR := '—';
+    v_max_month INTEGER := 12;
     v_monthly_curr JSON;
     v_monthly_prev JSON;
     v_top_products JSON;
     v_result JSON;
 BEGIN
+    -- Max month for p_year
+    SELECT COALESCE(MAX(EXTRACT(MONTH FROM d.invoice_date))::int, 12)
+    INTO v_max_month
+    FROM documents d
+    WHERE EXTRACT(YEAR FROM d.invoice_date) = p_year;
+
     -- Total year revenue in active companies
     SELECT COALESCE(SUM(sl.amount)::numeric, 0)
     INTO v_total_revenue
@@ -294,9 +328,9 @@ BEGIN
     WHERE c.code = p_code
     GROUP BY c.name, sr.status_name;
 
-    -- Previous year sales
+    -- Previous year sales TOTAL (12 months)
     SELECT COALESCE(ROUND(SUM(sl.amount)::numeric, 2), 0)
-    INTO v_prev_rev
+    INTO v_prev_total_rev
     FROM clients c
     JOIN client_year_activity cya ON cya.client_code = c.code AND cya.sales_year = (p_year - 1) AND cya.is_active = TRUE
     JOIN documents d ON d.client_code = c.code AND EXTRACT(YEAR FROM d.invoice_date) = (p_year - 1)
@@ -305,6 +339,19 @@ BEGIN
     WHERE c.code = p_code
       AND COALESCE(pr.is_service, FALSE) = FALSE
       AND sl.amount > 0;
+
+    -- Previous year sales SAME PERIOD (months <= v_max_month)
+    SELECT COALESCE(ROUND(SUM(sl.amount)::numeric, 2), 0)
+    INTO v_prev_period_rev
+    FROM clients c
+    JOIN client_year_activity cya ON cya.client_code = c.code AND cya.sales_year = (p_year - 1) AND cya.is_active = TRUE
+    JOIN documents d ON d.client_code = c.code AND EXTRACT(YEAR FROM d.invoice_date) = (p_year - 1)
+    JOIN sales_lines sl ON sl.document_id = d.id
+    LEFT JOIN products pr ON sl.product_code = pr.code
+    WHERE c.code = p_code
+      AND COALESCE(pr.is_service, FALSE) = FALSE
+      AND sl.amount > 0
+      AND EXTRACT(MONTH FROM d.invoice_date) <= v_max_month;
 
     v_abc_group := get_abc_group_for_revenue(v_curr_rev);
 
@@ -369,8 +416,9 @@ BEGIN
         'abc_group', v_abc_group,
         'year', p_year,
         'goods_revenue', v_curr_rev,
-        'prev_year_revenue', v_prev_rev,
-        'growth_yoy_pct', CASE WHEN v_prev_rev > 0 THEN ROUND((100.0 * (v_curr_rev - v_prev_rev) / v_prev_rev)::numeric, 2) ELSE NULL END,
+        'prev_year_revenue', v_prev_total_rev,
+        'prev_period_revenue', v_prev_period_rev,
+        'growth_yoy_pct', CASE WHEN v_prev_total_rev > 0 THEN ROUND((100.0 * v_curr_rev / v_prev_total_rev)::numeric, 2) ELSE NULL END,
         'invoice_count', v_inv_cnt,
         'avg_check', CASE WHEN v_inv_cnt > 0 THEN ROUND((v_curr_rev / v_inv_cnt)::numeric, 2) ELSE 0 END,
         'pct_of_total', CASE WHEN v_total_revenue > 0 THEN ROUND((100.0 * v_curr_rev / v_total_revenue)::numeric, 2) ELSE 0 END,
@@ -388,6 +436,7 @@ $$ LANGUAGE plpgsql STABLE;
 -- 4. get_top_revenue_core(p_year, p_pct)
 -- Filtered strictly by active clients (client_year_activity is_active = TRUE)
 -- --------------------------------------------------------------------
+DROP FUNCTION IF EXISTS public.get_top_revenue_core(INTEGER, NUMERIC) CASCADE;
 CREATE OR REPLACE FUNCTION public.get_top_revenue_core(p_year INTEGER DEFAULT 2026, p_pct NUMERIC DEFAULT 80)
 RETURNS TABLE(
     rank BIGINT,
@@ -401,11 +450,18 @@ RETURNS TABLE(
     avg_check NUMERIC,
     abc_group VARCHAR,
     prev_year_revenue NUMERIC,
-    growth_yoy_pct NUMERIC
+    growth_yoy_pct NUMERIC,
+    prev_period_revenue NUMERIC
 ) AS $$
 DECLARE
     v_total_revenue NUMERIC := 0;
+    v_max_month INTEGER := 12;
 BEGIN
+    SELECT COALESCE(MAX(EXTRACT(MONTH FROM d.invoice_date))::int, 12)
+    INTO v_max_month
+    FROM documents d
+    WHERE EXTRACT(YEAR FROM d.invoice_date) = p_year;
+
     SELECT COALESCE(SUM(sl.amount)::numeric, 0)
     INTO v_total_revenue
     FROM clients c
@@ -436,7 +492,7 @@ BEGIN
           AND sl.amount > 0
         GROUP BY c.code, c.name, sr.status_name
     ),
-    prev_sales AS (
+    prev_sales_total AS (
         SELECT 
             c.code as client_code,
             ROUND(SUM(sl.amount)::numeric, 2) as rev
@@ -450,6 +506,21 @@ BEGIN
           AND sl.amount > 0
         GROUP BY c.code
     ),
+    prev_sales_period AS (
+        SELECT 
+            c.code as client_code,
+            ROUND(SUM(sl.amount)::numeric, 2) as rev
+        FROM clients c
+        JOIN client_year_activity cya ON cya.client_code = c.code AND cya.sales_year = (p_year - 1) AND cya.is_active = TRUE
+        JOIN documents d ON d.client_code = c.code AND EXTRACT(YEAR FROM d.invoice_date) = (p_year - 1)
+        JOIN sales_lines sl ON sl.document_id = d.id
+        LEFT JOIN products pr ON sl.product_code = pr.code
+        WHERE c.code NOT IN ('9653', '11230')
+          AND COALESCE(pr.is_service, FALSE) = FALSE
+          AND sl.amount > 0
+          AND EXTRACT(MONTH FROM d.invoice_date) <= v_max_month
+        GROUP BY c.code
+    ),
     ranked AS (
         SELECT 
             cs.client_code,
@@ -457,13 +528,15 @@ BEGIN
             cs.curr_status,
             cs.rev,
             cs.inv_cnt,
-            COALESCE(ps.rev, 0.0) as prev_rev,
+            COALESCE(pst.rev, 0.0) as prev_total_rev,
+            COALESCE(psp.rev, 0.0) as prev_period_rev,
             SUM(cs.rev) OVER (ORDER BY cs.rev DESC) as run_tot,
             ROUND((100.0 * cs.rev / NULLIF(v_total_revenue, 0))::numeric, 2) as pct,
             ROUND((100.0 * SUM(cs.rev) OVER (ORDER BY cs.rev DESC) / NULLIF(v_total_revenue, 0))::numeric, 2) as run_pct,
             ROW_NUMBER() OVER (ORDER BY cs.rev DESC) as rk
         FROM curr_sales cs
-        LEFT JOIN prev_sales ps ON ps.client_code = cs.client_code
+        LEFT JOIN prev_sales_total pst ON pst.client_code = cs.client_code
+        LEFT JOIN prev_sales_period psp ON psp.client_code = cs.client_code
     )
     SELECT 
         r.rk::BIGINT as rank,
@@ -476,11 +549,12 @@ BEGIN
         r.inv_cnt::BIGINT as invoice_count,
         ROUND((r.rev / NULLIF(r.inv_cnt, 0))::numeric, 2)::NUMERIC as avg_check,
         get_abc_group_for_revenue(r.rev)::VARCHAR as abc_group,
-        r.prev_rev::NUMERIC as prev_year_revenue,
+        r.prev_total_rev::NUMERIC as prev_year_revenue,
         CASE 
-            WHEN r.prev_rev > 0 THEN ROUND((100.0 * (r.rev - r.prev_rev) / r.prev_rev)::numeric, 2)
+            WHEN r.prev_total_rev > 0 THEN ROUND((100.0 * r.rev / r.prev_total_rev)::numeric, 2)
             ELSE NULL
-        END::NUMERIC as growth_yoy_pct
+        END::NUMERIC as growth_yoy_pct,
+        r.prev_period_rev::NUMERIC as prev_period_revenue
     FROM ranked r
     WHERE r.run_pct <= p_pct OR (r.run_pct > p_pct AND r.run_pct - r.pct < p_pct)
     ORDER BY r.rk ASC;

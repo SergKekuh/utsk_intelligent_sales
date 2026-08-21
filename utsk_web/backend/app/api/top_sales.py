@@ -111,6 +111,7 @@ def get_top_companies_api(
                 "invoice_count": int(r["invoice_count"] or 0),
                 "avg_check": float(r["avg_check"] or 0.0),
                 "prev_year_revenue": float(r["prev_year_revenue"] or 0.0),
+                "prev_period_revenue": float(r["prev_period_revenue"]) if r.get("prev_period_revenue") is not None else None,
                 "growth_yoy_pct": float(r["growth_yoy_pct"]) if r.get("growth_yoy_pct") is not None else None,
                 "abc_group": str(r["abc_group"] or "—")
             })
@@ -174,6 +175,7 @@ def get_top_revenue_core_api(
                 "avg_check": float(r["avg_check"] or 0.0),
                 "abc_group": str(r["abc_group"] or "—"),
                 "prev_year_revenue": float(r["prev_year_revenue"] or 0.0),
+                "prev_period_revenue": float(r["prev_period_revenue"]) if r.get("prev_period_revenue") is not None else None,
                 "growth_yoy_pct": float(r["growth_yoy_pct"]) if r.get("growth_yoy_pct") is not None else None
             })
         

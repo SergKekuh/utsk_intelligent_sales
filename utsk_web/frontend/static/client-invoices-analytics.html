@@ -367,7 +367,7 @@
         let chartInstance = null;
 
         function fmtNum(n) { return (n == null) ? '—' : Number(n).toLocaleString('ru-RU'); }
-        function fmtPct(n) { return (n == null) ? '—' : (n > 0 ? '+' : '') + n.toFixed(1) + '%'; }
+        function fmtPct(n) { return (n == null) ? '—' : n.toFixed(1) + '%'; }
 
         document.addEventListener('DOMContentLoaded', () => {
             const btnBack = document.getElementById('btn-client-detail');
@@ -394,7 +394,10 @@
                 const growthElem = document.getElementById('kpi-growth');
                 if (kpi.growth_yoy_pct !== null && kpi.growth_yoy_pct !== undefined) {
                     growthElem.textContent = fmtPct(kpi.growth_yoy_pct);
-                    growthElem.style.color = kpi.growth_yoy_pct >= 0 ? '#10b981' : '#ef4444';
+                    const isGood = kpi.invoices_prev_period !== undefined && kpi.invoices_prev_period !== null
+                        ? (kpi.invoices_curr >= kpi.invoices_prev_period)
+                        : (kpi.invoices_curr >= kpi.invoices_prev);
+                    growthElem.style.color = isGood ? '#10b981' : '#ef4444';
                 } else {
                     growthElem.textContent = '—';
                     growthElem.style.color = '#64748b';
@@ -426,7 +429,7 @@
                     prevCounts.push(m.inv_prev);
 
                     const growthStr = m.growth_pct !== null ? fmtPct(m.growth_pct) : '—';
-                    const growthClass = m.growth_pct >= 0 ? 'badge-positive' : (m.growth_pct < 0 ? 'badge-negative' : 'badge-neutral');
+                    const growthClass = m.growth_pct !== null ? (m.growth_pct >= 100 ? 'badge-positive' : 'badge-negative') : 'badge-neutral';
 
                     const monthUrl = `/client-invoices-month?token=${TOKEN}&code=${CLIENT_CODE}&year=${year}&month=${m.month}`;
 

@@ -1097,7 +1097,7 @@
 
         function fmtPct(n) {
             if (n === null || n === undefined) return '—';
-            return (n > 0 ? '+' : '') + n.toFixed(1) + '%';
+            return n.toFixed(1) + '%';
         }
 
         function renderClientLink(code, name) {
@@ -1229,7 +1229,10 @@
             const growthElem = document.getElementById('top1-growth');
             if (c.growth_yoy_pct !== null && c.growth_yoy_pct !== undefined) {
                 growthElem.textContent = fmtPct(c.growth_yoy_pct);
-                growthElem.style.color = c.growth_yoy_pct >= 0 ? '#047857' : '#b91c1c';
+                const isGood = c.prev_period_revenue !== undefined && c.prev_period_revenue !== null
+                    ? (c.goods_revenue >= c.prev_period_revenue)
+                    : (c.goods_revenue >= (c.prev_year_revenue || 0));
+                growthElem.style.color = isGood ? '#10b981' : '#ef4444';
             } else {
                 growthElem.textContent = '—';
                 growthElem.style.color = '#64748b';
@@ -1306,7 +1309,10 @@
                 top5Sum += c.goods_revenue;
 
                 const growthStr = c.growth_yoy_pct !== null ? fmtPct(c.growth_yoy_pct) : '—';
-                const growthClass = c.growth_yoy_pct >= 0 ? 'badge-positive' : (c.growth_yoy_pct < 0 ? 'badge-negative' : 'badge-neutral');
+                const isGood = c.prev_period_revenue !== undefined && c.prev_period_revenue !== null
+                    ? (c.goods_revenue >= c.prev_period_revenue)
+                    : (c.goods_revenue >= (c.prev_year_revenue || 0));
+                const growthClass = c.growth_yoy_pct !== null ? (isGood ? 'badge-positive' : 'badge-negative') : 'badge-neutral';
 
                 const tr = document.createElement('tr');
                 tr.className = 'clickable-row';
@@ -1365,9 +1371,13 @@
             if (compRes.status === 'ok') {
                 const tbody = document.getElementById('top10-table-body');
                 tbody.innerHTML = '';
+
                 compRes.companies.forEach(c => {
                     const growthStr = c.growth_yoy_pct !== null ? fmtPct(c.growth_yoy_pct) : '—';
-                    const growthClass = c.growth_yoy_pct >= 0 ? 'badge-positive' : (c.growth_yoy_pct < 0 ? 'badge-negative' : 'badge-neutral');
+                    const isGood = c.prev_period_revenue !== undefined && c.prev_period_revenue !== null
+                        ? (c.goods_revenue >= c.prev_period_revenue)
+                        : (c.goods_revenue >= (c.prev_year_revenue || 0));
+                    const growthClass = c.growth_yoy_pct !== null ? (isGood ? 'badge-positive' : 'badge-negative') : 'badge-neutral';
                     const tr = document.createElement('tr');
                     tr.className = 'clickable-row';
                     tr.title = `Перейти в карточку клиента ${c.name}`;

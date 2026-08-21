@@ -2072,12 +2072,19 @@
                             .then(r => r.json())
                             .then(yoyJson => {
                                 if (yoyJson.status === 'ok') {
-                                    var totalY1 = yoyJson.data.reduce((s, r) => s + (r.goods_revenue_y1 || 0), 0);
-                                    var totalY2 = yoyJson.data.reduce((s, r) => s + (r.goods_revenue_y2 || 0), 0);
-                                    var growth = totalY2 > 0 ? ((totalY1 - totalY2) / totalY2 * 100) : 0;
+                                    var activeRows = yoyJson.data.filter(r => (r.goods_revenue_y1 || 0) > 0);
+                                    var totalY1Period = activeRows.reduce((s, r) => s + (r.goods_revenue_y1 || 0), 0);
+                                    var totalY2Period = activeRows.reduce((s, r) => s + (r.goods_revenue_y2 || 0), 0);
+                                    var totalY2Full = yoyJson.data.reduce((s, r) => s + (r.goods_revenue_y2 || 0), 0);
                                     var gel = document.getElementById('kpi-growth');
-                                    gel.textContent = (growth >= 0 ? '+' : '') + growth.toFixed(1) + '%';
-                                    gel.style.color = growth >= 0 ? '#059669' : '#dc2626';
+                                    if (totalY2Full > 0) {
+                                        var currPct = (totalY1Period / totalY2Full) * 100;
+                                        gel.textContent = currPct.toFixed(1) + '%';
+                                        gel.style.color = (totalY1Period >= totalY2Period) ? '#10b981' : '#ef4444';
+                                    } else {
+                                        gel.textContent = '—';
+                                        gel.style.color = 'var(--muted)';
+                                    }
                                 }
                             });
 

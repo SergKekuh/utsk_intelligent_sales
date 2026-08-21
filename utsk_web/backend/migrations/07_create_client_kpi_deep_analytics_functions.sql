@@ -17,11 +17,13 @@ DECLARE
     v_status_name VARCHAR := '—';
     v_total_company_rev NUMERIC := 0;
     v_client_rev_curr NUMERIC := 0;
-    v_client_rev_prev NUMERIC := 0;
+    v_client_rev_prev_total NUMERIC := 0;
+    v_client_rev_prev_period NUMERIC := 0;
     v_abc_group VARCHAR := 'C2';
     v_share_pct NUMERIC := 0;
     v_growth_yoy NUMERIC := NULL;
     v_avg_monthly NUMERIC := 0;
+    v_max_month INTEGER := 12;
     v_monthly_data JSON;
     v_result JSON;
 BEGIN
@@ -35,6 +37,12 @@ BEGIN
     IF v_client_name IS NULL THEN
         RETURN json_build_object('status', 'error', 'message', 'Client not found');
     END IF;
+
+    -- Max month for p_year
+    SELECT COALESCE(MAX(EXTRACT(MONTH FROM d.invoice_date))::int, 12)
+    INTO v_max_month
+    FROM documents d
+    WHERE EXTRACT(YEAR FROM d.invoice_date) = p_year;
 
     -- Total company revenue (goods only, active clients)
     SELECT COALESCE(SUM(sl.amount), 0) INTO v_total_company_rev
@@ -55,13 +63,23 @@ BEGIN
       AND EXTRACT(YEAR FROM d.invoice_date) = p_year
       AND sl.amount > 0;
 
-    -- Client revenue prev year
-    SELECT COALESCE(SUM(sl.amount), 0) INTO v_client_rev_prev
+    -- Client revenue prev year TOTAL (12 months)
+    SELECT COALESCE(SUM(sl.amount), 0) INTO v_client_rev_prev_total
     FROM sales_lines sl
     JOIN documents d ON sl.document_id = d.id
     JOIN products pr ON sl.product_code = pr.code AND COALESCE(pr.is_service, FALSE) = FALSE
     WHERE d.client_code = p_code
       AND EXTRACT(YEAR FROM d.invoice_date) = (p_year - 1)
+      AND sl.amount > 0;
+
+    -- Client revenue prev year SAME PERIOD (months <= v_max_month)
+    SELECT COALESCE(SUM(sl.amount), 0) INTO v_client_rev_prev_period
+    FROM sales_lines sl
+    JOIN documents d ON sl.document_id = d.id
+    JOIN products pr ON sl.product_code = pr.code AND COALESCE(pr.is_service, FALSE) = FALSE
+    WHERE d.client_code = p_code
+      AND EXTRACT(YEAR FROM d.invoice_date) = (p_year - 1)
+      AND EXTRACT(MONTH FROM d.invoice_date) <= v_max_month
       AND sl.amount > 0;
 
     -- ABC group
@@ -72,9 +90,9 @@ BEGIN
         v_share_pct := ROUND((v_client_rev_curr / v_total_company_rev * 100)::numeric, 2);
     END IF;
 
-    -- YoY Growth %
-    IF v_client_rev_prev > 0 THEN
-        v_growth_yoy := ROUND(((v_client_rev_curr - v_client_rev_prev) / v_client_rev_prev * 100)::numeric, 1);
+    -- YoY Growth % (Ratio to previous year total)
+    IF v_client_rev_prev_total > 0 THEN
+        v_growth_yoy := ROUND((v_client_rev_curr / v_client_rev_prev_total * 100)::numeric, 1);
     END IF;
 
     -- Average Monthly Revenue
@@ -113,8 +131,8 @@ BEGIN
                 WHEN 7 THEN 'Июль' WHEN 8 THEN 'Август' WHEN 9 THEN 'Сентябрь'
                 WHEN 10 THEN 'Октябрь' WHEN 11 THEN 'Ноябрь' WHEN 12 THEN 'Декабрь'
             END AS month_name,
-            COALESCE(c.rev, 0) AS rev_curr,
-            COALESCE(p.rev, 0) AS rev_prev
+            COALESCE(c.rev, 0.0) AS rev_curr,
+            COALESCE(p.rev, 0.0) AS rev_prev
         FROM months m
         LEFT JOIN curr_m c ON m.m = c.m
         LEFT JOIN prev_m p ON m.m = p.m
@@ -124,10 +142,10 @@ BEGIN
         SELECT 
             month,
             month_name,
-            ROUND(rev_curr::numeric, 2) AS rev_curr,
-            ROUND(rev_prev::numeric, 2) AS rev_prev,
+            rev_curr,
+            rev_prev,
             CASE 
-                WHEN rev_prev > 0 THEN ROUND(((rev_curr - rev_prev) / rev_prev * 100)::numeric, 1)
+                WHEN rev_prev > 0 THEN ROUND((rev_curr / rev_prev * 100)::numeric, 1)
                 ELSE NULL
             END AS growth_pct,
             ROUND(SUM(rev_curr) OVER (ORDER BY month)::numeric, 2) AS cum_curr,
@@ -158,7 +176,8 @@ BEGIN
         ),
         'kpi', json_build_object(
             'rev_curr', v_client_rev_curr,
-            'rev_prev', v_client_rev_prev,
+            'rev_prev', v_client_rev_prev_total,
+            'rev_prev_period', v_client_rev_prev_period,
             'growth_yoy_pct', v_growth_yoy,
             'avg_monthly_rev', v_avg_monthly
         ),
@@ -182,12 +201,14 @@ DECLARE
     v_client_name VARCHAR;
     v_status_name VARCHAR := '—';
     v_inv_curr BIGINT := 0;
-    v_inv_prev BIGINT := 0;
+    v_inv_prev_total BIGINT := 0;
+    v_inv_prev_period BIGINT := 0;
     v_growth_yoy NUMERIC := NULL;
     v_avg_monthly NUMERIC := 0;
     v_peak_month VARCHAR := '—';
     v_peak_count INT := 0;
     v_active_months_count INT := 0;
+    v_max_month INTEGER := 12;
     v_monthly_data JSON;
     v_result JSON;
 BEGIN
@@ -201,6 +222,12 @@ BEGIN
         RETURN json_build_object('status', 'error', 'message', 'Client not found');
     END IF;
 
+    -- Max month for p_year
+    SELECT COALESCE(MAX(EXTRACT(MONTH FROM d.invoice_date))::int, 12)
+    INTO v_max_month
+    FROM documents d
+    WHERE EXTRACT(YEAR FROM d.invoice_date) = p_year;
+
     -- Invoices count current year
     SELECT COUNT(DISTINCT d.id) INTO v_inv_curr
     FROM sales_lines sl
@@ -208,15 +235,27 @@ BEGIN
     JOIN products pr ON sl.product_code = pr.code AND COALESCE(pr.is_service, FALSE) = FALSE
     WHERE d.client_code = p_code AND EXTRACT(YEAR FROM d.invoice_date) = p_year AND sl.amount > 0;
 
-    -- Invoices count prev year
-    SELECT COUNT(DISTINCT d.id) INTO v_inv_prev
+    -- Invoices count prev year TOTAL (12 months)
+    SELECT COUNT(DISTINCT d.id) INTO v_inv_prev_total
     FROM sales_lines sl
     JOIN documents d ON sl.document_id = d.id
     JOIN products pr ON sl.product_code = pr.code AND COALESCE(pr.is_service, FALSE) = FALSE
-    WHERE d.client_code = p_code AND EXTRACT(YEAR FROM d.invoice_date) = (p_year - 1) AND sl.amount > 0;
+    WHERE d.client_code = p_code 
+      AND EXTRACT(YEAR FROM d.invoice_date) = (p_year - 1) 
+      AND sl.amount > 0;
 
-    IF v_inv_prev > 0 THEN
-        v_growth_yoy := ROUND(((v_inv_curr - v_inv_prev)::numeric / v_inv_prev * 100)::numeric, 1);
+    -- Invoices count prev year SAME PERIOD (months <= v_max_month)
+    SELECT COUNT(DISTINCT d.id) INTO v_inv_prev_period
+    FROM sales_lines sl
+    JOIN documents d ON sl.document_id = d.id
+    JOIN products pr ON sl.product_code = pr.code AND COALESCE(pr.is_service, FALSE) = FALSE
+    WHERE d.client_code = p_code 
+      AND EXTRACT(YEAR FROM d.invoice_date) = (p_year - 1) 
+      AND EXTRACT(MONTH FROM d.invoice_date) <= v_max_month
+      AND sl.amount > 0;
+
+    IF v_inv_prev_total > 0 THEN
+        v_growth_yoy := ROUND((v_inv_curr::numeric / v_inv_prev_total * 100)::numeric, 1);
     END IF;
 
     v_avg_monthly := ROUND((v_inv_curr::numeric / 12.0)::numeric, 1);
@@ -228,7 +267,7 @@ BEGIN
     curr_m AS (
         SELECT 
             EXTRACT(MONTH FROM d.invoice_date)::int AS m,
-            COUNT(DISTINCT d.id) AS cnt
+            COUNT(DISTINCT d.id) AS inv_cnt
         FROM sales_lines sl
         JOIN documents d ON sl.document_id = d.id
         JOIN products pr ON sl.product_code = pr.code AND COALESCE(pr.is_service, FALSE) = FALSE
@@ -238,7 +277,7 @@ BEGIN
     prev_m AS (
         SELECT 
             EXTRACT(MONTH FROM d.invoice_date)::int AS m,
-            COUNT(DISTINCT d.id) AS cnt
+            COUNT(DISTINCT d.id) AS inv_cnt
         FROM sales_lines sl
         JOIN documents d ON sl.document_id = d.id
         JOIN products pr ON sl.product_code = pr.code AND COALESCE(pr.is_service, FALSE) = FALSE
@@ -254,8 +293,12 @@ BEGIN
                 WHEN 7 THEN 'Июль' WHEN 8 THEN 'Август' WHEN 9 THEN 'Сентябрь'
                 WHEN 10 THEN 'Октябрь' WHEN 11 THEN 'Ноябрь' WHEN 12 THEN 'Декабрь'
             END AS month_name,
-            COALESCE(c.cnt, 0) AS inv_curr,
-            COALESCE(p.cnt, 0) AS inv_prev
+            COALESCE(c.inv_cnt, 0) AS inv_curr,
+            COALESCE(p.inv_cnt, 0) AS inv_prev,
+            CASE 
+                WHEN COALESCE(p.inv_cnt, 0) > 0 THEN ROUND((COALESCE(c.inv_cnt, 0)::numeric / p.inv_cnt * 100)::numeric, 1)
+                ELSE NULL
+            END AS growth_pct
         FROM months m
         LEFT JOIN curr_m c ON m.m = c.m
         LEFT JOIN prev_m p ON m.m = p.m
@@ -267,7 +310,7 @@ BEGIN
             'month_name', month_name,
             'inv_curr', inv_curr,
             'inv_prev', inv_prev,
-            'growth_pct', CASE WHEN inv_prev > 0 THEN ROUND(((inv_curr - inv_prev)::numeric / inv_prev * 100)::numeric, 1) ELSE NULL END
+            'growth_pct', growth_pct
         )
     ) INTO v_monthly_data FROM combined;
 
@@ -305,7 +348,8 @@ BEGIN
         ),
         'kpi', json_build_object(
             'invoices_curr', v_inv_curr,
-            'invoices_prev', v_inv_prev,
+            'invoices_prev', v_inv_prev_total,
+            'invoices_prev_period', v_inv_prev_period,
             'growth_yoy_pct', v_growth_yoy,
             'avg_monthly_invoices', v_avg_monthly
         ),
@@ -334,11 +378,13 @@ DECLARE
     v_client_name VARCHAR;
     v_status_name VARCHAR := '—';
     v_avg_curr NUMERIC := 0;
-    v_avg_prev NUMERIC := 0;
+    v_avg_prev_total NUMERIC := 0;
+    v_avg_prev_period NUMERIC := 0;
     v_growth_yoy NUMERIC := NULL;
     v_median_check NUMERIC := 0;
     v_max_check NUMERIC := 0;
     v_min_check NUMERIC := 0;
+    v_max_month INTEGER := 12;
     v_monthly_data JSON;
     v_result JSON;
 BEGIN
@@ -351,6 +397,12 @@ BEGIN
     IF v_client_name IS NULL THEN
         RETURN json_build_object('status', 'error', 'message', 'Client not found');
     END IF;
+
+    -- Max month for p_year
+    SELECT COALESCE(MAX(EXTRACT(MONTH FROM d.invoice_date))::int, 12)
+    INTO v_max_month
+    FROM documents d
+    WHERE EXTRACT(YEAR FROM d.invoice_date) = p_year;
 
     -- Overall avg, min, max, median check for current year
     WITH doc_sums AS (
@@ -369,19 +421,35 @@ BEGIN
     INTO v_avg_curr, v_median_check, v_max_check, v_min_check
     FROM doc_sums;
 
-    -- Prev year avg check
+    -- Prev year avg check TOTAL (12 months)
     WITH doc_sums_prev AS (
         SELECT d.id, SUM(sl.amount) AS doc_amount
         FROM sales_lines sl
         JOIN documents d ON sl.document_id = d.id
         JOIN products pr ON sl.product_code = pr.code AND COALESCE(pr.is_service, FALSE) = FALSE
-        WHERE d.client_code = p_code AND EXTRACT(YEAR FROM d.invoice_date) = (p_year - 1) AND sl.amount > 0
+        WHERE d.client_code = p_code 
+          AND EXTRACT(YEAR FROM d.invoice_date) = (p_year - 1) 
+          AND sl.amount > 0
         GROUP BY d.id
     )
-    SELECT COALESCE(ROUND(AVG(doc_amount)::numeric, 2), 0) INTO v_avg_prev FROM doc_sums_prev;
+    SELECT COALESCE(ROUND(AVG(doc_amount)::numeric, 2), 0) INTO v_avg_prev_total FROM doc_sums_prev;
 
-    IF v_avg_prev > 0 THEN
-        v_growth_yoy := ROUND(((v_avg_curr - v_avg_prev) / v_avg_prev * 100)::numeric, 1);
+    -- Prev year avg check SAME PERIOD (months <= v_max_month)
+    WITH doc_sums_prev_period AS (
+        SELECT d.id, SUM(sl.amount) AS doc_amount
+        FROM sales_lines sl
+        JOIN documents d ON sl.document_id = d.id
+        JOIN products pr ON sl.product_code = pr.code AND COALESCE(pr.is_service, FALSE) = FALSE
+        WHERE d.client_code = p_code 
+          AND EXTRACT(YEAR FROM d.invoice_date) = (p_year - 1) 
+          AND EXTRACT(MONTH FROM d.invoice_date) <= v_max_month
+          AND sl.amount > 0
+        GROUP BY d.id
+    )
+    SELECT COALESCE(ROUND(AVG(doc_amount)::numeric, 2), 0) INTO v_avg_prev_period FROM doc_sums_prev_period;
+
+    IF v_avg_prev_total > 0 THEN
+        v_growth_yoy := ROUND((v_avg_curr / v_avg_prev_total * 100)::numeric, 1);
     END IF;
 
     -- Monthly breakdown
@@ -451,7 +519,8 @@ BEGIN
         ),
         'kpi', json_build_object(
             'avg_check_curr', v_avg_curr,
-            'avg_check_prev', v_avg_prev,
+            'avg_check_prev', v_avg_prev_total,
+            'avg_check_prev_period', v_avg_prev_period,
             'growth_yoy_pct', v_growth_yoy,
             'median_check', v_median_check,
             'max_check', v_max_check,

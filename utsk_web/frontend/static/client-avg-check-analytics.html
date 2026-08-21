@@ -343,7 +343,7 @@
 
         function fmtNum(n) { return (n == null) ? '—' : Number(n).toLocaleString('ru-RU'); }
         function fmtCur(n) { return (n == null) ? '—' : '₴ ' + fmtNum(Math.round(n)); }
-        function fmtPct(n) { return (n == null) ? '—' : (n > 0 ? '+' : '') + n.toFixed(1) + '%'; }
+        function fmtPct(n) { return (n == null) ? '—' : n.toFixed(1) + '%'; }
 
         document.addEventListener('DOMContentLoaded', () => {
             const btnBack = document.getElementById('btn-client-detail');
@@ -371,18 +371,19 @@
                 const growthElem = document.getElementById('kpi-growth');
                 if (kpi.growth_yoy_pct !== null && kpi.growth_yoy_pct !== undefined) {
                     growthElem.textContent = fmtPct(kpi.growth_yoy_pct);
-                    growthElem.style.color = kpi.growth_yoy_pct >= 0 ? '#10b981' : '#ef4444';
+                    const isGood = kpi.avg_check_prev_period !== undefined && kpi.avg_check_prev_period !== null
+                        ? (kpi.avg_check_curr >= kpi.avg_check_prev_period)
+                        : (kpi.avg_check_curr >= kpi.avg_check_prev);
+                    growthElem.style.color = isGood ? '#10b981' : '#ef4444';
+
+                    document.getElementById('stat-note').textContent = isGood
+                        ? `Средний чек клиента составил ${fmtPct(kpi.growth_yoy_pct)} от уровня прошлого года. Динамика чека опережает аналогичный период прошлого года.`
+                        : `Средний чек составил ${fmtPct(kpi.growth_yoy_pct)} от уровня прошлого года. Рекомендуется предлагать комплектные закупки и оптовые скидки.`;
                 } else {
                     growthElem.textContent = '—';
                     growthElem.style.color = '#64748b';
+                    document.getElementById('stat-note').textContent = 'Нет данных за прошлый год для сравнения динамики среднего чека.';
                 }
-
-                document.getElementById('stat-max-check').textContent = fmtCur(kpi.max_check);
-                document.getElementById('stat-min-check').textContent = fmtCur(kpi.min_check);
-
-                document.getElementById('stat-note').textContent = kpi.avg_check_curr > kpi.avg_check_prev
-                    ? `Средний чек клиента вырос на ${fmtPct(kpi.growth_yoy_pct)}. Клиент стал закупать более крупными партиями.`
-                    : `Средний чек снизился. Рекомендуется предлагать комплектные закупки и оптовые скидки.`;
 
                 // Monthly Table
                 const tbody = document.getElementById('avg-table-body');
@@ -399,7 +400,7 @@
                     prevAvgs.push(m.avg_prev);
 
                     const devStr = m.dev_pct !== null ? fmtPct(m.dev_pct) : '—';
-                    const devClass = m.dev_pct >= 0 ? 'badge-positive' : (m.dev_pct < 0 ? 'badge-negative' : 'badge-neutral');
+                    const devClass = m.dev_pct !== null ? (m.dev_pct >= 100 ? 'badge-positive' : 'badge-negative') : 'badge-neutral';
 
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
