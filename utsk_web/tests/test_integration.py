@@ -2,7 +2,7 @@
 from fastapi.testclient import TestClient
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'backend'))
-from app import app
+from app.main import app
 
 client = TestClient(app)
 TOKEN = "utsk2026"
@@ -14,7 +14,8 @@ def test_full_user_scenario():
     assert dashboard["total_clients"] > 0
     
     # 2. Клиенты (ищем Test)
-    clients = client.get("/api/clients?token=" + TOKEN + "&search=Test").json()
+    res_c = client.get("/api/clients?token=" + TOKEN + "&search=Test").json()
+    clients = res_c.get("data", res_c) if isinstance(res_c, dict) else res_c
     assert len(clients) > 0
     client_code = clients[0]["code"]
     

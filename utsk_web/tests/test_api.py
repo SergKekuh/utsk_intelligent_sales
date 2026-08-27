@@ -3,7 +3,7 @@ import pytest
 from fastapi.testclient import TestClient
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'backend'))
-from app import app
+from app.main import app
 
 client = TestClient(app)
 TOKEN = "utsk2026"
@@ -30,17 +30,20 @@ def test_dashboard_types():
 
 # ====== КЛИЕНТЫ ======
 def test_clients_list():
-    data = client.get("/api/clients?token=" + TOKEN + "&limit=10").json()
+    res = client.get("/api/clients?token=" + TOKEN + "&limit=10").json()
+    data = res.get("data", res) if isinstance(res, dict) else res
     assert len(data) > 0
     assert "code" in data[0]
 
 def test_clients_search():
     # Ищем тестового клиента, а не "АВ Металл"
-    data = client.get("/api/clients?token=" + TOKEN + "&search=Test&limit=5").json()
+    res = client.get("/api/clients?token=" + TOKEN + "&search=Test&limit=5").json()
+    data = res.get("data", res) if isinstance(res, dict) else res
     assert len(data) > 0, "Должен найтись 'Test Client'"
 
 def test_clients_search_no_results():
-    data = client.get("/api/clients?token=" + TOKEN + "&search=zzz_no_such_xyz&limit=5").json()
+    res = client.get("/api/clients?token=" + TOKEN + "&search=zzz_no_such_xyz&limit=5").json()
+    data = res.get("data", res) if isinstance(res, dict) else res
     assert len(data) == 0
 
 # ====== СТАТУСЫ ======

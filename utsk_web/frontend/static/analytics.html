@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UTSK — Аналитика по клиентам</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --bg: #f8fafc;
@@ -1037,6 +1039,296 @@
             box-shadow: 0 0 0 2px #f59e0b, 0 4px 12px rgba(245, 158, 11, 0.15);
         }
 
+        /* ====== BENTO UI & ЗАГАЛЬНА СЕГМЕНТАЦІЯ ====== */
+        .bento-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
+            border: 1px solid var(--border);
+            margin-bottom: 20px;
+        }
+
+        .bento-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .bento-card-title {
+            font-size: 16px;
+            font-weight: 800;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .bento-card-subtitle {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 2px;
+            font-weight: 500;
+        }
+
+        /* KPI Grid */
+        .seg-kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .seg-kpi-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 20px 22px;
+            box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
+            border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+
+        .seg-kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+        }
+
+        .seg-kpi-blue { border-left: 4px solid var(--blue); }
+        .seg-kpi-green { border-left: 4px solid var(--green); }
+        .seg-kpi-amber { border-left: 4px solid var(--amber); }
+        .seg-kpi-purple { border-left: 4px solid var(--purple); }
+
+        .seg-kpi-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .seg-kpi-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .seg-kpi-icon {
+            font-size: 20px;
+        }
+
+        .seg-kpi-val {
+            font-size: 28px;
+            font-weight: 800;
+            color: #0f172a;
+            line-height: 1.1;
+        }
+
+        .seg-kpi-sub {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 6px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Спец-сегменты */
+        .special-segments-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        .special-seg-card {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .special-seg-card:hover {
+            background: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+        }
+
+        .special-seg-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .special-seg-badge {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 6px;
+            letter-spacing: 0.3px;
+        }
+
+        .special-seg-name {
+            font-size: 15px;
+            font-weight: 800;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .special-seg-count {
+            font-size: 26px;
+            font-weight: 900;
+            color: #0f172a;
+        }
+
+        .special-seg-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .special-seg-stat-item {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .special-seg-stat-lbl {
+            font-size: 10.5px;
+            font-weight: 700;
+            color: var(--muted);
+            text-transform: uppercase;
+        }
+
+        .special-seg-stat-val {
+            font-size: 13px;
+            font-weight: 800;
+            color: #1e293b;
+        }
+
+        .special-seg-desc {
+            font-size: 11.5px;
+            color: #64748b;
+            line-height: 1.4;
+            margin-top: auto;
+            padding-top: 6px;
+        }
+
+        /* Матрица сегментации */
+        .seg-matrix-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12.5px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            background: #ffffff;
+        }
+
+        .seg-matrix-table thead th {
+            padding: 12px 10px;
+            text-align: center;
+            font-weight: 800;
+            background: #1e293b;
+            color: #f8fafc;
+            border: 1px solid #334155;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .seg-matrix-table thead th:first-child {
+            text-align: left;
+            padding-left: 18px;
+            min-width: 260px;
+        }
+
+        .seg-matrix-table thead th.col-total {
+            background: #0ea5e9;
+            color: #ffffff;
+        }
+
+        .seg-matrix-table tbody td {
+            padding: 10px 12px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .seg-matrix-table tbody td:first-child {
+            text-align: left;
+            padding-left: 18px;
+            font-weight: 700;
+        }
+
+        .seg-matrix-table tbody td.col-total {
+            background: #f8fafc;
+            font-weight: 800;
+        }
+
+        .seg-matrix-table .section-header-row td {
+            background: #f1f5f9;
+            color: #0f172a;
+            font-weight: 900;
+            font-size: 12.5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 10px 18px;
+            border-top: 2px solid #cbd5e1;
+            border-bottom: 2px solid #cbd5e1;
+        }
+
+        .seg-matrix-table .section-header-row.sec-c2abc td {
+            background: #fefce8;
+            color: #854d0e;
+        }
+
+        .seg-matrix-table .section-header-row.sec-dynamic td {
+            background: #f0fdf4;
+            color: #166534;
+        }
+
+        .seg-matrix-table tbody tr:hover td {
+            background: #f0f9ff;
+        }
+
+        .seg-matrix-table .row-highlight td {
+            font-weight: 800;
+        }
+
+        /* Metric switch buttons for chart */
+        .chart-metric-btn {
+            padding: 6px 14px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            background: transparent;
+            color: #64748b;
+            transition: all 0.2s ease;
+        }
+
+        .chart-metric-btn.active {
+            background: #ffffff;
+            color: #0f172a;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
         /* ====== МАСШТАБИРОВАНИЕ ====== */
         .scale-controls {
             display: flex;
@@ -1199,16 +1491,126 @@
 
         <!-- ====== ВКЛАДКИ ====== -->
         <div class="tabs-container">
-            <button class="tab-btn active" data-tab="tab-monthly">📊 Динамика по месяцам</button>
-            <button class="tab-btn" data-tab="tab-yoy" id="tab-btn-yoy">📈 Сравнение <span
-                    id="tab-yoy-year1">2026</span>/<span id="tab-yoy-year2">2025</span></button>
-            <button class="tab-btn" data-tab="tab-abc">🔺 ABC-пирамида</button>
-            <button class="tab-btn" data-tab="tab-recurrent">🔄 Повторные покупки</button>
-            <button class="tab-btn" data-tab="tab-clients-yoy">👥 YoY-анализ клиентов</button>
+            <!-- 1-я: Загальна сегментація -->
+            <button class="tab-btn active" data-tab="tab-segmentation" id="tab-btn-segmentation" onclick="switchTab('tab-segmentation')">
+                <i class="fa-solid fa-table-cells-large"></i> Загальна сегментація
+            </button>
+            
+            <!-- 2-я: Объединённая (ABC-структура) -->
+            <button class="tab-btn" data-tab="tab-abc-structure" id="tab-btn-abc-structure" onclick="switchTab('tab-abc-structure')">
+                🏗️ ABC-структура
+            </button>
+            
+            <!-- 3-я: YoY -->
+            <button class="tab-btn" data-tab="tab-yoy" id="tab-btn-yoy" onclick="switchTab('tab-yoy')">
+                📈 YoY сравнение <span id="tab-yoy-year1">2026</span>/<span id="tab-yoy-year2">2025</span>
+            </button>
+            
+            <!-- 4-я: АВС сегментация (переименована из ABC-пирамида) -->
+            <button class="tab-btn" data-tab="tab-abc" id="tab-btn-abc" onclick="switchTab('tab-abc')">
+                📊 АВС сегментация
+            </button>
+
+            <!-- 5-я: Повторные покупки -->
+            <button class="tab-btn" data-tab="tab-recurrent" id="tab-btn-recurrent" onclick="switchTab('tab-recurrent')">
+                🔄 Повторные покупки
+            </button>
+
+            <!-- 6-я: YoY-анализ клиентов -->
+            <button class="tab-btn" data-tab="tab-clients-yoy" id="tab-btn-clients-yoy" onclick="switchTab('tab-clients-yoy')">
+                👥 YoY-анализ клиентов
+            </button>
         </div>
 
-        <!-- ====== ВКЛАДКА 1: ОБЪЕДИНЁННАЯ (PIVOT + СВОДНЫЙ + ИТОГОВЫЙ) ====== -->
-        <div class="tab-content active" id="tab-monthly">
+        <!-- ====== ВКЛАДКА 1: ЗАГАЛЬНА СЕГМЕНТАЦІЯ (АКТИВНАЯ ПО УМОЛЧАНИЮ) ====== -->
+        <div class="tab-content active" id="tab-segmentation">
+
+            <!-- 1. МАТРИЦЯ ЧАСТОТИ -->
+            <div class="bento-card">
+                <div class="bento-card-header">
+                    <div>
+                        <h2 class="bento-card-title">
+                            <i class="fa-solid fa-table-cells" style="color:#0ea5e9;"></i> Матриця частоти покупок
+                        </h2>
+                        <div class="bento-card-subtitle">
+                            Розподіл за кількістю накладних, розбивка на C2 / ABC та динамічний шар за <span id="seg-matrix-year-lbl">2026</span> рік
+                        </div>
+                    </div>
+                </div>
+
+                <div style="overflow-x: auto;">
+                    <table class="seg-matrix-table" id="table-segmentation-matrix">
+                        <thead>
+                            <tr>
+                                <th>Метрика / Категорія</th>
+                                <th>РАЗОВІ<br><span style="font-size:10.5px;font-weight:600;opacity:0.8;">(1 накладна)</span></th>
+                                <th>ПОВТОРНІ<br><span style="font-size:10.5px;font-weight:600;opacity:0.8;">(2-3 накладні)</span></th>
+                                <th>КВАРТАЛЬНІ<br><span style="font-size:10.5px;font-weight:600;opacity:0.8;">(4-10 накладних)</span></th>
+                                <th>МІСЯЧНІ<br><span style="font-size:10.5px;font-weight:600;opacity:0.8;">(11-40 накладних)</span></th>
+                                <th>ПОСТІЙНІ<br><span style="font-size:10.5px;font-weight:600;opacity:0.8;">(41+ накладних)</span></th>
+                                <th class="col-total">Всього</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-segmentation-matrix">
+                            <tr>
+                                <td colspan="7" style="text-align:center;padding:40px;color:#94a3b8;">⏳ Завантаження матриці сегментації...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 3. СПЕЦ-СЕГМЕНТИ (4 РЯДИ / КАРТКИ) -->
+            <div class="bento-card">
+                <div class="bento-card-header">
+                    <div>
+                        <h2 class="bento-card-title">
+                            <i class="fa-solid fa-layer-group" style="color:#f59e0b;"></i> Спеціальні сегменти клієнтської бази
+                        </h2>
+                        <div class="bento-card-subtitle">
+                            Ключові когорти: C2 (Дрібні), Нові клієнти, Убули (Ушедшие), Сплячі
+                        </div>
+                    </div>
+                </div>
+
+                <div class="special-segments-grid" id="seg-special-cards">
+                    <div style="grid-column: 1 / -1; text-align:center; padding:30px; color:#94a3b8;">
+                        ⏳ Завантаження спеціальних сегментів...
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. ГРАФІК CHART.JS -->
+            <div class="bento-card">
+                <div class="bento-card-header">
+                    <div>
+                        <h2 class="bento-card-title">
+                            <i class="fa-solid fa-chart-column" style="color:#10b981;"></i> Порівняльний розподіл за частотою (Chart.js)
+                        </h2>
+                        <div class="bento-card-subtitle">
+                            Згрупована стовпчикова діаграма: Загальна кількість (синій), C2 (помаранчевий), ABC (зелений)
+                        </div>
+                    </div>
+                    <!-- Перемикач метрик графіка -->
+                    <div style="display:flex;gap:4px;background:#f1f5f9;padding:3px;border-radius:8px;border:1px solid var(--border);">
+                        <button id="seg-btn-metric-comp" class="chart-metric-btn active" onclick="switchSegChartMetric('companies')">
+                            👥 Клієнти
+                        </button>
+                        <button id="seg-btn-metric-sales" class="chart-metric-btn" onclick="switchSegChartMetric('sales')">
+                            💰 Виручка
+                        </button>
+                    </div>
+                </div>
+
+                <div style="height: 360px; position: relative; width: 100%;">
+                    <canvas id="segmentationBarChart"></canvas>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ====== ВКЛАДКА 2: ОБЪЕДИНЁННАЯ (ABC-СТРУКТУРА) ====== -->
+        <div class="tab-content" id="tab-abc-structure">
 
             <!-- Блок 1: ОБЪЕДИНЁННЫЙ PIVOT + СВОДНЫЙ ABC -->
             <div class="chart-card">
@@ -1658,20 +2060,12 @@
 
                     var activeTab = document.querySelector('.tab-content.active');
                     if (!activeTab) {
-                        loadUnitedPivotAndSummary(p.year, p.multiplier, p.limitPrice);
-                        loadFinal(p.year, p.multiplier, p.limitPrice);
+                        loadGeneralSegmentation();
                         return;
                     }
 
                     var tabId = activeTab.id;
-                    if (tabId === 'tab-monthly') {
-                        loadUnitedPivotAndSummary(p.year, p.multiplier, p.limitPrice);
-                        loadFinal(p.year, p.multiplier, p.limitPrice);
-                    }
-                    else if (tabId === 'tab-yoy') { } // уже загружено выше
-                    else if (tabId === 'tab-abc') loadABC(p.year, p.multiplier);
-                    else if (tabId === 'tab-recurrent') loadRecurrentAnalysis();
-                    else if (tabId === 'tab-clients-yoy') loadClientsYoY();
+                    loadTabContent(tabId);
                 }
 
                 // ====== ВКЛАДКА 1: МЕСЯЧНАЯ ДИНАМИКА ======
@@ -2285,37 +2679,109 @@
                 }
                 // ====== ГЛОБАЛЬНЫЕ KPI ======
                 async function loadGlobalKPI() {
-                    var p = getParams(), year = p.year || 2026;
-                    var el = document.getElementById('kpi-total-year'); if (el) el.textContent = year;
+                    var p = getParams(), year = parseInt(p.year) || 2026;
+                    var yearPrev = year - 1;
+                    var elTotYear = document.getElementById('kpi-total-year'); if (elTotYear) elTotYear.textContent = year;
+                    var elYearLbl = document.getElementById('kpi-year-label'); if (elYearLbl) elYearLbl.textContent = year;
+
+                    // 1. Всего клиентов
                     try {
-                        var resp = await fetch('/api/analytics/yearly-clients-count?token=' + TOKEN + '&year=' + year);
-                        var json = await resp.json();
-                        if (json.status === 'ok') { document.getElementById('kpi-total').textContent = fmtN(json.active_clients); document.getElementById('kpi-total-sub').textContent = 'Участвуют в аналитике'; }
-                    } catch (e) { console.error(e); }
+                        var respClients = await fetch('/api/analytics/yearly-clients-count?token=' + TOKEN + '&year=' + year);
+                        var jsonClients = await respClients.json();
+                        if (jsonClients.status === 'ok') {
+                            var elTot = document.getElementById('kpi-total');
+                            if (elTot) elTot.textContent = fmtN(jsonClients.active_clients || 0);
+                            var elTotSub = document.getElementById('kpi-total-sub');
+                            if (elTotSub) elTotSub.textContent = 'Участвуют в аналитике';
+                        }
+                    } catch (e) { console.error('loadGlobalKPI clients error:', e); }
+
+                    // 2. Накладные и выручка
+                    try {
+                        var respRev = await fetch('/api/analytics/monthly-revenue?token=' + TOKEN + '&year=' + year);
+                        var jsonRev = await respRev.json();
+                        if (jsonRev.status === 'ok' && jsonRev.data) {
+                            var data = jsonRev.data;
+                            var totalGoods = data.reduce((s, r) => s + (r.goods_revenue || 0), 0);
+                            var totalInvoices = data.reduce((s, r) => s + (r.invoice_count || 0), 0);
+                            var avgTicket = totalInvoices > 0 ? Math.round(totalGoods / totalInvoices) : 0;
+                            
+                            var elRev = document.getElementById('kpi-revenue');
+                            if (elRev) elRev.textContent = fmtM(totalGoods);
+                            var elInv = document.getElementById('kpi-invoices');
+                            if (elInv) elInv.textContent = fmtN(totalInvoices);
+                            var elAvg = document.getElementById('kpi-avg-ticket');
+                            if (elAvg) elAvg.textContent = 'Средний чек: ' + fmtM(avgTicket);
+                        }
+                    } catch (e) { console.error('loadGlobalKPI revenue error:', e); }
+
+                    // 3. Рост к предыдущему году (YoY)
+                    try {
+                        var respYoY = await fetch('/api/analytics/yoy-comparison?token=' + TOKEN + '&year1=' + year + '&year2=' + yearPrev);
+                        var jsonYoY = await respYoY.json();
+                        if (jsonYoY.status === 'ok' && jsonYoY.data) {
+                            var activeRows = jsonYoY.data.filter(r => (r.goods_revenue_y1 || 0) > 0);
+                            var totalY1Period = activeRows.reduce((s, r) => s + (r.goods_revenue_y1 || 0), 0);
+                            var totalY2Period = activeRows.reduce((s, r) => s + (r.goods_revenue_y2 || 0), 0);
+                            var totalY2Full = jsonYoY.data.reduce((s, r) => s + (r.goods_revenue_y2 || 0), 0);
+                            var gel = document.getElementById('kpi-growth');
+                            if (gel) {
+                                if (totalY2Full > 0) {
+                                    var currPct = (totalY1Period / totalY2Full) * 100;
+                                    gel.textContent = currPct.toFixed(1) + '%';
+                                    gel.style.color = (totalY1Period >= totalY2Period) ? '#10b981' : '#ef4444';
+                                } else {
+                                    gel.textContent = '—';
+                                    gel.style.color = 'var(--muted)';
+                                }
+                            }
+                        }
+                    } catch (e) { console.error('loadGlobalKPI yoy error:', e); }
                 }
 
                 // ====== ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК ======
+                function switchTab(tabId) {
+                    document.querySelectorAll('.tab-btn').forEach(b => {
+                        if (b.getAttribute('data-tab') === tabId) b.classList.add('active');
+                        else b.classList.remove('active');
+                    });
+                    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+                    var content = document.getElementById(tabId);
+                    if (content) {
+                        content.classList.add('active');
+                        loadTabContent(tabId);
+                    }
+                }
+
                 document.addEventListener('click', function (e) {
-                    if (e.target.classList.contains('tab-btn')) {
-                        var tabId = e.target.getAttribute('data-tab');
-                        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-                        e.target.classList.add('active');
-                        var content = document.getElementById(tabId);
-                        if (content) { content.classList.add('active'); loadTabContent(tabId); }
+                    var btn = e.target.closest('.tab-btn');
+                    if (btn) {
+                        var tabId = btn.getAttribute('data-tab');
+                        if (tabId) switchTab(tabId);
                     }
                 });
 
                 function loadTabContent(tabId) {
                     var p = getParams();
-                    if (tabId === 'tab-monthly') {
+                    if (tabId === 'tab-segmentation') {
+                        loadGeneralSegmentation();
+                    }
+                    else if (tabId === 'tab-abc-structure') {
                         loadUnitedPivotAndSummary(p.year, p.multiplier, p.limitPrice);
                         loadFinal(p.year, p.multiplier, p.limitPrice);
                     }
-                    else if (tabId === 'tab-yoy') loadYoYComparison();
-                    else if (tabId === 'tab-abc') loadABC(p.year, p.multiplier);
-                    else if (tabId === 'tab-recurrent') loadRecurrentAnalysis();
-                    else if (tabId === 'tab-clients-yoy') loadClientsYoY();
+                    else if (tabId === 'tab-yoy') {
+                        loadYoYComparison();
+                    }
+                    else if (tabId === 'tab-abc' || tabId === 'tab-abc-pyramid') {
+                        loadABC(p.year, p.multiplier);
+                    }
+                    else if (tabId === 'tab-recurrent') {
+                        loadRecurrentAnalysis();
+                    }
+                    else if (tabId === 'tab-clients-yoy') {
+                        loadClientsYoY();
+                    }
                 }
 
                 // ====== ИТОГОВЫЙ ABC (вкладка 6) ======
@@ -2598,12 +3064,327 @@
                     renderClientsYoYTable(filtered);
                 }
 
+                // ====== ВКЛАДКА 1: ЗАГАЛЬНА СЕГМЕНТАЦІЯ ======
+                var segMatrixData = null;
+                var segSpecialData = null;
+                var currentSegChartMetric = 'companies'; // 'companies' or 'sales'
+                var segChartInstance = null;
+
+                async function loadGeneralSegmentation() {
+                    var p = getParams();
+                    var year = parseInt(p.year) || 2026;
+                    var limitPrice = parseFloat(p.limitPrice) || 146000;
+
+                    // Обновляем метку года в заголовке матрицы
+                    var myEl = document.getElementById('seg-matrix-year-lbl'); if (myEl) myEl.textContent = year;
+
+                    // Состояния загрузки
+                    var tbMatrix = document.getElementById('tbody-segmentation-matrix');
+                    if (tbMatrix) tbMatrix.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:#94a3b8;">⏳ Завантаження матриці сегментації...</td></tr>';
+                    var spCards = document.getElementById('seg-special-cards');
+                    if (spCards) spCards.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:30px;color:#94a3b8;">⏳ Завантаження спеціальних сегментів...</div>';
+
+                    try {
+                        var [respSpecial, respMatrix] = await Promise.all([
+                            fetch('/api/analytics/segmentation-special?token=' + TOKEN + '&year=' + year + '&limit_price=' + limitPrice),
+                            fetch('/api/analytics/segmentation-matrix?token=' + TOKEN + '&year=' + year + '&limit_price=' + limitPrice)
+                        ]);
+
+                        var jsonSpecial = await respSpecial.json();
+                        var jsonMatrix = await respMatrix.json();
+
+                        if (jsonSpecial.status === 'ok' && jsonSpecial.data) {
+                            segSpecialData = jsonSpecial.data;
+                            renderSegSpecial(jsonSpecial.data, year, limitPrice);
+                        }
+
+                        if (jsonMatrix.status === 'ok' && jsonMatrix.rows) {
+                            segMatrixData = jsonMatrix;
+                            renderSegMatrix(jsonMatrix, year, limitPrice);
+                            renderSegChart(jsonMatrix.chart_data);
+                        }
+                    } catch (e) {
+                        console.error('loadGeneralSegmentation error:', e);
+                        if (tbMatrix) tbMatrix.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:#dc2626;">⚠️ Помилка завантаження даних</td></tr>';
+                        if (spCards) spCards.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:30px;color:#dc2626;">⚠️ Помилка завантаження спец-сегментів</div>';
+                    }
+                }
+
+                function renderSegSpecial(items, year, limitPrice) {
+                    var container = document.getElementById('seg-special-cards');
+                    if (!container) return;
+
+                    if (!items || !items.length) {
+                        container.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:30px;color:#94a3b8;">Немає даних для відображення</div>';
+                        return;
+                    }
+
+                    var html = items.map(function(seg) {
+                        var badgeBg = seg.color + '18';
+                        var isLostOrSleeping = (seg.segment_code === 'churned' || seg.segment_code === 'sleeping');
+                        var revLabel = isLostOrSleeping ? 'Втрачена виручка' : 'Товарна виручка';
+                        var revVal = fmtM(seg.sales_revenue);
+                        var avgCheckVal = seg.avg_ticket ? fmtM(seg.avg_ticket) : '—';
+                        var shareClientVal = (seg.share_clients_pct != null ? seg.share_clients_pct.toFixed(1) + '%' : '—');
+                        var shareRevVal = (seg.share_revenue_pct != null ? seg.share_revenue_pct.toFixed(1) + '%' : '—');
+
+                        return '<div class="special-seg-card" style="border-top: 4px solid ' + seg.color + ';">' +
+                            '<div class="special-seg-top">' +
+                                '<div class="special-seg-name">' +
+                                    '<i class="' + (seg.icon.startsWith('fa-') ? 'fa-solid ' + seg.icon : seg.icon) + '" style="color:' + seg.color + ';"></i>' +
+                                    '<span>' + seg.segment_name + '</span>' +
+                                '</div>' +
+                                '<span class="special-seg-badge" style="background:' + badgeBg + ';color:' + seg.color + ';border:1px solid ' + seg.color + '40;">' + (seg.badge_label || '') + '</span>' +
+                            '</div>' +
+                            '<div>' +
+                                '<div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;">Кількість фірм</div>' +
+                                '<div class="special-seg-count">' + fmtN(seg.clients_count) + ' <span style="font-size:13px;font-weight:700;color:' + seg.color + ';">(' + shareClientVal + ')</span></div>' +
+                            '</div>' +
+                            '<div class="special-seg-stats">' +
+                                '<div class="special-seg-stat-item">' +
+                                    '<span class="special-seg-stat-lbl">' + revLabel + '</span>' +
+                                    '<span class="special-seg-stat-val" style="color:' + seg.color + ';">' + revVal + '</span>' +
+                                    '<span style="font-size:10px;color:var(--muted);">' + shareRevVal + ' частка</span>' +
+                                '</div>' +
+                                '<div class="special-seg-stat-item">' +
+                                    '<span class="special-seg-stat-lbl">Сер. чек / Накл.</span>' +
+                                    '<span class="special-seg-stat-val">' + avgCheckVal + '</span>' +
+                                    '<span style="font-size:10px;color:var(--muted);">' + fmtN(seg.invoices_count) + ' накл.</span>' +
+                                '</div>' +
+                            '</div>' +
+                            '<div class="special-seg-desc">' + (seg.description || '') + '</div>' +
+                        '</div>';
+                    }).join('');
+
+                    container.innerHTML = html;
+                }
+
+                function renderSegMatrix(matrixRes, year, limitPrice) {
+                    var tbody = document.getElementById('tbody-segmentation-matrix');
+                    if (!tbody) return;
+
+                    if (!matrixRes || !matrixRes.rows || !matrixRes.rows.length) {
+                        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:#94a3b8;">Немає даних</td></tr>';
+                        return;
+                    }
+
+                    var sections = matrixRes.sections || {};
+                    var html = '';
+
+                    // 1. Секція: Загальна кількість
+                    html += '<tr class="section-header-row"><td colspan="7"><i class="fa-solid fa-calculator" style="margin-right:8px;color:#0ea5e9;"></i> 📌 Загальна кількість клієнтів та метрики</td></tr>';
+                    if (sections.total) {
+                        sections.total.forEach(function(row) {
+                            var isPct = row.row_key.includes('pct');
+                            var isSales = row.row_key === 'sales' || row.row_key === 'avg_ticket';
+                            var isHighlight = row.row_key === 'companies' || row.row_key === 'sales';
+                            var formatCell = function(v) {
+                                if (v == null) return '—';
+                                if (isPct) return Number(v).toFixed(1) + '%';
+                                if (isSales) return fmtM(v);
+                                return fmtN(v);
+                            };
+
+                            html += '<tr' + (isHighlight ? ' class="row-highlight"' : '') + '>' +
+                                '<td>' + row.row_label + '</td>' +
+                                '<td>' + formatCell(row.val_1) + '</td>' +
+                                '<td>' + formatCell(row.val_2_3) + '</td>' +
+                                '<td>' + formatCell(row.val_4_10) + '</td>' +
+                                '<td>' + formatCell(row.val_11_40) + '</td>' +
+                                '<td>' + formatCell(row.val_41_plus) + '</td>' +
+                                '<td class="col-total">' + formatCell(row.val_total) + '</td>' +
+                            '</tr>';
+                        });
+                    }
+
+                    // 2. Секція: Розбивка C2 / ABC
+                    html += '<tr class="section-header-row sec-c2abc"><td colspan="7"><i class="fa-solid fa-chart-pie" style="margin-right:8px;color:#f59e0b;"></i> 📊 Розбивка на C2 (Дрібні ≤ ' + fmtN(limitPrice) + ' ₴) та ABC (Основні)</td></tr>';
+                    if (sections.c2_abc) {
+                        sections.c2_abc.forEach(function(row) {
+                            var isPct = row.row_key.includes('pct');
+                            var isSales = row.row_key.includes('sales') || row.row_key.includes('avg_ticket');
+                            var isC2 = row.row_key.startsWith('c2');
+                            var formatCell = function(v) {
+                                if (v == null) return '—';
+                                if (isPct) return Number(v).toFixed(1) + '%';
+                                if (isSales) return fmtM(v);
+                                return fmtN(v);
+                            };
+
+                            html += '<tr>' +
+                                '<td style="font-weight:' + (isPct ? '600' : '700') + ';color:' + (isC2 ? '#b45309' : '#047857') + ';">' + row.row_label + '</td>' +
+                                '<td>' + formatCell(row.val_1) + '</td>' +
+                                '<td>' + formatCell(row.val_2_3) + '</td>' +
+                                '<td>' + formatCell(row.val_4_10) + '</td>' +
+                                '<td>' + formatCell(row.val_11_40) + '</td>' +
+                                '<td>' + formatCell(row.val_41_plus) + '</td>' +
+                                '<td class="col-total" style="color:' + (isC2 ? '#b45309' : '#047857') + ';">' + formatCell(row.val_total) + '</td>' +
+                            '</tr>';
+                        });
+                    }
+
+                    // 3. Секція: Динамічний слой
+                    html += '<tr class="section-header-row sec-dynamic"><td colspan="7"><i class="fa-solid fa-arrows-spin" style="margin-right:8px;color:#10b981;"></i> 📈 Динамічний слой (Нові, Постійні, YoY Динаміка)</td></tr>';
+                    if (sections.dynamic) {
+                        sections.dynamic.forEach(function(row) {
+                            var isPct = row.row_key.includes('pct') || row.row_key.includes('growth');
+                            var formatCell = function(v) {
+                                if (v == null) return '—';
+                                if (isPct) {
+                                    var sign = v > 0 ? '+' : '';
+                                    return '<span style="color:' + (v >= 0 ? '#059669' : '#dc2626') + ';font-weight:700;">' + sign + Number(v).toFixed(1) + '%</span>';
+                                }
+                                return fmtN(v);
+                            };
+
+                            html += '<tr>' +
+                                '<td>' + row.row_label + '</td>' +
+                                '<td>' + formatCell(row.val_1) + '</td>' +
+                                '<td>' + formatCell(row.val_2_3) + '</td>' +
+                                '<td>' + formatCell(row.val_4_10) + '</td>' +
+                                '<td>' + formatCell(row.val_11_40) + '</td>' +
+                                '<td>' + formatCell(row.val_41_plus) + '</td>' +
+                                '<td class="col-total">' + formatCell(row.val_total) + '</td>' +
+                            '</tr>';
+                        });
+                    }
+
+                    tbody.innerHTML = html;
+                }
+
+                function switchSegChartMetric(metric) {
+                    currentSegChartMetric = metric;
+                    var btnComp = document.getElementById('seg-btn-metric-comp');
+                    var btnSales = document.getElementById('seg-btn-metric-sales');
+                    if (metric === 'companies') {
+                        if (btnComp) btnComp.classList.add('active');
+                        if (btnSales) btnSales.classList.remove('active');
+                    } else {
+                        if (btnSales) btnSales.classList.add('active');
+                        if (btnComp) btnComp.classList.remove('active');
+                    }
+                    if (segMatrixData && segMatrixData.chart_data) {
+                        renderSegChart(segMatrixData.chart_data);
+                    }
+                }
+
+                function renderSegChart(chartData) {
+                    var canvas = document.getElementById('segmentationBarChart');
+                    if (!canvas) return;
+                    var ctx = canvas.getContext('2d');
+                    if (!ctx) return;
+
+                    if (segChartInstance) {
+                        segChartInstance.destroy();
+                        segChartInstance = null;
+                    }
+
+                    var categories = (chartData && chartData.categories) || ['РАЗОВІ (1)', 'ПОВТОРНІ (2-3)', 'КВАРТАЛЬНІ (4-10)', 'МІСЯЧНІ (11-40)', 'ПОСТІЙНІ (41+)'];
+                    var dsTotal = [], dsC2 = [], dsABC = [];
+                    var yTitle = '';
+
+                    if (currentSegChartMetric === 'companies') {
+                        dsTotal = (chartData && chartData.total_companies) || [0, 0, 0, 0, 0];
+                        dsC2 = (chartData && chartData.c2_companies) || [0, 0, 0, 0, 0];
+                        dsABC = (chartData && chartData.abc_companies) || [0, 0, 0, 0, 0];
+                        yTitle = 'Кількість клієнтів (фірм)';
+                    } else {
+                        dsTotal = (chartData && chartData.total_sales) || [0, 0, 0, 0, 0];
+                        dsC2 = (chartData && chartData.c2_sales) || [0, 0, 0, 0, 0];
+                        dsABC = (chartData && chartData.abc_sales) || [0, 0, 0, 0, 0];
+                        yTitle = 'Товарна виручка (₴)';
+                    }
+
+                    segChartInstance = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: categories,
+                            datasets: [
+                                {
+                                    label: 'Загальна кількість',
+                                    data: dsTotal,
+                                    backgroundColor: 'rgba(14, 165, 233, 0.85)',
+                                    borderColor: '#0ea5e9',
+                                    borderWidth: 1,
+                                    borderRadius: 6
+                                },
+                                {
+                                    label: 'C2 (≤ границі)',
+                                    data: dsC2,
+                                    backgroundColor: 'rgba(245, 158, 11, 0.85)',
+                                    borderColor: '#f59e0b',
+                                    borderWidth: 1,
+                                    borderRadius: 6
+                                },
+                                {
+                                    label: 'ABC (> границі)',
+                                    data: dsABC,
+                                    backgroundColor: 'rgba(16, 185, 129, 0.85)',
+                                    borderColor: '#10b981',
+                                    borderWidth: 1,
+                                    borderRadius: 6
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            interaction: {
+                                mode: 'index',
+                                intersect: false
+                            },
+                            plugins: {
+                                legend: {
+                                    position: 'top',
+                                    labels: {
+                                        font: { family: 'Inter', size: 12, weight: '700' },
+                                        padding: 16,
+                                        usePointStyle: true,
+                                        pointStyle: 'circle'
+                                    }
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            var val = context.raw || 0;
+                                            if (currentSegChartMetric === 'sales') {
+                                                return ' ' + context.dataset.label + ': ' + fmtM(val);
+                                            }
+                                            return ' ' + context.dataset.label + ': ' + fmtN(val) + ' клієнтів';
+                                        }
+                                    }
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    grid: { display: false },
+                                    ticks: { font: { family: 'Inter', size: 11, weight: '600' } }
+                                },
+                                y: {
+                                    grid: { color: 'rgba(226, 232, 240, 0.6)' },
+                                    title: {
+                                        display: true,
+                                        text: yTitle,
+                                        font: { family: 'Inter', size: 11, weight: '700' },
+                                        color: '#64748b'
+                                    },
+                                    ticks: {
+                                        font: { family: 'Inter', size: 11 },
+                                        callback: function(val) {
+                                            if (currentSegChartMetric === 'sales') return fmtS(val);
+                                            return fmtN(val);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+
                 // ====== СТАРТ ======
                 document.addEventListener('DOMContentLoaded', function () {
                     loadGlobalKPI();
-                    var p = getParams();
-                    loadUnitedPivotAndSummary(p.year, p.multiplier, p.limitPrice);
-                    loadFinal(p.year, p.multiplier, p.limitPrice);
+                    loadGeneralSegmentation(); // 1-я активная вкладка «Загальна сегментація»
                 });
             </script>
 

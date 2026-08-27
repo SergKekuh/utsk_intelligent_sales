@@ -719,3 +719,102 @@ def top_clients(token: str=Query(None), year: int=Query(None), month: int=Query(
     except Exception as e:
         logger.error(f'Ошибка top_clients: {e}')
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.get('/api/analytics/segmentation-kpi')
+def segmentation_kpi(token: str = Query(None), year: int = 2026, limit_price: float = 146000, db: Session = Depends(get_db)):
+    """KPI-карточки общей сегментации: всего клиентов, повторные+постоянные, C2, новые"""
+    verify_token(token)
+    try:
+        row = db.execute(
+            text('SELECT * FROM get_segmentation_kpi(:year, :limit_price)'),
+            {'year': year, 'limit_price': limit_price}
+        ).first()
+        if not row:
+            return {'status': 'ok', 'year': year, 'limit_price': limit_price, 'data': {}}
+        r = dict(row._mapping)
+        for key in r:
+            if r[key] is not None and isinstance(r[key], (int, float)):
+                r[key] = round(float(r[key]), 2)
+        return {'status': 'ok', 'year': year, 'limit_price': limit_price, 'data': r}
+    except Exception as e:
+        logger.error(f'Ошибка segmentation_kpi: {e}')
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get('/api/analytics/segmentation-special')
+def segmentation_special(token: str = Query(None), year: int = 2026, limit_price: float = 146000, db: Session = Depends(get_db)):
+    """Спец-сегменты: C2 (Дрібні), Нові клієнти, Убули (Ушедшие), Сплячі"""
+    verify_token(token)
+    try:
+        result = db.execute(
+            text('SELECT * FROM get_segmentation_special(:year, :limit_price)'),
+            {'year': year, 'limit_price': limit_price}
+        )
+        data = []
+        for row in result:
+            r = dict(row._mapping)
+            for key in ['sales_revenue', 'avg_ticket', 'share_clients_pct', 'share_revenue_pct']:
+                if key in r and r[key] is not None:
+                    r[key] = round(float(r[key]), 2)
+            data.append(r)
+        return {'status': 'ok', 'year': year, 'limit_price': limit_price, 'data': data, 'count': len(data)}
+    except Exception as e:
+        logger.error(f'Ошибка segmentation_special: {e}')
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get('/api/analytics/segmentation-matrix')
+def segmentation_matrix(token: str = Query(None), year: int = 2026, limit_price: float = 146000, db: Session = Depends(get_db)):
+    """Матрица частоты сегментации (Загальна кількість, Розбивка C2/ABC, Динамічний слой)"""
+    verify_token(token)
+    try:
+        result = db.execute(
+            text('SELECT * FROM get_segmentation_matrix(:year, :limit_price)'),
+            {'year': year, 'limit_price': limit_price}
+        )
+        rows = []
+        sections = {'total': [], 'c2_abc': [], 'dynamic': []}
+        chart_data = {
+            'categories': ['РАЗОВІ (1)', 'ПОВТОРНІ (2-3)', 'КВАРТАЛЬНІ (4-10)', 'МІСЯЧНІ (11-40)', 'ПОСТІЙНІ (41+)'],
+            'total_companies': [],
+            'c2_companies': [],
+            'abc_companies': [],
+            'total_sales': [],
+            'c2_sales': [],
+            'abc_sales': []
+        }
+        for row in result:
+            r = dict(row._mapping)
+            for key in ['val_1', 'val_2_3', 'val_4_10', 'val_11_40', 'val_41_plus', 'val_total']:
+                if key in r and r[key] is not None:
+                    r[key] = round(float(r[key]), 2)
+            rows.append(r)
+            sec = r.get('section')
+            if sec in sections:
+                sections[sec].append(r)
+
+            # Chart datasets extraction
+            rk = r.get('row_key')
+            if rk == 'companies':
+                chart_data['total_companies'] = [r['val_1'], r['val_2_3'], r['val_4_10'], r['val_11_40'], r['val_41_plus']]
+            elif rk == 'c2_companies':
+                chart_data['c2_companies'] = [r['val_1'], r['val_2_3'], r['val_4_10'], r['val_11_40'], r['val_41_plus']]
+            elif rk == 'abc_companies':
+                chart_data['abc_companies'] = [r['val_1'], r['val_2_3'], r['val_4_10'], r['val_11_40'], r['val_41_plus']]
+            elif rk == 'sales':
+                chart_data['total_sales'] = [r['val_1'], r['val_2_3'], r['val_4_10'], r['val_11_40'], r['val_41_plus']]
+            elif rk == 'c2_sales':
+                chart_data['c2_sales'] = [r['val_1'], r['val_2_3'], r['val_4_10'], r['val_11_40'], r['val_41_plus']]
+            elif rk == 'abc_sales':
+                chart_data['abc_sales'] = [r['val_1'], r['val_2_3'], r['val_4_10'], r['val_11_40'], r['val_41_plus']]
+
+        return {
+            'status': 'ok',
+            'year': year,
+            'limit_price': limit_price,
+            'rows': rows,
+            'sections': sections,
+            'chart_data': chart_data,
+            'count': len(rows)
+        }
+    except Exception as e:
+        logger.error(f'Ошибка segmentation_matrix: {e}')
+        raise HTTPException(status_code=500, detail=str(e))
