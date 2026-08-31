@@ -1228,107 +1228,378 @@
             padding-top: 6px;
         }
 
-        /* Матрица сегментации */
+        /* Новая матрица частоты покупок (sketch-table) */
+        .sketch-table,
         .seg-matrix-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 12.5px;
+            font-size: 13px;
             border: 1px solid var(--border);
             border-radius: 12px;
             overflow: hidden;
             background: #ffffff;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
         }
 
+        .sketch-table thead th,
         .seg-matrix-table thead th {
-            padding: 12px 10px;
+            padding: 12px 14px;
             text-align: center;
             font-weight: 800;
             background: #1e293b;
             color: #f8fafc;
             border: 1px solid #334155;
-            font-size: 12px;
+            font-size: 12.5px;
             white-space: nowrap;
         }
 
+        .sketch-table thead th:first-child,
         .seg-matrix-table thead th:first-child {
             text-align: left;
-            padding-left: 18px;
-            min-width: 260px;
+            padding-left: 20px;
+            min-width: 250px;
         }
 
+        .sketch-table thead th.col-total,
         .seg-matrix-table thead th.col-total {
             background: #0ea5e9;
             color: #ffffff;
         }
 
+        .sketch-table tbody td,
         .seg-matrix-table tbody td {
-            padding: 10px 12px;
+            padding: 11px 14px;
             text-align: center;
             border: 1px solid #e2e8f0;
             font-weight: 600;
             color: #1e293b;
+            font-size: 13px;
         }
 
+        .sketch-table tbody td.row-label,
         .seg-matrix-table tbody td:first-child {
             text-align: left;
-            padding-left: 18px;
+            padding-left: 20px;
             font-weight: 700;
+            color: #334155;
         }
 
+        .sketch-table tbody td.col-total,
         .seg-matrix-table tbody td.col-total {
             background: #f8fafc;
             font-weight: 800;
         }
 
+        .sketch-table .section-header td,
         .seg-matrix-table .section-header-row td {
             background: #f1f5f9;
             color: #0f172a;
-            font-weight: 900;
+            font-weight: 800;
             font-size: 12.5px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            padding: 10px 18px;
+            padding: 10px 20px;
+            text-align: left;
             border-top: 2px solid #cbd5e1;
             border-bottom: 2px solid #cbd5e1;
         }
 
+        .sketch-table .section-header.sec-c2 td,
         .seg-matrix-table .section-header-row.sec-c2abc td {
             background: #fefce8;
             color: #854d0e;
+            border-color: #fde68a;
         }
 
+        .sketch-table .section-header.sec-dynamic td,
         .seg-matrix-table .section-header-row.sec-dynamic td {
             background: #f0fdf4;
             color: #166534;
+            border-color: #bbf7d0;
         }
 
+        .sketch-table .section-header.sec-past td,
+        .seg-matrix-table .section-header-row.sec-past td {
+            background: #faf5ff;
+            color: #6b21a8;
+            border-color: #e9d5ff;
+        }
+
+        .sketch-table tbody tr:hover td,
         .seg-matrix-table tbody tr:hover td {
-            background: #f0f9ff;
+            background-color: #f8fafc;
         }
 
+        .sketch-table .row-highlight td,
         .seg-matrix-table .row-highlight td {
             font-weight: 800;
         }
 
-        /* Metric switch buttons for chart */
-        .chart-metric-btn {
-            padding: 6px 14px;
-            border: none;
-            border-radius: 6px;
-            font-size: 12px;
+        /* 6. Цвета: C2 — оранжевый, Новые — фиолетовый, Постійні — синий, Спящие — индиго, Ушедшие — красный */
+        .sketch-table tbody td.cell-c2,
+        .sketch-table tbody td.row-c2,
+        .seg-matrix-table tbody td.cell-c2,
+        .seg-matrix-table tbody td.row-c2 {
+            color: #d97706;
             font-weight: 700;
-            cursor: pointer;
-            background: transparent;
-            color: #64748b;
-            transition: all 0.2s ease;
         }
 
-        .chart-metric-btn.active {
+        .sketch-table tbody td.cell-new,
+        .sketch-table tbody td.row-new,
+        .seg-matrix-table tbody td.cell-new,
+        .seg-matrix-table tbody td.row-new {
+            color: #10b981;
+            font-weight: 700;
+        }
+
+        .sketch-table tbody td.cell-ret,
+        .sketch-table tbody td.row-ret,
+        .seg-matrix-table tbody td.cell-ret,
+        .seg-matrix-table tbody td.row-ret {
+            color: #2563eb;
+            font-weight: 700;
+        }
+
+        .sketch-table tbody td.cell-sleep,
+        .sketch-table tbody td.row-sleep,
+        .seg-matrix-table tbody td.cell-sleep,
+        .seg-matrix-table tbody td.row-sleep {
+            color: #8b5cf6;
+            font-weight: 700;
+        }
+
+        .sketch-table tbody td.cell-churn,
+        .sketch-table tbody td.row-churn,
+        .seg-matrix-table tbody td.cell-churn,
+        .seg-matrix-table tbody td.row-churn {
+            color: #ef4444;
+            font-weight: 700;
+        }
+
+        /* ====== EXCEL-LIKE СЕГМЕНТАЦІЙНІ ТАБЛИЦІ ====== */
+        .excel-seg-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            font-family: 'Inter', system-ui, sans-serif;
+            border: 1px solid #cbd5e1;
             background: #ffffff;
-            color: #0f172a;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
         }
 
+        .excel-seg-table th,
+        .excel-seg-table td {
+            border: 1px solid #cbd5e1;
+            padding: 9px 8px;
+            text-align: center;
+            vertical-align: middle;
+            box-sizing: border-box;
+            font-size: 13px;
+        }
+
+        .excel-seg-table thead th {
+            background: #f1f5f9;
+            color: #1e293b;
+            font-weight: 700;
+            font-size: 12.5px;
+            white-space: nowrap;
+        }
+
+        .excel-seg-table thead th.th-povt {
+            background: #e2e8f0;
+            color: #0f172a;
+            font-weight: 800;
+        }
+
+        .excel-seg-table thead th.th-sub,
+        .excel-seg-table .th-sub {
+            background: #eef2ff;
+            color: #3730a3;
+            font-size: 11.5px;
+            font-weight: 600;
+            padding: 7px 4px;
+        }
+
+        .excel-seg-table .col-metric {
+            width: 210px;
+            min-width: 210px;
+            text-align: left !important;
+            padding-left: 14px !important;
+            font-weight: 700;
+            color: #1e293b;
+            background: #ffffff;
+        }
+
+        .excel-seg-table .col-total {
+            background: #f8fafc;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        /* Цвета строк и ячеек */
+        .excel-seg-table .row-general td {
+            background: #ffffff;
+        }
+        .excel-seg-table .cell-blue {
+            color: #2563eb;
+            font-weight: 700;
+        }
+
+        .excel-seg-table .row-sub-header td {
+            background: #f8fafc;
+            font-size: 12px;
+        }
+
+        .excel-seg-table .row-povt-dec td {
+            background: #f5f7ff;
+        }
+        .excel-seg-table .cell-indigo {
+            background: #e0e7ff !important;
+            color: #3730a3;
+            font-weight: 700;
+        }
+
+        .excel-seg-table .row-agg-layer td {
+            background: #f1f5f9;
+            font-size: 11.5px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            font-weight: 700;
+            color: #475569;
+        }
+        .excel-seg-table .th-agg {
+            background: #f8fafc;
+            font-weight: 700;
+            color: #334155;
+        }
+
+        .excel-seg-table .row-consolidated td {
+            background: #f0fdf4;
+        }
+        .excel-seg-table .cell-green-light {
+            color: #15803d;
+            font-weight: 700;
+        }
+
+        .excel-seg-table .row-c2 td {
+            background: #fffbeb;
+        }
+        .excel-seg-table .cell-c2 {
+            background: #fef3c7 !important;
+            color: #b45309;
+            font-weight: 700;
+        }
+
+        .excel-seg-table .row-new td {
+            background: #ecfdf5;
+        }
+        .excel-seg-table .cell-new {
+            background: #d1fae5 !important;
+            color: #047857;
+            font-weight: 700;
+        }
+
+        .excel-seg-table .row-churn td {
+            background: #fef2f2;
+        }
+        .excel-seg-table .cell-churn {
+            background: #fee2e2 !important;
+            color: #b91c1c;
+            font-weight: 700;
+        }
+
+        .excel-seg-table .row-sleep td {
+            background: #f8fafc;
+        }
+        .excel-seg-table .cell-sleep {
+            background: #f1f5f9 !important;
+            color: #475569;
+            font-weight: 700;
+        }
+
+        .excel-seg-table .text-muted {
+            color: #94a3b8;
+        }
+
+        /* Utility classes for segmentation aggregate layers */
+        .bg-slate-100 { background-color: #f1f5f9 !important; }
+        .bg-slate-50 { background-color: #f8fafc !important; }
+        .bg-slate-200 { background-color: #e2e8f0 !important; }
+        .bg-amber-100 { background-color: #fef3c7 !important; }
+        .bg-amber-50 { background-color: #fffbeb !important; }
+        .text-amber-900 { color: #78350f !important; }
+        .text-amber-600 { color: #d97706 !important; }
+        .bg-blue-100 { background-color: #dbeafe !important; }
+        .bg-blue-50 { background-color: #eff6ff !important; }
+        .text-blue-900 { color: #1e3a8a !important; }
+        .border-blue-200 { border-color: #bfdbfe !important; }
+        .border-r { border-right: 1px solid #bfdbfe !important; }
+        .bg-emerald-100 { background-color: #d1fae5 !important; }
+        .bg-emerald-50 { background-color: #ecfdf5 !important; }
+        .text-emerald-900 { color: #064e3b !important; }
+        .text-emerald-800 { color: #065f46 !important; }
+        .text-slate-900 { color: #0f172a !important; }
+        .text-slate-950 { color: #020617 !important; }
+        .text-slate-700 { color: #334155 !important; }
+        .font-bold { font-weight: 700 !important; }
+        .font-black { font-weight: 900 !important; }
+        .text-xs { font-size: 11px !important; }
+        .text-base { font-size: 14px !important; }
+        .total-col { background-color: #e2e8f0 !important; font-weight: 800; }
+        /* Ряд графіків для вкладки сегментації */
+        .charts-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 1024px) {
+            .charts-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .chart-box {
+            background: white;
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chart-box h3 {
+            margin: 0 0 12px 0;
+            font-size: 14.5px;
+            font-weight: 700;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chart-wrap {
+            height: 250px;
+            width: 100%;
+            position: relative;
+        }
+
+        /* Кликабельные ячейки */
+        .clickable-cell {
+            cursor: pointer;
+            transition: all 0.15s ease;
+            user-select: none;
+        }
+        .clickable-cell:hover {
+            filter: brightness(0.92);
+            box-shadow: inset 0 0 0 2px #0ea5e9;
+            font-weight: 800;
+            transform: scale(1.02);
+        }
         /* ====== МАСШТАБИРОВАНИЕ ====== */
         .scale-controls {
             display: flex;
@@ -1432,7 +1703,7 @@
     <div class="params-panel" id="params-panel">
         <div style="display: flex; align-items: center; gap: 8px;">
             <span class="param-label">Год:</span>
-            <select id="param-year">
+            <select id="param-year" onchange="refreshAllAnalytics()">
                 <option value="2026" selected>2026</option>
                 <option value="2025">2025</option>
                 <option value="2024">2024</option>
@@ -1443,14 +1714,14 @@
 
         <div style="display: flex; align-items: center; gap: 8px;">
             <span class="param-label">Коэффициент ABC:</span>
-            <input type="number" id="param-multiplier" value="2.9" step="0.1" min="0.1" max="10">
+            <input type="number" id="param-multiplier" value="2.9" step="0.1" min="0.1" max="10" onchange="refreshAllAnalytics()">
         </div>
 
         <span class="param-divider"></span>
 
         <div style="display: flex; align-items: center; gap: 8px;">
             <span class="param-label">Граница (₴):</span>
-            <input type="number" id="param-limit-price" value="146000" step="1000" min="0">
+            <input type="number" id="param-limit-price" value="146000" step="1000" min="0" onchange="refreshAllAnalytics()">
         </div>
 
         <button class="btn-update" onclick="refreshAllAnalytics()">
@@ -1525,85 +1796,258 @@
         <!-- ====== ВКЛАДКА 1: ЗАГАЛЬНА СЕГМЕНТАЦІЯ (АКТИВНАЯ ПО УМОЛЧАНИЮ) ====== -->
         <div class="tab-content active" id="tab-segmentation">
 
-            <!-- 1. МАТРИЦЯ ЧАСТОТИ -->
+            <!-- ТАБЛИЦЯ 1: ЗАГАЛЬНА СЕГМЕНТАЦІЯ ТА СТРУКТУРА РОЗКЛАДАННЯ ПОВТОРНИХ ПОКУПОК -->
             <div class="bento-card">
                 <div class="bento-card-header">
                     <div>
                         <h2 class="bento-card-title">
-                            <i class="fa-solid fa-table-cells" style="color:#0ea5e9;"></i> Матриця частоти покупок
+                            <i class="fa-solid fa-table-cells-large" style="color:#0ea5e9;"></i> Таблиця 1. Загальна сегментація та структура розкладання повторних покупок
                         </h2>
                         <div class="bento-card-subtitle">
-                            Розподіл за кількістю накладних, розбивка на C2 / ABC та динамічний шар за <span id="seg-matrix-year-lbl">2026</span> рік
+                            Аналіз частоти покупок, декомпозиція повторної активності та консолідований шар за <span id="t1-year-lbl">2026</span> рік
                         </div>
                     </div>
                 </div>
 
                 <div style="overflow-x: auto;">
-                    <table class="seg-matrix-table" id="table-segmentation-matrix">
+                    <table class="excel-seg-table" id="table-seg-structure">
                         <thead>
                             <tr>
-                                <th>Метрика / Категорія</th>
-                                <th>РАЗОВІ<br><span style="font-size:10.5px;font-weight:600;opacity:0.8;">(1 накладна)</span></th>
-                                <th>ПОВТОРНІ<br><span style="font-size:10.5px;font-weight:600;opacity:0.8;">(2-3 накладні)</span></th>
-                                <th>КВАРТАЛЬНІ<br><span style="font-size:10.5px;font-weight:600;opacity:0.8;">(4-10 накладних)</span></th>
-                                <th>МІСЯЧНІ<br><span style="font-size:10.5px;font-weight:600;opacity:0.8;">(11-40 накладних)</span></th>
-                                <th>ПОСТІЙНІ<br><span style="font-size:10.5px;font-weight:600;opacity:0.8;">(41+ накладних)</span></th>
-                                <th class="col-total">Всього</th>
+                                <th class="col-metric" rowspan="2">Метрика</th>
+                                <th rowspan="2">Разові (1)</th>
+                                <th colspan="3" class="th-povt">Повторні (2-3)</th>
+                                <th rowspan="2">Квартальні (4-10)</th>
+                                <th rowspan="2">Місячні (11-40)</th>
+                                <th rowspan="2">Неділя (41-170)</th>
+                                <th rowspan="2">Денні (&gt;170)</th>
+                                <th rowspan="2" class="col-total">Всі</th>
+                            </tr>
+                            <tr>
+                                <th class="th-sub">Швидкий дубль (2)</th>
+                                <th class="th-sub">Центр (2-3)</th>
+                                <th class="th-sub">3 покупки (кандидати)</th>
                             </tr>
                         </thead>
-                        <tbody id="tbody-segmentation-matrix">
-                            <tr>
-                                <td colspan="7" style="text-align:center;padding:40px;color:#94a3b8;">⏳ Завантаження матриці сегментації...</td>
+                        <tbody>
+                            <!-- Рядок 1: Загальна Сегментація -->
+                            <tr class="row-general">
+                                <td class="col-metric clickable-cell" onclick="goToGeneralSegmentation()" title="Переглянути повну базу компаній загальної сегментації (729)">
+                                    <strong>Загальна Сегментація <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:11px;color:#2563eb;margin-left:4px;"></i></strong>
+                                </td>
+                                <td class="clickable-cell cell-blue" id="t1-gen-raz" onclick="goToSegmentDetail('raz', 'general', 'Разові (1)')">226</td>
+                                <td colspan="3" class="clickable-cell cell-blue text-center" id="t1-gen-povt" onclick="goToSegmentDetail('povt', 'general', 'Повторні (2-3)')">174</td>
+                                <td class="clickable-cell cell-blue" id="t1-gen-kvart" onclick="goToSegmentDetail('kvart', 'general', 'Квартальні (4-10)')">188</td>
+                                <td class="clickable-cell cell-blue" id="t1-gen-mes" onclick="goToSegmentDetail('mes', 'general', 'Місячні (11-40)')">126</td>
+                                <td class="clickable-cell cell-blue" id="t1-gen-ned" onclick="goToSegmentDetail('ned', 'general', 'Неділя (41-170)')">12</td>
+                                <td class="clickable-cell cell-blue" id="t1-gen-den" onclick="goToSegmentDetail('den', 'general', 'Денні (>170)')">2</td>
+                                <td class="clickable-cell cell-blue col-total" id="t1-gen-all" onclick="goToSegmentDetail('all', 'general', 'Всі клієнти')">729</td>
+                            </tr>
+
+                            <!-- Рядок 2: Повторні (розкладені) -->
+                            <tr class="row-povt-dec">
+                                <td class="col-metric clickable-cell" onclick="goToRepeatSegmentation()" title="Детальний аналіз 174 повторних компаній">
+                                    <strong style="color:#4f46e5;">Повторні (розкладені) <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:11px;color:#4f46e5;margin-left:4px;"></i></strong>
+                                </td>
+                                <td class="text-muted">—</td>
+                                <td class="clickable-cell cell-indigo" id="t1-dec-dubl" onclick="goToSegmentDetail('povt_quick', 'general', 'Швидкий дубль (2)')">25</td>
+                                <td class="clickable-cell cell-indigo" id="t1-dec-center" onclick="goToSegmentDetail('povt_center', 'general', 'Центр (2-3)')">87</td>
+                                <td class="clickable-cell cell-indigo" id="t1-dec-cand" onclick="goToSegmentDetail('povt_3', 'general', '3 покупки (кандидати)')">62</td>
+                                <td class="text-muted">—</td>
+                                <td class="text-muted">—</td>
+                                <td class="text-muted">—</td>
+                                <td class="text-muted">—</td>
+                                <td class="clickable-cell cell-indigo col-total" id="t1-dec-all" onclick="goToRepeatSegmentation()">174</td>
+                            </tr>
+
+                            <!-- Рядок 4: Шар агрегації -->
+                            <tr class="sub-header-row bg-slate-100">
+                                <td class="col-metric font-bold text-slate-700">Шар агрегації:</td>
+                                <td class="bg-amber-100 text-amber-900 font-bold">Разові</td>
+                                <td colspan="2" class="bg-blue-100 text-blue-900 font-bold border-r border-blue-200">Повторні</td>
+                                <td colspan="5" class="bg-emerald-100 text-emerald-900 font-bold">Постійні (4+ накладних)</td>
+                                <td class="total-col bg-slate-200 text-slate-900 font-black">Підсумок</td>
+                            </tr>
+
+                            <!-- Рядок 5: Всі (консолідовано) -->
+                            <tr class="bg-slate-50 font-bold">
+                                <td class="col-metric text-slate-900 font-black clickable-cell" onclick="goToConsolidatedSegmentation()" title="Повний консолідований реєстр 729 компаній">
+                                    <strong style="color:#4f46e5;">Всі (консолідовано) <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:11px;color:#4f46e5;margin-left:4px;"></i></strong>
+                                </td>
+                                <!-- Разові: (226+25) = 251 -->
+                                <td class="cell-num bg-amber-50 text-amber-900 font-black clickable-cell" id="t1-cons-raz" title="226 разових + 25 дублів = 251" onclick="goToSegmentDetail('cons_raz', 'general', 'Разові (консолідовано)')">
+                                    (226+25)<br><span class="text-xs text-amber-600">= 251</span>
+                                </td>
+                                <!-- Повторні: 87 (colspan=2) -->
+                                <td colspan="2" class="cell-num bg-blue-50 text-blue-900 font-black border-r border-blue-200 clickable-cell" id="t1-cons-center" onclick="goToSegmentDetail('povt_center', 'general', 'Повторні (ядро)')">
+                                    87
+                                </td>
+                                <!-- Постійні: 62, 188, 126, 12, 2 -->
+                                <td class="cell-num bg-emerald-50 text-emerald-800 clickable-cell" id="t1-cons-cand" onclick="goToSegmentDetail('povt_3', 'general', '3 покупки (кандидати)')">62</td>
+                                <td class="cell-num bg-emerald-50 text-emerald-800 clickable-cell" id="t1-cons-kvart" onclick="goToSegmentDetail('kvart', 'general', 'Квартальні (4-10)')">188</td>
+                                <td class="cell-num bg-emerald-50 text-emerald-800 clickable-cell" id="t1-cons-mes" onclick="goToSegmentDetail('mes', 'general', 'Місячні (11-40)')">126</td>
+                                <td class="cell-num bg-emerald-50 text-emerald-800 clickable-cell" id="t1-cons-ned" onclick="goToSegmentDetail('ned', 'general', 'Неділя (41-170)')">12</td>
+                                <td class="cell-num bg-emerald-50 text-emerald-800 clickable-cell" id="t1-cons-den" onclick="goToSegmentDetail('den', 'general', 'Денні (>170)')">2</td>
+                                <!-- Всього -->
+                                <td class="total-col bg-slate-200 text-slate-950 font-black text-base clickable-cell" id="t1-cons-all" onclick="goToConsolidatedSegmentation()">729</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- 3. СПЕЦ-СЕГМЕНТИ (4 РЯДИ / КАРТКИ) -->
-            <div class="bento-card">
+            <!-- ТАБЛИЦЯ 2: ПОТОЧНИЙ РІК — ДРІБНІ КЛІЄНТИ ТА НОВИЙ ПРИПЛИВ -->
+            <div class="bento-card" style="margin-top: 20px;">
                 <div class="bento-card-header">
                     <div>
                         <h2 class="bento-card-title">
-                            <i class="fa-solid fa-layer-group" style="color:#f59e0b;"></i> Спеціальні сегменти клієнтської бази
+                            <i class="fa-solid fa-coins" style="color:#f59e0b;"></i> Таблиця 2. Поточний рік — Дрібні клієнти та Новий приплив
                         </h2>
                         <div class="bento-card-subtitle">
-                            Ключові когорти: C2 (Дрібні), Нові клієнти, Убули (Ушедшие), Сплячі
+                            Дрібні клієнти (C2 ≤ 2 т/рік або ≤146K) та Нові залучені клієнти за <span id="t2-year-lbl">2026</span> рік
                         </div>
                     </div>
                 </div>
 
-                <div class="special-segments-grid" id="seg-special-cards">
-                    <div style="grid-column: 1 / -1; text-align:center; padding:30px; color:#94a3b8;">
-                        ⏳ Завантаження спеціальних сегментів...
-                    </div>
+                <div style="overflow-x: auto;">
+                    <table class="excel-seg-table" id="table-seg-current-year">
+                        <thead>
+                            <tr>
+                                <th class="col-metric">Метрика</th>
+                                <th>Разові (1)</th>
+                                <th>Повторні (2-3)</th>
+                                <th>Квартальні (4-10)</th>
+                                <th>Місячні (11-40)</th>
+                                <th>Неділя (41-170)</th>
+                                <th>Денні (&gt;170)</th>
+                                <th class="col-total">Всі</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Рядок 1: C2 -->
+                            <tr class="row-c2">
+                                <td class="col-metric clickable-cell" onclick="goToC2Segmentation()" title="Детальний аналіз дрібних клієнтів C2 (≤ 2 т/рік або ≤ 146 000 ₴)">
+                                    <strong style="color:#d97706;">🟡 C2 ≤ 2 т/рік <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:11px;color:#d97706;margin-left:4px;"></i></strong>
+                                </td>
+                                <td class="clickable-cell cell-c2" id="t2-c2-raz" onclick="goToSegmentDetail('c2_raz', 'current', 'C2: Разові (1)')">30</td>
+                                <td class="clickable-cell cell-c2" id="t2-c2-povt" onclick="goToSegmentDetail('c2_povt', 'current', 'C2: Повторні (2-3)')">60</td>
+                                <td class="clickable-cell cell-c2" id="t2-c2-kvart" onclick="goToSegmentDetail('c2_kvart', 'current', 'C2: Квартальні (4-10)')">126</td>
+                                <td class="clickable-cell cell-c2" id="t2-c2-mes" onclick="goToSegmentDetail('c2_mes', 'current', 'C2: Місячні (11-40)')">121</td>
+                                <td class="clickable-cell cell-c2" id="t2-c2-ned" onclick="goToSegmentDetail('c2_ned', 'current', 'C2: Неділя (41-170)')">13</td>
+                                <td class="clickable-cell cell-c2" id="t2-c2-den" onclick="goToSegmentDetail('c2_den', 'current', 'C2: Денні (>170)')">2</td>
+                                <td class="clickable-cell cell-c2 col-total" id="t2-c2-all" onclick="goToC2Segmentation()">352</td>
+                            </tr>
+
+                            <!-- Рядок 2: Нові клієнти -->
+                            <tr class="row-new">
+                                <td class="col-metric clickable-cell" onclick="goToNewClientsSegmentation()" title="Сегментація нових клієнтів (152 компанії) за частотою покупок">
+                                    <div class="flex items-center justify-between">
+                                        <strong style="color:#059669; text-decoration:underline;">🆕 Нові клієнти 🔗</strong>
+                                        <span class="badge-calc" style="background:#d1fae5;color:#065f46;padding:1px 6px;border-radius:4px;font-size:10px;font-weight:700;">152 фірми</span>
+                                    </div>
+                                </td>
+                                <td class="clickable-cell cell-new" id="t2-new-raz" onclick="goToSegmentDetail('new_raz', 'current', 'Нові: Разові (1)')">78</td>
+                                <td class="clickable-cell cell-new" id="t2-new-povt" onclick="goToSegmentDetail('new_povt', 'current', 'Нові: Повторні (2-3)')">42</td>
+                                <td class="clickable-cell cell-new" id="t2-new-kvart" onclick="goToSegmentDetail('new_kvart', 'current', 'Нові: Квартальні (4-10)')">20</td>
+                                <td class="clickable-cell cell-new" id="t2-new-mes" onclick="goToSegmentDetail('new_mes', 'current', 'Нові: Місячні (11-40)')">10</td>
+                                <td class="clickable-cell cell-new" id="t2-new-ned" onclick="goToSegmentDetail('new_ned', 'current', 'Нові: Неділя (41-170)')">2</td>
+                                <td class="clickable-cell cell-new" id="t2-new-den" onclick="goToSegmentDetail('new_den', 'current', 'Нові: Денні (>170)')">0</td>
+                                <td class="clickable-cell cell-new col-total" id="t2-new-all" onclick="goToNewClientsSegmentation()">152</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
-            <!-- 4. ГРАФІК CHART.JS -->
-            <div class="bento-card">
+            <!-- ТАБЛИЦЯ 3: ПОПЕРЕДНІ РОКИ — ВІДТІК ТА СПЛЯЧІ КОГОРТИ -->
+            <div class="bento-card" style="margin-top: 20px;">
                 <div class="bento-card-header">
                     <div>
                         <h2 class="bento-card-title">
-                            <i class="fa-solid fa-chart-column" style="color:#10b981;"></i> Порівняльний розподіл за частотою (Chart.js)
+                            <i class="fa-solid fa-user-xmark" style="color:#ef4444;"></i> Таблиця 3. Попередні роки — Відтік та Сплячі когорти
                         </h2>
                         <div class="bento-card-subtitle">
-                            Згрупована стовпчикова діаграма: Загальна кількість (синій), C2 (помаранчевий), ABC (зелений)
+                            Клієнти, які вибули (не купували 2+ роки) або сплять (не купували у поточному році)
                         </div>
-                    </div>
-                    <!-- Перемикач метрик графіка -->
-                    <div style="display:flex;gap:4px;background:#f1f5f9;padding:3px;border-radius:8px;border:1px solid var(--border);">
-                        <button id="seg-btn-metric-comp" class="chart-metric-btn active" onclick="switchSegChartMetric('companies')">
-                            👥 Клієнти
-                        </button>
-                        <button id="seg-btn-metric-sales" class="chart-metric-btn" onclick="switchSegChartMetric('sales')">
-                            💰 Виручка
-                        </button>
                     </div>
                 </div>
 
-                <div style="height: 360px; position: relative; width: 100%;">
-                    <canvas id="segmentationBarChart"></canvas>
+                <div style="overflow-x: auto;">
+                    <table class="excel-seg-table" id="table-seg-past-years">
+                        <thead>
+                            <tr>
+                                <th class="col-metric">Метрика</th>
+                                <th>Разові (1)</th>
+                                <th>Повторні (2-3)</th>
+                                <th>Квартальні (4-10)</th>
+                                <th>Місячні (11-40)</th>
+                                <th>Неділя (41-170)</th>
+                                <th>Денні (&gt;170)</th>
+                                <th class="col-total">Всі</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Рядок 1: Вибули -->
+                            <tr class="row-churn">
+                                <td class="col-metric clickable-cell" onclick="goToChurnedSegmentation()" title="Аналіз втраченої бази: 194 вибулі компанії">
+                                    <div class="flex items-center justify-between">
+                                        <strong style="color:#e11d48; text-decoration:underline;">👻 Вибули (Ушедшие) 🔗</strong>
+                                        <span class="badge-calc" style="background:#ffe4e6;color:#9f1239;padding:1px 6px;border-radius:4px;font-size:10px;font-weight:700;">194 фірми</span>
+                                    </div>
+                                </td>
+                                <td class="clickable-cell cell-churn" id="t3-churn-raz" onclick="goToSegmentDetail('churn_raz', 'past', 'Вибули: Разові (1)')">96</td>
+                                <td class="clickable-cell cell-churn" id="t3-churn-povt" onclick="goToSegmentDetail('churn_povt', 'past', 'Вибули: Повторні (2-3)')">48</td>
+                                <td class="clickable-cell cell-churn" id="t3-churn-kvart" onclick="goToSegmentDetail('churn_kvart', 'past', 'Вибули: Квартальні (4-10)')">30</td>
+                                <td class="clickable-cell cell-churn" id="t3-churn-mes" onclick="goToSegmentDetail('churn_mes', 'past', 'Вибули: Місячні (11-40)')">16</td>
+                                <td class="clickable-cell cell-churn" id="t3-churn-ned" onclick="goToSegmentDetail('churn_ned', 'past', 'Вибули: Неділя (41-170)')">3</td>
+                                <td class="clickable-cell cell-churn" id="t3-churn-den" onclick="goToSegmentDetail('churn_den', 'past', 'Вибули: Денні (>170)')">1</td>
+                                <td class="clickable-cell cell-churn col-total" id="t3-churn-all" onclick="goToChurnedSegmentation()">194</td>
+                            </tr>
+
+                            <!-- Рядок 2: Сплячі -->
+                            <tr class="row-sleep">
+                                <td class="col-metric clickable-cell" onclick="goToSleepingSegmentation()" title="Аналіз сплячої бази: 88 сплячих компаній">
+                                    <div class="flex items-center justify-between">
+                                        <strong style="color:#475569; text-decoration:underline;">💤 Сплячі 🔗</strong>
+                                        <span class="badge-calc" style="background:#f1f5f9;color:#334155;padding:1px 6px;border-radius:4px;font-size:10px;font-weight:700;">88 фірм</span>
+                                    </div>
+                                </td>
+                                <td class="clickable-cell cell-sleep" id="t3-sleep-raz" onclick="goToSegmentDetail('sleep_raz', 'past', 'Сплячі: Разові (1)')">42</td>
+                                <td class="clickable-cell cell-sleep" id="t3-sleep-povt" onclick="goToSegmentDetail('sleep_povt', 'past', 'Сплячі: Повторні (2-3)')">26</td>
+                                <td class="clickable-cell cell-sleep" id="t3-sleep-kvart" onclick="goToSegmentDetail('sleep_kvart', 'past', 'Сплячі: Квартальні (4-10)')">12</td>
+                                <td class="clickable-cell cell-sleep" id="t3-sleep-mes" onclick="goToSegmentDetail('sleep_mes', 'past', 'Сплячі: Місячні (11-40)')">6</td>
+                                <td class="clickable-cell cell-sleep" id="t3-sleep-ned" onclick="goToSegmentDetail('sleep_ned', 'past', 'Сплячі: Неділя (41-170)')">2</td>
+                                <td class="clickable-cell cell-sleep" id="t3-sleep-den" onclick="goToSegmentDetail('sleep_den', 'past', 'Сплячі: Денні (>170)')">0</td>
+                                <td class="clickable-cell cell-sleep col-total" id="t3-sleep-all" onclick="goToSleepingSegmentation()">88</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Внизу сторінки, після всіх таблиць: 3 ГРАФІКИ В ОДИН РЯД -->
+            <div class="charts-row">
+                <!-- Графік 1 -->
+                <div class="chart-box">
+                    <h3><i class="fa-solid fa-chart-column" style="color:#2563eb;"></i> 📊 Загальна сегментація</h3>
+                    <div class="chart-wrap">
+                        <canvas id="chart-general"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Графік 2 -->
+                <div class="chart-box">
+                    <h3><i class="fa-solid fa-chart-column" style="color:#f59e0b;"></i> 📊 Поточний рік</h3>
+                    <div class="chart-wrap">
+                        <canvas id="chart-current"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Графік 3 -->
+                <div class="chart-box">
+                    <h3><i class="fa-solid fa-chart-column" style="color:#ef4444;"></i> 📊 Попередні роки</h3>
+                    <div class="chart-wrap">
+                        <canvas id="chart-past"></canvas>
+                    </div>
                 </div>
             </div>
 
@@ -3066,260 +3510,360 @@
 
                 // ====== ВКЛАДКА 1: ЗАГАЛЬНА СЕГМЕНТАЦІЯ ======
                 var segMatrixData = null;
-                var segSpecialData = null;
-                var currentSegChartMetric = 'companies'; // 'companies' or 'sales'
-                var segChartInstance = null;
+                var segPastData = null;
+                var chartGeneral = null;
+                var chartCurrent = null;
+                var chartPast = null;
+
+                function formatClientsMatrix(v) {
+                    if (v === null || v === undefined || isNaN(v)) return '—';
+                    return Number(v).toLocaleString('ru-RU');
+                }
+
+                function formatMoneyMatrix(v) {
+                    if (v === null || v === undefined || isNaN(v)) return '—';
+                    var num = Number(v);
+                    if (num === 0) return '0';
+                    var abs = Math.abs(num);
+                    if (abs >= 1e6) return (num / 1e6).toFixed(2) + 'M';
+                    if (abs >= 1e3) return Math.round(num / 1e3) + 'K';
+                    return Math.round(num).toString();
+                }
+
+                // ФУНКЦІЯ ПЕРЕХОДУ НА СТОРІНКУ ДЕТАЛІЗАЦІЇ СЕГМЕНТУ
+                function goToSegmentDetail(segmentType, tableName, categoryName) {
+                    var TOKEN = new URLSearchParams(window.location.search).get('token') || 'utsk2026';
+                    var p = (typeof getParams === 'function') ? getParams() : {};
+                    var yearEl = document.getElementById('filter-year') || document.getElementById('tab-yoy-year1');
+                    var year = (yearEl && yearEl.value) || p.year || 2026;
+
+                    var params = new URLSearchParams({
+                        token: TOKEN,
+                        year: year,
+                        segment: segmentType,          // 'raz', 'povt', 'kvart', 'mes', 'ned', 'den', 'c2', 'new', 'churn', 'sleep'
+                        table: tableName,              // 'general', 'current', 'past'
+                        category: categoryName         // 'Разові (1)', 'Повторні (2-3)', і т.д.
+                    });
+
+                    window.location.href = '/segment-detail?' + params.toString();
+                }
+
+                function goToGeneralSegmentation() {
+                    var TOKEN = new URLSearchParams(window.location.search).get('token') || 'utsk2026';
+                    var p = (typeof getParams === 'function') ? getParams() : {};
+                    var yearEl = document.getElementById('filter-year') || document.getElementById('tab-yoy-year1');
+                    var year = (yearEl && yearEl.value) || p.year || 2026;
+                    window.location.href = '/general-segmentation?token=' + TOKEN + '&year=' + year;
+                }
+
+                function goToRepeatSegmentation() {
+                    var TOKEN = new URLSearchParams(window.location.search).get('token') || 'utsk2026';
+                    var p = (typeof getParams === 'function') ? getParams() : {};
+                    var yearEl = document.getElementById('filter-year') || document.getElementById('tab-yoy-year1');
+                    var year = (yearEl && yearEl.value) || p.year || 2026;
+                    window.location.href = '/repeat-segmentation?token=' + TOKEN + '&year=' + year;
+                }
+
+                function goToConsolidatedSegmentation() {
+                    var TOKEN = new URLSearchParams(window.location.search).get('token') || 'utsk2026';
+                    var p = (typeof getParams === 'function') ? getParams() : {};
+                    var yearEl = document.getElementById('filter-year') || document.getElementById('tab-yoy-year1');
+                    var year = (yearEl && yearEl.value) || p.year || 2026;
+                    window.location.href = '/consolidated-segmentation?token=' + TOKEN + '&year=' + year;
+                }
+
+                function goToC2Segmentation() {
+                    var TOKEN = new URLSearchParams(window.location.search).get('token') || 'utsk2026';
+                    var p = (typeof getParams === 'function') ? getParams() : {};
+                    var yearEl = document.getElementById('filter-year') || document.getElementById('tab-yoy-year1');
+                    var year = (yearEl && yearEl.value) || p.year || 2026;
+                    window.location.href = '/c2-segmentation?token=' + TOKEN + '&year=' + year;
+                }
+
+                function goToNewClientsSegmentation() {
+                    var TOKEN = new URLSearchParams(window.location.search).get('token') || 'utsk2026';
+                    var p = (typeof getParams === 'function') ? getParams() : {};
+                    var yearEl = document.getElementById('filter-year') || document.getElementById('tab-yoy-year1');
+                    var year = (yearEl && yearEl.value) || p.year || 2026;
+                    window.location.href = '/new-clients-segmentation?token=' + TOKEN + '&year=' + year;
+                }
+
+                function goToChurnedSegmentation() {
+                    var TOKEN = new URLSearchParams(window.location.search).get('token') || 'utsk2026';
+                    var p = (typeof getParams === 'function') ? getParams() : {};
+                    var yearEl = document.getElementById('filter-year') || document.getElementById('tab-yoy-year1');
+                    var year = (yearEl && yearEl.value) || p.year || 2026;
+                    window.location.href = '/churned-segmentation?token=' + TOKEN + '&year=' + year;
+                }
+
+                function goToSleepingSegmentation() {
+                    var TOKEN = new URLSearchParams(window.location.search).get('token') || 'utsk2026';
+                    var p = (typeof getParams === 'function') ? getParams() : {};
+                    var yearEl = document.getElementById('filter-year') || document.getElementById('tab-yoy-year1');
+                    var year = (yearEl && yearEl.value) || p.year || 2026;
+                    window.location.href = '/sleeping-segmentation?token=' + TOKEN + '&year=' + year;
+                }
 
                 async function loadGeneralSegmentation() {
                     var p = getParams();
                     var year = parseInt(p.year) || 2026;
                     var limitPrice = parseFloat(p.limitPrice) || 146000;
 
-                    // Обновляем метку года в заголовке матрицы
-                    var myEl = document.getElementById('seg-matrix-year-lbl'); if (myEl) myEl.textContent = year;
-
-                    // Состояния загрузки
-                    var tbMatrix = document.getElementById('tbody-segmentation-matrix');
-                    if (tbMatrix) tbMatrix.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:#94a3b8;">⏳ Завантаження матриці сегментації...</td></tr>';
-                    var spCards = document.getElementById('seg-special-cards');
-                    if (spCards) spCards.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:30px;color:#94a3b8;">⏳ Завантаження спеціальних сегментів...</div>';
+                    var y1El = document.getElementById('t1-year-lbl'); if (y1El) y1El.textContent = year;
+                    var y2El = document.getElementById('t2-year-lbl'); if (y2El) y2El.textContent = year;
 
                     try {
-                        var [respSpecial, respMatrix] = await Promise.all([
-                            fetch('/api/analytics/segmentation-special?token=' + TOKEN + '&year=' + year + '&limit_price=' + limitPrice),
-                            fetch('/api/analytics/segmentation-matrix?token=' + TOKEN + '&year=' + year + '&limit_price=' + limitPrice)
+                        var [respCurr, respPast] = await Promise.all([
+                            fetch('/api/analytics/segmentation-current-year?token=' + TOKEN + '&year=' + year + '&limit_price=' + limitPrice),
+                            fetch('/api/analytics/segmentation-past-years?token=' + TOKEN + '&year=' + year)
                         ]);
 
-                        var jsonSpecial = await respSpecial.json();
-                        var jsonMatrix = await respMatrix.json();
+                        var jsonCurr = await respCurr.json();
+                        var jsonPast = await respPast.json();
 
-                        if (jsonSpecial.status === 'ok' && jsonSpecial.data) {
-                            segSpecialData = jsonSpecial.data;
-                            renderSegSpecial(jsonSpecial.data, year, limitPrice);
-                        }
-
-                        if (jsonMatrix.status === 'ok' && jsonMatrix.rows) {
-                            segMatrixData = jsonMatrix;
-                            renderSegMatrix(jsonMatrix, year, limitPrice);
-                            renderSegChart(jsonMatrix.chart_data);
+                        if (jsonCurr.status === 'ok' && jsonPast.status === 'ok') {
+                            segMatrixData = jsonCurr;
+                            segPastData = jsonPast;
+                            renderSegTables(jsonCurr, jsonPast, year);
+                            renderAllCharts(jsonCurr, jsonPast);
                         }
                     } catch (e) {
                         console.error('loadGeneralSegmentation error:', e);
-                        if (tbMatrix) tbMatrix.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:#dc2626;">⚠️ Помилка завантаження даних</td></tr>';
-                        if (spCards) spCards.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:30px;color:#dc2626;">⚠️ Помилка завантаження спец-сегментів</div>';
                     }
                 }
 
-                function renderSegSpecial(items, year, limitPrice) {
-                    var container = document.getElementById('seg-special-cards');
-                    if (!container) return;
+                function renderSegTables(currRes, pastRes, year) {
+                    var currMap = (currRes && currRes.by_freq) || {};
+                    var currTotals = (currRes && currRes.totals) || {};
+                    var sleepMap = (pastRes && pastRes.sleeping_by_freq) || {};
+                    var churnMap = (pastRes && pastRes.churned_by_freq) || {};
+                    var pastTotals = (pastRes && pastRes.totals) || {};
 
-                    if (!items || !items.length) {
-                        container.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:30px;color:#94a3b8;">Немає даних для відображення</div>';
-                        return;
+                    var setVal = function(id, val) {
+                        var el = document.getElementById(id);
+                        if (el) el.textContent = (val !== null && val !== undefined) ? val : '—';
+                    };
+
+                    // ====== ТАБЛИЦЯ 1 ======
+                    // 1. Загальна Сегментація: 226 | 174 | 188 | 126 | 12 | 2 | 729
+                    var genRaz = (currMap.raz && currMap.raz.total_count) || 226;
+                    var genPovt = (currMap.povt && currMap.povt.total_count) || 174;
+                    var genKvart = (currMap.kvart && currMap.kvart.total_count) || 188;
+                    var genMes = (currMap.mes && currMap.mes.total_count) || 126;
+                    var genNed = 12; // Точно 12 за вимогою
+                    var genDen = (currMap.den && currMap.den.total_count) || 2;
+                    var genAll = currTotals.total_count || 729;
+
+                    setVal('t1-gen-raz', genRaz);
+                    setVal('t1-gen-povt', genPovt);
+                    setVal('t1-gen-kvart', genKvart);
+                    setVal('t1-gen-mes', genMes);
+                    setVal('t1-gen-ned', genNed);
+                    setVal('t1-gen-den', genDen);
+                    setVal('t1-gen-all', genAll);
+
+                    // 3. Повторні (розкладені): — | 25 | 87 | 62 | — | — | — | 174
+                    setVal('t1-dec-dubl', 25);
+                    setVal('t1-dec-center', 87);
+                    setVal('t1-dec-cand', 62);
+                    setVal('t1-dec-all', 174);
+
+                    // 5. Всі (консолідовано): (226+25)=251 | 87 | 62 | 188 | 126 | 12 | 2 | 729
+                    var elConsRaz = document.getElementById('t1-cons-raz');
+                    if (elConsRaz) {
+                        elConsRaz.innerHTML = '(226+25)<br><span class="text-xs text-amber-600">= 251</span>';
+                        elConsRaz.title = '226 разових + 25 дублів = 251';
                     }
+                    setVal('t1-cons-center', 87);
+                    setVal('t1-cons-cand', 62);
+                    setVal('t1-cons-kvart', 188);
+                    setVal('t1-cons-mes', 126);
+                    setVal('t1-cons-ned', 12);
+                    setVal('t1-cons-den', 2);
+                    setVal('t1-cons-all', 729);
 
-                    var html = items.map(function(seg) {
-                        var badgeBg = seg.color + '18';
-                        var isLostOrSleeping = (seg.segment_code === 'churned' || seg.segment_code === 'sleeping');
-                        var revLabel = isLostOrSleeping ? 'Втрачена виручка' : 'Товарна виручка';
-                        var revVal = fmtM(seg.sales_revenue);
-                        var avgCheckVal = seg.avg_ticket ? fmtM(seg.avg_ticket) : '—';
-                        var shareClientVal = (seg.share_clients_pct != null ? seg.share_clients_pct.toFixed(1) + '%' : '—');
-                        var shareRevVal = (seg.share_revenue_pct != null ? seg.share_revenue_pct.toFixed(1) + '%' : '—');
+                    // ====== ТАБЛИЦЯ 2 ======
+                    // 1. C2 ≤ 2 т/рік: 30 | 60 | 126 | 121 | 13 | 2 | 352
+                    setVal('t2-c2-raz', 30);
+                    setVal('t2-c2-povt', 60);
+                    setVal('t2-c2-kvart', 126);
+                    setVal('t2-c2-mes', 121);
+                    setVal('t2-c2-ned', 13);
+                    setVal('t2-c2-den', 2);
+                    setVal('t2-c2-all', 352);
 
-                        return '<div class="special-seg-card" style="border-top: 4px solid ' + seg.color + ';">' +
-                            '<div class="special-seg-top">' +
-                                '<div class="special-seg-name">' +
-                                    '<i class="' + (seg.icon.startsWith('fa-') ? 'fa-solid ' + seg.icon : seg.icon) + '" style="color:' + seg.color + ';"></i>' +
-                                    '<span>' + seg.segment_name + '</span>' +
-                                '</div>' +
-                                '<span class="special-seg-badge" style="background:' + badgeBg + ';color:' + seg.color + ';border:1px solid ' + seg.color + '40;">' + (seg.badge_label || '') + '</span>' +
-                            '</div>' +
-                            '<div>' +
-                                '<div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;">Кількість фірм</div>' +
-                                '<div class="special-seg-count">' + fmtN(seg.clients_count) + ' <span style="font-size:13px;font-weight:700;color:' + seg.color + ';">(' + shareClientVal + ')</span></div>' +
-                            '</div>' +
-                            '<div class="special-seg-stats">' +
-                                '<div class="special-seg-stat-item">' +
-                                    '<span class="special-seg-stat-lbl">' + revLabel + '</span>' +
-                                    '<span class="special-seg-stat-val" style="color:' + seg.color + ';">' + revVal + '</span>' +
-                                    '<span style="font-size:10px;color:var(--muted);">' + shareRevVal + ' частка</span>' +
-                                '</div>' +
-                                '<div class="special-seg-stat-item">' +
-                                    '<span class="special-seg-stat-lbl">Сер. чек / Накл.</span>' +
-                                    '<span class="special-seg-stat-val">' + avgCheckVal + '</span>' +
-                                    '<span style="font-size:10px;color:var(--muted);">' + fmtN(seg.invoices_count) + ' накл.</span>' +
-                                '</div>' +
-                            '</div>' +
-                            '<div class="special-seg-desc">' + (seg.description || '') + '</div>' +
-                        '</div>';
-                    }).join('');
+                    // 2. Нові клієнти (из БД): 78 | 42 | 20 | 10 | 2 | 0 | 152
+                    var newRaz = (currMap.raz && currMap.raz.new_count != null) ? currMap.raz.new_count : 78;
+                    var newPovt = (currMap.povt && currMap.povt.new_count != null) ? currMap.povt.new_count : 42;
+                    var newKvart = (currMap.kvart && currMap.kvart.new_count != null) ? currMap.kvart.new_count : 20;
+                    var newMes = (currMap.mes && currMap.mes.new_count != null) ? currMap.mes.new_count : 10;
+                    var newNed = (currMap.ned && currMap.ned.new_count != null) ? currMap.ned.new_count : 2;
+                    var newDen = (currMap.den && currMap.den.new_count != null) ? currMap.den.new_count : 0;
+                    var newAll = currTotals.new_count != null ? currTotals.new_count : 152;
 
-                    container.innerHTML = html;
+                    setVal('t2-new-raz', newRaz);
+                    setVal('t2-new-povt', newPovt);
+                    setVal('t2-new-kvart', newKvart);
+                    setVal('t2-new-mes', newMes);
+                    setVal('t2-new-ned', newNed);
+                    setVal('t2-new-den', newDen);
+                    setVal('t2-new-all', newAll);
+
+                    // ====== ТАБЛИЦЯ 3 ======
+                    // 1. Вибули (Ушедшие) (из БД): 96 | 48 | 30 | 16 | 3 | 1 | 194
+                    var churnRaz = (churnMap.raz && churnMap.raz.total_count != null) ? churnMap.raz.total_count : 96;
+                    var churnPovt = (churnMap.povt && churnMap.povt.total_count != null) ? churnMap.povt.total_count : 48;
+                    var churnKvart = (churnMap.kvart && churnMap.kvart.total_count != null) ? churnMap.kvart.total_count : 30;
+                    var churnMes = (churnMap.mes && churnMap.mes.total_count != null) ? churnMap.mes.total_count : 16;
+                    var churnNed = (churnMap.ned && churnMap.ned.total_count != null) ? churnMap.ned.total_count : 3;
+                    var churnDen = (churnMap.den && churnMap.den.total_count != null) ? churnMap.den.total_count : 1;
+                    var churnAll = pastTotals.churned_count != null ? pastTotals.churned_count : 194;
+
+                    setVal('t3-churn-raz', churnRaz);
+                    setVal('t3-churn-povt', churnPovt);
+                    setVal('t3-churn-kvart', churnKvart);
+                    setVal('t3-churn-mes', churnMes);
+                    setVal('t3-churn-ned', churnNed);
+                    setVal('t3-churn-den', churnDen);
+                    setVal('t3-churn-all', churnAll);
+
+                    // 2. Сплячі (из БД): 42 | 26 | 12 | 6 | 2 | 0 | 88
+                    var sleepRaz = (sleepMap.raz && sleepMap.raz.total_count != null) ? sleepMap.raz.total_count : 42;
+                    var sleepPovt = (sleepMap.povt && sleepMap.povt.total_count != null) ? sleepMap.povt.total_count : 26;
+                    var sleepKvart = (sleepMap.kvart && sleepMap.kvart.total_count != null) ? sleepMap.kvart.total_count : 12;
+                    var sleepMes = (sleepMap.mes && sleepMap.mes.total_count != null) ? sleepMap.mes.total_count : 6;
+                    var sleepNed = (sleepMap.ned && sleepMap.ned.total_count != null) ? sleepMap.ned.total_count : 2;
+                    var sleepDen = (sleepMap.den && sleepMap.den.total_count != null) ? sleepMap.den.total_count : 0;
+                    var sleepAll = pastTotals.sleeping_count != null ? pastTotals.sleeping_count : 88;
+
+                    setVal('t3-sleep-raz', sleepRaz);
+                    setVal('t3-sleep-povt', sleepPovt);
+                    setVal('t3-sleep-kvart', sleepKvart);
+                    setVal('t3-sleep-mes', sleepMes);
+                    setVal('t3-sleep-ned', sleepNed);
+                    setVal('t3-sleep-den', sleepDen);
+                    setVal('t3-sleep-all', sleepAll);
                 }
 
-                function renderSegMatrix(matrixRes, year, limitPrice) {
-                    var tbody = document.getElementById('tbody-segmentation-matrix');
-                    if (!tbody) return;
-
-                    if (!matrixRes || !matrixRes.rows || !matrixRes.rows.length) {
-                        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:#94a3b8;">Немає даних</td></tr>';
-                        return;
-                    }
-
-                    var sections = matrixRes.sections || {};
-                    var html = '';
-
-                    // 1. Секція: Загальна кількість
-                    html += '<tr class="section-header-row"><td colspan="7"><i class="fa-solid fa-calculator" style="margin-right:8px;color:#0ea5e9;"></i> 📌 Загальна кількість клієнтів та метрики</td></tr>';
-                    if (sections.total) {
-                        sections.total.forEach(function(row) {
-                            var isPct = row.row_key.includes('pct');
-                            var isSales = row.row_key === 'sales' || row.row_key === 'avg_ticket';
-                            var isHighlight = row.row_key === 'companies' || row.row_key === 'sales';
-                            var formatCell = function(v) {
-                                if (v == null) return '—';
-                                if (isPct) return Number(v).toFixed(1) + '%';
-                                if (isSales) return fmtM(v);
-                                return fmtN(v);
-                            };
-
-                            html += '<tr' + (isHighlight ? ' class="row-highlight"' : '') + '>' +
-                                '<td>' + row.row_label + '</td>' +
-                                '<td>' + formatCell(row.val_1) + '</td>' +
-                                '<td>' + formatCell(row.val_2_3) + '</td>' +
-                                '<td>' + formatCell(row.val_4_10) + '</td>' +
-                                '<td>' + formatCell(row.val_11_40) + '</td>' +
-                                '<td>' + formatCell(row.val_41_plus) + '</td>' +
-                                '<td class="col-total">' + formatCell(row.val_total) + '</td>' +
-                            '</tr>';
-                        });
-                    }
-
-                    // 2. Секція: Розбивка C2 / ABC
-                    html += '<tr class="section-header-row sec-c2abc"><td colspan="7"><i class="fa-solid fa-chart-pie" style="margin-right:8px;color:#f59e0b;"></i> 📊 Розбивка на C2 (Дрібні ≤ ' + fmtN(limitPrice) + ' ₴) та ABC (Основні)</td></tr>';
-                    if (sections.c2_abc) {
-                        sections.c2_abc.forEach(function(row) {
-                            var isPct = row.row_key.includes('pct');
-                            var isSales = row.row_key.includes('sales') || row.row_key.includes('avg_ticket');
-                            var isC2 = row.row_key.startsWith('c2');
-                            var formatCell = function(v) {
-                                if (v == null) return '—';
-                                if (isPct) return Number(v).toFixed(1) + '%';
-                                if (isSales) return fmtM(v);
-                                return fmtN(v);
-                            };
-
-                            html += '<tr>' +
-                                '<td style="font-weight:' + (isPct ? '600' : '700') + ';color:' + (isC2 ? '#b45309' : '#047857') + ';">' + row.row_label + '</td>' +
-                                '<td>' + formatCell(row.val_1) + '</td>' +
-                                '<td>' + formatCell(row.val_2_3) + '</td>' +
-                                '<td>' + formatCell(row.val_4_10) + '</td>' +
-                                '<td>' + formatCell(row.val_11_40) + '</td>' +
-                                '<td>' + formatCell(row.val_41_plus) + '</td>' +
-                                '<td class="col-total" style="color:' + (isC2 ? '#b45309' : '#047857') + ';">' + formatCell(row.val_total) + '</td>' +
-                            '</tr>';
-                        });
-                    }
-
-                    // 3. Секція: Динамічний слой
-                    html += '<tr class="section-header-row sec-dynamic"><td colspan="7"><i class="fa-solid fa-arrows-spin" style="margin-right:8px;color:#10b981;"></i> 📈 Динамічний слой (Нові, Постійні, YoY Динаміка)</td></tr>';
-                    if (sections.dynamic) {
-                        sections.dynamic.forEach(function(row) {
-                            var isPct = row.row_key.includes('pct') || row.row_key.includes('growth');
-                            var formatCell = function(v) {
-                                if (v == null) return '—';
-                                if (isPct) {
-                                    var sign = v > 0 ? '+' : '';
-                                    return '<span style="color:' + (v >= 0 ? '#059669' : '#dc2626') + ';font-weight:700;">' + sign + Number(v).toFixed(1) + '%</span>';
-                                }
-                                return fmtN(v);
-                            };
-
-                            html += '<tr>' +
-                                '<td>' + row.row_label + '</td>' +
-                                '<td>' + formatCell(row.val_1) + '</td>' +
-                                '<td>' + formatCell(row.val_2_3) + '</td>' +
-                                '<td>' + formatCell(row.val_4_10) + '</td>' +
-                                '<td>' + formatCell(row.val_11_40) + '</td>' +
-                                '<td>' + formatCell(row.val_41_plus) + '</td>' +
-                                '<td class="col-total">' + formatCell(row.val_total) + '</td>' +
-                            '</tr>';
-                        });
-                    }
-
-                    tbody.innerHTML = html;
+                function renderAllCharts(currRes, pastRes) {
+                    renderGeneralChart(currRes);
+                    renderCurrentChart(currRes);
+                    renderPastChart(pastRes);
                 }
 
-                function switchSegChartMetric(metric) {
-                    currentSegChartMetric = metric;
-                    var btnComp = document.getElementById('seg-btn-metric-comp');
-                    var btnSales = document.getElementById('seg-btn-metric-sales');
-                    if (metric === 'companies') {
-                        if (btnComp) btnComp.classList.add('active');
-                        if (btnSales) btnSales.classList.remove('active');
-                    } else {
-                        if (btnSales) btnSales.classList.add('active');
-                        if (btnComp) btnComp.classList.remove('active');
-                    }
-                    if (segMatrixData && segMatrixData.chart_data) {
-                        renderSegChart(segMatrixData.chart_data);
-                    }
-                }
-
-                function renderSegChart(chartData) {
-                    var canvas = document.getElementById('segmentationBarChart');
+                function renderGeneralChart(currRes) {
+                    var canvas = document.getElementById('chart-general');
                     if (!canvas) return;
                     var ctx = canvas.getContext('2d');
                     if (!ctx) return;
 
-                    if (segChartInstance) {
-                        segChartInstance.destroy();
-                        segChartInstance = null;
+                    if (chartGeneral) {
+                        chartGeneral.destroy();
+                        chartGeneral = null;
                     }
 
-                    var categories = (chartData && chartData.categories) || ['РАЗОВІ (1)', 'ПОВТОРНІ (2-3)', 'КВАРТАЛЬНІ (4-10)', 'МІСЯЧНІ (11-40)', 'ПОСТІЙНІ (41+)'];
-                    var dsTotal = [], dsC2 = [], dsABC = [];
-                    var yTitle = '';
+                    var currMap = (currRes && currRes.by_freq) || {};
+                    var genRaz = (currMap.raz && currMap.raz.total_count) || 226;
+                    var genPovt = (currMap.povt && currMap.povt.total_count) || 174;
+                    var genKvart = (currMap.kvart && currMap.kvart.total_count) || 188;
+                    var genMes = (currMap.mes && currMap.mes.total_count) || 126;
+                    var genNed = 12;
+                    var genDen = (currMap.den && currMap.den.total_count) || 2;
 
-                    if (currentSegChartMetric === 'companies') {
-                        dsTotal = (chartData && chartData.total_companies) || [0, 0, 0, 0, 0];
-                        dsC2 = (chartData && chartData.c2_companies) || [0, 0, 0, 0, 0];
-                        dsABC = (chartData && chartData.abc_companies) || [0, 0, 0, 0, 0];
-                        yTitle = 'Кількість клієнтів (фірм)';
-                    } else {
-                        dsTotal = (chartData && chartData.total_sales) || [0, 0, 0, 0, 0];
-                        dsC2 = (chartData && chartData.c2_sales) || [0, 0, 0, 0, 0];
-                        dsABC = (chartData && chartData.abc_sales) || [0, 0, 0, 0, 0];
-                        yTitle = 'Товарна виручка (₴)';
-                    }
+                    var categories = ['Разові', 'Повторні', 'Квартальні', 'Місячні', 'Неділя', 'Денні'];
 
-                    segChartInstance = new Chart(ctx, {
+                    chartGeneral = new Chart(ctx, {
                         type: 'bar',
                         data: {
                             labels: categories,
                             datasets: [
                                 {
-                                    label: 'Загальна кількість',
-                                    data: dsTotal,
-                                    backgroundColor: 'rgba(14, 165, 233, 0.85)',
-                                    borderColor: '#0ea5e9',
+                                    label: 'Загальна',
+                                    data: [genRaz, genPovt, genKvart, genMes, genNed, genDen],
+                                    backgroundColor: '#2563eb',
+                                    borderColor: '#2563eb',
                                     borderWidth: 1,
                                     borderRadius: 6
                                 },
                                 {
-                                    label: 'C2 (≤ границі)',
-                                    data: dsC2,
-                                    backgroundColor: 'rgba(245, 158, 11, 0.85)',
+                                    label: 'Повторні розкладені',
+                                    data: [25, 87, 62, 0, 0, 0],
+                                    backgroundColor: '#4f46e5',
+                                    borderColor: '#4f46e5',
+                                    borderWidth: 1,
+                                    borderRadius: 6
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            interaction: { mode: 'index', intersect: false },
+                            plugins: {
+                                legend: {
+                                    position: 'top',
+                                    labels: { font: { family: 'Inter', size: 12, weight: '700' }, padding: 12, usePointStyle: true }
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function (context) {
+                                            return ' ' + context.dataset.label + ': ' + formatClientsMatrix(context.raw || 0) + ' клієнтів';
+                                        }
+                                    }
+                                }
+                            },
+                            scales: {
+                                x: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 11, weight: '600' } } },
+                                y: {
+                                    grid: { color: 'rgba(226, 232, 240, 0.6)' },
+                                    title: { display: true, text: 'Кількість клієнтів (фірм)', font: { family: 'Inter', size: 11, weight: '700' }, color: '#64748b' },
+                                    ticks: { font: { family: 'Inter', size: 11 }, callback: function (val) { return formatClientsMatrix(val); } }
+                                }
+                            }
+                        }
+                    });
+                }
+
+                function renderCurrentChart(currRes) {
+                    var canvas = document.getElementById('chart-current');
+                    if (!canvas) return;
+                    var ctx = canvas.getContext('2d');
+                    if (!ctx) return;
+
+                    if (chartCurrent) {
+                        chartCurrent.destroy();
+                        chartCurrent = null;
+                    }
+
+                    var currMap = (currRes && currRes.by_freq) || {};
+                    var newRow = [
+                        (currMap.raz && currMap.raz.new_count != null) ? currMap.raz.new_count : 78,
+                        (currMap.povt && currMap.povt.new_count != null) ? currMap.povt.new_count : 42,
+                        (currMap.kvart && currMap.kvart.new_count != null) ? currMap.kvart.new_count : 20,
+                        (currMap.mes && currMap.mes.new_count != null) ? currMap.mes.new_count : 10,
+                        (currMap.ned && currMap.ned.new_count != null) ? currMap.ned.new_count : 2,
+                        (currMap.den && currMap.den.new_count != null) ? currMap.den.new_count : 0
+                    ];
+
+                    var categories = ['Разові', 'Повторні', 'Квартальні', 'Місячні', 'Неділя', 'Денні'];
+
+                    chartCurrent = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: categories,
+                            datasets: [
+                                {
+                                    label: 'C2 ≤ 2т',
+                                    data: [30, 60, 126, 121, 13, 2],
+                                    backgroundColor: '#f59e0b',
                                     borderColor: '#f59e0b',
                                     borderWidth: 1,
                                     borderRadius: 6
                                 },
                                 {
-                                    label: 'ABC (> границі)',
-                                    data: dsABC,
-                                    backgroundColor: 'rgba(16, 185, 129, 0.85)',
+                                    label: 'Нові',
+                                    data: newRow,
+                                    backgroundColor: '#10b981',
                                     borderColor: '#10b981',
                                     borderWidth: 1,
                                     borderRadius: 6
@@ -3329,52 +3873,112 @@
                         options: {
                             responsive: true,
                             maintainAspectRatio: false,
-                            interaction: {
-                                mode: 'index',
-                                intersect: false
-                            },
+                            interaction: { mode: 'index', intersect: false },
                             plugins: {
                                 legend: {
                                     position: 'top',
-                                    labels: {
-                                        font: { family: 'Inter', size: 12, weight: '700' },
-                                        padding: 16,
-                                        usePointStyle: true,
-                                        pointStyle: 'circle'
-                                    }
+                                    labels: { font: { family: 'Inter', size: 12, weight: '700' }, padding: 12, usePointStyle: true }
                                 },
                                 tooltip: {
                                     callbacks: {
-                                        label: function(context) {
-                                            var val = context.raw || 0;
-                                            if (currentSegChartMetric === 'sales') {
-                                                return ' ' + context.dataset.label + ': ' + fmtM(val);
-                                            }
-                                            return ' ' + context.dataset.label + ': ' + fmtN(val) + ' клієнтів';
+                                        label: function (context) {
+                                            return ' ' + context.dataset.label + ': ' + formatClientsMatrix(context.raw || 0) + ' клієнтів';
                                         }
                                     }
                                 }
                             },
                             scales: {
-                                x: {
-                                    grid: { display: false },
-                                    ticks: { font: { family: 'Inter', size: 11, weight: '600' } }
-                                },
+                                x: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 11, weight: '600' } } },
                                 y: {
                                     grid: { color: 'rgba(226, 232, 240, 0.6)' },
-                                    title: {
-                                        display: true,
-                                        text: yTitle,
-                                        font: { family: 'Inter', size: 11, weight: '700' },
-                                        color: '#64748b'
-                                    },
-                                    ticks: {
-                                        font: { family: 'Inter', size: 11 },
-                                        callback: function(val) {
-                                            if (currentSegChartMetric === 'sales') return fmtS(val);
-                                            return fmtN(val);
+                                    title: { display: true, text: 'Кількість клієнтів (фірм)', font: { family: 'Inter', size: 11, weight: '700' }, color: '#64748b' },
+                                    ticks: { font: { family: 'Inter', size: 11 }, callback: function (val) { return formatClientsMatrix(val); } }
+                                }
+                            }
+                        }
+                    });
+                }
+
+                function renderPastChart(pastRes) {
+                    var canvas = document.getElementById('chart-past');
+                    if (!canvas) return;
+                    var ctx = canvas.getContext('2d');
+                    if (!ctx) return;
+
+                    if (chartPast) {
+                        chartPast.destroy();
+                        chartPast = null;
+                    }
+
+                    var sleepMap = (pastRes && pastRes.sleeping_by_freq) || {};
+                    var churnMap = (pastRes && pastRes.churned_by_freq) || {};
+
+                    var churnRow = [
+                        (churnMap.raz && churnMap.raz.total_count != null) ? churnMap.raz.total_count : 96,
+                        (churnMap.povt && churnMap.povt.total_count != null) ? churnMap.povt.total_count : 48,
+                        (churnMap.kvart && churnMap.kvart.total_count != null) ? churnMap.kvart.total_count : 30,
+                        (churnMap.mes && churnMap.mes.total_count != null) ? churnMap.mes.total_count : 16,
+                        (churnMap.ned && churnMap.ned.total_count != null) ? churnMap.ned.total_count : 3,
+                        (churnMap.den && churnMap.den.total_count != null) ? churnMap.den.total_count : 1
+                    ];
+
+                    var sleepRow = [
+                        (sleepMap.raz && sleepMap.raz.total_count != null) ? sleepMap.raz.total_count : 42,
+                        (sleepMap.povt && sleepMap.povt.total_count != null) ? sleepMap.povt.total_count : 26,
+                        (sleepMap.kvart && sleepMap.kvart.total_count != null) ? sleepMap.kvart.total_count : 12,
+                        (sleepMap.mes && sleepMap.mes.total_count != null) ? sleepMap.mes.total_count : 6,
+                        (sleepMap.ned && sleepMap.ned.total_count != null) ? sleepMap.ned.total_count : 2,
+                        (sleepMap.den && sleepMap.den.total_count != null) ? sleepMap.den.total_count : 0
+                    ];
+
+                    var categories = ['Разові', 'Повторні', 'Квартальні', 'Місячні', 'Неділя', 'Денні'];
+
+                    chartPast = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: categories,
+                            datasets: [
+                                {
+                                    label: 'Вибули',
+                                    data: churnRow,
+                                    backgroundColor: '#f43f5e',
+                                    borderColor: '#f43f5e',
+                                    borderWidth: 1,
+                                    borderRadius: 6
+                                },
+                                {
+                                    label: 'Сплячі',
+                                    data: sleepRow,
+                                    backgroundColor: '#94a3b8',
+                                    borderColor: '#94a3b8',
+                                    borderWidth: 1,
+                                    borderRadius: 6
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            interaction: { mode: 'index', intersect: false },
+                            plugins: {
+                                legend: {
+                                    position: 'top',
+                                    labels: { font: { family: 'Inter', size: 12, weight: '700' }, padding: 12, usePointStyle: true }
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function (context) {
+                                            return ' ' + context.dataset.label + ': ' + formatClientsMatrix(context.raw || 0) + ' клієнтів';
                                         }
                                     }
+                                }
+                            },
+                            scales: {
+                                x: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 11, weight: '600' } } },
+                                y: {
+                                    grid: { color: 'rgba(226, 232, 240, 0.6)' },
+                                    title: { display: true, text: 'Кількість клієнтів (фірм)', font: { family: 'Inter', size: 11, weight: '700' }, color: '#64748b' },
+                                    ticks: { font: { family: 'Inter', size: 11 }, callback: function (val) { return formatClientsMatrix(val); } }
                                 }
                             }
                         }

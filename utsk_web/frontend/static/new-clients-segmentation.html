@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UTSK — Нові клієнти: Сегментація за частотою</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-app: #f8fafc;
+            --bg-surface: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --primary: #059669;
+            --primary-light: #d1fae5;
+            --radius-lg: 16px;
+            --radius-md: 10px;
+            --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.05);
+            --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.06);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-app);
+            color: var(--text-main);
+            line-height: 1.5;
+            padding: 24px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Top Header */
+        .top-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-surface);
+            padding: 20px 24px;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .header-title-area {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .btn-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #f1f5f9;
+            color: var(--text-main);
+            text-decoration: none;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 13.5px;
+            transition: all 0.2s ease;
+            border: 1px solid var(--border);
+            cursor: pointer;
+        }
+
+        .btn-action:hover {
+            background: #e2e8f0;
+            transform: translateY(-1px);
+        }
+
+        .btn-primary {
+            background: #059669;
+            color: #ffffff;
+            border-color: #047857;
+        }
+
+        .btn-primary:hover {
+            background: #047857;
+            color: #ffffff;
+        }
+
+        .header-info h1 {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-info .meta {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 3px;
+            font-weight: 500;
+        }
+
+        .meta-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: #d1fae5;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+            color: #065f46;
+        }
+
+        /* 6 KPI Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .kpi-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .kpi-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .kpi-lbl {
+            font-size: 11px;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: var(--text-muted);
+            letter-spacing: 0.3px;
+        }
+
+        .kpi-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .kpi-val {
+            font-size: 20px;
+            font-weight: 900;
+            color: var(--text-main);
+        }
+
+        .kpi-sub {
+            font-size: 11.5px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Cohort Nav Buttons */
+        .cohort-nav-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 16px 20px;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 24px;
+        }
+
+        .cohort-nav-title {
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .cohort-buttons-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .cohort-btn {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            padding: 9px 18px;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 13.5px;
+            font-weight: 700;
+            color: #334155;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.15s ease;
+        }
+
+        .cohort-btn:hover {
+            background: #d1fae5;
+            border-color: #a7f3d0;
+            color: #065f46;
+        }
+
+        .cohort-btn.active {
+            background: #059669;
+            color: #ffffff;
+            border-color: #047857;
+            box-shadow: 0 2px 6px rgba(5, 150, 105, 0.25);
+        }
+
+        .cohort-badge {
+            background: rgba(0, 0, 0, 0.08);
+            padding: 2px 7px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .cohort-btn.active .cohort-badge {
+            background: rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+        }
+
+        /* 2 Charts Grid */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .bento-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .bento-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .bento-card-title {
+            font-size: 15.5px;
+            font-weight: 800;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .bento-card-subtitle {
+            font-size: 12.5px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* Filter Controls Bar */
+        .filters-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .filters-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            padding: 8px 14px;
+            border-radius: 10px;
+            width: 280px;
+        }
+
+        .search-box input {
+            border: none;
+            background: transparent;
+            font-family: inherit;
+            font-size: 13.5px;
+            color: var(--text-main);
+            width: 100%;
+            outline: none;
+        }
+
+        .select-filter {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-main);
+            outline: none;
+            cursor: pointer;
+        }
+
+        .table-counter-box {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+
+        /* Table */
+        .detail-table-wrap {
+            overflow-x: auto;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+        }
+
+        .detail-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            font-family: inherit;
+            text-align: left;
+        }
+
+        .detail-table th {
+            background: #f1f5f9;
+            color: #334155;
+            font-weight: 700;
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+
+        .detail-table td {
+            padding: 11px 14px;
+            border-bottom: 1px solid #f1f5f9;
+            color: var(--text-main);
+            vertical-align: middle;
+        }
+
+        .detail-table tr:hover td {
+            background: #f8fafc;
+        }
+
+        .client-code-badge {
+            display: inline-block;
+            background: #ecfdf5;
+            color: #065f46;
+            padding: 2px 7px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 12px;
+            text-decoration: none;
+            border: 1px solid #a7f3d0;
+        }
+
+        .client-row-link {
+            text-decoration: none;
+            color: #0f172a;
+            font-weight: 600;
+            transition: color 0.15s ease;
+        }
+
+        .client-row-link:hover {
+            color: #059669;
+            text-decoration: underline;
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 11.5px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .badge-a1 { background: #fef08a; color: #854d0e; }
+        .badge-a2 { background: #fef9c3; color: #713f12; }
+        .badge-a3 { background: #e0f2fe; color: #0369a1; }
+        .badge-b1 { background: #dbeafe; color: #1d4ed8; }
+        .badge-b2 { background: #ede9fe; color: #6d28d9; }
+        .badge-c1 { background: #dcfce7; color: #15803d; }
+        .badge-c2 { background: #f1f5f9; color: #475569; }
+
+        .badge-cohort {
+            background: #f1f5f9;
+            color: #334155;
+        }
+
+        .text-right { text-align: right !important; }
+        .text-center { text-align: center !important; }
+
+        /* Quick View Modal */
+        .modal-backdrop {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-backdrop.active { display: flex; }
+
+        .modal-card {
+            background: #ffffff;
+            border-radius: 16px;
+            max-width: 580px;
+            width: 100%;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+            animation: modalFadeIn 0.2s ease-out;
+        }
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(12px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .modal-header {
+            padding: 18px 24px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8fafc;
+        }
+
+        .modal-title {
+            font-size: 17px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #94a3b8;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .modal-close:hover { color: #0f172a; }
+
+        .modal-body { padding: 24px; }
+
+        .modal-stat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .modal-stat-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 12px 14px;
+        }
+
+        .modal-stat-box.highlight {
+            grid-column: 1 / -1;
+            background: #ecfdf5;
+            border-color: #a7f3d0;
+        }
+
+        .modal-stat-lbl {
+            font-size: 11px;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+        }
+
+        .modal-stat-val {
+            font-size: 18px;
+            font-weight: 800;
+            color: #0f172a;
+            margin-top: 4px;
+        }
+
+        .modal-footer {
+            padding: 14px 24px;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8fafc;
+        }
+
+        @media (max-width: 1200px) {
+            .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+            .charts-grid { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            body { padding: 12px; }
+            .kpi-grid { grid-template-columns: 1fr 1fr; }
+            .top-header { flex-direction: column; align-items: flex-start; }
+            .search-box { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <!-- Top Header -->
+        <div class="top-header">
+            <div class="header-title-area">
+                <button class="btn-action" onclick="goBack()">
+                    <i class="fa-solid fa-arrow-left"></i> До матриці
+                </button>
+                <div class="header-info">
+                    <h1><i class="fa-solid fa-user-plus" style="color:#059669;"></i> 🆕 Нові клієнти — Сегментація за частотою покупок (<span id="title-count">152</span> компанії)</h1>
+                    <div class="meta">
+                        Рік: <span class="meta-pill" id="lbl-year">2026</span> &nbsp;|&nbsp; 
+                        Критерій: <span class="meta-pill">Клієнти, які вперше здійснили покупку у 2026 році (Status ID = 1)</span> &nbsp;|&nbsp; 
+                        БД: <span class="meta-pill">PostgreSQL (bd_intelligent_sales)</span>
+                    </div>
+                </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+                <button class="btn-action btn-primary" onclick="exportToCSV()">
+                    <i class="fa-solid fa-file-csv"></i> Експорт у CSV
+                </button>
+            </div>
+        </div>
+
+        <!-- 6 KPI Cards -->
+        <div class="kpi-grid">
+            <!-- 1. Всього нових -->
+            <div class="kpi-card">
+                <div class="kpi-top">
+                    <span class="kpi-lbl">Всього нових</span>
+                    <div class="kpi-icon" style="background:#d1fae5;color:#065f46;"><i class="fa-solid fa-user-plus"></i></div>
+                </div>
+                <div class="kpi-val" id="kpi-total-new" style="color:#065f46;">152</div>
+                <div class="kpi-sub">Вперше залучені у 2026 р.</div>
+            </div>
+
+            <!-- 2. Виручка нових -->
+            <div class="kpi-card">
+                <div class="kpi-top">
+                    <span class="kpi-lbl">Виручка нових</span>
+                    <div class="kpi-icon" style="background:#ecfdf5;color:#10b981;"><i class="fa-solid fa-sack-dollar"></i></div>
+                </div>
+                <div class="kpi-val" id="kpi-revenue">—</div>
+                <div class="kpi-sub">Товарна виручка</div>
+            </div>
+
+            <!-- 3. Накладних -->
+            <div class="kpi-card">
+                <div class="kpi-top">
+                    <span class="kpi-lbl">Накладних</span>
+                    <div class="kpi-icon" style="background:#eff6ff;color:#2563eb;"><i class="fa-solid fa-file-invoice"></i></div>
+                </div>
+                <div class="kpi-val" id="kpi-invoices">—</div>
+                <div class="kpi-sub">Усі оформлені накладні</div>
+            </div>
+
+            <!-- 4. Сер. чек -->
+            <div class="kpi-card">
+                <div class="kpi-top">
+                    <span class="kpi-lbl">Сер. чек</span>
+                    <div class="kpi-icon" style="background:#fffbeb;color:#d97706;"><i class="fa-solid fa-receipt"></i></div>
+                </div>
+                <div class="kpi-val" id="kpi-avg-check">—</div>
+                <div class="kpi-sub">Виручка / Накладні</div>
+            </div>
+
+            <!-- 5. % від всієї бази -->
+            <div class="kpi-card">
+                <div class="kpi-top">
+                    <span class="kpi-lbl">% від всієї бази</span>
+                    <div class="kpi-icon" style="background:#fdf4ff;color:#a855f7;"><i class="fa-solid fa-pie-chart"></i></div>
+                </div>
+                <div class="kpi-val" id="kpi-share">20.9%</div>
+                <div class="kpi-sub">Частка серед 729 фірм</div>
+            </div>
+
+            <!-- 6. Нові в ядрі (A+B) -->
+            <div class="kpi-card">
+                <div class="kpi-top">
+                    <span class="kpi-lbl">Нові в ядрі (A+B)</span>
+                    <div class="kpi-icon" style="background:#fef2f2;color:#ef4444;"><i class="fa-solid fa-gem"></i></div>
+                </div>
+                <div class="kpi-val" id="kpi-core-ab" style="color:#b91c1c;">—</div>
+                <div class="kpi-sub">Нові топ-покупці</div>
+            </div>
+        </div>
+
+        <!-- Cohort Buttons Navigation -->
+        <div class="cohort-nav-card">
+            <div class="cohort-nav-title">
+                <i class="fa-solid fa-filter"></i> Фільтр нових клієнтів за частотою покупок
+            </div>
+            <div class="cohort-buttons-wrap">
+                <button class="cohort-btn active" onclick="selectCohort('ALL', this)">
+                    📊 Всі нові <span class="cohort-badge" id="badge-all">152</span>
+                </button>
+                <button class="cohort-btn" onclick="selectCohort('Разові (1)', this)">
+                    Разові (1) <span class="cohort-badge" id="badge-raz">97</span>
+                </button>
+                <button class="cohort-btn" onclick="selectCohort('Повторні (2-3)', this)">
+                    Повторні (2-3) <span class="cohort-badge" id="badge-povt">35</span>
+                </button>
+                <button class="cohort-btn" onclick="selectCohort('Квартальні (4-10)', this)">
+                    Квартальні (4-10) <span class="cohort-badge" id="badge-kvart">14</span>
+                </button>
+                <button class="cohort-btn" onclick="selectCohort('Місячні (11-40)', this)">
+                    Місячні (11-40) <span class="cohort-badge" id="badge-mes">4</span>
+                </button>
+                <button class="cohort-btn" onclick="selectCohort('Тижневі (41-170)', this)">
+                    Неділя+ (41+) <span class="cohort-badge" id="badge-ned">1</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 2 Charts Grid -->
+        <div class="charts-grid">
+            <!-- Chart 1: Розподіл нових за частотою -->
+            <div class="bento-card">
+                <div class="bento-card-header">
+                    <div>
+                        <h2 class="bento-card-title">
+                            <i class="fa-solid fa-chart-column" style="color:#059669;"></i> Розподіл нових клієнтів за частотою
+                        </h2>
+                        <div class="bento-card-subtitle">Кількість нових компаній за частотними когортами</div>
+                    </div>
+                </div>
+                <div style="height: 260px; width: 100%; position: relative;">
+                    <canvas id="chartNewFrequency"></canvas>
+                </div>
+            </div>
+
+            <!-- Chart 2: Динаміка виручки нових по місяцях -->
+            <div class="bento-card">
+                <div class="bento-card-header">
+                    <div>
+                        <h2 class="bento-card-title">
+                            <i class="fa-solid fa-chart-line" style="color:#2563eb;"></i> Виручка нових клієнтів по місяцях
+                        </h2>
+                        <div class="bento-card-subtitle">Динаміка товарної виручки (млн ₴) помісячно у 2026 р.</div>
+                    </div>
+                </div>
+                <div style="height: 260px; width: 100%; position: relative;">
+                    <canvas id="chartNewMonthly"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Companies Table Bento Card -->
+        <div class="bento-card">
+            <div class="bento-card-header">
+                <div>
+                    <h2 class="bento-card-title">
+                        <i class="fa-solid fa-list-check" style="color:#0f172a;"></i> Реєстр нових клієнтів 2026 року
+                    </h2>
+                    <div class="bento-card-subtitle">Клікніть на назву для переходу в картку або 👁️ для швидкої інформації</div>
+                </div>
+            </div>
+
+            <!-- Filters Bar -->
+            <div class="filters-bar">
+                <div class="filters-left">
+                    <div class="search-box">
+                        <i class="fa-solid fa-magnifying-glass" style="color:#94a3b8;"></i>
+                        <input type="text" id="searchInput" placeholder="Пошук за кодом або назвою..." oninput="applyFilters()">
+                    </div>
+
+                    <select id="filterAbc" class="select-filter" onchange="applyFilters()">
+                        <option value="ALL">Всі ABC класи</option>
+                        <option value="A1">A1 (>8.7M ₴)</option>
+                        <option value="A2">A2 (5.8-8.7M ₴)</option>
+                        <option value="A3">A3 (4.35-5.8M ₴)</option>
+                        <option value="B1">B1 (2.9-4.35M ₴)</option>
+                        <option value="B2">B2 (1.45-2.9M ₴)</option>
+                        <option value="C1">C1 (435K-1.45M ₴)</option>
+                        <option value="C2">C2 (&le;146K ₴)</option>
+                    </select>
+
+                    <select id="sortBy" class="select-filter" onchange="applyFilters()">
+                        <option value="rev_desc">Сортування: Виручка (макс)</option>
+                        <option value="rev_asc">Сортування: Виручка (мін)</option>
+                        <option value="inv_desc">Сортування: Накладні (макс)</option>
+                        <option value="avg_desc">Сортування: Сер. чек (макс)</option>
+                        <option value="first_desc">Сортування: Перша покупка (нові)</option>
+                        <option value="name_asc">Сортування: Назва (А-Я)</option>
+                    </select>
+                </div>
+
+                <div class="table-counter-box" id="tableCounter">
+                    Показано 152 компанії
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="detail-table-wrap">
+                <table class="detail-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 40px;" class="text-center">#</th>
+                            <th style="width: 90px;">Код 1С</th>
+                            <th>Назва компанії</th>
+                            <th class="text-center" style="width: 140px;">Когорта</th>
+                            <th class="text-center" style="width: 90px;">Накладних</th>
+                            <th class="text-right" style="width: 135px;">Виручка (₴)</th>
+                            <th class="text-right" style="width: 125px;">Сер. чек (₴)</th>
+                            <th class="text-center" style="width: 120px;">Перша покупка</th>
+                            <th class="text-center" style="width: 70px;">ABC</th>
+                            <th>Галузь</th>
+                            <th class="text-center" style="width: 80px;">Дія</th>
+                        </tr>
+                    </thead>
+                    <tbody id="companiesTbody">
+                        <tr>
+                            <td colspan="11" style="text-align:center;padding:30px;color:#94a3b8;">
+                                ⏳ Завантаження бази нових клієнтів з PostgreSQL...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Quick View Modal -->
+    <div id="companyModal" class="modal-backdrop" onclick="closeCompanyModal(event)">
+        <div class="modal-card" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <div>
+                    <h3 class="modal-title" id="modalCompName">Назва компанії</h3>
+                    <div style="font-size:12px;color:#64748b;margin-top:2px;">Код 1С: <strong id="modalCompCode">—</strong></div>
+                </div>
+                <button class="modal-close" onclick="closeCompanyModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-stat-grid">
+                    <div class="modal-stat-box highlight">
+                        <div class="modal-stat-lbl">Товарна виручка</div>
+                        <div class="modal-stat-val" id="modalRevenue" style="color:#065f46;">—</div>
+                    </div>
+                    <div class="modal-stat-box">
+                        <div class="modal-stat-lbl">Когорта частоти</div>
+                        <div class="modal-stat-val" id="modalCohort" style="font-size:14px;">—</div>
+                    </div>
+                    <div class="modal-stat-box">
+                        <div class="modal-stat-lbl">Кількість накладних</div>
+                        <div class="modal-stat-val" id="modalInvoices">—</div>
+                    </div>
+                    <div class="modal-stat-box">
+                        <div class="modal-stat-lbl">Середній чек</div>
+                        <div class="modal-stat-val" id="modalAvgTicket">—</div>
+                    </div>
+                    <div class="modal-stat-box">
+                        <div class="modal-stat-lbl">Перша покупка</div>
+                        <div class="modal-stat-val" id="modalFirstPurchase" style="font-size:15px;">—</div>
+                    </div>
+                    <div class="modal-stat-box">
+                        <div class="modal-stat-lbl">ABC Клас</div>
+                        <div class="modal-stat-val" id="modalAbc">—</div>
+                    </div>
+                    <div class="modal-stat-box">
+                        <div class="modal-stat-lbl">Галузь діяльності</div>
+                        <div class="modal-stat-val" id="modalIndustry" style="font-size:14px;">—</div>
+                    </div>
+                    <div class="modal-stat-box">
+                        <div class="modal-stat-lbl">Статус клієнта</div>
+                        <div class="modal-stat-val" id="modalStatus" style="font-size:14px;">Новий</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-action" onclick="closeCompanyModal()">Закрити</button>
+                <a id="modalCardLink" href="#" class="btn-action btn-primary">
+                    Перейти до повної картки клієнта <i class="fa-solid fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var TOKEN = new URLSearchParams(window.location.search).get('token') || 'utsk2026';
+        var curYear = parseInt(new URLSearchParams(window.location.search).get('year')) || 2026;
+        var selectedCohort = 'ALL';
+
+        var allCompanies = [];
+        var filteredCompanies = [];
+        var monthlyDist = [];
+        var chartNewFreqInstance = null;
+        var chartNewMonthlyInstance = null;
+
+        function fmtN(n) {
+            if (n === null || n === undefined || isNaN(n)) return '0';
+            return Number(n).toLocaleString('ru-RU');
+        }
+
+        function fmtM(n) {
+            if (n === null || n === undefined || isNaN(n)) return '0 ₴';
+            return Number(n).toLocaleString('ru-RU', { maximumFractionDigits: 0 }) + ' ₴';
+        }
+
+        function goBack() {
+            var url = '/analytics?token=' + encodeURIComponent(TOKEN);
+            window.location.href = url;
+        }
+
+        function getAbcBadge(abc) {
+            var cls = 'badge-c2';
+            if (abc === 'A1') cls = 'badge-a1';
+            else if (abc === 'A2') cls = 'badge-a2';
+            else if (abc === 'A3') cls = 'badge-a3';
+            else if (abc === 'B1') cls = 'badge-b1';
+            else if (abc === 'B2') cls = 'badge-b2';
+            else if (abc === 'C1') cls = 'badge-c1';
+            return '<span class="badge ' + cls + '">' + (abc || 'C2') + '</span>';
+        }
+
+        function updateKPIs(kpiData) {
+            var totalRevenue = (kpiData && kpiData.total_revenue !== undefined)
+                ? kpiData.total_revenue
+                : allCompanies.reduce(function(sum, c) { return sum + (c.goods_revenue || 0); }, 0);
+
+            var totalInvoices = (kpiData && kpiData.total_invoices !== undefined)
+                ? kpiData.total_invoices
+                : allCompanies.reduce(function(sum, c) { return sum + (c.invoices_count || c.inv_count || 0); }, 0);
+
+            var avgTicket = (kpiData && kpiData.avg_ticket !== undefined)
+                ? kpiData.avg_ticket
+                : (totalInvoices > 0 ? totalRevenue / totalInvoices : 0);
+
+            var totalNew = (kpiData && kpiData.total_new !== undefined) ? kpiData.total_new : allCompanies.length;
+            var share = (kpiData && kpiData.share_of_total_base !== undefined) ? kpiData.share_of_total_base : 20.9;
+            var coreAb = (kpiData && kpiData.core_ab_count !== undefined) ? kpiData.core_ab_count : 4;
+
+            var elTot = document.getElementById('kpi-total-new'); if (elTot) elTot.textContent = fmtN(totalNew);
+            var elTitle = document.getElementById('title-count'); if (elTitle) elTitle.textContent = fmtN(totalNew);
+            var elRev = document.getElementById('kpi-revenue'); if (elRev) elRev.textContent = fmtM(totalRevenue);
+            var elInv = document.getElementById('kpi-invoices'); if (elInv) elInv.textContent = fmtN(totalInvoices) + ' накл.';
+            var elAvg = document.getElementById('kpi-avg-check'); if (elAvg) elAvg.textContent = fmtM(avgTicket);
+            var elShare = document.getElementById('kpi-share'); if (elShare) elShare.textContent = share + '%';
+            var elCore = document.getElementById('kpi-core-ab'); if (elCore) elCore.textContent = fmtN(coreAb) + ' фірм';
+        }
+
+        function updateCohortButtons(counts) {
+            var cc = counts || {};
+            var bAll = document.getElementById('badge-all'); if (bAll) bAll.textContent = fmtN(cc.ALL || allCompanies.length);
+            var bRaz = document.getElementById('badge-raz'); if (bRaz) bRaz.textContent = fmtN(cc['Разові (1)'] || 97);
+            var bPovt = document.getElementById('badge-povt'); if (bPovt) bPovt.textContent = fmtN(cc['Повторні (2-3)'] || 35);
+            var bKvart = document.getElementById('badge-kvart'); if (bKvart) bKvart.textContent = fmtN(cc['Квартальні (4-10)'] || 14);
+            var bMes = document.getElementById('badge-mes'); if (bMes) bMes.textContent = fmtN(cc['Місячні (11-40)'] || 4);
+            var bNed = document.getElementById('badge-ned'); if (bNed) bNed.textContent = fmtN(cc['Тижневі (41-170)'] || 1);
+        }
+
+        async function loadCompaniesFromDB() {
+            var lblYear = document.getElementById('lbl-year');
+            if (lblYear) lblYear.textContent = curYear;
+
+            try {
+                var url = '/api/analytics/new-clients-segmentation-companies?token=' + encodeURIComponent(TOKEN) + '&year=' + curYear;
+                var resp = await fetch(url);
+                if (!resp.ok) {
+                    throw new Error('HTTP ' + resp.status + ' ' + resp.statusText);
+                }
+                var json = await resp.json();
+
+                if (json.status === 'ok') {
+                    allCompanies = json.data || [];
+                    filteredCompanies = allCompanies.slice();
+                    monthlyDist = json.monthly_distribution || [];
+
+                    // Update KPIs
+                    updateKPIs(json.kpi);
+
+                    // Update Buttons
+                    updateCohortButtons(json.cohort_counts);
+
+                    // Init Charts
+                    initCharts(json);
+
+                    // Render Table
+                    applyFilters();
+                } else {
+                    document.getElementById('companiesTbody').innerHTML = '<tr><td colspan="11" style="text-align:center;padding:30px;color:#dc2626;">⚠️ Помилка завантаження даних</td></tr>';
+                }
+            } catch (e) {
+                console.error('loadCompaniesFromDB error:', e);
+                document.getElementById('companiesTbody').innerHTML = '<tr><td colspan="11" style="text-align:center;padding:30px;color:#dc2626;">⚠️ Помилка сервера: ' + e.message + '</td></tr>';
+            }
+        }
+
+        function selectCohort(cohKey, btnEl) {
+            selectedCohort = cohKey;
+            document.querySelectorAll('.cohort-btn').forEach(function(b) { b.classList.remove('active'); });
+            if (btnEl) btnEl.classList.add('active');
+            applyFilters();
+        }
+
+        function applyFilters() {
+            var search = (document.getElementById('searchInput').value || '').toLowerCase().trim();
+            var abc = document.getElementById('filterAbc').value;
+            var sortBy = document.getElementById('sortBy').value;
+
+            filteredCompanies = allCompanies.filter(function(c) {
+                if (selectedCohort !== 'ALL' && c.cohort !== selectedCohort) return false;
+                if (abc !== 'ALL' && c.abc_group !== abc) return false;
+                if (search && !c.code.toLowerCase().includes(search) && !c.name.toLowerCase().includes(search)) return false;
+                return true;
+            });
+
+            // Sorting
+            filteredCompanies.sort(function(a, b) {
+                var invA = a.invoices_count || a.inv_count || 0;
+                var invB = b.invoices_count || b.inv_count || 0;
+                if (sortBy === 'rev_desc') return b.goods_revenue - a.goods_revenue;
+                if (sortBy === 'rev_asc') return a.goods_revenue - b.goods_revenue;
+                if (sortBy === 'inv_desc') return invB - invA;
+                if (sortBy === 'avg_desc') return b.avg_ticket - a.avg_ticket;
+                if (sortBy === 'first_desc') return (b.first_purchase || '').localeCompare(a.first_purchase || '');
+                if (sortBy === 'name_asc') return a.name.localeCompare(b.name, 'uk');
+                return b.goods_revenue - a.goods_revenue;
+            });
+
+            renderTable();
+        }
+
+        function renderTable() {
+            var tbody = document.getElementById('companiesTbody');
+            var counter = document.getElementById('tableCounter');
+            if (!tbody) return;
+
+            var totalRevFiltered = filteredCompanies.reduce(function(sum, c) { return sum + (c.goods_revenue || 0); }, 0);
+            if (counter) {
+                counter.innerHTML = 'Показано <strong>' + fmtN(filteredCompanies.length) + '</strong> з ' + fmtN(allCompanies.length) + ' компаній (Виручка: <strong>' + fmtM(totalRevFiltered) + '</strong>)';
+            }
+
+            if (!filteredCompanies.length) {
+                tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;padding:30px;color:#94a3b8;">Не знайдено жодної компанії за обраними фільтрами</td></tr>';
+                return;
+            }
+
+            var rowsHtml = filteredCompanies.map(function(c, idx) {
+                var detailUrl = '/client-detail?token=' + encodeURIComponent(TOKEN) + '&code=' + encodeURIComponent(c.code);
+                var invs = c.invoices_count || c.inv_count || 0;
+                return '<tr>' +
+                    '<td class="text-center" style="color:#94a3b8;font-weight:600;">' + (idx + 1) + '</td>' +
+                    '<td><a href="' + detailUrl + '" class="client-code-badge">' + c.code + '</a></td>' +
+                    '<td><a href="' + detailUrl + '" class="client-row-link">' + c.name + '</a></td>' +
+                    '<td class="text-center"><span class="badge badge-cohort">' + (c.cohort || 'Разові (1)') + '</span></td>' +
+                    '<td class="text-center" style="font-weight:700;">' + fmtN(invs) + '</td>' +
+                    '<td class="text-right" style="font-weight:800;color:#0f172a;">' + fmtM(c.goods_revenue) + '</td>' +
+                    '<td class="text-right" style="font-weight:600;color:#059669;">' + fmtM(c.avg_ticket) + '</td>' +
+                    '<td class="text-center" style="color:#64748b;font-size:12px;">' + (c.first_purchase || '—') + '</td>' +
+                    '<td class="text-center">' + getAbcBadge(c.abc_group) + '</td>' +
+                    '<td style="color:#64748b;font-size:12.5px;">' + (c.industry || 'Не вказано') + '</td>' +
+                    '<td class="text-center">' +
+                        '<button class="action-eye-btn" data-code="' + c.code + '" style="background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46;padding:4px 8px;border-radius:6px;cursor:pointer;font-size:12px;" title="Швидкий перегляд">' +
+                            '<i class="fa-solid fa-eye"></i>' +
+                        '</button>' +
+                    '</td>' +
+                '</tr>';
+            }).join('');
+
+            tbody.innerHTML = rowsHtml;
+        }
+
+        function initCharts(json) {
+            var cc = json.cohort_counts || {};
+            var mDist = json.monthly_distribution || [];
+
+            // Chart 1: Cohorts Frequency Bar
+            var canvas1 = document.getElementById('chartNewFrequency');
+            if (canvas1) {
+                var ctx1 = canvas1.getContext('2d');
+                if (chartNewFreqInstance) chartNewFreqInstance.destroy();
+                var cohortLabels = ['Разові (1)', 'Повторні (2-3)', 'Квартальні (4-10)', 'Місячні (11-40)', 'Неділя+ (41+)'];
+                var cohortVals = [
+                    cc['Разові (1)'] || 0,
+                    cc['Повторні (2-3)'] || 0,
+                    cc['Квартальні (4-10)'] || 0,
+                    cc['Місячні (11-40)'] || 0,
+                    (cc['Тижневі (41-170)'] || 0) + (cc['Щоденні (>170)'] || 0)
+                ];
+
+                chartNewFreqInstance = new Chart(ctx1, {
+                    type: 'bar',
+                    data: {
+                        labels: cohortLabels,
+                        datasets: [{
+                            label: 'Кількість нових клієнтів',
+                            data: cohortVals,
+                            backgroundColor: 'rgba(5, 150, 105, 0.85)',
+                            borderColor: '#059669',
+                            borderWidth: 1,
+                            borderRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(c) { return ' ' + c.raw + ' компаній'; }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 10.5, weight: '600' } } },
+                            y: {
+                                grid: { color: 'rgba(226, 232, 240, 0.6)' },
+                                ticks: { font: { family: 'Inter', size: 10 } }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Chart 2: Monthly Line Chart
+            var canvas2 = document.getElementById('chartNewMonthly');
+            if (canvas2) {
+                var ctx2 = canvas2.getContext('2d');
+                if (chartNewMonthlyInstance) chartNewMonthlyInstance.destroy();
+
+                var monthNames = ['Січ', 'Лют', 'Бер', 'Кві', 'Тра', 'Чер', 'Лип', 'Сер', 'Вер', 'Жов', 'Лис', 'Гру'];
+                var mLabels = mDist.map(function(m) { return monthNames[(m.month_num - 1)] || ('Міс ' + m.month_num); });
+                var mRevs = mDist.map(function(m) { return m.revenue / 1e6; });
+                var mInvs = mDist.map(function(m) { return m.active_clients; });
+
+                chartNewMonthlyInstance = new Chart(ctx2, {
+                    type: 'line',
+                    data: {
+                        labels: mLabels,
+                        datasets: [
+                            {
+                                label: 'Виручка (млн ₴)',
+                                data: mRevs,
+                                borderColor: '#2563eb',
+                                backgroundColor: 'rgba(37, 99, 235, 0.15)',
+                                fill: true,
+                                tension: 0.3,
+                                borderWidth: 3,
+                                pointRadius: 4,
+                                yAxisID: 'y'
+                            },
+                            {
+                                label: 'Активних нових фірм',
+                                data: mInvs,
+                                borderColor: '#059669',
+                                backgroundColor: '#059669',
+                                borderWidth: 2,
+                                borderDash: [4, 4],
+                                pointRadius: 4,
+                                yAxisID: 'y1'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: { mode: 'index', intersect: false },
+                        plugins: {
+                            legend: { position: 'top', labels: { font: { family: 'Inter', size: 11, weight: '600' } } },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(c) {
+                                        if (c.dataset.yAxisID === 'y') return ' Виручка: ' + c.raw.toFixed(2) + ' млн ₴';
+                                        return ' Нових клієнтів: ' + c.raw;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 11, weight: '600' } } },
+                            y: {
+                                type: 'linear', position: 'left',
+                                grid: { color: 'rgba(226, 232, 240, 0.6)' },
+                                ticks: { callback: function(v) { return v + 'M ₴'; }, font: { family: 'Inter', size: 10 } }
+                            },
+                            y1: {
+                                type: 'linear', position: 'right',
+                                grid: { display: false },
+                                ticks: { font: { family: 'Inter', size: 10 } }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        function openCompanyModalByCode(code) {
+            var c = allCompanies.find(function(item) { return String(item.code) === String(code); });
+            if (!c) return;
+
+            document.getElementById('modalCompName').textContent = c.name;
+            document.getElementById('modalCompCode').textContent = c.code;
+            document.getElementById('modalRevenue').textContent = fmtM(c.goods_revenue);
+            document.getElementById('modalCohort').textContent = c.cohort || 'Разові (1)';
+            document.getElementById('modalInvoices').textContent = fmtN(c.invoices_count || c.inv_count || 0);
+            document.getElementById('modalAvgTicket').textContent = fmtM(c.avg_ticket);
+            document.getElementById('modalFirstPurchase').textContent = c.first_purchase || '—';
+            document.getElementById('modalAbc').innerHTML = getAbcBadge(c.abc_group);
+            document.getElementById('modalIndustry').textContent = c.industry || 'Не вказано';
+            document.getElementById('modalStatus').textContent = c.status_name || 'Новий';
+            document.getElementById('modalCardLink').href = '/client-detail?token=' + encodeURIComponent(TOKEN) + '&code=' + encodeURIComponent(c.code);
+
+            document.getElementById('companyModal').classList.add('active');
+        }
+
+        function closeCompanyModal(e) {
+            document.getElementById('companyModal').classList.remove('active');
+        }
+
+        function exportToCSV() {
+            if (!filteredCompanies.length) {
+                alert('Немає даних для експорту');
+                return;
+            }
+
+            var headers = ['Код 1С', 'Назва компанії', 'Когорта', 'Накладних', 'Товарна виручка (грн)', 'Послуги (грн)', 'Середній чек (грн)', 'Перша покупка', 'ABC', 'Галузь'];
+            var csvRows = [headers.join(';')];
+
+            filteredCompanies.forEach(function(c) {
+                var invs = c.invoices_count || c.inv_count || 0;
+                var row = [
+                    '"' + (c.code || '').replace(/"/g, '""') + '"',
+                    '"' + (c.name || '').replace(/"/g, '""') + '"',
+                    '"' + (c.cohort || '') + '"',
+                    invs,
+                    c.goods_revenue,
+                    c.services_revenue,
+                    c.avg_ticket,
+                    '"' + (c.first_purchase || '') + '"',
+                    '"' + (c.abc_group || '') + '"',
+                    '"' + (c.industry || '').replace(/"/g, '""') + '"'
+                ];
+                csvRows.push(row.join(';'));
+            });
+
+            var csvString = '\uFEFF' + csvRows.join('\r\n');
+            var blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = 'new_clients_segmentation_' + curYear + '.csv';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeCompanyModal();
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var tbody = document.getElementById('companiesTbody');
+            if (tbody) {
+                tbody.addEventListener('click', function(e) {
+                    var btn = e.target.closest('.action-eye-btn');
+                    if (btn) {
+                        var code = btn.getAttribute('data-code');
+                        if (code) openCompanyModalByCode(code);
+                    }
+                });
+            }
+            loadCompaniesFromDB();
+        });
+    </script>
+</body>
+</html>

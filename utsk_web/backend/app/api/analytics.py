@@ -582,58 +582,18 @@ def c2_detail(token: str=Query(None), year: int=2026, multiplier: float=2.9, lim
         logger.error(f'Ошибка c2_detail: {e}')
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get('/api/analytics/segment-detail')
-def segment_detail(token: str=Query(None), segment: str=Query('abc'), year: int=2026, multiplier: float=2.9, limit_price: float=146000, active_only: bool=True, db: Session=Depends(get_db)):
-    """Детальный анализ любого сегмента (c2, abc, total, important) с матрицей и локальным ABC"""
+@router.get('/api/analytics/legacy-segment-detail')
+def legacy_segment_detail(token: str=Query(None), segment: str=Query('abc'), year: int=2026, multiplier: float=2.9, limit_price: float=146000, active_only: bool=True, db: Session=Depends(get_db)):
+    """Детальный анализ любого сегмента (c2, abc, total, important) с матрицей и локальным ABC (legacy)"""
     verify_token(token)
     try:
-        sql = text('SELECT * FROM get_segment_detail(:segment, :year, :multiplier, :limit_price)')
-        rows = db.execute(sql, {'segment': segment, 'year': year, 'multiplier': multiplier, 'limit_price': limit_price}).fetchall()
-        rows_prev = db.execute(sql, {'segment': segment, 'year': year - 1, 'multiplier': multiplier, 'limit_price': limit_price}).fetchall()
-        freq_groups = ['1', '2_1d', '2_diff', '3', '4_10', '11_40', '41_170', '171_plus']
-        classes = ['A', 'B', 'C']
-        matrix = {cls: {fg: {'comp': 0, 'inv': 0, 'sales': 0.0} for fg in freq_groups} for cls in classes}
-        matrix_prev = {cls: {fg: {'comp': 0, 'inv': 0, 'sales': 0.0} for fg in freq_groups} for cls in classes}
-        local_abc = {cls: {'comp': 0, 'inv': 0, 'sales': 0.0} for cls in classes}
-        repeat_decomp = {fg: {'comp': 0, 'inv': 0, 'sales': 0.0} for fg in freq_groups}
-        total_comp = 0
-        total_inv = 0
-        total_sales = 0.0
-        for r in rows:
-            cls = r.internal_class
-            fg = r.freq_group
-            sales = float(r.goods_revenue or 0)
-            inv = int(r.invoices_count or 0)
-            total_comp += 1
-            total_inv += inv
-            total_sales += sales
-            local_abc[cls]['comp'] += 1
-            local_abc[cls]['inv'] += inv
-            local_abc[cls]['sales'] += sales
-            repeat_decomp[fg]['comp'] += 1
-            repeat_decomp[fg]['inv'] += inv
-            repeat_decomp[fg]['sales'] += sales
-            matrix[cls][fg]['comp'] += 1
-            matrix[cls][fg]['inv'] += inv
-            matrix[cls][fg]['sales'] += sales
-        for r in rows_prev:
-            cls = r.internal_class
-            fg = r.freq_group
-            sales = float(r.goods_revenue or 0)
-            inv = int(r.invoices_count or 0)
-            matrix_prev[cls][fg]['comp'] += 1
-            matrix_prev[cls][fg]['inv'] += inv
-            matrix_prev[cls][fg]['sales'] += sales
-        comp_2_1d = repeat_decomp['2_1d']['comp']
-        comp_2_diff = repeat_decomp['2_diff']['comp']
-        total_2_comp = comp_2_1d + comp_2_diff
-        false_repeat_pct = round(comp_2_1d / total_2_comp * 100, 1) if total_2_comp > 0 else 0.0
-        class_a_sales_pct = round(local_abc['A']['sales'] / total_sales * 100, 1) if total_sales > 0 else 0.0
-        class_a_comp_pct = round(local_abc['A']['comp'] / total_comp * 100, 1) if total_comp > 0 else 0.0
-        return {'status': 'ok', 'segment': segment, 'year': year, 'year_prev': year - 1, 'limit_price': limit_price, 'data': {'total_companies': total_comp, 'total_invoices': total_inv, 'total_sales': round(total_sales, 2), 'avg_ticket': round(total_sales / total_inv, 2) if total_inv else 0.0, 'local_abc': local_abc, 'repeat_decomp': repeat_decomp, 'matrix': matrix, 'matrix_prev': matrix_prev, 'kpis': {'false_repeat_pct': false_repeat_pct, 'class_a_sales_pct': class_a_sales_pct, 'class_a_comp_pct': class_a_comp_pct, 'false_repeat_comp': comp_2_1d, 'true_repeat_comp': comp_2_diff}}}
+        sql = text('SELECT * FROM get_segment_detail(:year, :segment, :table, :limit_price)')
+        rows = db.execute(sql, {'segment': segment, 'year': year, 'table': 'general', 'limit_price': limit_price}).fetchall()
+        return {'status': 'ok', 'segment': segment, 'year': year, 'count': len(rows)}
     except Exception as e:
-        logger.error(f'Ошибка segment_detail: {e}')
+        logger.error(f'Ошибка legacy_segment_detail: {e}')
         raise HTTPException(status_code=500, detail=str(e))
+
 
 @router.get('/api/analytics/abc-groups-detail')
 def abc_groups_detail(token: str=Query(None), year: int=2026, multiplier: float=2.9, limit_price: float=146000, db: Session=Depends(get_db)):
@@ -817,4 +777,981 @@ def segmentation_matrix(token: str = Query(None), year: int = 2026, limit_price:
         }
     except Exception as e:
         logger.error(f'Ошибка segmentation_matrix: {e}')
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get('/api/analytics/segmentation-matrix-v2')
+def segmentation_matrix_v2(token: str = Query(None), year: int = 2026, limit_price: float = 146000, db: Session = Depends(get_db)):
+    """Нова матриця частоти покупок (v2) з розбивкою на загальну кількість, C2/ABC та динамічний слой"""
+    verify_token(token)
+    try:
+        result = db.execute(
+            text('SELECT * FROM get_segmentation_matrix_v2(:year, :limit_price)'),
+            {'year': year, 'limit_price': limit_price}
+        )
+        rows = []
+        for row in result:
+            r = dict(row._mapping)
+            for key in ['total_sales', 'c2_sales']:
+                if key in r and r[key] is not None:
+                    r[key] = round(float(r[key]), 2)
+            rows.append(r)
+
+        totals = {
+            'freq_group': 'all',
+            'total_clients': sum(r['total_clients'] for r in rows),
+            'total_sales': round(sum(r['total_sales'] for r in rows), 2),
+            'c2_clients': sum(r['c2_clients'] for r in rows),
+            'c2_sales': round(sum(r['c2_sales'] for r in rows), 2),
+            'new_clients': sum(r['new_clients'] for r in rows),
+            'retained_clients': sum(r['retained_clients'] for r in rows),
+        }
+
+        chart_data = {
+            'categories': ['РАЗОВІ (1)', 'ПОВТОРНІ (2-3)', 'КВАРТАЛЬНІ (4-10)', 'МІСЯЧНІ (11-40)', 'ПОСТІЙНІ (41+)'],
+            'total_companies': [r['total_clients'] for r in rows],
+            'c2_companies': [r['c2_clients'] for r in rows],
+            'abc_companies': [r['total_clients'] - r['c2_clients'] for r in rows],
+            'total_sales': [r['total_sales'] for r in rows],
+            'c2_sales': [r['c2_sales'] for r in rows],
+            'abc_sales': [round(r['total_sales'] - r['c2_sales'], 2) for r in rows]
+        }
+
+        by_freq = {r['freq_group']: r for r in rows}
+        by_freq['all'] = totals
+
+        return {
+            'status': 'ok',
+            'year': year,
+            'limit_price': limit_price,
+            'data': rows,
+            'totals': totals,
+            'by_freq': by_freq,
+            'chart_data': chart_data,
+            'count': len(rows)
+        }
+    except Exception as e:
+        logger.error(f'Ошибка segmentation_matrix_v2: {e}')
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get('/api/analytics/segmentation-current-year')
+def segmentation_current_year(token: str = Query(None), year: int = 2026, limit_price: float = 146000, db: Session = Depends(get_db)):
+    """Розподіл клієнтів поточного року за частотою покупок (C2, Нові, Утримані, Виручка)"""
+    verify_token(token)
+    try:
+        result = db.execute(
+            text('SELECT * FROM get_segmentation_current_year(:year, :limit_price)'),
+            {'year': year, 'limit_price': limit_price}
+        ).fetchall()
+        data = []
+        for r in result:
+            row = dict(r._mapping)
+            for k in ['total_revenue', 'c2_revenue']:
+                if k in row and row[k] is not None:
+                    row[k] = round(float(row[k]), 2)
+            data.append(row)
+
+        totals = {
+            'total_count': sum(r['total_count'] for r in data),
+            'total_revenue': round(sum(r['total_revenue'] for r in data), 2),
+            'new_count': sum(r['new_count'] for r in data),
+            'c2_count': sum(r['c2_count'] for r in data),
+            'c2_revenue': round(sum(r['c2_revenue'] for r in data), 2),
+            'retained_count': sum(r['retained_count'] for r in data),
+        }
+
+        by_freq = {r['freq_group']: r for r in data}
+
+        chart_data = {
+            'categories': [r['freq_name'] + ' (' + r['freq_range'] + ')' for r in data],
+            'total_companies': [r['total_count'] for r in data],
+            'c2_companies': [r['c2_count'] for r in data],
+            'abc_companies': [r['total_count'] - r['c2_count'] for r in data],
+            'total_sales': [r['total_revenue'] for r in data],
+            'c2_sales': [r['c2_revenue'] for r in data],
+            'abc_sales': [round(r['total_revenue'] - r['c2_revenue'], 2) for r in data]
+        }
+
+        return {
+            'status': 'ok',
+            'year': year,
+            'limit_price': limit_price,
+            'data': data,
+            'totals': totals,
+            'by_freq': by_freq,
+            'chart_data': chart_data,
+            'count': len(data)
+        }
+    except Exception as e:
+        logger.error(f'Ошибка segmentation_current_year: {e}')
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get('/api/analytics/segmentation-past-years')
+def segmentation_past_years(token: str = Query(None), year: int = 2026, db: Session = Depends(get_db)):
+    """Розподіл неактивних клієнтів (Сплячі status=8, Вибули status=9) за частотою в попередні роки"""
+    verify_token(token)
+    try:
+        result = db.execute(
+            text('SELECT * FROM get_segmentation_past_years(:year)'),
+            {'year': year}
+        ).fetchall()
+        data = []
+        for r in result:
+            row = dict(r._mapping)
+            if 'total_revenue' in row and row['total_revenue'] is not None:
+                row['total_revenue'] = round(float(row['total_revenue']), 2)
+            data.append(row)
+
+        sleeping = [r for r in data if r['current_status_id'] == 8]
+        churned = [r for r in data if r['current_status_id'] == 9]
+
+        sleeping_by_freq = {r['freq_group']: r for r in sleeping}
+        churned_by_freq = {r['freq_group']: r for r in churned}
+
+        totals = {
+            'sleeping_count': sum(r['total_count'] for r in sleeping),
+            'sleeping_revenue': round(sum(r['total_revenue'] for r in sleeping), 2),
+            'churned_count': sum(r['total_count'] for r in churned),
+            'churned_revenue': round(sum(r['total_revenue'] for r in churned), 2),
+        }
+
+        return {
+            'status': 'ok',
+            'year': year,
+            'data': data,
+            'sleeping': sleeping,
+            'churned': churned,
+            'sleeping_by_freq': sleeping_by_freq,
+            'churned_by_freq': churned_by_freq,
+            'totals': totals,
+            'count': len(data)
+        }
+    except Exception as e:
+        logger.error(f'Ошибка segmentation_past_years: {e}')
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get('/api/analytics/segment-detail')
+def segment_detail(
+    token: str = Query(None),
+    year: int = 2026,
+    segment: str = 'raz',
+    table: str = 'general',
+    category: str = 'Разові (1)',
+    limit_price: float = 146000.0,
+    db: Session = Depends(get_db)
+):
+    """Деталізація когорти/сегменту: список компаній, KPI та щомісячний розподіл"""
+    verify_token(token)
+    try:
+        result = db.execute(
+            text('SELECT * FROM get_segment_detail(:year, :segment, :table, :limit_price)'),
+            {'year': year, 'segment': segment, 'table': table, 'limit_price': limit_price}
+        ).fetchall()
+
+        clients_list = []
+        monthly_rev = [0.0] * 12
+
+        total_companies = len(result)
+        total_invoices = 0
+        total_revenue = 0.0
+
+        for r in result:
+            row = dict(r._mapping)
+            for m_idx in range(1, 13):
+                m_key = f'm{m_idx}'
+                m_val = float(row.get(m_key, 0.0) or 0.0)
+                monthly_rev[m_idx - 1] += m_val
+
+            inv_count = int(row.get('invoices_count', 0) or 0)
+            rev = round(float(row.get('goods_revenue', 0.0) or 0.0), 2)
+            avg_t = round(float(row.get('avg_ticket', 0.0) or 0.0), 2)
+
+            total_invoices += inv_count
+            total_revenue += rev
+
+            clients_list.append({
+                'code': str(row.get('code', '')),
+                'name': str(row.get('name', '')),
+                'current_status_id': row.get('current_status_id'),
+                'status_name': str(row.get('status_name', '')),
+                'invoices_count': inv_count,
+                'goods_revenue': rev,
+                'avg_ticket': avg_t
+            })
+
+        total_revenue = round(total_revenue, 2)
+        avg_ticket = round(total_revenue / max(total_invoices, 1), 2)
+        monthly_rev = [round(v, 2) for v in monthly_rev]
+
+        return {
+            'status': 'ok',
+            'year': year,
+            'segment': segment,
+            'table': table,
+            'category': category,
+            'kpi': {
+                'total_companies': total_companies,
+                'total_invoices': total_invoices,
+                'total_revenue': total_revenue,
+                'avg_ticket': avg_ticket
+            },
+            'monthly_distribution': monthly_rev,
+            'clients': clients_list,
+            'count': total_companies
+        }
+    except Exception as e:
+        logger.error(f'Ошибка segment_detail: {e}')
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get('/api/analytics/general-segmentation-companies')
+def general_segmentation_companies(
+    token: str = Query(None),
+    year: int = 2026,
+    db: Session = Depends(get_db)
+):
+    """Отримати повний список активних компаній за рік для сторінки загальної сегментації з KPI та когортами"""
+    verify_token(token)
+    try:
+        rows = db.execute(
+            text('SELECT * FROM get_general_segmentation_companies(:year)'),
+            {'year': year}
+        ).fetchall()
+
+        companies = []
+        total_goods_revenue = 0.0
+        total_services_revenue = 0.0
+        total_invoices = 0
+
+        cohort_counts = {
+            'ALL': len(rows),
+            'SINGLE': 0,
+            'REPEAT': 0,
+            'QUARTERLY': 0,
+            'MONTHLY': 0,
+            'WEEKLY': 0,
+            'DAILY': 0
+        }
+
+        cohort_revenues = {
+            'SINGLE': 0.0,
+            'REPEAT': 0.0,
+            'QUARTERLY': 0.0,
+            'MONTHLY': 0.0,
+            'WEEKLY': 0.0,
+            'DAILY': 0.0
+        }
+
+        repeat_subgroups = {
+            'dubl': 0,
+            'center': 0,
+            'cand': 0
+        }
+
+        industry_stats = {}
+
+        for r in rows:
+            row = dict(r._mapping)
+            rev = float(row.get('goods_revenue', 0.0) or 0.0)
+            s_rev = float(row.get('services_revenue', 0.0) or 0.0)
+            invs = int(row.get('invoices_count', 0) or 0)
+            c = row.get('cohort', 'SINGLE')
+            det = row.get('detailed_segment', '')
+            ind = row.get('industry', 'Не визначено')
+
+            total_goods_revenue += rev
+            total_services_revenue += s_rev
+            total_invoices += invs
+
+            if c in cohort_counts:
+                cohort_counts[c] += 1
+                cohort_revenues[c] += rev
+
+            if 'дубль' in det:
+                repeat_subgroups['dubl'] += 1
+            elif '3 покупки' in det:
+                repeat_subgroups['cand'] += 1
+            elif c == 'REPEAT':
+                repeat_subgroups['center'] += 1
+
+            if ind not in industry_stats:
+                industry_stats[ind] = {'count': 0, 'revenue': 0.0}
+            industry_stats[ind]['count'] += 1
+            industry_stats[ind]['revenue'] += rev
+
+            companies.append({
+                'code': str(row.get('code', '')),
+                'name': str(row.get('name', '')),
+                'inv_count': invs,
+                'invoices_count': invs,
+                'goods_revenue': round(rev, 2),
+                'services_revenue': round(s_rev, 2),
+                'avg_ticket': round(float(row.get('avg_ticket', 0.0) or 0.0), 2),
+                'abc_group': str(row.get('abc_group', 'C2')),
+                'cohort': c,
+                'detailed_segment': det,
+                'industry': ind,
+                'status_name': str(row.get('status_name', '')),
+                'current_status_id': row.get('current_status_id')
+            })
+
+        # Calculate Top 80% Core
+        total_rev_80 = total_goods_revenue * 0.8
+        running_rev = 0.0
+        top_80_count = 0
+        for comp in companies:
+            running_rev += comp['goods_revenue']
+            top_80_count += 1
+            if running_rev >= total_rev_80:
+                break
+
+        repeat_loyal_count = sum(cohort_counts[k] for k in ['REPEAT', 'QUARTERLY', 'MONTHLY', 'WEEKLY', 'DAILY'])
+
+        kpi = {
+            'total_firms': len(companies),
+            'total_revenue': round(total_goods_revenue, 2),
+            'total_services': round(total_services_revenue, 2),
+            'total_invoices': total_invoices,
+            'avg_ticket': round(total_goods_revenue / max(total_invoices, 1), 2),
+            'repeat_loyal_count': repeat_loyal_count,
+            'top_80_count': top_80_count,
+            'top_80_revenue': round(running_rev, 2),
+            'top_80_pct': round(top_80_count / max(len(companies), 1) * 100, 1)
+        }
+
+        return {
+            'status': 'ok',
+            'year': year,
+            'kpi': kpi,
+            'cohort_counts': cohort_counts,
+            'cohort_revenues': {k: round(v, 2) for k, v in cohort_revenues.items()},
+            'repeat_subgroups': repeat_subgroups,
+            'industry_stats': {k: {'count': v['count'], 'revenue': round(v['revenue'], 2)} for k, v in industry_stats.items()},
+            'data': companies,
+            'count': len(companies)
+        }
+    except Exception as e:
+        logger.error(f'Ошибка general_segmentation_companies: {e}')
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get('/api/analytics/repeat-segmentation-companies')
+def repeat_segmentation_companies(
+    token: str = Query(None),
+    year: int = 2026,
+    db: Session = Depends(get_db)
+):
+    """Отримати список клієнтів сегменту Повторні (розкладені) (174 компанії) з підгрупами та метриками"""
+    verify_token(token)
+    try:
+        rows = db.execute(
+            text('SELECT * FROM get_repeat_segmentation_companies(:year)'),
+            {'year': year}
+        ).fetchall()
+
+        companies = []
+        total_goods_revenue = 0.0
+        total_services_revenue = 0.0
+        total_invoices = 0
+
+        subgroup_counts = {
+            'ALL': len(rows),
+            'QUICK_DOUBLE': 0,
+            'CENTER': 0,
+            'CANDIDATES': 0
+        }
+
+        subgroup_revenues = {
+            'QUICK_DOUBLE': 0.0,
+            'CENTER': 0.0,
+            'CANDIDATES': 0.0
+        }
+
+        for r in rows:
+            row = dict(r._mapping)
+            rev = float(row.get('goods_revenue', 0.0) or 0.0)
+            s_rev = float(row.get('services_revenue', 0.0) or 0.0)
+            invs = int(row.get('inv_count', 0) or row.get('invoices_count', 0) or 0)
+            sub = str(row.get('subgroup', 'Центр (2-3)'))
+            days = int(row.get('days_between', 0) or 0)
+
+            total_goods_revenue += rev
+            total_services_revenue += s_rev
+            total_invoices += invs
+
+            sub_key = 'CENTER'
+            if 'дубль' in sub.lower():
+                sub_key = 'QUICK_DOUBLE'
+            elif 'кандидат' in sub.lower():
+                sub_key = 'CANDIDATES'
+
+            subgroup_counts[sub_key] += 1
+            subgroup_revenues[sub_key] += rev
+
+            companies.append({
+                'code': str(row.get('code', '')),
+                'name': str(row.get('name', '')),
+                'inv_count': invs,
+                'invoices_count': invs,
+                'goods_revenue': round(rev, 2),
+                'services_revenue': round(s_rev, 2),
+                'avg_ticket': round(float(row.get('avg_ticket', 0.0) or 0.0), 2),
+                'days_between': days,
+                'subgroup': sub,
+                'subgroup_key': sub_key,
+                'abc_group': str(row.get('abc_group', 'C2')),
+                'industry': str(row.get('industry', 'Не вказано')),
+                'status_name': str(row.get('status_name', '')),
+                'current_status_id': row.get('current_status_id')
+            })
+
+        kpi = {
+            'total_repeat': len(companies),
+            'quick_double': subgroup_counts['QUICK_DOUBLE'],
+            'center': subgroup_counts['CENTER'],
+            'candidates': subgroup_counts['CANDIDATES'],
+            'total_revenue': round(total_goods_revenue, 2),
+            'total_services': round(total_services_revenue, 2),
+            'total_invoices': total_invoices,
+            'avg_ticket': round(total_goods_revenue / max(total_invoices, 1), 2)
+        }
+
+        return {
+            'status': 'ok',
+            'year': year,
+            'kpi': kpi,
+            'subgroup_counts': subgroup_counts,
+            'subgroup_revenues': {k: round(v, 2) for k, v in subgroup_revenues.items()},
+            'data': companies,
+            'count': len(companies)
+        }
+    except Exception as e:
+        logger.error(f'Ошибка repeat_segmentation_companies: {e}')
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get('/api/analytics/consolidated-segmentation-companies')
+def consolidated_segmentation_companies(
+    token: str = Query(None),
+    year: int = 2026,
+    db: Session = Depends(get_db)
+):
+    """Отримати повний список активних компаній за рік для консолідованого реєстру (729 клієнтів)"""
+    verify_token(token)
+    try:
+        rows = db.execute(
+            text('SELECT * FROM get_consolidated_segmentation_companies(:year)'),
+            {'year': year}
+        ).fetchall()
+
+        companies = []
+        total_goods_revenue = 0.0
+        total_services_revenue = 0.0
+        total_invoices = 0
+
+        group_counts = {
+            'ALL': len(rows),
+            'SINGLE_CONS': 0,
+            'REPEAT_CORE': 0,
+            'LOYAL': 0
+        }
+
+        group_revenues = {
+            'SINGLE_CONS': 0.0,
+            'REPEAT_CORE': 0.0,
+            'LOYAL': 0.0
+        }
+
+        for r in rows:
+            row = dict(r._mapping)
+            rev = float(row.get('goods_revenue', 0.0) or 0.0)
+            s_rev = float(row.get('services_revenue', 0.0) or 0.0)
+            invs = int(row.get('inv_count', 0) or row.get('invoices_count', 0) or 0)
+            grp = str(row.get('consolidated_group', 'Постійні (4+)'))
+            key = str(row.get('consolidated_key', 'LOYAL'))
+            det = str(row.get('detailed_segment', ''))
+
+            total_goods_revenue += rev
+            total_services_revenue += s_rev
+            total_invoices += invs
+
+            if key in group_counts:
+                group_counts[key] += 1
+                group_revenues[key] += rev
+
+            companies.append({
+                'code': str(row.get('code', '')),
+                'name': str(row.get('name', '')),
+                'inv_count': invs,
+                'invoices_count': invs,
+                'goods_revenue': round(rev, 2),
+                'services_revenue': round(s_rev, 2),
+                'avg_ticket': round(float(row.get('avg_ticket', 0.0) or 0.0), 2),
+                'days_between': int(row.get('days_between', 0) or 0),
+                'consolidated_group': grp,
+                'consolidated_key': key,
+                'detailed_segment': det,
+                'abc_group': str(row.get('abc_group', 'C2')),
+                'industry': str(row.get('industry', 'Не вказано')),
+                'status_name': str(row.get('status_name', '')),
+                'current_status_id': row.get('current_status_id')
+            })
+
+        kpi = {
+            'total_companies': len(companies),
+            'single_cons': group_counts['SINGLE_CONS'],
+            'repeat_core': group_counts['REPEAT_CORE'],
+            'loyal': group_counts['LOYAL'],
+            'total_revenue': round(total_goods_revenue, 2),
+            'total_services': round(total_services_revenue, 2),
+            'total_invoices': total_invoices,
+            'avg_ticket': round(total_goods_revenue / max(total_invoices, 1), 2)
+        }
+
+        return {
+            'status': 'ok',
+            'year': year,
+            'kpi': kpi,
+            'group_counts': group_counts,
+            'group_revenues': {k: round(v, 2) for k, v in group_revenues.items()},
+            'data': companies,
+            'count': len(companies)
+        }
+    except Exception as e:
+        logger.error(f'Ошибка consolidated_segmentation_companies: {e}')
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get('/api/analytics/c2-segmentation-companies')
+def c2_segmentation_companies(
+    token: str = Query(None),
+    year: int = 2026,
+    limit_price: float = 146000.0,
+    limit_tonnage: float = 2.0,
+    filter_mode: str = 'all',  # 'all', 'revenue', 'tonnage'
+    db: Session = Depends(get_db)
+):
+    """Отримати список дрібних клієнтів C2 (≤ 146 000 ₴ або ≤ 2 т) з метриками та ТОП-товарами"""
+    verify_token(token)
+    try:
+        rows = db.execute(
+            text('SELECT * FROM get_c2_segmentation_companies(:year, :limit_price, :limit_tonnage)'),
+            {'year': year, 'limit_price': limit_price, 'limit_tonnage': limit_tonnage}
+        ).fetchall()
+
+        prod_rows = db.execute(
+            text('SELECT * FROM get_c2_top_products(:year, :limit_price)'),
+            {'year': year, 'limit_price': limit_price}
+        ).fetchall()
+
+        top_products = [
+            {
+                'code': str(pr._mapping.get('product_code', '')),
+                'name': str(pr._mapping.get('product_name', '')),
+                'total_amount': float(pr._mapping.get('total_amount', 0.0) or 0.0),
+                'total_qty': float(pr._mapping.get('total_qty', 0.0) or 0.0),
+                'orders_count': int(pr._mapping.get('orders_count', 0) or 0)
+            }
+            for pr in prod_rows
+        ]
+
+        companies = []
+        total_goods_revenue = 0.0
+        total_services_revenue = 0.0
+        total_invoices = 0
+        total_tonnage_sum = 0.0
+
+        cohort_counts = {
+            'Разові (1)': 0,
+            'Повторні (2-3)': 0,
+            'Квартальні (4-10)': 0,
+            'Місячні (11-40)': 0,
+            'Тижневі (41-170)': 0,
+            'Щоденні (>170)': 0
+        }
+
+        for r in rows:
+            row = dict(r._mapping)
+            rev = float(row.get('goods_revenue', 0.0) or 0.0)
+            s_rev = float(row.get('services_revenue', 0.0) or 0.0)
+            ton = float(row.get('total_tonnage', 0.0) or 0.0)
+            invs = int(row.get('inv_count', 0) or row.get('invoices_count', 0) or 0)
+            coh = str(row.get('cohort', 'Разові (1)'))
+
+            # Filter mode
+            if filter_mode == 'revenue' and rev > limit_price:
+                continue
+            if filter_mode == 'tonnage' and ton > limit_tonnage:
+                continue
+
+            total_goods_revenue += rev
+            total_services_revenue += s_rev
+            total_invoices += invs
+            total_tonnage_sum += ton
+
+            if coh in cohort_counts:
+                cohort_counts[coh] += 1
+            else:
+                cohort_counts['Разові (1)'] += 1
+
+            companies.append({
+                'code': str(row.get('code', '')),
+                'name': str(row.get('name', '')),
+                'inv_count': invs,
+                'invoices_count': invs,
+                'goods_revenue': round(rev, 2),
+                'services_revenue': round(s_rev, 2),
+                'total_tonnage': round(ton, 3),
+                'avg_ticket': round(float(row.get('avg_ticket', 0.0) or 0.0), 2),
+                'abc_group': str(row.get('abc_group', 'C2')),
+                'industry': str(row.get('industry', 'Не вказано')),
+                'status_name': str(row.get('status_name', '')),
+                'current_status_id': row.get('current_status_id'),
+                'cohort': coh
+            })
+
+        share_pct = round((len(companies) / 729.0) * 100.0, 1) if companies else 0.0
+        # Estimated growth potential: up to average B2 ticket (~150k per client)
+        growth_potential = round(len(companies) * 146000.0 - total_goods_revenue, 2)
+        if growth_potential < 0:
+            growth_potential = 0.0
+
+        kpi = {
+            'total_c2': len(companies),
+            'total_revenue': round(total_goods_revenue, 2),
+            'total_services': round(total_services_revenue, 2),
+            'total_tonnage': round(total_tonnage_sum, 3),
+            'total_invoices': total_invoices,
+            'avg_ticket': round(total_goods_revenue / max(total_invoices, 1), 2),
+            'share_of_total_base': share_pct,
+            'growth_potential': growth_potential
+        }
+
+        return {
+            'status': 'ok',
+            'year': year,
+            'filter_mode': filter_mode,
+            'limit_price': limit_price,
+            'limit_tonnage': limit_tonnage,
+            'kpi': kpi,
+            'cohort_counts': cohort_counts,
+            'top_products': top_products,
+            'data': companies,
+            'count': len(companies)
+        }
+    except Exception as e:
+        logger.error(f'Ошибка c2_segmentation_companies: {e}')
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get('/api/analytics/new-clients-segmentation-companies')
+def new_clients_segmentation_companies(
+    token: str = Query(None),
+    year: int = 2026,
+    db: Session = Depends(get_db)
+):
+    """Отримати список нових клієнтів (Status ID = 1) з розбивкою за частотними когортами та щомісячною динамікою"""
+    verify_token(token)
+    try:
+        rows = db.execute(
+            text('SELECT * FROM get_new_clients_segmentation(:year)'),
+            {'year': year}
+        ).fetchall()
+
+        month_rows = db.execute(
+            text('SELECT * FROM get_new_clients_monthly_revenue(:year)'),
+            {'year': year}
+        ).fetchall()
+
+        monthly_dist = [
+            {
+                'month_num': int(mr._mapping.get('month_num', 1)),
+                'revenue': float(mr._mapping.get('revenue', 0.0) or 0.0),
+                'invoices_count': int(mr._mapping.get('invoices_count', 0) or 0),
+                'active_clients': int(mr._mapping.get('active_clients', 0) or 0)
+            }
+            for mr in month_rows
+        ]
+
+        companies = []
+        total_goods_revenue = 0.0
+        total_services_revenue = 0.0
+        total_invoices = 0
+        core_ab_count = 0
+
+        cohort_counts = {
+            'ALL': len(rows),
+            'Разові (1)': 0,
+            'Повторні (2-3)': 0,
+            'Квартальні (4-10)': 0,
+            'Місячні (11-40)': 0,
+            'Тижневі (41-170)': 0,
+            'Щоденні (>170)': 0
+        }
+
+        for r in rows:
+            row = dict(r._mapping)
+            rev = float(row.get('goods_revenue', 0.0) or 0.0)
+            s_rev = float(row.get('services_revenue', 0.0) or 0.0)
+            invs = int(row.get('inv_count', 0) or row.get('invoices_count', 0) or 0)
+            coh = str(row.get('cohort', 'Разові (1)'))
+            abc = str(row.get('abc_group', 'C2'))
+
+            total_goods_revenue += rev
+            total_services_revenue += s_rev
+            total_invoices += invs
+
+            if coh in cohort_counts:
+                cohort_counts[coh] += 1
+            else:
+                cohort_counts['Разові (1)'] += 1
+
+            if abc in ['A1', 'A2', 'A3', 'B1', 'B2']:
+                core_ab_count += 1
+
+            companies.append({
+                'code': str(row.get('code', '')),
+                'name': str(row.get('name', '')),
+                'inv_count': invs,
+                'invoices_count': invs,
+                'goods_revenue': round(rev, 2),
+                'services_revenue': round(s_rev, 2),
+                'avg_ticket': round(float(row.get('avg_ticket', 0.0) or 0.0), 2),
+                'first_purchase': str(row.get('first_purchase', '')) if row.get('first_purchase') else '',
+                'last_purchase': str(row.get('last_purchase', '')) if row.get('last_purchase') else '',
+                'abc_group': abc,
+                'industry': str(row.get('industry', 'Не вказано')),
+                'status_name': str(row.get('status_name', 'Новий')),
+                'current_status_id': row.get('current_status_id'),
+                'cohort': coh
+            })
+
+        share_pct = round((len(companies) / 729.0) * 100.0, 1) if companies else 0.0
+
+        kpi = {
+            'total_new': len(companies),
+            'total_revenue': round(total_goods_revenue, 2),
+            'total_services': round(total_services_revenue, 2),
+            'total_invoices': total_invoices,
+            'avg_ticket': round(total_goods_revenue / max(total_invoices, 1), 2),
+            'share_of_total_base': share_pct,
+            'core_ab_count': core_ab_count
+        }
+
+        return {
+            'status': 'ok',
+            'year': year,
+            'kpi': kpi,
+            'cohort_counts': cohort_counts,
+            'monthly_distribution': monthly_dist,
+            'data': companies,
+            'count': len(companies)
+        }
+    except Exception as e:
+        logger.error(f'Ошибка new_clients_segmentation_companies: {e}')
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get('/api/analytics/churned-segmentation-companies')
+def churned_segmentation_companies(
+    token: str = Query(None),
+    year: int = 2026,
+    db: Session = Depends(get_db)
+):
+    """Отримати список вибулих клієнтів (Status ID = 9) з втраченою виручкою та рекомендаціями повернення"""
+    verify_token(token)
+    try:
+        rows = db.execute(
+            text('SELECT * FROM get_churned_segmentation(:year)'),
+            {'year': year}
+        ).fetchall()
+
+        companies = []
+        total_lost_revenue = 0.0
+        total_services_revenue = 0.0
+        total_invoices = 0
+        a_clients_count = 0
+        total_days = 0
+
+        year_distribution = {
+            '2025': 0,
+            '2024': 0,
+            '2023': 0,
+            'Старше': 0
+        }
+
+        cohort_revenues = {
+            'Разові (1)': 0.0,
+            'Повторні (2-3)': 0.0,
+            'Квартальні (4-10)': 0.0,
+            'Місячні (11-40)': 0.0,
+            'Тижневі (41-170)': 0.0,
+            'Щоденні (>170)': 0.0
+        }
+
+        for r in rows:
+            row = dict(r._mapping)
+            rev = float(row.get('goods_revenue', 0.0) or 0.0)
+            s_rev = float(row.get('services_revenue', 0.0) or 0.0)
+            invs = int(row.get('inv_prev', 0) or row.get('invoices_count', 0) or 0)
+            coh = str(row.get('cohort', 'Разові (1)'))
+            abc = str(row.get('abc_group', 'C'))
+            lyear = int(row.get('last_year', 2025) or 2025)
+            days = int(row.get('days_since', 0) or 0)
+
+            total_lost_revenue += rev
+            total_services_revenue += s_rev
+            total_invoices += invs
+            total_days += days
+
+            if abc == 'A':
+                a_clients_count += 1
+
+            if str(lyear) in year_distribution:
+                year_distribution[str(lyear)] += 1
+            else:
+                year_distribution['Старше'] += 1
+
+            if coh in cohort_revenues:
+                cohort_revenues[coh] += rev
+
+            companies.append({
+                'code': str(row.get('code', '')),
+                'name': str(row.get('name', '')),
+                'inv_prev': invs,
+                'invoices_count': invs,
+                'goods_revenue': round(rev, 2),
+                'services_revenue': round(s_rev, 2),
+                'avg_ticket': round(float(row.get('avg_ticket', 0.0) or 0.0), 2),
+                'last_purchase': str(row.get('last_purchase', '')) if row.get('last_purchase') else '',
+                'days_since': days,
+                'last_year': lyear,
+                'abc_group': abc,
+                'recommendation': str(row.get('recommendation', '📋 Архів / Прогрів')),
+                'industry': str(row.get('industry', 'Не вказано')),
+                'cohort': coh
+            })
+
+        share_pct = round((len(companies) / 729.0) * 100.0, 1) if companies else 0.0
+        avg_days = round(total_days / max(len(companies), 1))
+
+        kpi = {
+            'total_churned': len(companies),
+            'lost_revenue': round(total_lost_revenue, 2),
+            'total_services': round(total_services_revenue, 2),
+            'total_invoices': total_invoices,
+            'avg_ticket': round(total_lost_revenue / max(total_invoices, 1), 2),
+            'share_of_total_base': share_pct,
+            'a_clients_count': a_clients_count,
+            'avg_days_since': avg_days
+        }
+
+        return {
+            'status': 'ok',
+            'year': year,
+            'kpi': kpi,
+            'year_distribution': year_distribution,
+            'cohort_revenues': {k: round(v, 2) for k, v in cohort_revenues.items()},
+            'data': companies,
+            'count': len(companies)
+        }
+    except Exception as e:
+        logger.error(f'Ошибка churned_segmentation_companies: {e}')
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get('/api/analytics/sleeping-segmentation-companies')
+def sleeping_segmentation_companies(
+    token: str = Query(None),
+    year: int = 2026,
+    db: Session = Depends(get_db)
+):
+    """Отримати список сплячих клієнтів (Status ID = 8) з давністю мовчання та ризиком відтоку"""
+    verify_token(token)
+    try:
+        rows = db.execute(
+            text('SELECT * FROM get_sleeping_segmentation(:year)'),
+            {'year': year}
+        ).fetchall()
+
+        companies = []
+        total_goods_revenue = 0.0
+        total_services_revenue = 0.0
+        total_invoices = 0
+        high_risk_count = 0
+        total_days = 0
+
+        dormancy_distribution = {
+            '< 90 днів': 0,
+            '90-180 днів': 0,
+            '> 180 днів': 0
+        }
+
+        cohort_revenues = {
+            'Разові (1)': 0.0,
+            'Повторні (2-3)': 0.0,
+            'Квартальні (4-10)': 0.0,
+            'Місячні (11-40)': 0.0,
+            'Тижневі (41-170)': 0.0,
+            'Щоденні (>170)': 0.0
+        }
+
+        for r in rows:
+            row = dict(r._mapping)
+            rev = float(row.get('goods_revenue', 0.0) or 0.0)
+            s_rev = float(row.get('services_revenue', 0.0) or 0.0)
+            invs = int(row.get('inv_curr', 0) or row.get('invoices_count', 0) or 0)
+            coh = str(row.get('cohort', 'Разові (1)'))
+            abc = str(row.get('abc_group', 'C'))
+            days = int(row.get('days_since', 0) or 0)
+
+            total_goods_revenue += rev
+            total_services_revenue += s_rev
+            total_invoices += invs
+            total_days += days
+
+            if days > 180:
+                high_risk_count += 1
+                dormancy_distribution['> 180 днів'] += 1
+            elif days >= 90:
+                dormancy_distribution['90-180 днів'] += 1
+            else:
+                dormancy_distribution['< 90 днів'] += 1
+
+            if coh in cohort_revenues:
+                cohort_revenues[coh] += rev
+
+            companies.append({
+                'code': str(row.get('code', '')),
+                'name': str(row.get('name', '')),
+                'inv_curr': invs,
+                'invoices_count': invs,
+                'goods_revenue': round(rev, 2),
+                'services_revenue': round(s_rev, 2),
+                'avg_ticket': round(float(row.get('avg_ticket', 0.0) or 0.0), 2),
+                'last_purchase': str(row.get('last_purchase', '')) if row.get('last_purchase') else '',
+                'days_since': days,
+                'abc_group': abc,
+                'recommendation': str(row.get('recommendation', '📞 Зателефонувати')),
+                'industry': str(row.get('industry', 'Не вказано')),
+                'cohort': coh
+            })
+
+        share_pct = round((len(companies) / 729.0) * 100.0, 1) if companies else 0.0
+        avg_days = round(total_days / max(len(companies), 1))
+
+        kpi = {
+            'total_sleeping': len(companies),
+            'revenue_before_sleep': round(total_goods_revenue, 2),
+            'total_services': round(total_services_revenue, 2),
+            'total_invoices': total_invoices,
+            'avg_ticket': round(total_goods_revenue / max(total_invoices, 1), 2),
+            'avg_days_since': avg_days,
+            'high_risk_count': high_risk_count,
+            'share_of_total_base': share_pct
+        }
+
+        return {
+            'status': 'ok',
+            'year': year,
+            'kpi': kpi,
+            'dormancy_distribution': dormancy_distribution,
+            'cohort_revenues': {k: round(v, 2) for k, v in cohort_revenues.items()},
+            'data': companies,
+            'count': len(companies)
+        }
+    except Exception as e:
+        logger.error(f'Ошибка sleeping_segmentation_companies: {e}')
         raise HTTPException(status_code=500, detail=str(e))

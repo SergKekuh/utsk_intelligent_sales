@@ -45,6 +45,78 @@ async def client_detail_page(request: Request, token: str = Query(None)):
             return HTMLResponse(content=f.read())
     raise HTTPException(status_code=404, detail="Страница клиента не найдена")
 
+@router.get("/segment-detail", response_class=HTMLResponse)
+async def segment_detail_page(request: Request, token: str = Query(None)):
+    verify_token(token)
+    filepath = find_file("segment-detail.html", get_search_dirs())
+    if filepath:
+        with open(filepath, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    raise HTTPException(status_code=404, detail="Страница детализации сегмента не найдена")
+
+@router.get("/general-segmentation", response_class=HTMLResponse)
+async def general_segmentation_page(request: Request, token: str = Query(None)):
+    verify_token(token)
+    filepath = find_file("general-segmentation.html", get_search_dirs())
+    if filepath:
+        with open(filepath, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    raise HTTPException(status_code=404, detail="Страница общей сегментации не найдена")
+
+@router.get("/repeat-segmentation", response_class=HTMLResponse)
+async def repeat_segmentation_page(request: Request, token: str = Query(None)):
+    verify_token(token)
+    filepath = find_file("repeat-segmentation.html", get_search_dirs())
+    if filepath:
+        with open(filepath, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    raise HTTPException(status_code=404, detail="Страница повторной сегментации не найдена")
+
+@router.get("/consolidated-segmentation", response_class=HTMLResponse)
+async def consolidated_segmentation_page(request: Request, token: str = Query(None)):
+    verify_token(token)
+    filepath = find_file("consolidated-segmentation.html", get_search_dirs())
+    if filepath:
+        with open(filepath, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    raise HTTPException(status_code=404, detail="Страница консолидированной сегментации не найдена")
+
+@router.get("/c2-segmentation", response_class=HTMLResponse)
+async def c2_segmentation_page(request: Request, token: str = Query(None)):
+    verify_token(token)
+    filepath = find_file("c2-segmentation.html", get_search_dirs())
+    if filepath:
+        with open(filepath, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    raise HTTPException(status_code=404, detail="Страница анализа C2 мелких клиентов не найдена")
+
+@router.get("/new-clients-segmentation", response_class=HTMLResponse)
+async def new_clients_segmentation_page(request: Request, token: str = Query(None)):
+    verify_token(token)
+    filepath = find_file("new-clients-segmentation.html", get_search_dirs())
+    if filepath:
+        with open(filepath, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    raise HTTPException(status_code=404, detail="Страница сегментации новых клиентов не найдена")
+
+@router.get("/churned-segmentation", response_class=HTMLResponse)
+async def churned_segmentation_page(request: Request, token: str = Query(None)):
+    verify_token(token)
+    filepath = find_file("churned-segmentation.html", get_search_dirs())
+    if filepath:
+        with open(filepath, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    raise HTTPException(status_code=404, detail="Страница анализа вибулих клієнтів не найдена")
+
+@router.get("/sleeping-segmentation", response_class=HTMLResponse)
+async def sleeping_segmentation_page(request: Request, token: str = Query(None)):
+    verify_token(token)
+    filepath = find_file("sleeping-segmentation.html", get_search_dirs())
+    if filepath:
+        with open(filepath, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    raise HTTPException(status_code=404, detail="Страница анализа спячих клієнтів не найдена")
+
 @router.get("/product-analytics", response_class=HTMLResponse)
 async def product_analytics_page(request: Request, token: str = Query(None)):
     verify_token(token)
