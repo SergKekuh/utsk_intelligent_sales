@@ -15,4 +15,5 @@ if __name__ == "__main__":
     print(f"📍 Доступ: http://{HOST}:{PORT}")
     print(f"🔑 Токен: {DEMO_TOKEN}")
     print("=" * 60)
-    uvicorn.run(app, host=HOST, port=PORT, log_level="info")
+    uvicorn.run("app.main:app", host=HOST, port=PORT, reload=True, log_level="info")
+
