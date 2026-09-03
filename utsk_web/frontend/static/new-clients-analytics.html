@@ -172,11 +172,11 @@
         .text-center { text-align: center; }
 
         .badge-abc {
-            display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; text-align: center; width: 32px;
+            display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 700; text-align: center; min-width: 95px; white-space: nowrap;
         }
         .badge-a { background: #d1fae5; color: #047857; }
-        .badge-b { background: #dbeafe; color: #1d4ed8; }
-        .badge-c { background: #fef3c7; color: #b45309; }
+        .badge-b { background: #fef3c7; color: #b45309; }
+        .badge-c { background: #f1f5f9; color: #475569; }
 
         /* Search & Filters */
         .filters-row {
@@ -334,7 +334,7 @@
                             <table>
                                 <thead>
                                     <tr>
-                                        <th>Группа ABC</th>
+                                        <th style="min-width: 120px;">Клас</th>
                                         <th>Кол-во клиентов</th>
                                         <th>Выручка новых (₴)</th>
                                         <th>Доля в выручке новых (%)</th>
@@ -373,7 +373,7 @@
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Группа ABC</th>
+                                    <th style="min-width: 120px;">Клас</th>
                                     <th class="text-right">Новых клиентов</th>
                                     <th class="text-right">Выручка новых (₴)</th>
                                     <th class="text-center">% выручки новых</th>
@@ -404,10 +404,10 @@
                     <div class="filters-row">
                         <input type="text" id="search-input" class="search-input" placeholder="Поиск по названию или коду..." oninput="onSearchChange()">
                         <div class="abc-filters">
-                            <button class="filter-chip active" onclick="setAbcFilter('', this)">Все</button>
-                            <button class="filter-chip" onclick="setAbcFilter('A', this)">Группа A</button>
-                            <button class="filter-chip" onclick="setAbcFilter('B', this)">Группа B</button>
-                            <button class="filter-chip" onclick="setAbcFilter('C', this)">Группа C</button>
+                            <button class="filter-chip active" onclick="setAbcFilter('', this)">Всі</button>
+                            <button class="filter-chip" onclick="setAbcFilter('A', this)">🟢 Опорні (A)</button>
+                            <button class="filter-chip" onclick="setAbcFilter('B', this)">🟡 Розвиваючі (B)</button>
+                            <button class="filter-chip" onclick="setAbcFilter('C', this)">⚪ Підтримуючі (C)</button>
                         </div>
                     </div>
 
@@ -419,7 +419,7 @@
                                     <th>Наименование клиента</th>
                                     <th>Счетов</th>
                                     <th>Выручка (₴)</th>
-                                    <th>Группа ABC</th>
+                                    <th style="min-width: 120px;">Клас</th>
                                     <th>Первая дата</th>
                                     <th>Последняя дата</th>
                                     <th>Действие</th>
@@ -607,15 +607,16 @@
 
             let labels = [];
             let revenues = [];
+            const groupNames = { 'A': 'Опорні', 'B': 'Розвиваючі', 'C': 'Підтримуючі' };
 
             data.forEach(item => {
-                labels.push(`Группа ${item.abc_group}`);
+                labels.push(groupNames[item.abc_group] || `Клас ${item.abc_group}`);
                 revenues.push(item.revenue);
 
                 const badgeClass = item.abc_group === 'A' ? 'badge-a' : (item.abc_group === 'B' ? 'badge-b' : 'badge-c');
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td><span class="badge-abc ${badgeClass}">${item.abc_group}</span></td>
+                    <td><span class="badge-abc ${badgeClass}">${groupNames[item.abc_group] || item.abc_group}</span></td>
                     <td>${fmtNum(item.count)}</td>
                     <td>${fmtMoney(item.revenue)}</td>
                     <td><strong>${item.pct}%</strong></td>
@@ -632,7 +633,7 @@
                     labels: labels,
                     datasets: [{
                         data: revenues,
-                        backgroundColor: ['#10b981', '#3b82f6', '#f59e0b'],
+                        backgroundColor: ['#10b981', '#f59e0b', '#94a3b8'],
                         borderWidth: 2,
                         borderColor: '#ffffff'
                     }]
@@ -642,7 +643,7 @@
                     maintainAspectRatio: false,
                     plugins: {
                         legend: { position: 'bottom' },
-                        title: { display: true, text: 'Выручка новых клиентов по группам ABC', font: { size: 14, weight: 'bold' } }
+                        title: { display: true, text: 'Виручка нових клієнтів за класами', font: { size: 14, weight: 'bold' } }
                     }
                 }
             });
@@ -661,16 +662,17 @@
             let labels = [];
             let newPcts = [];
             let allPcts = [];
+            const groupNames = { 'A': 'Опорні', 'B': 'Розвиваючі', 'C': 'Підтримуючі' };
 
             data.forEach(item => {
-                labels.push(`Группа ${item.abc_group}`);
+                labels.push(groupNames[item.abc_group] || `Клас ${item.abc_group}`);
                 newPcts.push(item.new_pct);
                 allPcts.push(item.all_pct);
 
                 const badgeClass = item.abc_group === 'A' ? 'badge-a' : (item.abc_group === 'B' ? 'badge-b' : 'badge-c');
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td><span class="badge-abc ${badgeClass}">${item.abc_group}</span></td>
+                    <td><span class="badge-abc ${badgeClass}">${groupNames[item.abc_group] || item.abc_group}</span></td>
                     <td class="text-right">${fmtNum(item.new_count)}</td>
                     <td class="text-right">${fmtMoney(item.new_revenue)}</td>
                     <td class="text-center"><strong>${item.new_pct}%</strong></td>
@@ -690,8 +692,8 @@
                 data: {
                     labels: labels,
                     datasets: [
-                        { label: '% Выручки Новых', data: newPcts, backgroundColor: '#10b981', borderRadius: 6 },
-                        { label: '% Выручки Всех', data: allPcts, backgroundColor: '#6366f1', borderRadius: 6 }
+                        { label: '% Виручки Нових', data: newPcts, backgroundColor: '#10b981', borderRadius: 6 },
+                        { label: '% Виручки Всіх', data: allPcts, backgroundColor: '#6366f1', borderRadius: 6 }
                     ]
                 },
                 options: {
@@ -699,7 +701,7 @@
                     maintainAspectRatio: false,
                     plugins: {
                         legend: { position: 'top' },
-                        title: { display: true, text: 'Сравнение структуры выручки (Новые vs Все)', font: { size: 14, weight: 'bold' } }
+                        title: { display: true, text: 'Порівняння структури виручки (Нові vs Всі)', font: { size: 14, weight: 'bold' } }
                     },
                     scales: {
                         y: { beginAtZero: true, grid: { color: '#f1f5f9' } },

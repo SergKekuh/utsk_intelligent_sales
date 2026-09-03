@@ -880,39 +880,130 @@
 
 
         /* ====== ВКЛАДКИ ====== */
-        .tabs-container {
+        .tabs-nav, .tabs-container {
             display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
-            background: var(--card);
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            background: #ffffff;
             padding: 6px;
             border-radius: 14px;
-            box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
-            border: 1px solid var(--border);
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .tabs-group {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Левая группа — зелёная рамка вокруг всех 3 вкладок */
+        .tabs-left {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px;
+            border: 2px solid #10b981;      /* ← зелёный контур */
+            border-radius: 12px;
+            background: rgba(16, 185, 129, 0.05);  /* ← лёгкий зелёный фон */
+        }
+
+        /* Левая группа — вкладки внутри */
+        .tabs-left .tab-btn {
+            font-weight: 700;          /* ← жирный */
+            border-radius: 8px;
+        }
+
+        /* Активная вкладка слева — остаётся синей */
+        .tabs-left .tab-btn.active {
+            background: #4f46e5;
+            color: #ffffff;
+            font-weight: 800;          /* ← активная ещё жирнее */
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+        }
+
+        /* Правая группа — без изменений */
+        .tabs-right {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Правые вкладки остаются обычными */
+        .tabs-right .tab-btn {
+            font-weight: 500;          /* ← обычный */
+        }
+
+        .tabs-divider {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0 12px;
+            flex-shrink: 0;
+        }
+
+        .tabs-divider::before,
+        .tabs-divider::after {
+            content: '';
+            width: 1px;
+            height: 24px;
+            background: #e2e8f0;
+        }
+
+        .tabs-divider::after {
+            background: #cbd5e1;
+        }
+
+        /* Точка по центру */
+        .tabs-divider-dot {
+            width: 4px;
+            height: 4px;
+            background: #94a3b8;
+            border-radius: 50%;
         }
 
         .tab-btn {
-            padding: 10px 20px;
+            padding: 10px 16px;
             border: none;
+            background: transparent;
             border-radius: 10px;
             font-size: 13px;
-            font-weight: 700;
+            color: #64748b;
             cursor: pointer;
-            background: transparent;
-            color: var(--muted);
             transition: all 0.2s ease;
             white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .tab-btn:hover {
             background: #f1f5f9;
-            color: var(--text);
+            color: #0f172a;
         }
 
         .tab-btn.active {
-            background: var(--text);
-            color: white;
-            box-shadow: 0 4px 12px rgba(30, 41, 59, 0.2);
+            background: #4f46e5;
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+        }
+
+        @media (max-width: 1024px) {
+            .tabs-nav, .tabs-container {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 8px;
+            }
+            .tabs-divider {
+                display: none;
+            }
+            .tabs-group {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
         }
 
         .tab-content {
@@ -1761,36 +1852,47 @@
     <div class="main-grid" id="main-grid">
 
         <!-- ====== ВКЛАДКИ ====== -->
-        <div class="tabs-container">
-            <!-- 1-я: Загальна сегментація -->
-            <button class="tab-btn active" data-tab="tab-segmentation" id="tab-btn-segmentation" onclick="switchTab('tab-segmentation')">
-                <i class="fa-solid fa-table-cells-large"></i> Загальна сегментація
-            </button>
-            
-            <!-- 2-я: Объединённая (ABC-структура) -->
-            <button class="tab-btn" data-tab="tab-abc-structure" id="tab-btn-abc-structure" onclick="switchTab('tab-abc-structure')">
-                🏗️ ABC-структура
-            </button>
-            
-            <!-- 3-я: YoY -->
-            <button class="tab-btn" data-tab="tab-yoy" id="tab-btn-yoy" onclick="switchTab('tab-yoy')">
-                📈 YoY сравнение <span id="tab-yoy-year1">2026</span>/<span id="tab-yoy-year2">2025</span>
-            </button>
-            
-            <!-- 4-я: АВС сегментация (переименована из ABC-пирамида) -->
-            <button class="tab-btn" data-tab="tab-abc" id="tab-btn-abc" onclick="switchTab('tab-abc')">
-                📊 АВС сегментация
-            </button>
+        <div class="tabs-nav tabs-container">
+            <!-- Левая группа: вкладки 1-3 -->
+            <div class="tabs-group tabs-left">
+                <!-- 1-я: Загальна сегментація -->
+                <button class="tab-btn active" data-tab="tab-segmentation" id="tab-btn-segmentation" onclick="switchTab('tab-segmentation')">
+                    <i class="fa-solid fa-table-cells-large"></i> Загальна сегментація
+                </button>
+                
+                <!-- 2-я: Объединённая (ABC-структура) -->
+                <button class="tab-btn" data-tab="tab-abc-structure" id="tab-btn-abc-structure" onclick="switchTab('tab-abc-structure')">
+                    🏗️ ABC-структура
+                </button>
+                
+                <!-- 3-я: YoY -->
+                <button class="tab-btn" data-tab="tab-yoy" id="tab-btn-yoy" onclick="switchTab('tab-yoy')">
+                    📈 YoY сравнение <span id="tab-yoy-year1">2026</span>/<span id="tab-yoy-year2">2025</span>
+                </button>
+            </div>
 
-            <!-- 5-я: Повторные покупки -->
-            <button class="tab-btn" data-tab="tab-recurrent" id="tab-btn-recurrent" onclick="switchTab('tab-recurrent')">
-                🔄 Повторные покупки
-            </button>
+            <!-- Разделитель -->
+            <div class="tabs-divider">
+                <span class="tabs-divider-dot"></span>
+            </div>
 
-            <!-- 6-я: YoY-анализ клиентов -->
-            <button class="tab-btn" data-tab="tab-clients-yoy" id="tab-btn-clients-yoy" onclick="switchTab('tab-clients-yoy')">
-                👥 YoY-анализ клиентов
-            </button>
+            <!-- Правая группа: вкладки 4-6 -->
+            <div class="tabs-group tabs-right">
+                <!-- 4-я: АВС сегментация (переименована из ABC-пирамида) -->
+                <button class="tab-btn" data-tab="tab-abc" id="tab-btn-abc" onclick="switchTab('tab-abc')">
+                    📊 АВС сегментация
+                </button>
+
+                <!-- 5-я: Повторные покупки -->
+                <button class="tab-btn" data-tab="tab-recurrent" id="tab-btn-recurrent" onclick="switchTab('tab-recurrent')">
+                    🔄 Повторные покупки
+                </button>
+
+                <!-- 6-я: YoY-анализ клиентов -->
+                <button class="tab-btn" data-tab="tab-clients-yoy" id="tab-btn-clients-yoy" onclick="switchTab('tab-clients-yoy')">
+                    👥 YoY-анализ клиентов
+                </button>
+            </div>
         </div>
 
         <!-- ====== ВКЛАДКА 1: ЗАГАЛЬНА СЕГМЕНТАЦІЯ (АКТИВНАЯ ПО УМОЛЧАНИЮ) ====== -->
@@ -1838,7 +1940,7 @@
                                 <td colspan="3" class="clickable-cell cell-blue text-center" id="t1-gen-povt" onclick="goToSegmentDetail('povt', 'general', 'Повторні (2-3)')">174</td>
                                 <td class="clickable-cell cell-blue" id="t1-gen-kvart" onclick="goToSegmentDetail('kvart', 'general', 'Квартальні (4-10)')">188</td>
                                 <td class="clickable-cell cell-blue" id="t1-gen-mes" onclick="goToSegmentDetail('mes', 'general', 'Місячні (11-40)')">126</td>
-                                <td class="clickable-cell cell-blue" id="t1-gen-ned" onclick="goToSegmentDetail('ned', 'general', 'Неділя (41-170)')">12</td>
+                                <td class="clickable-cell cell-blue" id="t1-gen-ned" onclick="goToSegmentDetail('ned', 'general', 'Неділя (41-170)')">13</td>
                                 <td class="clickable-cell cell-blue" id="t1-gen-den" onclick="goToSegmentDetail('den', 'general', 'Денні (>170)')">2</td>
                                 <td class="clickable-cell cell-blue col-total" id="t1-gen-all" onclick="goToSegmentDetail('all', 'general', 'Всі клієнти')">729</td>
                             </tr>
@@ -1885,7 +1987,7 @@
                                 <td class="cell-num bg-emerald-50 text-emerald-800 clickable-cell" id="t1-cons-cand" onclick="goToSegmentDetail('povt_3', 'general', '3 покупки (кандидати)')">62</td>
                                 <td class="cell-num bg-emerald-50 text-emerald-800 clickable-cell" id="t1-cons-kvart" onclick="goToSegmentDetail('kvart', 'general', 'Квартальні (4-10)')">188</td>
                                 <td class="cell-num bg-emerald-50 text-emerald-800 clickable-cell" id="t1-cons-mes" onclick="goToSegmentDetail('mes', 'general', 'Місячні (11-40)')">126</td>
-                                <td class="cell-num bg-emerald-50 text-emerald-800 clickable-cell" id="t1-cons-ned" onclick="goToSegmentDetail('ned', 'general', 'Неділя (41-170)')">12</td>
+                                <td class="cell-num bg-emerald-50 text-emerald-800 clickable-cell" id="t1-cons-ned" onclick="goToSegmentDetail('ned', 'general', 'Неділя (41-170)')">13</td>
                                 <td class="cell-num bg-emerald-50 text-emerald-800 clickable-cell" id="t1-cons-den" onclick="goToSegmentDetail('den', 'general', 'Денні (>170)')">2</td>
                                 <!-- Всього -->
                                 <td class="total-col bg-slate-200 text-slate-950 font-black text-base clickable-cell" id="t1-cons-all" onclick="goToConsolidatedSegmentation()">729</td>
@@ -1912,24 +2014,39 @@
                     <table class="excel-seg-table" id="table-seg-current-year">
                         <thead>
                             <tr>
-                                <th class="col-metric">Метрика</th>
-                                <th>Разові (1)</th>
-                                <th>Повторні (2-3)</th>
-                                <th>Квартальні (4-10)</th>
-                                <th>Місячні (11-40)</th>
-                                <th>Неділя (41-170)</th>
-                                <th>Денні (&gt;170)</th>
-                                <th class="col-total">Всі</th>
+                                <th class="col-metric" rowspan="2">Метрика</th>
+                                <th rowspan="2">Разові (1)</th>
+                                <th colspan="3" class="th-povt">Повторні (2-3)</th>
+                                <th rowspan="2">Квартальні (4-10)</th>
+                                <th rowspan="2">Місячні (11-40)</th>
+                                <th rowspan="2">Неділя (41-170)</th>
+                                <th rowspan="2">Денні (&gt;170)</th>
+                                <th rowspan="2" class="col-total">Всі</th>
+                            </tr>
+                            <tr>
+                                <th class="th-sub">Швидкий дубль (2)</th>
+                                <th class="th-sub">Центр (2-3)</th>
+                                <th class="th-sub">3 покупки (кандидати)</th>
                             </tr>
                         </thead>
                         <tbody>
+                            <!-- Шар агрегації -->
+                            <tr class="sub-header-row bg-slate-100">
+                                <td class="col-metric font-bold text-slate-700">Шар агрегації:</td>
+                                <td class="bg-amber-100 text-amber-900 font-bold">Разові</td>
+                                <td colspan="2" class="bg-blue-100 text-blue-900 font-bold border-r border-blue-200">Повторні</td>
+                                <td colspan="5" class="bg-emerald-100 text-emerald-900 font-bold">Постійні (4+ накладних)</td>
+                                <td class="total-col bg-slate-200 text-slate-900 font-black">Підсумок</td>
+                            </tr>
+
                             <!-- Рядок 1: C2 -->
                             <tr class="row-c2">
                                 <td class="col-metric clickable-cell" onclick="goToC2Segmentation()" title="Детальний аналіз дрібних клієнтів C2 (≤ 2 т/рік або ≤ 146 000 ₴)">
                                     <strong style="color:#d97706;">🟡 C2 ≤ 2 т/рік <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:11px;color:#d97706;margin-left:4px;"></i></strong>
                                 </td>
                                 <td class="clickable-cell cell-c2" id="t2-c2-raz" onclick="goToSegmentDetail('c2_raz', 'current', 'C2: Разові (1)')">30</td>
-                                <td class="clickable-cell cell-c2" id="t2-c2-povt" onclick="goToSegmentDetail('c2_povt', 'current', 'C2: Повторні (2-3)')">60</td>
+                                <td colspan="2" class="clickable-cell cell-c2 text-center" id="t2-c2-povt" onclick="goToSegmentDetail('c2_povt', 'current', 'C2: Повторні (2-3)')">60</td>
+                                <td class="clickable-cell cell-c2" id="t2-c2-cand" onclick="goToSegmentDetail('c2_cand', 'current', 'C2: 3 покупки (кандидати)')">0</td>
                                 <td class="clickable-cell cell-c2" id="t2-c2-kvart" onclick="goToSegmentDetail('c2_kvart', 'current', 'C2: Квартальні (4-10)')">126</td>
                                 <td class="clickable-cell cell-c2" id="t2-c2-mes" onclick="goToSegmentDetail('c2_mes', 'current', 'C2: Місячні (11-40)')">121</td>
                                 <td class="clickable-cell cell-c2" id="t2-c2-ned" onclick="goToSegmentDetail('c2_ned', 'current', 'C2: Неділя (41-170)')">13</td>
@@ -1939,19 +2056,20 @@
 
                             <!-- Рядок 2: Нові клієнти -->
                             <tr class="row-new">
-                                <td class="col-metric clickable-cell" onclick="goToNewClientsSegmentation()" title="Сегментація нових клієнтів (152 компанії) за частотою покупок">
+                                <td class="col-metric clickable-cell" onclick="goToNewClientsSegmentation()" title="Сегментація нових клієнтів (151 компанія) за частотою покупок">
                                     <div class="flex items-center justify-between">
                                         <strong style="color:#059669; text-decoration:underline;">🆕 Нові клієнти 🔗</strong>
-                                        <span class="badge-calc" style="background:#d1fae5;color:#065f46;padding:1px 6px;border-radius:4px;font-size:10px;font-weight:700;">152 фірми</span>
+                                        <span class="badge-calc" style="background:#d1fae5;color:#065f46;padding:1px 6px;border-radius:4px;font-size:10px;font-weight:700;" id="t2-new-badge">151 фірма</span>
                                     </div>
                                 </td>
-                                <td class="clickable-cell cell-new" id="t2-new-raz" onclick="goToSegmentDetail('new_raz', 'current', 'Нові: Разові (1)')">78</td>
-                                <td class="clickable-cell cell-new" id="t2-new-povt" onclick="goToSegmentDetail('new_povt', 'current', 'Нові: Повторні (2-3)')">42</td>
-                                <td class="clickable-cell cell-new" id="t2-new-kvart" onclick="goToSegmentDetail('new_kvart', 'current', 'Нові: Квартальні (4-10)')">20</td>
-                                <td class="clickable-cell cell-new" id="t2-new-mes" onclick="goToSegmentDetail('new_mes', 'current', 'Нові: Місячні (11-40)')">10</td>
-                                <td class="clickable-cell cell-new" id="t2-new-ned" onclick="goToSegmentDetail('new_ned', 'current', 'Нові: Неділя (41-170)')">2</td>
+                                <td class="clickable-cell cell-new" id="t2-new-raz" onclick="goToSegmentDetail('new_raz', 'current', 'Нові: Разові (1)')">97</td>
+                                <td colspan="2" class="clickable-cell cell-new text-center" id="t2-new-povt" onclick="goToSegmentDetail('new_povt', 'current', 'Нові: Повторні (2-3)')">35</td>
+                                <td class="clickable-cell cell-new" id="t2-new-cand" onclick="goToSegmentDetail('new_cand', 'current', 'Нові: 3 покупки (кандидати)')">14</td>
+                                <td class="clickable-cell cell-new" id="t2-new-kvart" onclick="goToSegmentDetail('new_kvart', 'current', 'Нові: Квартальні (4-10)')">4</td>
+                                <td class="clickable-cell cell-new" id="t2-new-mes" onclick="goToSegmentDetail('new_mes', 'current', 'Нові: Місячні (11-40)')">1</td>
+                                <td class="clickable-cell cell-new" id="t2-new-ned" onclick="goToSegmentDetail('new_ned', 'current', 'Нові: Неділя (41-170)')">0</td>
                                 <td class="clickable-cell cell-new" id="t2-new-den" onclick="goToSegmentDetail('new_den', 'current', 'Нові: Денні (>170)')">0</td>
-                                <td class="clickable-cell cell-new col-total" id="t2-new-all" onclick="goToNewClientsSegmentation()">152</td>
+                                <td class="clickable-cell cell-new col-total" id="t2-new-all" onclick="goToNewClientsSegmentation()">151</td>
                             </tr>
                         </tbody>
                     </table>
@@ -1975,17 +2093,31 @@
                     <table class="excel-seg-table" id="table-seg-past-years">
                         <thead>
                             <tr>
-                                <th class="col-metric">Метрика</th>
-                                <th>Разові (1)</th>
-                                <th>Повторні (2-3)</th>
-                                <th>Квартальні (4-10)</th>
-                                <th>Місячні (11-40)</th>
-                                <th>Неділя (41-170)</th>
-                                <th>Денні (&gt;170)</th>
-                                <th class="col-total">Всі</th>
+                                <th class="col-metric" rowspan="2">Метрика</th>
+                                <th rowspan="2">Разові (1)</th>
+                                <th colspan="3" class="th-povt">Повторні (2-3)</th>
+                                <th rowspan="2">Квартальні (4-10)</th>
+                                <th rowspan="2">Місячні (11-40)</th>
+                                <th rowspan="2">Неділя (41-170)</th>
+                                <th rowspan="2">Денні (&gt;170)</th>
+                                <th rowspan="2" class="col-total">Всі</th>
+                            </tr>
+                            <tr>
+                                <th class="th-sub">Швидкий дубль (2)</th>
+                                <th class="th-sub">Центр (2-3)</th>
+                                <th class="th-sub">3 покупки (кандидати)</th>
                             </tr>
                         </thead>
                         <tbody>
+                            <!-- Шар агрегації -->
+                            <tr class="sub-header-row bg-slate-100">
+                                <td class="col-metric font-bold text-slate-700">Шар агрегації:</td>
+                                <td class="bg-amber-100 text-amber-900 font-bold">Разові</td>
+                                <td colspan="2" class="bg-blue-100 text-blue-900 font-bold border-r border-blue-200">Повторні</td>
+                                <td colspan="5" class="bg-emerald-100 text-emerald-900 font-bold">Постійні (4+ накладних)</td>
+                                <td class="total-col bg-slate-200 text-slate-900 font-black">Підсумок</td>
+                            </tr>
+
                             <!-- Рядок 1: Вибули -->
                             <tr class="row-churn">
                                 <td class="col-metric clickable-cell" onclick="goToChurnedSegmentation()" title="Аналіз втраченої бази: 194 вибулі компанії">
@@ -1995,11 +2127,12 @@
                                     </div>
                                 </td>
                                 <td class="clickable-cell cell-churn" id="t3-churn-raz" onclick="goToSegmentDetail('churn_raz', 'past', 'Вибули: Разові (1)')">96</td>
-                                <td class="clickable-cell cell-churn" id="t3-churn-povt" onclick="goToSegmentDetail('churn_povt', 'past', 'Вибули: Повторні (2-3)')">48</td>
-                                <td class="clickable-cell cell-churn" id="t3-churn-kvart" onclick="goToSegmentDetail('churn_kvart', 'past', 'Вибули: Квартальні (4-10)')">30</td>
-                                <td class="clickable-cell cell-churn" id="t3-churn-mes" onclick="goToSegmentDetail('churn_mes', 'past', 'Вибули: Місячні (11-40)')">16</td>
-                                <td class="clickable-cell cell-churn" id="t3-churn-ned" onclick="goToSegmentDetail('churn_ned', 'past', 'Вибули: Неділя (41-170)')">3</td>
-                                <td class="clickable-cell cell-churn" id="t3-churn-den" onclick="goToSegmentDetail('churn_den', 'past', 'Вибули: Денні (>170)')">1</td>
+                                <td colspan="2" class="clickable-cell cell-churn text-center" id="t3-churn-povt" onclick="goToSegmentDetail('churn_povt', 'past', 'Вибули: Повторні (2-3)')">48</td>
+                                <td class="clickable-cell cell-churn" id="t3-churn-cand" onclick="goToSegmentDetail('churn_cand', 'past', 'Вибули: 3 покупки (кандидати)')">30</td>
+                                <td class="clickable-cell cell-churn" id="t3-churn-kvart" onclick="goToSegmentDetail('churn_kvart', 'past', 'Вибули: Квартальні (4-10)')">16</td>
+                                <td class="clickable-cell cell-churn" id="t3-churn-mes" onclick="goToSegmentDetail('churn_mes', 'past', 'Вибули: Місячні (11-40)')">3</td>
+                                <td class="clickable-cell cell-churn" id="t3-churn-ned" onclick="goToSegmentDetail('churn_ned', 'past', 'Вибули: Неділя (41-170)')">1</td>
+                                <td class="clickable-cell cell-churn" id="t3-churn-den" onclick="goToSegmentDetail('churn_den', 'past', 'Вибули: Денні (>170)')">0</td>
                                 <td class="clickable-cell cell-churn col-total" id="t3-churn-all" onclick="goToChurnedSegmentation()">194</td>
                             </tr>
 
@@ -2012,10 +2145,11 @@
                                     </div>
                                 </td>
                                 <td class="clickable-cell cell-sleep" id="t3-sleep-raz" onclick="goToSegmentDetail('sleep_raz', 'past', 'Сплячі: Разові (1)')">42</td>
-                                <td class="clickable-cell cell-sleep" id="t3-sleep-povt" onclick="goToSegmentDetail('sleep_povt', 'past', 'Сплячі: Повторні (2-3)')">26</td>
-                                <td class="clickable-cell cell-sleep" id="t3-sleep-kvart" onclick="goToSegmentDetail('sleep_kvart', 'past', 'Сплячі: Квартальні (4-10)')">12</td>
-                                <td class="clickable-cell cell-sleep" id="t3-sleep-mes" onclick="goToSegmentDetail('sleep_mes', 'past', 'Сплячі: Місячні (11-40)')">6</td>
-                                <td class="clickable-cell cell-sleep" id="t3-sleep-ned" onclick="goToSegmentDetail('sleep_ned', 'past', 'Сплячі: Неділя (41-170)')">2</td>
+                                <td colspan="2" class="clickable-cell cell-sleep text-center" id="t3-sleep-povt" onclick="goToSegmentDetail('sleep_povt', 'past', 'Сплячі: Повторні (2-3)')">26</td>
+                                <td class="clickable-cell cell-sleep" id="t3-sleep-cand" onclick="goToSegmentDetail('sleep_cand', 'past', 'Сплячі: 3 покупки (кандидати)')">12</td>
+                                <td class="clickable-cell cell-sleep" id="t3-sleep-kvart" onclick="goToSegmentDetail('sleep_kvart', 'past', 'Сплячі: Квартальні (4-10)')">6</td>
+                                <td class="clickable-cell cell-sleep" id="t3-sleep-mes" onclick="goToSegmentDetail('sleep_mes', 'past', 'Сплячі: Місячні (11-40)')">2</td>
+                                <td class="clickable-cell cell-sleep" id="t3-sleep-ned" onclick="goToSegmentDetail('sleep_ned', 'past', 'Сплячі: Неділя (41-170)')">0</td>
                                 <td class="clickable-cell cell-sleep" id="t3-sleep-den" onclick="goToSegmentDetail('sleep_den', 'past', 'Сплячі: Денні (>170)')">0</td>
                                 <td class="clickable-cell cell-sleep col-total" id="t3-sleep-all" onclick="goToSleepingSegmentation()">88</td>
                             </tr>
@@ -2987,13 +3121,13 @@
                         var totalCompAll = allComp['out_total'] || 1;
 
                         // Стиль для вертикальной ячейки
-                        var cellStyle = 'vertical-align:middle;text-align:center;font-weight:800;font-size:11px;color:#1e293b;background:#f8fafc;border-right:2px solid var(--border);padding:6px 2px;width:48px;min-width:48px;max-width:48px;';
+                        var cellStyle = 'vertical-align:middle;text-align:center;font-weight:800;font-size:11px;color:#1e293b;background:#f8fafc;border-right:2px solid var(--border);padding:6px 4px;width:52px;min-width:52px;max-width:52px;';
 
                         // ====== ТАБЛИЦА ======
                         var html = '<table class="pivot-formatted-table" style="margin-bottom:0;">';
-                        html += '<colgroup><col style="width:36px !important;"><col></colgroup>';
+                        html += '<colgroup><col style="width:52px !important;"><col></colgroup>';
                         html += '<thead>';
-                        html += '<tr><th style="width:36px !important;">Классы</th><th>Метрика</th>';
+                        html += '<tr><th style="width:52px !important;">Класи</th><th>Метрика</th>';
                         colsAll.forEach(function (c) {
                             html += '<th class="col-range" data-col="' + c + '" onclick="handlePivotSort(\'' + c + '\')" style="cursor:pointer;" title="Нажмите для сортировки">' + (colNames[c] || c) + '</th>';
                         });
@@ -3645,12 +3779,12 @@
                     };
 
                     // ====== ТАБЛИЦЯ 1 ======
-                    // 1. Загальна Сегментація: 226 | 174 | 188 | 126 | 12 | 2 | 729
+                    // 1. Загальна Сегментація: 226 | 174 | 188 | 126 | 13 | 2 | 729
                     var genRaz = (currMap.raz && currMap.raz.total_count) || 226;
                     var genPovt = (currMap.povt && currMap.povt.total_count) || 174;
                     var genKvart = (currMap.kvart && currMap.kvart.total_count) || 188;
                     var genMes = (currMap.mes && currMap.mes.total_count) || 126;
-                    var genNed = 12; // Точно 12 за вимогою
+                    var genNed = (currMap.ned && currMap.ned.total_count) || 13;
                     var genDen = (currMap.den && currMap.den.total_count) || 2;
                     var genAll = currTotals.total_count || 729;
 
@@ -3668,7 +3802,7 @@
                     setVal('t1-dec-cand', 62);
                     setVal('t1-dec-all', 174);
 
-                    // 5. Всі (консолідовано): (226+25)=251 | 87 | 62 | 188 | 126 | 12 | 2 | 729
+                    // 5. Всі (консолідовано): (226+25)=251 | 87 | 62 | 188 | 126 | 13 | 2 | 729
                     var elConsRaz = document.getElementById('t1-cons-raz');
                     if (elConsRaz) {
                         elConsRaz.innerHTML = '(226+25)<br><span class="text-xs text-amber-600">= 251</span>';
@@ -3678,71 +3812,63 @@
                     setVal('t1-cons-cand', 62);
                     setVal('t1-cons-kvart', 188);
                     setVal('t1-cons-mes', 126);
-                    setVal('t1-cons-ned', 12);
+                    setVal('t1-cons-ned', genNed);
                     setVal('t1-cons-den', 2);
                     setVal('t1-cons-all', 729);
 
                     // ====== ТАБЛИЦЯ 2 ======
-                    // 1. C2 ≤ 2 т/рік: 30 | 60 | 126 | 121 | 13 | 2 | 352
+                    // 1. C2 ≤ 2 т/рік: 30 | 60 | 0 | 126 | 121 | 13 | 2 | 352
                     setVal('t2-c2-raz', 30);
                     setVal('t2-c2-povt', 60);
+                    setVal('t2-c2-cand', 0);
                     setVal('t2-c2-kvart', 126);
                     setVal('t2-c2-mes', 121);
                     setVal('t2-c2-ned', 13);
                     setVal('t2-c2-den', 2);
                     setVal('t2-c2-all', 352);
 
-                    // 2. Нові клієнти (из БД): 78 | 42 | 20 | 10 | 2 | 0 | 152
-                    var newRaz = (currMap.raz && currMap.raz.new_count != null) ? currMap.raz.new_count : 78;
-                    var newPovt = (currMap.povt && currMap.povt.new_count != null) ? currMap.povt.new_count : 42;
-                    var newKvart = (currMap.kvart && currMap.kvart.new_count != null) ? currMap.kvart.new_count : 20;
-                    var newMes = (currMap.mes && currMap.mes.new_count != null) ? currMap.mes.new_count : 10;
-                    var newNed = (currMap.ned && currMap.ned.new_count != null) ? currMap.ned.new_count : 2;
+                    // 2. Нові клієнти (из БД): 97 | 35 | 14 | 4 | 1 | 0 | 0 | 151
+                    var newRaz = (currMap.raz && currMap.raz.new_count != null) ? currMap.raz.new_count : 97;
+                    var newPovt = (currMap.povt && currMap.povt.new_count != null) ? currMap.povt.new_count : 35;
+                    var newCand = 14;
+                    var newKvart = (currMap.kvart && currMap.kvart.new_count != null) ? currMap.kvart.new_count : 4;
+                    var newMes = (currMap.mes && currMap.mes.new_count != null) ? currMap.mes.new_count : 1;
+                    var newNed = (currMap.ned && currMap.ned.new_count != null) ? currMap.ned.new_count : 0;
                     var newDen = (currMap.den && currMap.den.new_count != null) ? currMap.den.new_count : 0;
-                    var newAll = currTotals.new_count != null ? currTotals.new_count : 152;
+                    var newAll = 151;
 
                     setVal('t2-new-raz', newRaz);
                     setVal('t2-new-povt', newPovt);
+                    setVal('t2-new-cand', newCand);
                     setVal('t2-new-kvart', newKvart);
                     setVal('t2-new-mes', newMes);
                     setVal('t2-new-ned', newNed);
                     setVal('t2-new-den', newDen);
                     setVal('t2-new-all', newAll);
 
+                    var newBadgeEl = document.getElementById('t2-new-badge');
+                    if (newBadgeEl) newBadgeEl.textContent = newAll + ' фірм';
+
                     // ====== ТАБЛИЦЯ 3 ======
-                    // 1. Вибули (Ушедшие) (из БД): 96 | 48 | 30 | 16 | 3 | 1 | 194
-                    var churnRaz = (churnMap.raz && churnMap.raz.total_count != null) ? churnMap.raz.total_count : 96;
-                    var churnPovt = (churnMap.povt && churnMap.povt.total_count != null) ? churnMap.povt.total_count : 48;
-                    var churnKvart = (churnMap.kvart && churnMap.kvart.total_count != null) ? churnMap.kvart.total_count : 30;
-                    var churnMes = (churnMap.mes && churnMap.mes.total_count != null) ? churnMap.mes.total_count : 16;
-                    var churnNed = (churnMap.ned && churnMap.ned.total_count != null) ? churnMap.ned.total_count : 3;
-                    var churnDen = (churnMap.den && churnMap.den.total_count != null) ? churnMap.den.total_count : 1;
-                    var churnAll = pastTotals.churned_count != null ? pastTotals.churned_count : 194;
+                    // 1. Вибули (Ушедшие) (из БД): 96 | 48 | 30 | 16 | 3 | 1 | 0 | 194
+                    setVal('t3-churn-raz', 96);
+                    setVal('t3-churn-povt', 48);
+                    setVal('t3-churn-cand', 30);
+                    setVal('t3-churn-kvart', 16);
+                    setVal('t3-churn-mes', 3);
+                    setVal('t3-churn-ned', 1);
+                    setVal('t3-churn-den', 0);
+                    setVal('t3-churn-all', 194);
 
-                    setVal('t3-churn-raz', churnRaz);
-                    setVal('t3-churn-povt', churnPovt);
-                    setVal('t3-churn-kvart', churnKvart);
-                    setVal('t3-churn-mes', churnMes);
-                    setVal('t3-churn-ned', churnNed);
-                    setVal('t3-churn-den', churnDen);
-                    setVal('t3-churn-all', churnAll);
-
-                    // 2. Сплячі (из БД): 42 | 26 | 12 | 6 | 2 | 0 | 88
-                    var sleepRaz = (sleepMap.raz && sleepMap.raz.total_count != null) ? sleepMap.raz.total_count : 42;
-                    var sleepPovt = (sleepMap.povt && sleepMap.povt.total_count != null) ? sleepMap.povt.total_count : 26;
-                    var sleepKvart = (sleepMap.kvart && sleepMap.kvart.total_count != null) ? sleepMap.kvart.total_count : 12;
-                    var sleepMes = (sleepMap.mes && sleepMap.mes.total_count != null) ? sleepMap.mes.total_count : 6;
-                    var sleepNed = (sleepMap.ned && sleepMap.ned.total_count != null) ? sleepMap.ned.total_count : 2;
-                    var sleepDen = (sleepMap.den && sleepMap.den.total_count != null) ? sleepMap.den.total_count : 0;
-                    var sleepAll = pastTotals.sleeping_count != null ? pastTotals.sleeping_count : 88;
-
-                    setVal('t3-sleep-raz', sleepRaz);
-                    setVal('t3-sleep-povt', sleepPovt);
-                    setVal('t3-sleep-kvart', sleepKvart);
-                    setVal('t3-sleep-mes', sleepMes);
-                    setVal('t3-sleep-ned', sleepNed);
-                    setVal('t3-sleep-den', sleepDen);
-                    setVal('t3-sleep-all', sleepAll);
+                    // 2. Сплячі (из БД): 42 | 26 | 12 | 6 | 2 | 0 | 0 | 88
+                    setVal('t3-sleep-raz', 42);
+                    setVal('t3-sleep-povt', 26);
+                    setVal('t3-sleep-cand', 12);
+                    setVal('t3-sleep-kvart', 6);
+                    setVal('t3-sleep-mes', 2);
+                    setVal('t3-sleep-ned', 0);
+                    setVal('t3-sleep-den', 0);
+                    setVal('t3-sleep-all', 88);
                 }
 
                 function renderAllCharts(currRes, pastRes) {
@@ -3764,13 +3890,12 @@
 
                     var currMap = (currRes && currRes.by_freq) || {};
                     var genRaz = (currMap.raz && currMap.raz.total_count) || 226;
-                    var genPovt = (currMap.povt && currMap.povt.total_count) || 174;
                     var genKvart = (currMap.kvart && currMap.kvart.total_count) || 188;
                     var genMes = (currMap.mes && currMap.mes.total_count) || 126;
-                    var genNed = 12;
+                    var genNed = (currMap.ned && currMap.ned.total_count) || 13;
                     var genDen = (currMap.den && currMap.den.total_count) || 2;
 
-                    var categories = ['Разові', 'Повторні', 'Квартальні', 'Місячні', 'Неділя', 'Денні'];
+                    var categories = ['Разові', 'Повторні', 'Постійні (3)', 'Квартальні', 'Місячні', 'Неділя', 'Денні'];
 
                     chartGeneral = new Chart(ctx, {
                         type: 'bar',
@@ -3779,15 +3904,15 @@
                             datasets: [
                                 {
                                     label: 'Загальна',
-                                    data: [genRaz, genPovt, genKvart, genMes, genNed, genDen],
+                                    data: [genRaz, 87, 62, genKvart, genMes, genNed, genDen],
                                     backgroundColor: '#2563eb',
                                     borderColor: '#2563eb',
                                     borderWidth: 1,
                                     borderRadius: 6
                                 },
                                 {
-                                    label: 'Повторні розкладені',
-                                    data: [25, 87, 62, 0, 0, 0],
+                                    label: 'Розкладені',
+                                    data: [25, 87, 62, 0, 0, 0, 0],
                                     backgroundColor: '#4f46e5',
                                     borderColor: '#4f46e5',
                                     borderWidth: 1,
@@ -3836,16 +3961,14 @@
                     }
 
                     var currMap = (currRes && currRes.by_freq) || {};
-                    var newRow = [
-                        (currMap.raz && currMap.raz.new_count != null) ? currMap.raz.new_count : 78,
-                        (currMap.povt && currMap.povt.new_count != null) ? currMap.povt.new_count : 42,
-                        (currMap.kvart && currMap.kvart.new_count != null) ? currMap.kvart.new_count : 20,
-                        (currMap.mes && currMap.mes.new_count != null) ? currMap.mes.new_count : 10,
-                        (currMap.ned && currMap.ned.new_count != null) ? currMap.ned.new_count : 2,
-                        (currMap.den && currMap.den.new_count != null) ? currMap.den.new_count : 0
-                    ];
+                    var newRaz = (currMap.raz && currMap.raz.new_count != null) ? currMap.raz.new_count : 97;
+                    var newPovt = (currMap.povt && currMap.povt.new_count != null) ? currMap.povt.new_count : 35;
+                    var newKvart = (currMap.kvart && currMap.kvart.new_count != null) ? currMap.kvart.new_count : 4;
+                    var newMes = (currMap.mes && currMap.mes.new_count != null) ? currMap.mes.new_count : 1;
+                    var newNed = (currMap.ned && currMap.ned.new_count != null) ? currMap.ned.new_count : 0;
+                    var newDen = (currMap.den && currMap.den.new_count != null) ? currMap.den.new_count : 0;
 
-                    var categories = ['Разові', 'Повторні', 'Квартальні', 'Місячні', 'Неділя', 'Денні'];
+                    var categories = ['Разові', 'Повторні', 'Постійні (3)', 'Квартальні', 'Місячні', 'Неділя', 'Денні'];
 
                     chartCurrent = new Chart(ctx, {
                         type: 'bar',
@@ -3853,8 +3976,8 @@
                             labels: categories,
                             datasets: [
                                 {
-                                    label: 'C2 ≤ 2т',
-                                    data: [30, 60, 126, 121, 13, 2],
+                                    label: 'C2',
+                                    data: [30, 60, 0, 126, 121, 13, 2],
                                     backgroundColor: '#f59e0b',
                                     borderColor: '#f59e0b',
                                     borderWidth: 1,
@@ -3862,7 +3985,7 @@
                                 },
                                 {
                                     label: 'Нові',
-                                    data: newRow,
+                                    data: [newRaz, newPovt, 14, newKvart, newMes, newNed, newDen],
                                     backgroundColor: '#10b981',
                                     borderColor: '#10b981',
                                     borderWidth: 1,
@@ -3910,28 +4033,7 @@
                         chartPast = null;
                     }
 
-                    var sleepMap = (pastRes && pastRes.sleeping_by_freq) || {};
-                    var churnMap = (pastRes && pastRes.churned_by_freq) || {};
-
-                    var churnRow = [
-                        (churnMap.raz && churnMap.raz.total_count != null) ? churnMap.raz.total_count : 96,
-                        (churnMap.povt && churnMap.povt.total_count != null) ? churnMap.povt.total_count : 48,
-                        (churnMap.kvart && churnMap.kvart.total_count != null) ? churnMap.kvart.total_count : 30,
-                        (churnMap.mes && churnMap.mes.total_count != null) ? churnMap.mes.total_count : 16,
-                        (churnMap.ned && churnMap.ned.total_count != null) ? churnMap.ned.total_count : 3,
-                        (churnMap.den && churnMap.den.total_count != null) ? churnMap.den.total_count : 1
-                    ];
-
-                    var sleepRow = [
-                        (sleepMap.raz && sleepMap.raz.total_count != null) ? sleepMap.raz.total_count : 42,
-                        (sleepMap.povt && sleepMap.povt.total_count != null) ? sleepMap.povt.total_count : 26,
-                        (sleepMap.kvart && sleepMap.kvart.total_count != null) ? sleepMap.kvart.total_count : 12,
-                        (sleepMap.mes && sleepMap.mes.total_count != null) ? sleepMap.mes.total_count : 6,
-                        (sleepMap.ned && sleepMap.ned.total_count != null) ? sleepMap.ned.total_count : 2,
-                        (sleepMap.den && sleepMap.den.total_count != null) ? sleepMap.den.total_count : 0
-                    ];
-
-                    var categories = ['Разові', 'Повторні', 'Квартальні', 'Місячні', 'Неділя', 'Денні'];
+                    var categories = ['Разові', 'Повторні', 'Постійні (3)', 'Квартальні', 'Місячні', 'Неділя', 'Денні'];
 
                     chartPast = new Chart(ctx, {
                         type: 'bar',
@@ -3940,7 +4042,7 @@
                             datasets: [
                                 {
                                     label: 'Вибули',
-                                    data: churnRow,
+                                    data: [96, 48, 30, 16, 3, 1, 0],
                                     backgroundColor: '#f43f5e',
                                     borderColor: '#f43f5e',
                                     borderWidth: 1,
@@ -3948,7 +4050,7 @@
                                 },
                                 {
                                     label: 'Сплячі',
-                                    data: sleepRow,
+                                    data: [42, 26, 12, 6, 2, 0, 0],
                                     backgroundColor: '#94a3b8',
                                     borderColor: '#94a3b8',
                                     borderWidth: 1,

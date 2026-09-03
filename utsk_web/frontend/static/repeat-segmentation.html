@@ -411,20 +411,20 @@
         /* Badges */
         .badge {
             display: inline-block;
-            padding: 2px 8px;
+            padding: 4px 10px;
             border-radius: 6px;
-            font-size: 11.5px;
+            font-size: 12px;
             font-weight: 700;
             white-space: nowrap;
         }
 
-        .badge-a1 { background: #fef08a; color: #854d0e; }
-        .badge-a2 { background: #fef9c3; color: #713f12; }
-        .badge-a3 { background: #e0f2fe; color: #0369a1; }
-        .badge-b1 { background: #dbeafe; color: #1d4ed8; }
-        .badge-b2 { background: #ede9fe; color: #6d28d9; }
-        .badge-c1 { background: #dcfce7; color: #15803d; }
-        .badge-c2 { background: #f1f5f9; color: #475569; }
+        .badge-a1 { background: #d1fae5; color: #065f46; }
+        .badge-a2 { background: #d1fae5; color: #047857; }
+        .badge-a3 { background: #d1fae5; color: #0f766e; }
+        .badge-b1 { background: #fef3c7; color: #92400e; }
+        .badge-b2 { background: #fef3c7; color: #b45309; }
+        .badge-c1 { background: #f1f5f9; color: #475569; }
+        .badge-c2 { background: #f1f5f9; color: #64748b; }
 
         .badge-subgroup {
             background: #f1f5f9;
@@ -726,14 +726,14 @@
                     </div>
 
                     <select id="filterAbc" class="select-filter" onchange="applyFilters()">
-                        <option value="ALL">Всі ABC класи</option>
-                        <option value="A1">A1 (>8.7M ₴)</option>
-                        <option value="A2">A2 (5.8-8.7M ₴)</option>
-                        <option value="A3">A3 (4.35-5.8M ₴)</option>
-                        <option value="B1">B1 (2.9-4.35M ₴)</option>
-                        <option value="B2">B2 (1.45-2.9M ₴)</option>
-                        <option value="C1">C1 (435K-1.45M ₴)</option>
-                        <option value="C2">C2 (&le;146K ₴)</option>
+                        <option value="ALL">Всі класи</option>
+                        <option value="A1">🟢 Опорні A1 (&gt;8.7M ₴)</option>
+                        <option value="A2">🟢 Опорні A2 (5.8-8.7M ₴)</option>
+                        <option value="A3">🟢 Опорні A3 (4.35-5.8M ₴)</option>
+                        <option value="B1">🟡 Розвиваючі B1 (2.9-4.35M ₴)</option>
+                        <option value="B2">🟡 Розвиваючі B2 (1.45-2.9M ₴)</option>
+                        <option value="C1">⚪ Підтримуючі C1 (435K-1.45M ₴)</option>
+                        <option value="C2">⚪ Підтримуючі C2 (&le;146K ₴)</option>
                     </select>
 
                     <select id="sortBy" class="select-filter" onchange="applyFilters()">
@@ -763,7 +763,7 @@
                             <th class="text-center" style="width: 90px;">Накладних</th>
                             <th class="text-right" style="width: 135px;">Виручка (₴)</th>
                             <th class="text-right" style="width: 125px;">Сер. чек (₴)</th>
-                            <th class="text-center" style="width: 70px;">ABC</th>
+                            <th class="text-center" style="width: 95px;">Клас</th>
                             <th class="text-center" style="width: 140px;">Дні між покупками</th>
                             <th>Галузь</th>
                             <th class="text-center" style="width: 80px;">Дія</th>
@@ -796,7 +796,7 @@
                 <div class="modal-stat-grid">
                     <div class="modal-stat-box highlight">
                         <div class="modal-stat-lbl">Товарна виручка</div>
-                        <div class="modal-stat-val" id="modalRevenue" style="color:#4338ca;">—</div>
+                        <div class="modal-stat-val" id="modalRevenue" style="color:#4f46e5;">—</div>
                     </div>
                     <div class="modal-stat-box">
                         <div class="modal-stat-lbl">Підгрупа</div>
@@ -815,7 +815,7 @@
                         <div class="modal-stat-val" id="modalDays">—</div>
                     </div>
                     <div class="modal-stat-box">
-                        <div class="modal-stat-lbl">ABC Клас</div>
+                        <div class="modal-stat-lbl">Клас</div>
                         <div class="modal-stat-val" id="modalAbc">—</div>
                     </div>
                     <div class="modal-stat-box">

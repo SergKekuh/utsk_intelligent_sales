@@ -58,10 +58,17 @@ def setup_database():
         
         # Тестовые данные
         conn.execute(text("INSERT INTO status_rules (id, status_name, priority) VALUES (1, 'Новые', 10) ON CONFLICT DO NOTHING"))
-        # ✅ КЛИЕНТ ПРИВЯЗАН К СТАТУСУ current_status_id = 1
-        conn.execute(text("INSERT INTO clients (code, name, current_status_id) VALUES ('36', 'Test Client', 1) ON CONFLICT (code) DO UPDATE SET name = EXCLUDED.name, current_status_id = 1"))
-        conn.execute(text("INSERT INTO documents (id, client_code, invoice_date, total_amount) VALUES (1, '36', '2026-01-01', 1000) ON CONFLICT DO NOTHING"))
-        conn.execute(text("INSERT INTO products (code, name) VALUES ('0001', 'Test Product') ON CONFLICT DO NOTHING"))
-        conn.execute(text("INSERT INTO sales_lines (document_id, product_code, quantity, amount) VALUES (1, '0001', 1, 500) ON CONFLICT DO NOTHING"))
+        # ✅ ТЕСТОВЫЙ КЛИЕНТ (используем TEST_999999, чтобы не затирать реальных клиентов)
+        conn.execute(text("INSERT INTO clients (code, name, current_status_id) VALUES ('TEST_999999', 'Test Client', 1) ON CONFLICT (code) DO UPDATE SET name = EXCLUDED.name, current_status_id = 1"))
+        conn.execute(text("INSERT INTO documents (id, client_code, invoice_date, total_amount) VALUES (999999999, 'TEST_999999', '2026-01-01', 1000) ON CONFLICT DO NOTHING"))
+        conn.execute(text("INSERT INTO products (code, name) VALUES ('TEST_PROD_999', 'Test Product') ON CONFLICT DO NOTHING"))
+        conn.execute(text("INSERT INTO sales_lines (document_id, product_code, quantity, amount) VALUES (999999999, 'TEST_PROD_999', 1, 500) ON CONFLICT DO NOTHING"))
     
     yield
+
+    # Cleanup после тестов
+    with engine.begin() as conn:
+        conn.execute(text("DELETE FROM sales_lines WHERE document_id = 999999999"))
+        conn.execute(text("DELETE FROM documents WHERE client_code = 'TEST_999999' OR id = 999999999"))
+        conn.execute(text("DELETE FROM products WHERE code = 'TEST_PROD_999'"))
+        conn.execute(text("DELETE FROM clients WHERE code = 'TEST_999999'"))

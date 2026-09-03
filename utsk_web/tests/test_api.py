@@ -53,11 +53,11 @@ def test_statuses():
 
 # ====== РЕКОМЕНДАЦИИ ======
 def test_recommendations_existing_client():
-    data = client.get("/api/recommendations/36?token=" + TOKEN).json()
+    data = client.get("/api/recommendations/TEST_999999?token=" + TOKEN).json()
     assert "client_name" in data
 
 def test_recommendations_nonexistent_client():
-    response = client.get("/api/recommendations/999999?token=" + TOKEN)
+    response = client.get("/api/recommendations/TEST_NONEXISTENT_99999?token=" + TOKEN)
     assert response.status_code == 404
     assert "detail" in response.json()
 
@@ -193,5 +193,29 @@ def test_inactive_clients_abc():
     data = response.json()
     assert data["status"] == "ok"
     assert "data" in data
+
+# ====== ABC STRUCTURE ======
+def test_abc_structure_page():
+    response = client.get("/abc-structure?token=" + TOKEN)
+    assert response.status_code == 200
+    assert "Структурный анализ ABC" in response.text
+
+def test_abc_structure_api():
+    response = client.get("/api/analytics/abc-structure?token=" + TOKEN + "&year=2026")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "ok"
+    assert "sections" in data["data"]
+
+def test_abc_segment_detail_api():
+    for seg in ['c2', 'abc', 'total', 'important']:
+        response = client.get(f"/api/analytics/abc-segment-detail?token={TOKEN}&segment={seg}&year=2026")
+        assert response.status_code == 200
+        data = response.json()
+        assert data["status"] == "ok"
+        assert "matrix" in data["data"]
+        assert "local_abc" in data["data"]
+        assert "repeat_decomp" in data["data"]
+        assert "kpis" in data["data"]
 
 

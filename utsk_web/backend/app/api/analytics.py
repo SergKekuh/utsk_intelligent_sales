@@ -530,14 +530,16 @@ def abc_structure(token: str=Query(None), year: int=2026, multiplier: float=2.9,
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get('/api/analytics/c2-detail')
-def c2_detail(token: str=Query(None), year: int=2026, multiplier: float=2.9, limit_price: float=146000, active_only: bool=True, db: Session=Depends(get_db)):
-    """Глубокий анализ сегмента C2 с распаковкой повторных и внутренней ABC-классификацией"""
+@router.get('/api/analytics/abc-segment-detail')
+@router.get('/api/analytics/abc-structure-detail')
+def abc_segment_detail(token: str=Query(None), segment: str=Query('c2'), year: int=2026, multiplier: float=2.9, limit_price: float=146000.0, active_only: bool=True, db: Session=Depends(get_db)):
+    """Глубокий анализ любого сегмента (c2, abc, total, important) для ABC-структуры с матрицей и локальным ABC"""
     verify_token(token)
     try:
-        sql = text('SELECT * FROM get_c2_detail(:year, :multiplier, :limit_price)')
-        rows = db.execute(sql, {'year': year, 'multiplier': multiplier, 'limit_price': limit_price}).fetchall()
-        rows_prev = db.execute(sql, {'year': year - 1, 'multiplier': multiplier, 'limit_price': limit_price}).fetchall()
-        freq_groups = ['1', '2_1d', '2_diff', '3', '4_10', '11_40', '41_plus']
+        sql = text('SELECT * FROM get_segment_detail(:segment, :year, :multiplier, :limit_price)')
+        rows = db.execute(sql, {'segment': segment, 'year': year, 'multiplier': multiplier, 'limit_price': limit_price}).fetchall()
+        rows_prev = db.execute(sql, {'segment': segment, 'year': year - 1, 'multiplier': multiplier, 'limit_price': limit_price}).fetchall()
+        freq_groups = ['1', '2_1d', '2_diff', '3', '4_10', '11_40', '41_170', '171_plus']
         classes = ['A', 'B', 'C']
         matrix = {cls: {fg: {'comp': 0, 'inv': 0, 'sales': 0.0} for fg in freq_groups} for cls in classes}
         matrix_prev = {cls: {fg: {'comp': 0, 'inv': 0, 'sales': 0.0} for fg in freq_groups} for cls in classes}
@@ -554,44 +556,36 @@ def c2_detail(token: str=Query(None), year: int=2026, multiplier: float=2.9, lim
             total_comp += 1
             total_inv += inv
             total_sales += sales
-            local_abc[cls]['comp'] += 1
-            local_abc[cls]['inv'] += inv
-            local_abc[cls]['sales'] += sales
-            repeat_decomp[fg]['comp'] += 1
-            repeat_decomp[fg]['inv'] += inv
-            repeat_decomp[fg]['sales'] += sales
-            matrix[cls][fg]['comp'] += 1
-            matrix[cls][fg]['inv'] += inv
-            matrix[cls][fg]['sales'] += sales
+            if cls in local_abc:
+                local_abc[cls]['comp'] += 1
+                local_abc[cls]['inv'] += inv
+                local_abc[cls]['sales'] += sales
+            if fg in repeat_decomp:
+                repeat_decomp[fg]['comp'] += 1
+                repeat_decomp[fg]['inv'] += inv
+                repeat_decomp[fg]['sales'] += sales
+            if cls in matrix and fg in matrix[cls]:
+                matrix[cls][fg]['comp'] += 1
+                matrix[cls][fg]['inv'] += inv
+                matrix[cls][fg]['sales'] += sales
         for r in rows_prev:
             cls = r.internal_class
             fg = r.freq_group
             sales = float(r.goods_revenue or 0)
             inv = int(r.invoices_count or 0)
-            matrix_prev[cls][fg]['comp'] += 1
-            matrix_prev[cls][fg]['inv'] += inv
-            matrix_prev[cls][fg]['sales'] += sales
+            if cls in matrix_prev and fg in matrix_prev[cls]:
+                matrix_prev[cls][fg]['comp'] += 1
+                matrix_prev[cls][fg]['inv'] += inv
+                matrix_prev[cls][fg]['sales'] += sales
         comp_2_1d = repeat_decomp['2_1d']['comp']
         comp_2_diff = repeat_decomp['2_diff']['comp']
         total_2_comp = comp_2_1d + comp_2_diff
         false_repeat_pct = round(comp_2_1d / total_2_comp * 100, 1) if total_2_comp > 0 else 0.0
         class_a_sales_pct = round(local_abc['A']['sales'] / total_sales * 100, 1) if total_sales > 0 else 0.0
         class_a_comp_pct = round(local_abc['A']['comp'] / total_comp * 100, 1) if total_comp > 0 else 0.0
-        return {'status': 'ok', 'year': year, 'year_prev': year - 1, 'limit_price': limit_price, 'data': {'total_companies': total_comp, 'total_invoices': total_inv, 'total_sales': round(total_sales, 2), 'avg_ticket': round(total_sales / total_inv, 2) if total_inv else 0.0, 'local_abc': local_abc, 'repeat_decomp': repeat_decomp, 'matrix': matrix, 'matrix_prev': matrix_prev, 'kpis': {'false_repeat_pct': false_repeat_pct, 'class_a_sales_pct': class_a_sales_pct, 'class_a_comp_pct': class_a_comp_pct, 'false_repeat_comp': comp_2_1d, 'true_repeat_comp': comp_2_diff}}}
+        return {'status': 'ok', 'year': year, 'year_prev': year - 1, 'segment': segment, 'limit_price': limit_price, 'data': {'total_companies': total_comp, 'total_invoices': total_inv, 'total_sales': round(total_sales, 2), 'avg_ticket': round(total_sales / total_inv, 2) if total_inv else 0.0, 'local_abc': local_abc, 'repeat_decomp': repeat_decomp, 'matrix': matrix, 'matrix_prev': matrix_prev, 'kpis': {'false_repeat_pct': false_repeat_pct, 'class_a_sales_pct': class_a_sales_pct, 'class_a_comp_pct': class_a_comp_pct, 'false_repeat_comp': comp_2_1d, 'true_repeat_comp': comp_2_diff}}}
     except Exception as e:
-        logger.error(f'Ошибка c2_detail: {e}')
-        raise HTTPException(status_code=500, detail=str(e))
-
-@router.get('/api/analytics/legacy-segment-detail')
-def legacy_segment_detail(token: str=Query(None), segment: str=Query('abc'), year: int=2026, multiplier: float=2.9, limit_price: float=146000, active_only: bool=True, db: Session=Depends(get_db)):
-    """Детальный анализ любого сегмента (c2, abc, total, important) с матрицей и локальным ABC (legacy)"""
-    verify_token(token)
-    try:
-        sql = text('SELECT * FROM get_segment_detail(:year, :segment, :table, :limit_price)')
-        rows = db.execute(sql, {'segment': segment, 'year': year, 'table': 'general', 'limit_price': limit_price}).fetchall()
-        return {'status': 'ok', 'segment': segment, 'year': year, 'count': len(rows)}
-    except Exception as e:
-        logger.error(f'Ошибка legacy_segment_detail: {e}')
+        logger.error(f'Ошибка abc_segment_detail: {e}')
         raise HTTPException(status_code=500, detail=str(e))
 
 

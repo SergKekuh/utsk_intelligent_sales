@@ -97,6 +97,7 @@ BEGIN
             CASE 
                 WHEN p_segment IN ('churn_raz', 'sleep_raz') THEN cs.inv_count = 1
                 WHEN p_segment IN ('churn_povt', 'sleep_povt') THEN cs.inv_count BETWEEN 2 AND 3
+                WHEN p_segment IN ('churn_cand', 'sleep_cand') THEN cs.inv_count = 3
                 WHEN p_segment IN ('churn_kvart', 'sleep_kvart') THEN cs.inv_count BETWEEN 4 AND 10
                 WHEN p_segment IN ('churn_mes', 'sleep_mes') THEN cs.inv_count BETWEEN 11 AND 40
                 WHEN p_segment IN ('churn_ned', 'sleep_ned') THEN cs.inv_count BETWEEN 41 AND 170
@@ -176,6 +177,7 @@ BEGIN
                 WHEN p_segment = 'c2' THEN cs.total_revenue <= p_limit_price
                 WHEN p_segment = 'c2_raz' THEN (cs.total_revenue <= p_limit_price AND cs.inv_count = 1)
                 WHEN p_segment = 'c2_povt' THEN (cs.total_revenue <= p_limit_price AND cs.inv_count BETWEEN 2 AND 3)
+                WHEN p_segment = 'c2_cand' THEN (cs.total_revenue <= p_limit_price AND cs.inv_count = 3)
                 WHEN p_segment = 'c2_kvart' THEN (cs.total_revenue <= p_limit_price AND cs.inv_count BETWEEN 4 AND 10)
                 WHEN p_segment = 'c2_mes' THEN (cs.total_revenue <= p_limit_price AND cs.inv_count BETWEEN 11 AND 40)
                 WHEN p_segment = 'c2_ned' THEN (cs.total_revenue <= p_limit_price AND cs.inv_count BETWEEN 41 AND 170)
@@ -184,6 +186,7 @@ BEGIN
                 WHEN p_segment = 'new' THEN cs.current_status_id = 1
                 WHEN p_segment = 'new_raz' THEN (cs.current_status_id = 1 AND cs.inv_count = 1)
                 WHEN p_segment = 'new_povt' THEN (cs.current_status_id = 1 AND cs.inv_count BETWEEN 2 AND 3)
+                WHEN p_segment = 'new_cand' THEN (cs.current_status_id = 1 AND cs.inv_count = 3)
                 WHEN p_segment = 'new_kvart' THEN (cs.current_status_id = 1 AND cs.inv_count BETWEEN 4 AND 10)
                 WHEN p_segment = 'new_mes' THEN (cs.current_status_id = 1 AND cs.inv_count BETWEEN 11 AND 40)
                 WHEN p_segment = 'new_ned' THEN (cs.current_status_id = 1 AND cs.inv_count BETWEEN 41 AND 170)

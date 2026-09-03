@@ -186,11 +186,11 @@
         .badge-churned { background: var(--bad-soft); color: #991b1b; }
 
         .badge-abc {
-            display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; text-align: center; width: 32px;
+            display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 700; text-align: center; min-width: 95px; white-space: nowrap;
         }
         .badge-a { background: #d1fae5; color: #047857; }
-        .badge-b { background: #dbeafe; color: #1d4ed8; }
-        .badge-c { background: #fef3c7; color: #b45309; }
+        .badge-b { background: #fef3c7; color: #b45309; }
+        .badge-c { background: #f1f5f9; color: #475569; }
 
         .badge-rec {
             display: inline-block; padding: 4px 10px; border-radius: 10px; font-size: 11px; font-weight: 700;
@@ -353,11 +353,11 @@
                     <div class="filters-row">
                         <input type="text" id="search-sleeping" class="search-input" placeholder="Поиск по названию или коду..." oninput="onSearchSleeping()">
                         <div class="abc-filters">
-                            <span style="font-size: 12px; font-weight: 600; color: var(--text-muted); align-self: center;">ABC 2025:</span>
-                            <button class="filter-chip active" onclick="setAbcSleeping('', this)">Все</button>
-                            <button class="filter-chip" onclick="setAbcSleeping('A', this)">A</button>
-                            <button class="filter-chip" onclick="setAbcSleeping('B', this)">B</button>
-                            <button class="filter-chip" onclick="setAbcSleeping('C', this)">C</button>
+                            <span style="font-size: 12px; font-weight: 600; color: var(--text-muted); align-self: center;">Клас 2025:</span>
+                            <button class="filter-chip active" onclick="setAbcSleeping('', this)">Всі</button>
+                            <button class="filter-chip" onclick="setAbcSleeping('A', this)">🟢 Опорні (A)</button>
+                            <button class="filter-chip" onclick="setAbcSleeping('B', this)">🟡 Розвиваючі (B)</button>
+                            <button class="filter-chip" onclick="setAbcSleeping('C', this)">⚪ Підтримуючі (C)</button>
                         </div>
                     </div>
 
@@ -369,7 +369,7 @@
                                     <th>Наименование клиента</th>
                                     <th class="text-right">Счетов (2025)</th>
                                     <th class="text-right">Выручка 2025 (₴)</th>
-                                    <th class="text-center">ABC 2025</th>
+                                    <th class="text-center" style="min-width: 120px;">Клас 2025</th>
                                     <th class="text-center">Последняя покупка</th>
                                     <th class="text-center">Дней без покупок</th>
                                     <th class="text-center">Рекомендация</th>
@@ -397,11 +397,11 @@
                     <div class="filters-row">
                         <input type="text" id="search-churned" class="search-input" placeholder="Поиск по названию или коду..." oninput="onSearchChurned()">
                         <div class="abc-filters">
-                            <span style="font-size: 12px; font-weight: 600; color: var(--text-muted); align-self: center;">ABC 2024:</span>
-                            <button class="filter-chip active" onclick="setAbcChurned('', this)">Все</button>
-                            <button class="filter-chip" onclick="setAbcChurned('A', this)">A</button>
-                            <button class="filter-chip" onclick="setAbcChurned('B', this)">B</button>
-                            <button class="filter-chip" onclick="setAbcChurned('C', this)">C</button>
+                            <span style="font-size: 12px; font-weight: 600; color: var(--text-muted); align-self: center;">Клас 2024:</span>
+                            <button class="filter-chip active" onclick="setAbcChurned('', this)">Всі</button>
+                            <button class="filter-chip" onclick="setAbcChurned('A', this)">🟢 Опорні (A)</button>
+                            <button class="filter-chip" onclick="setAbcChurned('B', this)">🟡 Розвиваючі (B)</button>
+                            <button class="filter-chip" onclick="setAbcChurned('C', this)">⚪ Підтримуючі (C)</button>
                         </div>
                     </div>
 
@@ -413,7 +413,7 @@
                                     <th>Наименование клиента</th>
                                     <th class="text-right">Счетов (2024)</th>
                                     <th class="text-right">Выручка 2024 (₴)</th>
-                                    <th class="text-center">ABC 2024</th>
+                                    <th class="text-center" style="min-width: 120px;">Клас 2024</th>
                                     <th class="text-center">Последняя покупка</th>
                                     <th class="text-center">Рекомендация</th>
                                     <th>Действие</th>
@@ -438,7 +438,7 @@
                             <table>
                                 <thead>
                                     <tr>
-                                        <th>Группа ABC</th>
+                                        <th style="min-width: 120px;">Клас</th>
                                         <th class="text-right">Спящие 2025 (шт)</th>
                                         <th class="text-right">Выручка Спящих (₴)</th>
                                         <th class="text-right">Ушедшие 2024 (шт)</th>
@@ -748,6 +748,7 @@
             abcSleeping.forEach(i => sMap[i.abc_group] = { count: i.count, rev: i.revenue });
             abcChurned.forEach(i => cMap[i.abc_group] = { count: i.count, rev: i.revenue });
 
+            const groupNames = { 'A': 'Опорні', 'B': 'Розвиваючі', 'C': 'Підтримуючі' };
             ['A', 'B', 'C'].forEach(g => {
                 const s = sMap[g];
                 const c = cMap[g];
@@ -755,7 +756,7 @@
 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td><span class="badge-abc ${badgeClass}">${g}</span></td>
+                    <td><span class="badge-abc ${badgeClass}">${groupNames[g]}</span></td>
                     <td class="text-right">${fmtNum(s.count)}</td>
                     <td class="text-right">${fmtMoney(s.rev)}</td>
                     <td class="text-right">${fmtNum(c.count)}</td>
@@ -771,10 +772,10 @@
             chartAbcInactiveInstance = new Chart(ctx, {
                 type: 'pie',
                 data: {
-                    labels: ['Группа A', 'Группа B', 'Группа C'],
+                    labels: ['Опорні', 'Розвиваючі', 'Підтримуючі'],
                     datasets: [{
                         data: [sMap['A'].rev, sMap['B'].rev, sMap['C'].rev],
-                        backgroundColor: ['#10b981', '#3b82f6', '#f59e0b']
+                        backgroundColor: ['#10b981', '#f59e0b', '#94a3b8']
                     }]
                 },
                 options: {
@@ -782,7 +783,7 @@
                     maintainAspectRatio: false,
                     plugins: {
                         legend: { position: 'bottom' },
-                        title: { display: true, text: 'Структура потенциально упущенной выручки Спящих (2025)', font: { size: 13, weight: 'bold' } }
+                        title: { display: true, text: 'Структура потенційно втраченої виручки Сплячих (2025)', font: { size: 13, weight: 'bold' } }
                     }
                 }
             });

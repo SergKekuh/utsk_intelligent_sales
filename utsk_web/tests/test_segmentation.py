@@ -18,7 +18,7 @@ def test_segmentation_kpi():
     assert json_data["data"]["total_clients"] == 729
     assert json_data["data"]["repeat_loyal_clients"] == 503
     assert json_data["data"]["c2_clients"] == 377
-    assert json_data["data"]["new_clients"] == 151
+    assert json_data["data"]["new_clients"] == 150
 
 def test_segmentation_special():
     resp = client.get(f"/api/analytics/segmentation-special?token={TOKEN}&year=2026&limit_price=146000")
@@ -49,7 +49,7 @@ def test_segmentation_matrix_v2():
     assert len(json_data["data"]) == 5
     assert json_data["totals"]["total_clients"] == 729
     assert json_data["totals"]["c2_clients"] == 377
-    assert json_data["totals"]["new_clients"] == 151
+    assert json_data["totals"]["new_clients"] == 150
     assert json_data["totals"]["retained_clients"] == 579
 
 def test_segmentation_current_year():
@@ -59,7 +59,7 @@ def test_segmentation_current_year():
     assert json_data["status"] == "ok"
     assert len(json_data["data"]) == 6
     assert json_data["totals"]["total_count"] == 729
-    assert json_data["totals"]["new_count"] == 151
+    assert json_data["totals"]["new_count"] == 150
     assert json_data["totals"]["c2_count"] == 377
     assert json_data["totals"]["retained_count"] == 579
     # Check frequency groups

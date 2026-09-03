@@ -411,15 +411,15 @@
         /* Badges */
         .badge {
             display: inline-block;
-            padding: 2px 8px;
+            padding: 4px 10px;
             border-radius: 6px;
-            font-size: 11.5px;
+            font-size: 12px;
             font-weight: 700;
             white-space: nowrap;
         }
 
-        .badge-a { background: #fef08a; color: #854d0e; }
-        .badge-b { background: #dbeafe; color: #1d4ed8; }
+        .badge-a { background: #d1fae5; color: #047857; }
+        .badge-b { background: #fef3c7; color: #b45309; }
         .badge-c { background: #f1f5f9; color: #475569; }
 
         .badge-rec {
@@ -431,47 +431,66 @@
         }
         .badge-rec.high { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
         .badge-rec.med { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
-        .badge-rec.low { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+        /* Action Mini Button */
+        .btn-mini {
+            padding: 4px 8px;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            background: #ffffff;
+            color: #475569;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.15s;
+        }
 
-        .text-right { text-align: right !important; }
-        .text-center { text-align: center !important; }
+        .btn-mini:hover {
+            background: #f1f5f9;
+            border-color: #94a3b8;
+            color: #0f172a;
+        }
 
-        /* Quick View Modal */
+        /* Modal Card */
         .modal-backdrop {
             position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             background: rgba(15, 23, 42, 0.6);
             backdrop-filter: blur(4px);
-            z-index: 9999;
             display: none;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            z-index: 1000;
         }
-        .modal-backdrop.active { display: flex; }
 
         .modal-card {
             background: #ffffff;
-            border-radius: 16px;
+            border-radius: 14px;
+            width: 95%;
             max-width: 580px;
-            width: 100%;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-            border: 1px solid #e2e8f0;
-            overflow: hidden;
+            padding: 24px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
             animation: modalFadeIn 0.2s ease-out;
         }
+
         @keyframes modalFadeIn {
-            from { opacity: 0; transform: translateY(12px) scale(0.98); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
+            from { opacity: 0; transform: scale(0.96); }
+            to { opacity: 1; transform: scale(1); }
         }
 
         .modal-header {
-            padding: 18px 24px;
-            border-bottom: 1px solid #e2e8f0;
             display: flex;
+            align-items: flex-start;
             justify-content: space-between;
-            align-items: center;
-            background: #f8fafc;
+            margin-bottom: 18px;
+            border-bottom: 1px solid #f1f5f9;
+            padding-bottom: 12px;
         }
 
         .modal-title {
@@ -483,158 +502,132 @@
         .modal-close {
             background: none;
             border: none;
-            font-size: 24px;
-            color: #94a3b8;
+            font-size: 20px;
             cursor: pointer;
+            color: #94a3b8;
             line-height: 1;
+            padding: 4px;
         }
 
-        .modal-close:hover { color: #0f172a; }
-
-        .modal-body { padding: 24px; }
+        .modal-close:hover {
+            color: #0f172a;
+        }
 
         .modal-stat-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
         }
 
         .modal-stat-box {
             background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 10px;
             padding: 12px 14px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
         }
 
         .modal-stat-box.highlight {
-            grid-column: 1 / -1;
-            background: #ffe4e6;
+            background: #fff1f2;
             border-color: #fecdd3;
         }
 
         .modal-stat-lbl {
             font-size: 11px;
-            font-weight: 700;
+            font-weight: 600;
             color: #64748b;
             text-transform: uppercase;
+            margin-bottom: 4px;
         }
 
         .modal-stat-val {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 800;
             color: #0f172a;
-            margin-top: 4px;
         }
 
         .modal-footer {
-            padding: 14px 24px;
-            border-top: 1px solid #e2e8f0;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #f8fafc;
-        }
-
-        @media (max-width: 1200px) {
-            .kpi-grid { grid-template-columns: repeat(3, 1fr); }
-            .charts-grid { grid-template-columns: 1fr; }
-        }
-
-        @media (max-width: 768px) {
-            body { padding: 12px; }
-            .kpi-grid { grid-template-columns: 1fr 1fr; }
-            .top-header { flex-direction: column; align-items: flex-start; }
-            .search-box { width: 100%; }
+            justify-content: flex-end;
+            gap: 10px;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 14px;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-
-        <!-- Top Header -->
+        <!-- Top Header Navigation -->
         <div class="top-header">
             <div class="header-title-area">
                 <button class="btn-action" onclick="goBack()">
-                    <i class="fa-solid fa-arrow-left"></i> До матриці
+                    <i class="fa-solid fa-arrow-left"></i> Назад
                 </button>
                 <div class="header-info">
-                    <h1><i class="fa-solid fa-user-xmark" style="color:#e11d48;"></i> 👻 Вибули (Ушедшие) — Аналіз втраченої бази (<span id="title-count">194</span> компанії)</h1>
+                    <h1><i class="fa-solid fa-user-xmark" style="color:#e11d48;"></i> 👻 Ушедшие (Churned) — Аналіз бази відтоку</h1>
                     <div class="meta">
-                        Рік аналізу: <span class="meta-pill" id="lbl-year">2026</span> &nbsp;|&nbsp; 
-                        Критерій: <span class="meta-pill">Клієнти без замовлень у 2026 році (Status ID = 9)</span> &nbsp;|&nbsp; 
-                        БД: <span class="meta-pill">PostgreSQL (bd_intelligent_sales)</span>
+                        Рік аналізу: <span class="meta-pill" id="lbl-year">2026</span> &nbsp;|&nbsp;
+                        Критерій: <span class="meta-pill">Клієнти без покупок у 2025 та 2026 роках (Status ID = 9)</span> &nbsp;|&nbsp;
+                        База: <span class="meta-pill" id="lbl-total-count">194 клієнти</span>
                     </div>
                 </div>
             </div>
-            <div style="display:flex;align-items:center;gap:10px;">
-                <button class="btn-action btn-primary" onclick="exportToCSV()">
-                    <i class="fa-solid fa-file-csv"></i> Експорт у CSV
+            <div style="display:flex;gap:10px;align-items:center;">
+                <button class="btn-action" onclick="exportToCsv()">
+                    <i class="fa-solid fa-file-csv"></i> Експорт CSV
                 </button>
             </div>
         </div>
 
-        <!-- 6 KPI Cards -->
+        <!-- KPI 4 Cards Grid -->
         <div class="kpi-grid">
             <!-- 1. Всього вибулих -->
-            <div class="kpi-card">
-                <div class="kpi-top">
-                    <span class="kpi-lbl">Всього вибулих</span>
-                    <div class="kpi-icon" style="background:#ffe4e6;color:#e11d48;"><i class="fa-solid fa-user-slash"></i></div>
+            <div class="kpi-card bad">
+                <div>
+                    <div class="kpi-lbl">Всього вибулих</div>
+                    <div class="kpi-val" id="kpiTotalCount">194</div>
+                    <div class="kpi-sub">Клієнти без замовлень 2+ роки</div>
                 </div>
-                <div class="kpi-val" id="kpi-total-churned" style="color:#e11d48;">194</div>
-                <div class="kpi-sub">Втрачені клієнти</div>
+                <div class="kpi-icon-box">
+                    <i class="fa-solid fa-user-slash" style="color:#e11d48;"></i>
+                </div>
             </div>
 
             <!-- 2. Втрачена виручка -->
-            <div class="kpi-card">
-                <div class="kpi-top">
-                    <span class="kpi-lbl">Втрачена виручка</span>
-                    <div class="kpi-icon" style="background:#fef2f2;color:#ef4444;"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+            <div class="kpi-card warn">
+                <div>
+                    <div class="kpi-lbl">Втрачена виручка (2024)</div>
+                    <div class="kpi-val" id="kpiLostRev">— ₴</div>
+                    <div class="kpi-sub">Оборот цих компаній у 2024 р.</div>
                 </div>
-                <div class="kpi-val" id="kpi-revenue" style="color:#b91c1c;">—</div>
-                <div class="kpi-sub">Обсяг минулих періодів</div>
+                <div class="kpi-icon-box">
+                    <i class="fa-solid fa-sack-dollar" style="color:#f59e0b;"></i>
+                </div>
             </div>
 
-            <!-- 3. Накладних минулих років -->
-            <div class="kpi-card">
-                <div class="kpi-top">
-                    <span class="kpi-lbl">Накладних</span>
-                    <div class="kpi-icon" style="background:#eff6ff;color:#2563eb;"><i class="fa-solid fa-file-invoice"></i></div>
+            <!-- 3. Середня давність -->
+            <div class="kpi-card purple">
+                <div>
+                    <div class="kpi-lbl">Сер. термін мовчання</div>
+                    <div class="kpi-val" id="kpiAvgDays">— днів</div>
+                    <div class="kpi-sub">З дати останнього відвантаження</div>
                 </div>
-                <div class="kpi-val" id="kpi-invoices">—</div>
-                <div class="kpi-sub">Оформлено документів</div>
+                <div class="kpi-icon-box">
+                    <i class="fa-solid fa-calendar-xmark" style="color:#8b5cf6;"></i>
+                </div>
             </div>
 
-            <!-- 4. % від бази -->
-            <div class="kpi-card">
-                <div class="kpi-top">
-                    <span class="kpi-lbl">% від бази</span>
-                    <div class="kpi-icon" style="background:#fdf4ff;color:#a855f7;"><i class="fa-solid fa-pie-chart"></i></div>
+            <!-- 4. Потенціал реактивації (A+B) -->
+            <div class="kpi-card blue">
+                <div>
+                    <div class="kpi-lbl">Пріоритет повернення (A+B)</div>
+                    <div class="kpi-val" id="kpiAbPriority">—</div>
+                    <div class="kpi-sub">Ключові клієнти для відновлення</div>
                 </div>
-                <div class="kpi-val" id="kpi-share">—</div>
-                <div class="kpi-sub">Співвідношення до 729 фірм</div>
-            </div>
-
-            <!-- 5. A-клієнти серед вибулих -->
-            <div class="kpi-card">
-                <div class="kpi-top">
-                    <span class="kpi-lbl">A-клієнти</span>
-                    <div class="kpi-icon" style="background:#fffbeb;color:#d97706;"><i class="fa-solid fa-fire"></i></div>
+                <div class="kpi-icon-box">
+                    <i class="fa-solid fa-bullseye" style="color:#2563eb;"></i>
                 </div>
-                <div class="kpi-val" id="kpi-a-clients" style="color:#b45309;">—</div>
-                <div class="kpi-sub">Найцінніші втрати</div>
-            </div>
-
-            <!-- 6. Середня давність -->
-            <div class="kpi-card">
-                <div class="kpi-top">
-                    <span class="kpi-lbl">Сер. давність</span>
-                    <div class="kpi-icon" style="background:#f1f5f9;color:#475569;"><i class="fa-solid fa-clock-rotate-left"></i></div>
-                </div>
-                <div class="kpi-val" id="kpi-avg-days">—</div>
-                <div class="kpi-sub">Днів без покупок</div>
             </div>
         </div>
 
@@ -648,13 +641,13 @@
                     📊 Всі вибулі <span class="cohort-badge" id="badge-all">194</span>
                 </button>
                 <button class="cohort-btn" onclick="selectFilter('A', this)">
-                    🔥 A-клієнти (Пріоритет) <span class="cohort-badge" id="badge-a">0</span>
+                    🟢 Опорні (A) — Пріоритет <span class="cohort-badge" id="badge-a">0</span>
                 </button>
                 <button class="cohort-btn" onclick="selectFilter('B', this)">
-                    📞 B-клієнти (Теплий контакт) <span class="cohort-badge" id="badge-b">0</span>
+                    🟡 Розвиваючі (B) — Теплий контакт <span class="cohort-badge" id="badge-b">0</span>
                 </button>
                 <button class="cohort-btn" onclick="selectFilter('C', this)">
-                    📋 C-клієнти (Архів / Прогрів) <span class="cohort-badge" id="badge-c">0</span>
+                    ⚪ Підтримуючі (C) — Архів / Прогрів <span class="cohort-badge" id="badge-c">0</span>
                 </button>
             </div>
         </div>
@@ -666,9 +659,9 @@
                 <div class="bento-card-header">
                     <div>
                         <h2 class="bento-card-title">
-                            <i class="fa-solid fa-calendar-xmark" style="color:#e11d48;"></i> Розподіл за роком останньої покупки
+                            <i class="fa-solid fa-clock-rotate-left" style="color:#e11d48;"></i> Розподіл вибулих за роком останньої покупки
                         </h2>
-                        <div class="bento-card-subtitle">Кількість вибулих клієнтів за роком останньої активності</div>
+                        <div class="bento-card-subtitle">Кількість вибулих клієнтів за роком відходу</div>
                     </div>
                 </div>
                 <div style="height: 260px; width: 100%; position: relative;">
@@ -676,14 +669,14 @@
                 </div>
             </div>
 
-            <!-- Chart 2: Втрачена виручка по когортах -->
+            <!-- Chart 2: Виручка вибулих по частотних когортах -->
             <div class="bento-card">
                 <div class="bento-card-header">
                     <div>
                         <h2 class="bento-card-title">
-                            <i class="fa-solid fa-chart-column" style="color:#2563eb;"></i> Втрачена виручка за частотними когортами
+                            <i class="fa-solid fa-chart-column" style="color:#d97706;"></i> Втрачена виручка за частотними когортами
                         </h2>
-                        <div class="bento-card-subtitle">Обсяг продажів (млн ₴) за когортами до моменту відтоку</div>
+                        <div class="bento-card-subtitle">Обсяг продажів (млн ₴) у базовому періоді за категоріями частоти</div>
                     </div>
                 </div>
                 <div style="height: 260px; width: 100%; position: relative;">
@@ -697,7 +690,7 @@
             <div class="bento-card-header">
                 <div>
                     <h2 class="bento-card-title">
-                        <i class="fa-solid fa-list-check" style="color:#0f172a;"></i> Реєстр вибулих компаній
+                        <i class="fa-solid fa-list-check" style="color:#0f172a;"></i> Реєстр вибулих клієнтів
                     </h2>
                     <div class="bento-card-subtitle">Клікніть на компанію для переходу в картку або 👁️ для швидкої інформації</div>
                 </div>
@@ -712,10 +705,10 @@
                     </div>
 
                     <select id="sortBy" class="select-filter" onchange="applyFilters()">
+                        <option value="days_desc">Сортування: Давно вибули (днів макс)</option>
+                        <option value="days_asc">Сортування: Нещодавно вибули (днів мін)</option>
                         <option value="rev_desc">Сортування: Втрачена виручка (макс)</option>
                         <option value="rev_asc">Сортування: Втрачена виручка (мін)</option>
-                        <option value="days_asc">Сортування: Нещодавно пішли (днів мін)</option>
-                        <option value="days_desc">Сортування: Давно пішли (днів макс)</option>
                         <option value="inv_desc">Сортування: Накладні (макс)</option>
                         <option value="name_asc">Сортування: Назва (А-Я)</option>
                     </select>
@@ -738,7 +731,7 @@
                             <th class="text-center" style="width: 110px;">Днів мовчання</th>
                             <th class="text-center" style="width: 90px;">Накладних</th>
                             <th class="text-right" style="width: 140px;">Виручка (₴)</th>
-                            <th class="text-center" style="width: 70px;">ABC</th>
+                            <th class="text-center" style="width: 120px;">Клас</th>
                             <th style="width: 210px;">Рекомендація</th>
                             <th>Галузь</th>
                             <th class="text-center" style="width: 80px;">Дія</th>
@@ -786,7 +779,7 @@
                         <div class="modal-stat-val" id="modalInvoices">—</div>
                     </div>
                     <div class="modal-stat-box">
-                        <div class="modal-stat-lbl">ABC Клас</div>
+                        <div class="modal-stat-lbl">Клас</div>
                         <div class="modal-stat-val" id="modalAbc">—</div>
                     </div>
                     <div class="modal-stat-box" style="grid-column: 1 / -1;">
@@ -835,9 +828,10 @@
 
         function getAbcBadge(abc) {
             var cls = 'badge-c';
-            if (abc === 'A') cls = 'badge-a';
-            else if (abc === 'B') cls = 'badge-b';
-            return '<span class="badge ' + cls + '">' + (abc || 'C') + '</span>';
+            var name = 'Підтримуючі';
+            if (abc === 'A') { cls = 'badge-a'; name = 'Опорні'; }
+            else if (abc === 'B') { cls = 'badge-b'; name = 'Розвиваючі'; }
+            return '<span class="badge ' + cls + '">' + name + '</span>';
         }
 
         function getRecBadge(rec, abc) {
