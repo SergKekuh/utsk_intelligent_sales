@@ -118,7 +118,7 @@ def get_client_detail(code: str, token: str = Query(None), year: int = 2026, db:
             m["revenue_current"] = float(m["revenue_current"]) if m.get("revenue_current") else 0.0
             m["revenue_previous"] = float(m["revenue_previous"]) if m.get("revenue_previous") else 0.0
 
-        q_invoices = text("SELECT * FROM get_client_invoices(:code, :year, NULL, NULL, NULL, 20)")
+        q_invoices = text("SELECT * FROM get_client_invoices(:code, :year, NULL, NULL, NULL, 500)")
         invoice_rows = db.execute(q_invoices, {"code": code, "year": year}).fetchall()
         last_invoices = [dict(i._mapping) for i in invoice_rows]
         for inv in last_invoices:
@@ -135,6 +135,7 @@ def get_client_detail(code: str, token: str = Query(None), year: int = 2026, db:
                 "status_2025": status_2025,
                 "total_revenue": float(client_data["total_revenue"]),
                 "total_invoices": client_data["total_invoices"],
+                "total_positions": int(client_data.get("total_positions", 0) or 0),
                 "avg_check": float(client_data["avg_check"]),
                 "last_purchase_date": last_date_str,
                 "monthly_data": monthly_data,
@@ -156,7 +157,7 @@ def get_client_invoices(
     month: str = "all",
     date_from: str = Query(None),
     date_to: str = Query(None),
-    limit: int = 50,
+    limit: int = 500,
     db: Session = Depends(get_db)
 ):
     verify_token(token)

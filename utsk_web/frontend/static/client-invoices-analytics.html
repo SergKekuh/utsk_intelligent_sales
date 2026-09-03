@@ -287,14 +287,19 @@
         <!-- KPI Cards Grid -->
         <section class="kpi-grid">
             <div class="kpi-card" style="border-top-color: #4f46e5;">
-                <span class="kpi-title">📄 Всего накладных 2026</span>
+                <span class="kpi-title" id="kpi-curr-lbl">📄 Всего накладных 2026</span>
                 <span class="kpi-value" id="kpi-inv-curr" style="color:#4f46e5;">—</span>
-                <span class="kpi-subtext">Количество заказов</span>
+                <div class="kpi-subtext" style="display:flex; flex-direction:column; gap:3px; margin-top:4px;">
+                    <span id="kpi-pos-curr-sub" style="font-weight:600; color:#475569;">📦 Позицій: —</span>
+                    <span id="kpi-unique-positions" style="font-weight:700; color:#7c3aed;">🔑 Унікальних: —</span>
+                </div>
             </div>
             <div class="kpi-card" style="border-top-color: #64748b;">
-                <span class="kpi-title">📅 Накладных за 2025 год</span>
+                <span class="kpi-title" id="kpi-prev-lbl">📅 Накладных за 2025 год</span>
                 <span class="kpi-value" id="kpi-inv-prev">—</span>
-                <span class="kpi-subtext">Сравнение YoY</span>
+                <div class="kpi-subtext" style="display:flex; flex-direction:column; gap:3px; margin-top:4px;">
+                    <span id="kpi-pos-prev-sub" style="font-weight:500; color:#64748b;">Сравнение YoY</span>
+                </div>
             </div>
             <div class="kpi-card" style="border-top-color: #10b981;">
                 <span class="kpi-title">📈 Рост заказов YoY</span>
@@ -346,14 +351,15 @@
                     <thead>
                         <tr>
                             <th>Месяц</th>
-                            <th style="text-align:center;">Накладных 2026</th>
-                            <th style="text-align:center;">Накладных 2025</th>
+                            <th style="text-align:center;">Накладных <span id="th-year-curr">2026</span></th>
+                            <th style="text-align:center;">Позицій</th>
+                            <th style="text-align:center;">Накладных <span id="th-year-prev">2025</span></th>
                             <th style="text-align:center;">Рост YoY %</th>
                             <th style="text-align:right;">Действие</th>
                         </tr>
                     </thead>
                     <tbody id="invoices-table-body">
-                        <tr><td colspan="5" style="text-align:center;">⏳ Загрузка...</td></tr>
+                        <tr><td colspan="6" style="text-align:center;">⏳ Загрузка...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -387,7 +393,35 @@
                 document.getElementById('client-code').textContent = info.code;
                 document.getElementById('client-status').textContent = info.status_name;
 
+                const yrNum = parseInt(year, 10) || 2026;
+                const thCurr = document.getElementById('th-year-curr');
+                if (thCurr) thCurr.textContent = yrNum;
+                const thPrev = document.getElementById('th-year-prev');
+                if (thPrev) thPrev.textContent = yrNum - 1;
+
                 const kpi = data.kpi;
+                const kpiCurrLbl = document.getElementById('kpi-curr-lbl');
+                if (kpiCurrLbl) kpiCurrLbl.textContent = `📄 Всего накладных ${yrNum}`;
+                const kpiPrevLbl = document.getElementById('kpi-prev-lbl');
+                if (kpiPrevLbl) kpiPrevLbl.textContent = `📅 Накладных за ${yrNum - 1} год`;
+                
+                const posVal = kpi.positions_curr !== undefined ? kpi.positions_curr : (data.total_positions || 0);
+                const kpiPosSub = document.getElementById('kpi-pos-curr-sub');
+                if (kpiPosSub) {
+                    kpiPosSub.textContent = `📦 Позицій: ${fmtNum(posVal)}`;
+                }
+
+                const uniqVal = data.unique_positions !== undefined ? data.unique_positions : (kpi.unique_positions || 0);
+                const uniqEl = document.getElementById('kpi-unique-positions');
+                if (uniqEl) {
+                    uniqEl.textContent = `🔑 Унікальних: ${fmtNum(uniqVal)}`;
+                }
+
+                const kpiPosPrevSub = document.getElementById('kpi-pos-prev-sub');
+                if (kpiPosPrevSub && kpi.positions_prev !== undefined) {
+                    kpiPosPrevSub.textContent = `📦 Позицій: ${fmtNum(kpi.positions_prev)} • 🔑 Унік.: ${fmtNum(kpi.unique_positions_prev || 0)}`;
+                }
+
                 document.getElementById('kpi-inv-curr').textContent = kpi.invoices_curr;
                 document.getElementById('kpi-inv-prev').textContent = kpi.invoices_prev;
 
@@ -428,6 +462,8 @@
                     currCounts.push(m.inv_curr);
                     prevCounts.push(m.inv_prev);
 
+                    const posCurr = m.pos_curr ?? m.positions_2026 ?? 0;
+                    const uniqCurr = m.unique_positions ?? m.uniq_curr ?? 0;
                     const growthStr = m.growth_pct !== null ? fmtPct(m.growth_pct) : '—';
                     const growthClass = m.growth_pct !== null ? (m.growth_pct >= 100 ? 'badge-positive' : 'badge-negative') : 'badge-neutral';
 
@@ -440,7 +476,12 @@
 
                     tr.innerHTML = `
                         <td style="font-weight:700;">${m.month_name}</td>
-                        <td style="text-align:center;font-weight:800;color:#4f46e5;">${m.inv_curr}</td>
+                        <td style="text-align:center;font-weight:800;color:#4f46e5;">
+                            ${m.inv_curr} <span style="color:#64748b;font-size:11px;font-weight:500;">(${posCurr} поз.)</span>
+                        </td>
+                        <td style="text-align:center;font-weight:700;color:#0f172a;" title="${uniqCurr} унікальних товарів">
+                            ${posCurr} <span style="color:#7c3aed;font-size:11px;font-weight:600;">(${uniqCurr} ун.)</span>
+                        </td>
                         <td style="text-align:center;color:var(--text-muted);">${m.inv_prev}</td>
                         <td style="text-align:center;"><span class="badge ${growthClass}">${growthStr}</span></td>
                         <td style="text-align:right;">
@@ -449,6 +490,25 @@
                     `;
                     tbody.appendChild(tr);
                 });
+
+                // Итоговая строка
+                if (monthly.length > 0) {
+                    const totalInvCurr = kpi.invoices_curr || 0;
+                    const totalInvPrev = kpi.invoices_prev || 0;
+                    const totalGrowthStr = kpi.growth_yoy_pct !== null && kpi.growth_yoy_pct !== undefined ? fmtPct(kpi.growth_yoy_pct) : '—';
+                    const totalGrowthClass = kpi.growth_yoy_pct !== null && kpi.growth_yoy_pct >= 100 ? 'badge-positive' : (kpi.growth_yoy_pct !== null ? 'badge-negative' : 'badge-neutral');
+
+                    tbody.innerHTML += `
+                        <tr style="background:#f8fafc;font-weight:800;border-top:2px solid var(--border);">
+                            <td>📊 Итого за год:</td>
+                            <td style="text-align:center;color:#4f46e5;">${totalInvCurr} <span style="color:#64748b;font-size:11px;font-weight:500;">(${posVal} поз.)</span></td>
+                            <td style="text-align:center;color:#0f172a;">${posVal} <span style="color:#7c3aed;font-size:11px;font-weight:600;">(${uniqVal} ун.)</span></td>
+                            <td style="text-align:center;color:var(--text-muted);">${totalInvPrev}</td>
+                            <td style="text-align:center;"><span class="badge ${totalGrowthClass}">${totalGrowthStr}</span></td>
+                            <td></td>
+                        </tr>
+                    `;
+                }
 
                 // Chart
                 if (chartInstance) chartInstance.destroy();

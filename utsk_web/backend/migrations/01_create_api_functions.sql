@@ -119,6 +119,7 @@ RETURNS TABLE(
     status VARCHAR,
     total_revenue NUMERIC,
     total_invoices BIGINT,
+    total_positions BIGINT,
     avg_check NUMERIC,
     last_purchase_date DATE
 )
@@ -132,6 +133,7 @@ BEGIN
         sr.status_name AS status,
         COALESCE(ROUND(SUM(sl.amount)::numeric, 0), 0) AS total_revenue,
         COUNT(DISTINCT d.id)::BIGINT AS total_invoices,
+        COUNT(sl.id)::BIGINT AS total_positions,
         COALESCE(ROUND(AVG(sl.amount)::numeric, 0), 0) AS avg_check,
         MAX(d.invoice_date) AS last_purchase_date
     FROM clients c
@@ -151,7 +153,7 @@ CREATE OR REPLACE FUNCTION public.get_client_invoices(
     p_month_int INT DEFAULT NULL,
     p_date_from DATE DEFAULT NULL,
     p_date_to DATE DEFAULT NULL,
-    p_limit INT DEFAULT 50
+    p_limit INT DEFAULT 500
 )
 RETURNS TABLE(
     date TEXT,
@@ -182,7 +184,7 @@ BEGIN
       )
     GROUP BY d.id, d.invoice_date, d.doc_number
     ORDER BY d.invoice_date DESC
-    LIMIT p_limit;
+    LIMIT COALESCE(p_limit, 500);
 END;
 $function$;
 

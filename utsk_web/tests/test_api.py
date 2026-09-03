@@ -218,4 +218,36 @@ def test_abc_segment_detail_api():
         assert "repeat_decomp" in data["data"]
         assert "kpis" in data["data"]
 
+def test_client_detail_api_positions():
+    response = client.get(f"/api/clients/detail/36?token={TOKEN}&year=2026")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "ok"
+    assert "total_positions" in data["client"]
+    assert data["client"]["total_positions"] == 216
+    assert data["client"]["total_invoices"] == 109
+
+def test_client_invoices_analytics_positions():
+    response = client.get(f"/api/analytics/client/invoices?token={TOKEN}&code=36&year=2026")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "ok"
+    assert data["kpi"]["positions_curr"] == 216
+    assert data["unique_positions"] == 130
+    assert data["kpi"]["unique_positions"] == 130
+    m1 = data["monthly"][0]
+    assert m1["inv_curr"] == 17
+    assert m1["pos_curr"] == 54
+    assert m1["unique_positions"] == 31
+
+def test_client_invoices_full_list_positions():
+    response = client.get(f"/api/clients/invoices/36?token={TOKEN}&year=2026")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "ok"
+    assert data["total_count"] == 109
+    assert data["total_positions"] == 216
+    assert len(data["invoices"]) == 109
+    assert data["invoices"][0]["positions"] > 0
+
 

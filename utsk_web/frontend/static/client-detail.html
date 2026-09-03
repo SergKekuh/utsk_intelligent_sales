@@ -498,7 +498,7 @@
             <a href="#" id="kpi-link-revenue" class="kpi-card-link">
                 <div class="kpi-card">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span class="kpi-label">💰 Выручка 2026</span>
+                        <span class="kpi-label" id="kpi-revenue-lbl">💰 Выручка 2026</span>
                         <span style="font-size:11px; background:#e0e7ff; color:#4f46e5; padding:2px 8px; border-radius:12px; font-weight:700;">Анализ ➔</span>
                     </div>
                     <div class="kpi-value" id="kpi-revenue" style="color:#047857;">—</div>
@@ -512,7 +512,10 @@
                         <span style="font-size:11px; background:#e0e7ff; color:#4f46e5; padding:2px 8px; border-radius:12px; font-weight:700;">Анализ ➔</span>
                     </div>
                     <div class="kpi-value" id="kpi-invoices">—</div>
-                    <div class="kpi-sub">За 2026 год</div>
+                    <div class="kpi-sub" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:4px;">
+                        <span id="kpi-invoices-year">За 2026 год</span>
+                        <span class="kpi-extra" id="kpi-total-positions" style="font-size:12px; color:#4f46e5; font-weight:700; background:#eef2ff; padding:1px 6px; border-radius:6px;">📦 Позицій: —</span>
+                    </div>
                 </div>
             </a>
             <a href="#" id="kpi-link-avg-check" class="kpi-card-link">
@@ -607,9 +610,9 @@
                         <tr>
                             <th>#</th>
                             <th>Дата</th>
-                            <th>Номер накладной</th>
-                            <th style="text-align:center;">Позиций</th>
+                            <th>Номер</th>
                             <th style="text-align:right;">Сумма</th>
+                            <th style="text-align:center;">Позиций</th>
                             <th style="text-align:center;">Действие</th>
                         </tr>
                     </thead>
@@ -670,6 +673,7 @@
         const urlParams = new URLSearchParams(window.location.search);
         const TOKEN = urlParams.get('token') || 'utsk2026';
         const CLIENT_CODE = urlParams.get('code') || '';
+        let currentYear = urlParams.get('year') || '2026';
 
         // Настройка ссылки назад
         const backLink = document.getElementById('back-link');
@@ -701,15 +705,12 @@
 
         let monthlyChartInstance = null;
 
-        async function initPage() {
-            if (!CLIENT_CODE) {
-                document.getElementById('client-name').textContent = '⚠️ Код клиента не указан';
-                return;
-            }
-
+        async function loadClientDetail(yr) {
+            if (!CLIENT_CODE) return;
+            const y = yr || currentYear;
             try {
                 // 1. Загрузка основных данных клиента
-                const res = await fetch(`/api/clients/detail/${CLIENT_CODE}?token=${TOKEN}&year=2026`);
+                const res = await fetch(`/api/clients/detail/${CLIENT_CODE}?token=${TOKEN}&year=${y}`);
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 const data = await res.json();
                 
@@ -731,8 +732,14 @@
                 `;
 
                 // KPI Карточки
+                const revLbl = document.getElementById('kpi-revenue-lbl');
+                if (revLbl) revLbl.textContent = `💰 Выручка ${y}`;
                 document.getElementById('kpi-revenue').textContent = formatCur(c.total_revenue);
                 document.getElementById('kpi-invoices').textContent = formatNum(c.total_invoices);
+                const invYearEl = document.getElementById('kpi-invoices-year');
+                if (invYearEl) invYearEl.textContent = `За ${y} год`;
+                const posEl = document.getElementById('kpi-total-positions');
+                if (posEl) posEl.textContent = `📦 Позицій: ${formatNum(c.total_positions || 0)}`;
                 document.getElementById('kpi-avg-check').textContent = formatCur(c.avg_check);
                 document.getElementById('kpi-last-date').textContent = c.last_purchase_date || '—';
                 document.getElementById('kpi-status-sub').textContent = `Текущий статус: ${c.status || '—'}`;
@@ -740,16 +747,30 @@
                 // График помесячной динамики
                 renderChart(c.monthly_data || []);
 
-                // Загрузка накладных с фильтрами по умолчанию
-                loadInvoices();
-
-                // 2. Загрузка рекомендаций ML
-                loadRecommendations();
-
             } catch (err) {
                 console.error('Client detail error:', err);
                 document.getElementById('client-name').textContent = '⚠️ Ошибка загрузки данных клиента';
             }
+        }
+
+        async function initPage() {
+            if (!CLIENT_CODE) {
+                document.getElementById('client-name').textContent = '⚠️ Код клиента не указан';
+                return;
+            }
+
+            const invYearSelect = document.getElementById('invoice-year');
+            if (invYearSelect && currentYear) {
+                invYearSelect.value = currentYear;
+            }
+
+            await loadClientDetail(currentYear);
+
+            // Загрузка накладных с фильтрами по умолчанию
+            loadInvoices();
+
+            // 2. Загрузка рекомендаций ML
+            loadRecommendations();
         }
 
         function renderChart(monthlyData) {
@@ -826,7 +847,7 @@
             const dateFrom = document.getElementById('date-from')?.value || '';
             const dateTo = document.getElementById('date-to')?.value || '';
 
-            let url = `/api/clients/invoices/${CLIENT_CODE}?token=${TOKEN}`;
+            let url = `/api/clients/invoices/${CLIENT_CODE}?token=${TOKEN}&limit=500`;
             if (year) url += `&year=${year}`;
             if (month && month !== 'all') url += `&month=${month}`;
             if (dateFrom) url += `&date_from=${dateFrom}`;
@@ -858,10 +879,10 @@
                     <td style="color:var(--text-muted);">${i + 1}</td>
                     <td><b>${inv.date || '—'}</b></td>
                     <td style="font-family:monospace;font-weight:600;">${inv.number || '—'}</td>
-                    <td style="text-align:center;">${inv.positions || 0}</td>
                     <td style="text-align:right;font-weight:700;color:#047857;">₴ ${formatNum(Math.round(inv.total || 0))}</td>
+                    <td style="text-align:center;font-weight:600;color:#475569;">${inv.positions || 0} поз.</td>
                     <td style="text-align:center;">
-                        <button onclick="showInvoiceDetail('${inv.number}')" class="btn-detail">📋 Детали</button>
+                        <button onclick="showInvoiceDetail('${inv.number}')" class="btn-detail">📄 Открыть ➔</button>
                     </td>
                 </tr>`;
             });
@@ -869,8 +890,8 @@
             // Итоговая строка
             tb.innerHTML += `<tr style="background:#f8fafc;font-weight:700;border-top:2px solid var(--border);">
                 <td colspan="3" style="text-align:right;">📊 Итого за период: ${formatNum(totalCount)} накладных</td>
-                <td style="text-align:center;color:var(--text-main);">${formatNum(totalPositions)} поз.</td>
                 <td style="text-align:right;color:#047857;font-size:15px;">₴ ${formatNum(Math.round(totalSum))}</td>
+                <td style="text-align:center;color:var(--text-main);">${formatNum(totalPositions)} поз.</td>
                 <td></td>
             </tr>`;
         }
@@ -984,7 +1005,11 @@
             initPage();
 
             // Автообновление при изменении года или месяца
-            document.getElementById('invoice-year')?.addEventListener('change', loadInvoices);
+            document.getElementById('invoice-year')?.addEventListener('change', function() {
+                currentYear = this.value;
+                loadClientDetail(currentYear);
+                loadInvoices();
+            });
             document.getElementById('invoice-month')?.addEventListener('change', loadInvoices);
 
             // Закрытие по клику на оверлей
