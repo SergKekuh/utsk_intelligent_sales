@@ -234,25 +234,25 @@
 
     <!-- ФИЛЬТРЫ -->
     <div class="filters" id="filters">
-      <span class="filter-label">Класс:</span>
-      <button class="filter-btn active" data-filter="all">Все классы</button>
-      <button class="filter-btn" data-filter="random">Случайные C2</button>
-      <button class="filter-btn" data-filter="main">Основные ABC</button>
-      <button class="filter-btn" data-filter="total">Все ABC</button>
-      <button class="sort-btn" id="sortBtn" title="Сортировать по выручке"><span>По выручке</span><span class="arrow">▼</span></button>
+      <span class="filter-label">Клас:</span>
+      <button class="filter-btn active" data-filter="all">Всі класи</button>
+      <button class="filter-btn" data-filter="random">💡 Лайт</button>
+      <button class="filter-btn" data-filter="main">💎 Преміум</button>
+      <button class="filter-btn" data-filter="total">📊 Всі</button>
+      <button class="sort-btn" id="sortBtn" title="Сортувати за виручкою"><span>За виручкою</span><span class="arrow">▼</span></button>
     </div>
 
     <!-- ГРАФИКИ 6 ГРУПП -->
     <section class="analytics-grid">
       <article class="panel">
         <div class="panel-head">
-          <div><h2 class="panel-title">Выручка по группам частоты (6 групп)</h2><p class="panel-caption">Класс "Все ABC", млн ₴</p></div>
+          <div><h2 class="panel-title">Виручка за групами частоти (6 груп)</h2><p class="panel-caption">Клас "Всі", млн ₴</p></div>
           <div class="legend"><span><i class="dot" style="--dot:#1d74d8"></i><span id="legendCurrent2">2026</span></span><span><i class="dot" style="--dot:#b9c1cf"></i><span id="legendPrev2">2025</span></span></div>
         </div>
         <div class="panel-body"><div class="bar-list" id="revenueBars"></div></div>
       </article>
       <article class="panel">
-        <div class="panel-head"><div><h2 class="panel-title">Структура продаж (6 групп)</h2><p class="panel-caption">Доля групп в выручке "Все ABC"</p></div></div>
+        <div class="panel-head"><div><h2 class="panel-title">Структура продажів (6 груп)</h2><p class="panel-caption">Частка груп у виручці "Всі"</p></div></div>
         <div class="panel-body"><div class="share-grid" id="shareGrid"></div></div>
       </article>
     </section>
@@ -260,18 +260,18 @@
     <!-- DONUTS -->
     <section class="donut-row">
       <article class="panel">
-        <div class="panel-head"><div><h2 class="panel-title">6 групп (Все ABC)</h2><p class="panel-caption">Распределение выручки по частоте</p></div></div>
+        <div class="panel-head"><div><h2 class="panel-title">6 груп (Всі)</h2><p class="panel-caption">Розподіл виручки за частотою</p></div></div>
         <div class="panel-body"><div class="donut-container"><canvas id="donut6" class="donut-canvas"></canvas></div></div>
       </article>
       <article class="panel">
-        <div class="panel-head"><div><h2 class="panel-title">4 группы (ИТОГО ABC)</h2><p class="panel-caption">🔴 Залётные / 🟠 Разовые / 🔵 Повторные / 🟢 Постоянные</p></div></div>
+        <div class="panel-head"><div><h2 class="panel-title">4 групи (РАЗОМ)</h2><p class="panel-caption">🔴 Залітні / 🟠 Разові / 🔵 Повторні / 🟢 Постійні</p></div></div>
         <div class="panel-body"><div class="donut-container"><canvas id="donut4" class="donut-canvas"></canvas></div></div>
       </article>
     </section>
 
     <!-- AVG CHECK -->
     <section class="panel">
-      <div class="panel-head"><div><h2 class="panel-title">Средний чек по группам частоты (6 групп)</h2><p class="panel-caption">Класс "Все ABC", тыс ₴</p></div></div>
+      <div class="panel-head"><div><h2 class="panel-title">Середній чек за групами частоти (6 груп)</h2><p class="panel-caption">Клас "Всі", тис ₴</p></div></div>
       <div class="panel-body"><div class="avg-check-grid" id="avgCheckChart"></div></div>
     </section>
 
@@ -280,7 +280,7 @@
 
     <!-- ВАЖНЫЕ ABC -->
     <section class="panel">
-      <div class="panel-head"><div><h2 class="panel-title">Отдельная сводка: Важные ABC</h2><p class="panel-caption">Агрегация регулярных покупок 4+ накладных.</p></div></div>
+      <div class="panel-head"><div><h2 class="panel-title">Окрема зводка: ⭐ VIP</h2><p class="panel-caption">Агрегація регулярних покупок 4+ накладних.</p></div></div>
       <div class="table-wrap"><table id="importantTable"></table></div>
     </section>
 
@@ -321,9 +321,9 @@
     ];
 
     const classDefs = [
-      { name: "Случайные C2", key: "random" },
-      { name: "Основные ABC", key: "main" },
-      { name: "Все ABC", key: "total" }
+      { name: "💡 Лайт", key: "random" },
+      { name: "💎 Преміум", key: "main" },
+      { name: "📊 Всі", key: "total" }
     ];
 
     function pct(now, prev) { if (prev === 0 && now === 0) return 0; if (prev === 0) return now > 0 ? 100 : -100; return ((now - prev) / prev) * 100; }
@@ -556,7 +556,7 @@
       const invCurr = rfm.reduce((s,g)=>s+g.current.invoices,0); const invPrev = rfm.reduce((s,g)=>s+g.previous.invoices,0);
       const compCurr = rfm.reduce((s,g)=>s+g.current.companies,0); const compPrev = rfm.reduce((s,g)=>s+g.previous.companies,0);
       const avgCurr = Math.round((totalCurr*1_000_000)/(compCurr||1)/1000); const avgPrev = Math.round((totalPrev*1_000_000)/(compPrev||1)/1000);
-      const items = [["Выручка Все ABC",totalCurr,totalPrev,"moneyM"],["Накладные Все ABC",invCurr,invPrev,"number"],["Компании Все ABC",compCurr,compPrev,"number"],["Средний чек Все ABC",avgCurr,avgPrev,"moneyK"],["Выручка Важные ABC",totalCurr*0.97,totalPrev*0.98,"moneyM"]];
+      const items = [["Виручка Всі",totalCurr,totalPrev,"moneyM"],["Накладні Всі",invCurr,invPrev,"number"],["Компанії Всі",compCurr,compPrev,"number"],["Середній чек Всі",avgCurr,avgPrev,"moneyK"],["Виручка VIP",totalCurr*0.97,totalPrev*0.98,"moneyM"]];
       document.getElementById("kpiGrid").innerHTML = items.map(([label,now,prev,type])=>`<article class="kpi"><div class="kpi-label">${label}</div><div class="kpi-value">${type==="moneyM"?moneyM(now):type==="moneyK"?moneyK(now):number(now)}</div><div class="kpi-sub">${yoyBadge(now,prev)} <span>${yearPrevious}: ${type==="moneyM"?moneyM(prev):type==="moneyK"?moneyK(prev):number(prev)}</span></div></article>`).join("");
     }
 

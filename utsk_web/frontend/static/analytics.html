@@ -2005,7 +2005,7 @@
                             <i class="fa-solid fa-coins" style="color:#f59e0b;"></i> Таблиця 2. Поточний рік — Дрібні клієнти та Новий приплив
                         </h2>
                         <div class="bento-card-subtitle">
-                            Дрібні клієнти (C2 ≤ 2 т/рік або ≤146K) та Нові залучені клієнти за <span id="t2-year-lbl">2026</span> рік
+                            Дрібні клієнти (💡 Лайт ≤ 146K) та Нові залучені клієнти за <span id="t2-year-lbl">2026</span> рік
                         </div>
                     </div>
                 </div>
@@ -2039,10 +2039,10 @@
                                 <td class="total-col bg-slate-200 text-slate-900 font-black">Підсумок</td>
                             </tr>
 
-                            <!-- Рядок 1: C2 -->
+                            <!-- Рядок 1: Лайт -->
                             <tr class="row-c2">
-                                <td class="col-metric clickable-cell" onclick="goToC2Segmentation()" title="Детальний аналіз дрібних клієнтів C2 (≤ 2 т/рік або ≤ 146 000 ₴)">
-                                    <strong style="color:#d97706;">🟡 C2 ≤ 2 т/рік <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:11px;color:#d97706;margin-left:4px;"></i></strong>
+                                <td class="col-metric clickable-cell" onclick="goToC2Segmentation()" title="Детальний аналіз клієнтів сегмента Лайт (≤ 146 000 ₴)">
+                                    <strong style="color:#d97706;">💡 Лайт <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:11px;color:#d97706;margin-left:4px;"></i></strong>
                                 </td>
                                 <td class="clickable-cell cell-c2" id="t2-c2-raz" onclick="goToSegmentDetail('c2_raz', 'current', 'C2: Разові (1)')">30</td>
                                 <td colspan="2" class="clickable-cell cell-c2 text-center" id="t2-c2-povt" onclick="goToSegmentDetail('c2_povt', 'current', 'C2: Повторні (2-3)')">60</td>
@@ -2445,14 +2445,14 @@
                                 oninput="filterRecurrentTable()">
                             <select id="rec-filter-group" onchange="filterRecurrentTable()"
                                 style="padding:6px 10px;border-radius:8px;border:1px solid var(--border);font-size:13px;">
-                                <option value="">Все ABC-группы</option>
+                                <option value="">Всі групи</option>
                                 <option value="A1">A1</option>
                                 <option value="A2">A2</option>
                                 <option value="A3">A3</option>
                                 <option value="B1">B1</option>
                                 <option value="B2">B2</option>
                                 <option value="C1">C1</option>
-                                <option value="C2">C2</option>
+                                <option value="C2">💡 Лайт (C2)</option>
                             </select>
                             <select id="rec-filter-pattern" onchange="filterRecurrentTable()"
                                 style="padding:6px 10px;border-radius:8px;border:1px solid var(--border);font-size:13px;">
@@ -3179,9 +3179,9 @@
                             html += '<td style="font-size:11px;color:#64748b;">Процентное отношение по продажам</td></tr>';
                         }
 
-                        addSection('📥', 'Случайные C2', c2Comp, c2Inv, c2Sales, c2Avg, c2Pct, colsAll);
-                        addSection('📈', 'Основные ABC', abcComp, abcInv, abcSales, abcAvg, abcPct, colsAll);
-                        addSection('📊', 'Все ABC', allComp, allInv, allSales, allAvg, allPct, colsAll);
+                        addSection('💡', 'Лайт', c2Comp, c2Inv, c2Sales, c2Avg, c2Pct, colsAll);
+                        addSection('💎', 'Преміум', abcComp, abcInv, abcSales, abcAvg, abcPct, colsAll);
+                        addSection('📊', 'Всі', allComp, allInv, allSales, allAvg, allPct, colsAll);
 
                         // 🔥 ОБНОВЛЯЕМ KPI-КАРТОЧКИ
                         var kpiTotalGoods = allSales['out_total'] || 0;
@@ -3202,7 +3202,7 @@
                         html += '<td rowspan="5" class="col-classes" style="' + cellStyle + '">' +
                             '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;height:100%;min-height:110px;">' +
                             '<span style="font-size:18px;writing-mode:horizontal-tb;line-height:1;">⭐</span>' +
-                            '<span style="writing-mode:vertical-rl;transform:rotate(180deg);font-size:10px;font-weight:800;white-space:nowrap;">Важные ABC</span>' +
+                            '<span style="writing-mode:vertical-rl;transform:rotate(180deg);font-size:10px;font-weight:800;white-space:nowrap;">VIP</span>' +
                             '</div></td>';
                         html += '<td>Кол-во компаний</td>';
                         html += '<td>' + fmtN(Math.round(impComp['out_1'] || 0)) + '</td>';
@@ -3817,7 +3817,7 @@
                     setVal('t1-cons-all', 729);
 
                     // ====== ТАБЛИЦЯ 2 ======
-                    // 1. C2 ≤ 2 т/рік: 30 | 60 | 0 | 126 | 121 | 13 | 2 | 352
+                    // 1. Лайт: 30 | 60 | 0 | 126 | 121 | 13 | 2 | 352
                     setVal('t2-c2-raz', 30);
                     setVal('t2-c2-povt', 60);
                     setVal('t2-c2-cand', 0);

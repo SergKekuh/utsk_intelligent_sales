@@ -160,7 +160,7 @@ def test_consolidated_segmentation_api():
 def test_c2_segmentation_page():
     resp = client.get(f"/c2-segmentation?token={TOKEN}&year=2026")
     assert resp.status_code == 200
-    assert "C2 ≤ 2 т/рік" in resp.text
+    assert "Лайт" in resp.text
     assert "chartC2Frequency" in resp.text
     assert "chartC2TopProducts" in resp.text
     assert "companiesTbody" in resp.text

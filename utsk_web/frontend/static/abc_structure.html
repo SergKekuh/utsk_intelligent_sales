@@ -210,7 +210,7 @@
         <div class="header-panel">
             <div>
                 <h1 class="header-title"><i class="fa-solid fa-layer-group text-sky-400 mr-2"></i>Структурный анализ ABC</h1>
-                <div class="header-sub" id="status-subtitle">Глубокий анализ сегментов: Случайные C2, Основные ABC, Важные ABC</div>
+                <div class="header-sub" id="status-subtitle">Глибокий аналіз сегментів: 💡 Лайт, 💎 Преміум, ⭐ VIP</div>
             </div>
             <div class="flex gap-2">
                 <div class="px-3 py-1.5 rounded-lg bg-white/10 border border-white/20 text-white text-xs font-bold flex items-center gap-2">
@@ -257,11 +257,11 @@
 
     <!-- ====== ВКЛАДКИ ====== -->
     <div class="tabs-container">
-        <button class="tab-btn active" data-tab="tab-overview" onclick="switchTab('tab-overview')">📊 Общая структура</button>
-        <button class="tab-btn" data-tab="tab-c2" onclick="switchTab('tab-c2')">📥 Случайные C2</button>
-        <button class="tab-btn" data-tab="tab-abc" onclick="switchTab('tab-abc')">📈 Основные ABC</button>
-        <button class="tab-btn" data-tab="tab-total" onclick="switchTab('tab-total')">📊 Все ABC</button>
-        <button class="tab-btn" data-tab="tab-important" onclick="switchTab('tab-important')">⭐ Важные ABC</button>
+        <button class="tab-btn active" data-tab="tab-overview" onclick="switchTab('tab-overview')">📊 Загальна структура</button>
+        <button class="tab-btn" data-tab="tab-c2" onclick="switchTab('tab-c2')">💡 Лайт</button>
+        <button class="tab-btn" data-tab="tab-abc" onclick="switchTab('tab-abc')">💎 Преміум</button>
+        <button class="tab-btn" data-tab="tab-total" onclick="switchTab('tab-total')">📊 Всі</button>
+        <button class="tab-btn" data-tab="tab-important" onclick="switchTab('tab-important')">⭐ VIP</button>
     </div>
 
     <!-- ====== КОНТЕНТ ВКЛАДОК ====== -->
@@ -269,44 +269,44 @@
 
         <!-- ==================== ВКЛАДКА 1: ОБЩАЯ СТРУКТУРА ==================== -->
         <div class="tab-pane active" id="tab-overview">
-            <div class="section-title"><i class="fa-solid fa-chart-simple text-sky-500"></i> Общая картина (4 Секции)</div>
+            <div class="section-title"><i class="fa-solid fa-chart-simple text-sky-500"></i> Загальна картина (4 Секції)</div>
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
                 <div class="chart-card lg:col-span-1">
-                    <div class="chart-title">Сравнение 4-х секций (Итого)</div>
+                    <div class="chart-title">Порівняння 4-х секцій (Разом)</div>
                     <div style="height: 250px; position: relative;"><canvas id="overviewChart"></canvas></div>
                 </div>
                 <div class="chart-card lg:col-span-2">
                     <div class="chart-title flex justify-between items-center">
-                        <span>Распределение по частоте покупок</span>
+                        <span>Розподіл за частотою покупок</span>
                         <div class="flex gap-3 text-[10px] font-bold">
-                            <span style="color: var(--c2);"><i class="fa-solid fa-circle"></i> C2</span>
-                            <span style="color: var(--abc);"><i class="fa-solid fa-circle"></i> ABC</span>
+                            <span style="color: var(--c2);"><i class="fa-solid fa-circle"></i> 💡 Лайт</span>
+                            <span style="color: var(--abc);"><i class="fa-solid fa-circle"></i> 💎 Преміум</span>
                         </div>
                     </div>
                     <div style="height: 250px; position: relative;"><canvas id="rangeChart"></canvas></div>
                 </div>
             </div>
 
-            <div class="section-title"><i class="fa-solid fa-chart-pie text-sky-500"></i> Внутренняя структура секций (По частоте)</div>
+            <div class="section-title"><i class="fa-solid fa-chart-pie text-sky-500"></i> Внутрішня структура секцій (За частотою)</div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
                 <div class="chart-card">
-                    <div class="chart-title text-center text-amber-600">📥 Случайные C2</div>
+                    <div class="chart-title text-center text-amber-600">💡 Лайт</div>
                     <div style="height: 200px; position: relative;"><canvas id="pieC2"></canvas></div>
                 </div>
                 <div class="chart-card">
-                    <div class="chart-title text-center text-sky-600">📈 Основные ABC</div>
+                    <div class="chart-title text-center text-sky-600">💎 Преміум</div>
                     <div style="height: 200px; position: relative;"><canvas id="pieABC"></canvas></div>
                 </div>
                 <div class="chart-card">
-                    <div class="chart-title text-center text-emerald-600">📊 Все ABC (Общая)</div>
+                    <div class="chart-title text-center text-emerald-600">📊 Всі (Загальна)</div>
                     <div style="height: 200px; position: relative;"><canvas id="pieTotal"></canvas></div>
                 </div>
             </div>
 
-            <div class="section-title"><i class="fa-solid fa-star text-purple-500"></i> Важные — ABC (ABC + C2 от 4 накладных)</div>
+            <div class="section-title"><i class="fa-solid fa-star text-purple-500"></i> ⭐ VIP (Преміум + Лайт від 4 накладних)</div>
             <div class="chart-card" style="border-color: #ddd6fe; box-shadow: 0 8px 20px rgba(139, 92, 246, 0.08);">
                 <div class="kpi-grid" id="important-kpi-container"></div>
-                <div class="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3">Распределение "Важных" по частоте:</div>
+                <div class="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3">Розподіл "VIP" за частотою:</div>
                 <div style="height: 120px; position: relative;"><canvas id="importantBarChart"></canvas></div>
             </div>
 
@@ -335,16 +335,16 @@
             </div>
         </div>
 
-        <!-- ==================== ВКЛАДКА 2: СЛУЧАЙНЫЕ C2 ==================== -->
+        <!-- ==================== ВКЛАДКА 2: ЛАЙТ ==================== -->
         <div class="tab-pane" id="tab-c2">
-            <div class="section-title"><i class="fa-solid fa-box-open text-amber-500"></i> Декомпозиция сегмента: Случайные C2</div>
+            <div class="section-title"><i class="fa-solid fa-box-open text-amber-500"></i> Декомпозиція сегмента: 💡 Лайт</div>
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
                 <div class="chart-card">
-                    <div class="chart-title text-amber-600"><i class="fa-solid fa-chart-pie mr-1"></i> Локальный ABC-анализ в C2</div>
+                    <div class="chart-title text-amber-600"><i class="fa-solid fa-chart-pie mr-1"></i> Локальний ABC-аналіз у Лайт</div>
                     <div style="height: 220px; position: relative;"><canvas id="c2AbcChart"></canvas></div>
                 </div>
                 <div class="chart-card">
-                    <div class="chart-title text-sky-600"><i class="fa-solid fa-arrows-split-up-and-left mr-1"></i> Распаковка "Повторных" (Частота)</div>
+                    <div class="chart-title text-sky-600"><i class="fa-solid fa-arrows-split-up-and-left mr-1"></i> Розпакування "Повторних" (Частота)</div>
                     <div style="height: 220px; position: relative;"><canvas id="c2RepeatChart"></canvas></div>
                 </div>
                 <div class="chart-card justify-between" id="c2-kpis-container">
@@ -352,7 +352,7 @@
                 </div>
             </div>
 
-            <div class="section-title"><i class="fa-solid fa-table-cells text-amber-500"></i> Матрица пересечений (Внутренний ABC × Частота)</div>
+            <div class="section-title"><i class="fa-solid fa-table-cells text-amber-500"></i> Матриця перетинів (Внутрішній ABC × Частота)</div>
             <div class="chart-card p-0 overflow-hidden">
                 <div class="table-container">
                     <table class="detail-table">
@@ -362,33 +362,33 @@
                                 <th>Метрика</th>
                                 <th>1 покупка</th>
                                 <th>2 в 1 день</th>
-                                <th>2 в разные дни</th>
+                                <th>2 в різні дні</th>
                                 <th>3 покупки</th>
                                 <th>Квартал (4-10)</th>
-                                <th>Месяц (11-40)</th>
-                                <th>Неделя (41-170)</th>
+                                <th>Місяць (11-40)</th>
+                                <th>Тиждень (41-170)</th>
                                 <th>День (>170)</th>
-                                <th class="col-total">ИТОГО C2</th>
+                                <th class="col-total">РАЗОМ ЛАЙТ</th>
                             </tr>
                         </thead>
                         <tbody id="c2-matrix-body">
-                            <tr><td colspan="11" class="text-center py-8 text-slate-400">⏳ Загрузка C2 аналитики...</td></tr>
+                            <tr><td colspan="11" class="text-center py-8 text-slate-400">⏳ Завантаження аналітики Лайт...</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- ==================== ВКЛАДКА 3: ОСНОВНЫЕ ABC ==================== -->
+        <!-- ==================== ВКЛАДКА 3: ПРЕМІУМ ==================== -->
         <div class="tab-pane" id="tab-abc">
-            <div class="section-title"><i class="fa-solid fa-chart-bar text-sky-500"></i> Декомпозиция сегмента: Основные ABC</div>
+            <div class="section-title"><i class="fa-solid fa-chart-bar text-sky-500"></i> Декомпозиція сегмента: 💎 Преміум</div>
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
                 <div class="chart-card">
-                    <div class="chart-title text-sky-600"><i class="fa-solid fa-chart-pie mr-1"></i> Локальный ABC-анализ в ABC</div>
+                    <div class="chart-title text-sky-600"><i class="fa-solid fa-chart-pie mr-1"></i> Локальний ABC-аналіз у Преміум</div>
                     <div style="height: 220px; position: relative;"><canvas id="abcAbcChart"></canvas></div>
                 </div>
                 <div class="chart-card">
-                    <div class="chart-title text-sky-600"><i class="fa-solid fa-arrows-split-up-and-left mr-1"></i> Распаковка "Повторных" (Частота)</div>
+                    <div class="chart-title text-sky-600"><i class="fa-solid fa-arrows-split-up-and-left mr-1"></i> Розпакування "Повторних" (Частота)</div>
                     <div style="height: 220px; position: relative;"><canvas id="abcRepeatChart"></canvas></div>
                 </div>
                 <div class="chart-card justify-between" id="abc-kpis-container">
@@ -396,7 +396,7 @@
                 </div>
             </div>
 
-            <div class="section-title"><i class="fa-solid fa-table-cells text-sky-500"></i> Матрица пересечений (Внутренний ABC × Частота)</div>
+            <div class="section-title"><i class="fa-solid fa-table-cells text-sky-500"></i> Матриця перетинів (Внутрішній ABC × Частота)</div>
             <div class="chart-card p-0 overflow-hidden">
                 <div class="table-container">
                     <table class="detail-table">
@@ -406,33 +406,33 @@
                                 <th>Метрика</th>
                                 <th>1 покупка</th>
                                 <th>2 в 1 день</th>
-                                <th>2 в разные дни</th>
+                                <th>2 в різні дні</th>
                                 <th>3 покупки</th>
                                 <th>Квартал (4-10)</th>
-                                <th>Месяц (11-40)</th>
-                                <th>Неделя (41-170)</th>
+                                <th>Місяць (11-40)</th>
+                                <th>Тиждень (41-170)</th>
                                 <th>День (>170)</th>
-                                <th class="col-total">ИТОГО ABC</th>
+                                <th class="col-total">РАЗОМ ПРЕМІУМ</th>
                             </tr>
                         </thead>
                         <tbody id="abc-matrix-body">
-                            <tr><td colspan="11" class="text-center py-8 text-slate-400">⏳ Загрузка ABC аналитики...</td></tr>
+                            <tr><td colspan="11" class="text-center py-8 text-slate-400">⏳ Завантаження аналітики Преміум...</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- ==================== ВКЛАДКА 4: ВСЕ ABC ==================== -->
+        <!-- ==================== ВКЛАДКА 4: ВСІ ==================== -->
         <div class="tab-pane" id="tab-total">
-            <div class="section-title"><i class="fa-solid fa-globe text-emerald-500"></i> Декомпозиция сегмента: Все ABC (C2 + ABC)</div>
+            <div class="section-title"><i class="fa-solid fa-globe text-emerald-500"></i> Декомпозиція сегмента: 📊 Всі (Лайт + Преміум)</div>
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
                 <div class="chart-card">
-                    <div class="chart-title text-emerald-600"><i class="fa-solid fa-chart-pie mr-1"></i> Локальный ABC-анализ всей базы</div>
+                    <div class="chart-title text-emerald-600"><i class="fa-solid fa-chart-pie mr-1"></i> Локальний ABC-аналіз всієї бази</div>
                     <div style="height: 220px; position: relative;"><canvas id="totalAbcChart"></canvas></div>
                 </div>
                 <div class="chart-card">
-                    <div class="chart-title text-emerald-600"><i class="fa-solid fa-arrows-split-up-and-left mr-1"></i> Распаковка "Повторных" (Частота)</div>
+                    <div class="chart-title text-emerald-600"><i class="fa-solid fa-arrows-split-up-and-left mr-1"></i> Розпакування "Повторних" (Частота)</div>
                     <div style="height: 220px; position: relative;"><canvas id="totalRepeatChart"></canvas></div>
                 </div>
                 <div class="chart-card justify-between" id="total-kpis-container">
@@ -440,7 +440,7 @@
                 </div>
             </div>
 
-            <div class="section-title"><i class="fa-solid fa-table-cells text-emerald-500"></i> Матрица пересечений (Внутренний ABC × Частота)</div>
+            <div class="section-title"><i class="fa-solid fa-table-cells text-emerald-500"></i> Матриця перетинів (Внутрішній ABC × Частота)</div>
             <div class="chart-card p-0 overflow-hidden">
                 <div class="table-container">
                     <table class="detail-table">
@@ -450,33 +450,33 @@
                                 <th>Метрика</th>
                                 <th>1 покупка</th>
                                 <th>2 в 1 день</th>
-                                <th>2 в разные дни</th>
+                                <th>2 в різні дні</th>
                                 <th>3 покупки</th>
                                 <th>Квартал (4-10)</th>
-                                <th>Месяц (11-40)</th>
-                                <th>Неделя (41-170)</th>
+                                <th>Місяць (11-40)</th>
+                                <th>Тиждень (41-170)</th>
                                 <th>День (>170)</th>
-                                <th class="col-total">ИТОГО ВСЕ</th>
+                                <th class="col-total">РАЗОМ ВСІ</th>
                             </tr>
                         </thead>
                         <tbody id="total-matrix-body">
-                            <tr><td colspan="11" class="text-center py-8 text-slate-400">⏳ Загрузка сводных данных...</td></tr>
+                            <tr><td colspan="11" class="text-center py-8 text-slate-400">⏳ Завантаження зведених даних...</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- ==================== ВКЛАДКА 5: ВАЖНЫЕ ABC ==================== -->
+        <!-- ==================== ВКЛАДКА 5: VIP ==================== -->
         <div class="tab-pane" id="tab-important">
-            <div class="section-title"><i class="fa-solid fa-crown text-purple-500"></i> Декомпозиция сегмента: Важные ABC (VIP)</div>
+            <div class="section-title"><i class="fa-solid fa-crown text-purple-500"></i> Декомпозиція сегмента: ⭐ VIP</div>
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
                 <div class="chart-card">
-                    <div class="chart-title text-purple-600"><i class="fa-solid fa-chart-pie mr-1"></i> Локальный ABC-анализ Важных</div>
+                    <div class="chart-title text-purple-600"><i class="fa-solid fa-chart-pie mr-1"></i> Локальний ABC-аналіз VIP</div>
                     <div style="height: 220px; position: relative;"><canvas id="importantAbcChart"></canvas></div>
                 </div>
                 <div class="chart-card">
-                    <div class="chart-title text-purple-600"><i class="fa-solid fa-arrows-split-up-and-left mr-1"></i> Распаковка "Повторных" (Частота)</div>
+                    <div class="chart-title text-purple-600"><i class="fa-solid fa-arrows-split-up-and-left mr-1"></i> Розпакування "Повторних" (Частота)</div>
                     <div style="height: 220px; position: relative;"><canvas id="importantRepeatChart"></canvas></div>
                 </div>
                 <div class="chart-card justify-between" id="important-kpis-container">
@@ -484,7 +484,7 @@
                 </div>
             </div>
 
-            <div class="section-title"><i class="fa-solid fa-table-cells text-purple-500"></i> Матрица пересечений (Внутренний ABC × Частота)</div>
+            <div class="section-title"><i class="fa-solid fa-table-cells text-purple-500"></i> Матриця перетинів (Внутрішній ABC × Частота)</div>
             <div class="chart-card p-0 overflow-hidden">
                 <div class="table-container">
                     <table class="detail-table">
@@ -494,17 +494,17 @@
                                 <th>Метрика</th>
                                 <th>1 покупка</th>
                                 <th>2 в 1 день</th>
-                                <th>2 в разные дни</th>
+                                <th>2 в різні дні</th>
                                 <th>3 покупки</th>
                                 <th>Квартал (4-10)</th>
-                                <th>Месяц (11-40)</th>
-                                <th>Неделя (41-170)</th>
+                                <th>Місяць (11-40)</th>
+                                <th>Тиждень (41-170)</th>
                                 <th>День (>170)</th>
-                                <th class="col-total">ИТОГО ВАЖНЫЕ</th>
+                                <th class="col-total">РАЗОМ VIP</th>
                             </tr>
                         </thead>
                         <tbody id="important-matrix-body">
-                            <tr><td colspan="11" class="text-center py-8 text-slate-400">⏳ Загрузка аналитики Важных...</td></tr>
+                            <tr><td colspan="11" class="text-center py-8 text-slate-400">⏳ Завантаження аналітики VIP...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -531,10 +531,9 @@ let isLoading = false;
 
 const ranges = ['1', '2_3', '4_10', '11_40', '41_170', '171_plus'];
 const rangeLabels = ['Разовые (1)', 'Повторные (2-3)', 'Квартал (4-10)', 'Месяц (11-40)', 'Неделя (41-170)', 'День (>170)'];
-const rangeColors = ['#f97316', '#0ea5e9', '#14b8a6', '#6366f1', '#8b5cf6', '#ec4899'];
-const sectionColors = { 'c2': '#f59e0b', 'abc': '#0ea5e9', 'total': '#10b981', 'important': '#8b5cf6' };
-const sectionIcons = { 'c2': '📥', 'abc': '📈', 'total': '📊', 'important': '⭐' };
-const sectionNames = { 'c2': 'Случайные C2', 'abc': 'Основные ABC', 'total': 'Все ABC', 'important': 'Важные — ABC' };
+const sectionColors = { 'c2': '#f59e0b', 'abc': '#10b981', 'total': '#3b82f6', 'important': '#8b5cf6' };
+const sectionIcons = { 'c2': '💡', 'abc': '💎', 'total': '📊', 'important': '⭐' };
+const sectionNames = { 'c2': 'Лайт', 'abc': 'Преміум', 'total': 'Всі', 'important': 'VIP' };
 const sectionRowClass = { 'c2': 'row-group-c2', 'abc': 'row-group-abc', 'total': 'row-group-total', 'important': 'row-group-important' };
 
 window.myCharts = {};
@@ -637,10 +636,10 @@ function renderOverviewTab() {
     window.myCharts['overviewChart'] = new Chart(ctx1, {
         type: 'bar',
         data: {
-            labels: ['Случайные C2', 'Основные ABC', 'Все ABC', 'Важные ABC'],
+            labels: ['💡 Лайт', '💎 Преміум', '📊 Всі', '⭐ VIP'],
             datasets: [{
                 data: [sections.c2[metric]?.total || 0, sections.abc[metric]?.total || 0, sections.total[metric]?.total || 0, sections.important[metric]?.total || 0],
-                backgroundColor: ['#f59e0b', '#0ea5e9', '#10b981', '#8b5cf6'], borderRadius: 6, barPercentage: 0.6
+                backgroundColor: ['#f59e0b', '#10b981', '#3b82f6', '#8b5cf6'], borderRadius: 6, barPercentage: 0.6
             }]
         },
         options: {
@@ -658,8 +657,8 @@ function renderOverviewTab() {
         data: {
             labels: ['1', '2-3', '4-10', '11-40', '41-170', '>170'],
             datasets: [
-                { label: 'Случайные C2', data: ranges.map(r => sections.c2[metric]?.[r] || 0), backgroundColor: '#f59e0b', borderRadius: 4 },
-                { label: 'Основные ABC', data: ranges.map(r => sections.abc[metric]?.[r] || 0), backgroundColor: '#0ea5e9', borderRadius: 4 }
+                { label: '💡 Лайт', data: ranges.map(r => sections.c2[metric]?.[r] || 0), backgroundColor: '#f59e0b', borderRadius: 4 },
+                { label: '💎 Преміум', data: ranges.map(r => sections.abc[metric]?.[r] || 0), backgroundColor: '#10b981', borderRadius: 4 }
             ]
         },
         options: {
@@ -736,10 +735,10 @@ function renderOverviewTab() {
 // 6. УНИВЕРСАЛЬНЫЙ РЕНДЕР ВКЛАДОК СЕГМЕНТОВ (C2, ABC, TOTAL, IMPORTANT)
 // =====================================================
 const segConfigs = {
-    c2: { title: 'ИТОГО C2', name: 'Случайные C2', color: '#f59e0b', chartAbcId: 'c2AbcChart', chartRepeatId: 'c2RepeatChart', kpiId: 'c2-kpis-container', matrixId: 'c2-matrix-body' },
-    abc: { title: 'ИТОГО ABC', name: 'Основные ABC', color: '#0ea5e9', chartAbcId: 'abcAbcChart', chartRepeatId: 'abcRepeatChart', kpiId: 'abc-kpis-container', matrixId: 'abc-matrix-body' },
-    total: { title: 'ИТОГО ВСЕ', name: 'Все ABC (C2 + ABC)', color: '#10b981', chartAbcId: 'totalAbcChart', chartRepeatId: 'totalRepeatChart', kpiId: 'total-kpis-container', matrixId: 'total-matrix-body' },
-    important: { title: 'ИТОГО ВАЖНЫЕ', name: 'Важные ABC (VIP)', color: '#8b5cf6', chartAbcId: 'importantAbcChart', chartRepeatId: 'importantRepeatChart', kpiId: 'important-kpis-container', matrixId: 'important-matrix-body' }
+    c2: { title: 'РАЗОМ ЛАЙТ', name: '💡 Лайт', color: '#f59e0b', chartAbcId: 'c2AbcChart', chartRepeatId: 'c2RepeatChart', kpiId: 'c2-kpis-container', matrixId: 'c2-matrix-body' },
+    abc: { title: 'РАЗОМ ПРЕМІУМ', name: '💎 Преміум', color: '#10b981', chartAbcId: 'abcAbcChart', chartRepeatId: 'abcRepeatChart', kpiId: 'abc-kpis-container', matrixId: 'abc-matrix-body' },
+    total: { title: 'РАЗОМ ВСІ', name: '📊 Всі (Лайт + Преміум)', color: '#3b82f6', chartAbcId: 'totalAbcChart', chartRepeatId: 'totalRepeatChart', kpiId: 'total-kpis-container', matrixId: 'total-matrix-body' },
+    important: { title: 'РАЗОМ VIP', name: '⭐ VIP', color: '#8b5cf6', chartAbcId: 'importantAbcChart', chartRepeatId: 'importantRepeatChart', kpiId: 'important-kpis-container', matrixId: 'important-matrix-body' }
 };
 
 const decompKeys = ['1', '2_1d', '2_diff', '3', '4_10', '11_40', '41_170', '171_plus'];

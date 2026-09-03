@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UTSK — C2 ≤ 2 т/рік (Дрібні клієнти)</title>
+    <title>UTSK — 💡 Лайт (Дрібні клієнти)</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -552,7 +552,7 @@
                     <i class="fa-solid fa-arrow-left"></i> До матриці
                 </button>
                 <div class="header-info">
-                    <h1><i class="fa-solid fa-boxes-stacked" style="color:#d97706;"></i> 🟡 C2 ≤ 2 т/рік — Дрібні клієнти (<span id="title-count">352</span> компанії)</h1>
+                    <h1><i class="fa-solid fa-lightbulb" style="color:#d97706;"></i> 💡 Лайт — Дрібні клієнти (<span id="title-count">352</span> компанії)</h1>
                     <div class="meta">
                         Рік: <span class="meta-pill" id="lbl-year">2026</span> &nbsp;|&nbsp; 
                         Критерій: <span class="meta-pill">Тоннаж ≤ 2 т/рік або Виручка ≤ 146 000 ₴</span> &nbsp;|&nbsp; 
@@ -569,20 +569,20 @@
 
         <!-- 6 KPI Cards -->
         <div class="kpi-grid">
-            <!-- 1. Всього C2 -->
+            <!-- 1. Всього Лайт -->
             <div class="kpi-card">
                 <div class="kpi-top">
-                    <span class="kpi-lbl">Всього C2</span>
+                    <span class="kpi-lbl">Всього Лайт</span>
                     <div class="kpi-icon" style="background:#fef3c7;color:#b45309;"><i class="fa-solid fa-users"></i></div>
                 </div>
                 <div class="kpi-val" id="kpi-total-c2" style="color:#b45309;">352</div>
                 <div class="kpi-sub">Клієнти мікро-сегменту</div>
             </div>
 
-            <!-- 2. Виручка C2 -->
+            <!-- 2. Виручка Лайт -->
             <div class="kpi-card">
                 <div class="kpi-top">
-                    <span class="kpi-lbl">Виручка C2</span>
+                    <span class="kpi-lbl">Виручка Лайт</span>
                     <div class="kpi-icon" style="background:#ecfdf5;color:#10b981;"><i class="fa-solid fa-sack-dollar"></i></div>
                 </div>
                 <div class="kpi-val" id="kpi-revenue">—</div>
@@ -633,11 +633,11 @@
         <!-- Filter Mode Switches -->
         <div class="cohort-nav-card">
             <div class="cohort-nav-title">
-                <i class="fa-solid fa-filter"></i> Критерій відбору дрібних клієнтів C2
+                <i class="fa-solid fa-filter"></i> Критерій відбору клієнтів сегмента Лайт
             </div>
             <div class="cohort-buttons-wrap">
                 <button class="cohort-btn active" onclick="setFilterMode('all', this)">
-                    📊 Всі C2 (≤ 2 т/рік або ≤ 146 000 ₴) <span class="cohort-badge" id="badge-all">352</span>
+                    📊 Всі Лайт (≤ 2 т/рік або ≤ 146 000 ₴) <span class="cohort-badge" id="badge-all">352</span>
                 </button>
                 <button class="cohort-btn" onclick="setFilterMode('revenue', this)">
                     💰 Тільки за виручкою (≤ 146 000 ₴) <span class="cohort-badge" id="badge-rev">352</span>
@@ -655,9 +655,9 @@
                 <div class="bento-card-header">
                     <div>
                         <h2 class="bento-card-title">
-                            <i class="fa-solid fa-chart-column" style="color:#d97706;"></i> Розподіл C2 за частотними когортами
+                            <i class="fa-solid fa-chart-column" style="color:#d97706;"></i> Розподіл Лайт за частотними когортами
                         </h2>
-                        <div class="bento-card-subtitle">Кількість клієнтів у частотних групах (Разові, Повторні, Квартальні, тощо)</div>
+                        <div class="bento-card-subtitle">Кількість клієнтів у розрізі інтенсивності замовлень</div>
                     </div>
                 </div>
                 <div style="height: 260px; width: 100%; position: relative;">
@@ -670,7 +670,7 @@
                 <div class="bento-card-header">
                     <div>
                         <h2 class="bento-card-title">
-                            <i class="fa-solid fa-ranking-star" style="color:#2563eb;"></i> ТОП-10 товарів серед клієнтів C2
+                            <i class="fa-solid fa-ranking-star" style="color:#2563eb;"></i> ТОП-10 товарів серед клієнтів Лайт
                         </h2>
                         <div class="bento-card-subtitle">Найпопулярніші товарні позиції за виручкою (тис. ₴)</div>
                     </div>
@@ -686,7 +686,7 @@
             <div class="bento-card-header">
                 <div>
                     <h2 class="bento-card-title">
-                        <i class="fa-solid fa-list-check" style="color:#0f172a;"></i> Реєстр клієнтів категорії C2
+                        <i class="fa-solid fa-list-check" style="color:#0f172a;"></i> Реєстр клієнтів категорії Лайт
                     </h2>
                     <div class="bento-card-subtitle">Клікніть на компанію для переходу в картку або 👁️ для швидкої інформації</div>
                 </div>
@@ -791,7 +791,7 @@
                     </div>
                     <div class="modal-stat-box">
                         <div class="modal-stat-lbl">Клас</div>
-                        <div class="modal-stat-val" id="modalAbc"><span class="badge badge-c2">C2</span></div>
+                        <div class="modal-stat-val" id="modalAbc"><span class="badge badge-c2">💡 Лайт</span></div>
                     </div>
                     <div class="modal-stat-box">
                         <div class="modal-stat-lbl">Галузь діяльності</div>
@@ -965,7 +965,7 @@
                     '<td class="text-right" style="font-weight:800;color:#0f172a;">' + fmtM(c.goods_revenue) + '</td>' +
                     '<td class="text-right" style="font-weight:700;color:#d97706;">' + Number(c.total_tonnage || 0).toFixed(3) + ' т</td>' +
                     '<td class="text-right" style="font-weight:600;color:#4f46e5;">' + fmtM(c.avg_ticket) + '</td>' +
-                    '<td class="text-center"><span class="badge badge-c2">C2</span></td>' +
+                    '<td class="text-center"><span class="badge badge-c2">💡 Лайт</span></td>' +
                     '<td style="color:#64748b;font-size:12.5px;">' + (c.industry || 'Не вказано') + '</td>' +
                     '<td class="text-center">' +
                         '<button class="action-eye-btn" data-code="' + c.code + '" style="background:#fffbeb;border:1px solid #fde68a;color:#b45309;padding:4px 8px;border-radius:6px;cursor:pointer;font-size:12px;" title="Швидкий перегляд">' +
@@ -995,7 +995,7 @@
                     data: {
                         labels: cohortLabels,
                         datasets: [{
-                            label: 'Кількість клієнтів C2',
+                            label: 'Кількість клієнтів Лайт',
                             data: cohortVals,
                             backgroundColor: 'rgba(217, 119, 6, 0.85)',
                             borderColor: '#d97706',

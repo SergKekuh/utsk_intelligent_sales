@@ -424,7 +424,7 @@
         .badge-b1 { background: #fef3c7; color: #92400e; }
         .badge-b2 { background: #fef3c7; color: #b45309; }
         .badge-c1 { background: #f1f5f9; color: #475569; }
-        .badge-c2 { background: #f1f5f9; color: #64748b; }
+        .badge-c2 { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
 
         .badge-subgroup {
             background: #f1f5f9;
@@ -733,7 +733,7 @@
                         <option value="B1">🟡 Розвиваючі B1 (2.9-4.35M ₴)</option>
                         <option value="B2">🟡 Розвиваючі B2 (1.45-2.9M ₴)</option>
                         <option value="C1">⚪ Підтримуючі C1 (435K-1.45M ₴)</option>
-                        <option value="C2">⚪ Підтримуючі C2 (&le;146K ₴)</option>
+                        <option value="C2">💡 Лайт (&le;146K ₴)</option>
                     </select>
 
                     <select id="sortBy" class="select-filter" onchange="applyFilters()">
@@ -870,7 +870,7 @@
             else if (abc === 'B1') cls = 'badge-b1';
             else if (abc === 'B2') cls = 'badge-b2';
             else if (abc === 'C1') cls = 'badge-c1';
-            return '<span class="badge ' + cls + '">' + (abc || 'C2') + '</span>';
+            return '<span class="badge ' + cls + '">' + (abc === 'C2' || !abc ? '💡 Лайт' : abc) + '</span>';
         }
 
         function getSubgroupBadge(subgroup, subgroupKey) {

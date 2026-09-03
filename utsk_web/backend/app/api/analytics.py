@@ -515,13 +515,13 @@ def abc_structure(token: str=Query(None), year: int=2026, multiplier: float=2.9,
         imp_sec['avg_ticket']['total'] = round(imp_sec['sales']['total'] / imp_sec['invoices']['total'], 2) if imp_sec['invoices']['total'] else 0.0
         imp_sec['pct'] = {r: round(imp_sec['sales'][r] / grand_sales * 100, 2) for r in ranges}
         imp_sec['pct']['total'] = round(imp_sec['sales']['total'] / grand_sales * 100, 2)
-        c2_sec['name'] = 'Случайные C2'
-        c2_sec['icon'] = '📥'
-        abc_sec['name'] = 'Основные ABC'
-        abc_sec['icon'] = '📈'
-        total_sec['name'] = 'Все ABC'
+        c2_sec['name'] = 'Лайт'
+        c2_sec['icon'] = '💡'
+        abc_sec['name'] = 'Преміум'
+        abc_sec['icon'] = '💎'
+        total_sec['name'] = 'Всі'
         total_sec['icon'] = '📊'
-        imp_sec['name'] = 'Важные — ABC'
+        imp_sec['name'] = 'VIP'
         imp_sec['icon'] = '⭐'
         result = {'year': year, 'multiplier': multiplier, 'limit_price': limit_price, 'active_count': int(total_sec['companies']['total']), 'sections': {'c2': c2_sec, 'abc': abc_sec, 'total': total_sec, 'important': imp_sec}}
         return {'status': 'ok', 'data': result}
