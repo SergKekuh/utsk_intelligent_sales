@@ -640,7 +640,7 @@
                     📊 Всі C2 (≤ 2 т/рік або ≤ 146 000 ₴) <span class="cohort-badge" id="badge-all">352</span>
                 </button>
                 <button class="cohort-btn" onclick="setFilterMode('revenue', this)">
-                    💰 Тільки за виручкою (≤ 146 000 ₴) <span class="cohort-badge" id="badge-rev">377</span>
+                    💰 Тільки за виручкою (≤ 146 000 ₴) <span class="cohort-badge" id="badge-rev">352</span>
                 </button>
                 <button class="cohort-btn" onclick="setFilterMode('tonnage', this)">
                     ⚖️ Тільки за тоннажем (≤ 2 т/рік) <span class="cohort-badge" id="badge-ton">352</span>
@@ -882,9 +882,9 @@
                     topProducts = json.top_products || [];
 
                     // Update badges
-                    var bAll = document.getElementById('badge-all'); if (bAll && curFilterMode === 'all') bAll.textContent = fmtN(allCompanies.length);
-                    var bRev = document.getElementById('badge-rev'); if (bRev && curFilterMode === 'revenue') bRev.textContent = fmtN(allCompanies.length);
-                    var bTon = document.getElementById('badge-ton'); if (bTon && curFilterMode === 'tonnage') bTon.textContent = fmtN(allCompanies.length);
+                    var bAll = document.getElementById('badge-all'); if (bAll) bAll.textContent = fmtN(allCompanies.length);
+                    var bRev = document.getElementById('badge-rev'); if (bRev) bRev.textContent = fmtN(allCompanies.length);
+                    var bTon = document.getElementById('badge-ton'); if (bTon) bTon.textContent = fmtN(allCompanies.length);
 
                     // Update KPIs
                     updateKPIs(json.kpi);

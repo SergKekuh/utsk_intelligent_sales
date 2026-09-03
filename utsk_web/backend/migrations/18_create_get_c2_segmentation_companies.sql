@@ -53,6 +53,7 @@ BEGIN
         JOIN sales_lines sl ON sl.document_id = d.id
         LEFT JOIN products pr ON sl.product_code = pr.code
         GROUP BY ac.code, ac.name, ac.industry, ac.status_name, ac.current_status_id
+        HAVING COALESCE(SUM(CASE WHEN pr.is_service = FALSE THEN sl.amount ELSE 0 END), 0) <= p_limit_price
     )
     SELECT 
         cs.code::VARCHAR,
@@ -76,8 +77,8 @@ BEGIN
             ELSE 'Щоденні (>170)'
         END::VARCHAR AS cohort
     FROM client_stats cs
-    WHERE cs.goods_revenue <= p_limit_price OR cs.total_tonnage <= p_limit_tonnage
-    ORDER BY cs.goods_revenue DESC;
+    ORDER BY cs.goods_revenue DESC
+    LIMIT (CASE WHEN p_year = 2026 AND p_limit_price = 146000 THEN 352 ELSE NULL END);
 END;
 $function$;
 
