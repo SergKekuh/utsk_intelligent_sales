@@ -157,6 +157,141 @@ def get_recommendations_by_size_endpoint(
         logger.error(f"Ошибка get_recommendations_by_size_endpoint: {e}")
         raise HTTPException(status_code=500, detail=f"SQL error: {str(e)}")
 
+# ====== API: ВСЕ РАЗМЕРЫ ТРУБ КЛИЕНТА (С АГРЕГАЦИЕЙ) ======
+@router.get("/api/client-products-by-size/{client_code}")
+@router.get("/client-products-by-size/{client_code}")
+def get_client_products_by_size(
+    client_code: str,
+    token: str = Query(...),
+    year: int = Query(2026),
+    db: Session = Depends(get_db),
+):
+    """
+    Все размеры труб клиента за год (агрегировано).
+    Используется на /product-analytics.
+    """
+    verify_token(token)
+    
+    try:
+        rows = db.execute(
+            text("""
+                SELECT 
+                    size_key,
+                    size_display,
+                    pipe_type,
+                    pipe_type_ua,
+                    display_name,
+                    purchase_count,
+                    revenue,
+                    pct_of_client_total,
+                    stock_balance_total,
+                    products_count,
+                    has_stock
+                FROM get_all_sizes_for_client(:code, :yr)
+            """),
+            {"code": client_code, "yr": year},
+        ).mappings().all()
+        
+        items = []
+        for r in rows:
+            items.append({
+                "size_key": r["size_key"],
+                "size_display": r["size_display"],
+                "pipe_type": r["pipe_type"],
+                "pipe_type_ua": r["pipe_type_ua"],
+                "display_name": r["display_name"],
+                "purchase_count": int(r["purchase_count"] or 0),
+                "revenue": float(r["revenue"] or 0),
+                "pct": float(r["pct_of_client_total"] or 0),
+                "stock_total": float(r["stock_balance_total"] or 0),
+                "products_count": int(r["products_count"] or 0),
+                "has_stock": bool(r["has_stock"]),
+            })
+        
+        client_row = db.execute(
+            text("SELECT name FROM clients WHERE code = :code"),
+            {"code": client_code}
+        ).first()
+        client_name = client_row[0] if client_row and client_row[0] else client_code
+
+        return {
+            "status": "ok",
+            "client_code": client_code,
+            "client_name": client_name,
+            "year": year,
+            "count": len(items),
+            "items": items,
+        }
+    except Exception as e:
+        logger.error(f"Ошибка get_client_products_by_size: {e}")
+        raise HTTPException(status_code=500, detail=f"SQL error: {str(e)}")
+
+
+@router.get("/api/client-products-by-size/{client_code}/{size_key}")
+@router.get("/client-products-by-size/{client_code}/{size_key}")
+def get_client_products_by_size_drilldown(
+    client_code: str,
+    size_key: str,
+    token: str = Query(...),
+    year: int = Query(2026),
+    db: Session = Depends(get_db),
+):
+    """
+    Drill-down: все товары (ГОСТ × сталь) с заданным размером.
+    """
+    verify_token(token)
+    
+    try:
+        rows = db.execute(
+            text("""
+                SELECT 
+                    product_code,
+                    product_name,
+                    standard,
+                    is_purchased,
+                    purchase_count,
+                    quantity,
+                    revenue,
+                    last_purchase_date,
+                    days_since_last,
+                    stock_balance,
+                    is_prof,
+                    size_display
+                FROM get_products_by_size_for_client(:code, :size_key, :yr)
+            """),
+            {"code": client_code, "size_key": size_key, "yr": year},
+        ).mappings().all()
+        
+        items = []
+        for r in rows:
+            items.append({
+                "product_code": r["product_code"],
+                "product_name": r["product_name"],
+                "standard": r["standard"],
+                "is_purchased": bool(r["is_purchased"]),
+                "purchase_count": int(r["purchase_count"] or 0),
+                "quantity": float(r["quantity"] or 0),
+                "revenue": float(r["revenue"] or 0),
+                "last_purchase_date": r["last_purchase_date"].isoformat() if r["last_purchase_date"] else None,
+                "days_since_last": r["days_since_last"],
+                "stock_balance": float(r["stock_balance"] or 0),
+                "is_prof": bool(r["is_prof"]),
+                "size_display": r["size_display"],
+            })
+        
+        return {
+            "status": "ok",
+            "client_code": client_code,
+            "size_key": size_key,
+            "year": year,
+            "count": len(items),
+            "items": items,
+        }
+    except Exception as e:
+        logger.error(f"Ошибка get_client_products_by_size_drilldown: {e}")
+        raise HTTPException(status_code=500, detail=f"SQL error: {str(e)}")
+
+
 # ====== API: ТОП РЕКОМЕНДАЦИЙ (общие) ======
 @router.get("/api/recommendations")
 def top_recommendations(token: str = Query(None), limit: int = 10, db: Session = Depends(get_db)):
@@ -307,49 +442,140 @@ def client_products_recommendations(
             text("SELECT * FROM get_client_cross_sell_pipes(:code)"),
             {"code": client_code}
         ).fetchall()
-        cross_sell = [
-            {"product_code": r.product_code, "product_name": r.product_name, 
-             "reason": r.reason, "in_stock": float(r.in_stock or 0)} 
-            for r in cross_rows
-        ]
 
         similar_rows = db.execute(
             text("SELECT * FROM get_client_similar_sizes(:code)"),
             {"code": client_code}
         ).fetchall()
-        similar_size = [
-            {"product_code": r.product_code, "product_name": r.product_name,
-             "diameter": float(r.diameter) if r.diameter is not None else None,
-             "wall_thickness": float(r.wall_thickness) if r.wall_thickness is not None else None,
-             "reason": r.reason, "in_stock": float(r.in_stock or 0)} 
-            for r in similar_rows
-        ]
 
-        if len(similar_size) < 5:
-            existing = {s["product_code"] for s in similar_size}
+        if len(similar_rows) < 10:
+            existing = {s.product_code for s in similar_rows}
             fallback_rows = db.execute(
                 text("SELECT * FROM get_client_similar_fallback(:code)"),
                 {"code": client_code}
             ).fetchall()
             for r in fallback_rows:
-                if r.product_code not in existing and len(similar_size) < 5:
-                    similar_size.append({
-                        "product_code": r.product_code, "product_name": r.product_name,
-                        "diameter": float(r.diameter) if r.diameter is not None else None,
-                        "wall_thickness": float(r.wall_thickness) if r.wall_thickness is not None else None,
-                        "reason": r.reason, "in_stock": float(r.in_stock or 0)
-                    })
+                if r.product_code not in existing:
+                    similar_rows.append(r)
 
         dir_rows = db.execute(
             text("SELECT * FROM get_client_direction_variety(:code)"),
             {"code": client_code}
         ).fetchall()
-        direction_variety = [
-            {"product_code": r.product_code, "product_name": r.product_name,
-             "popularity": int(r.popularity or 0), "reason": r.reason, 
-             "in_stock": float(r.in_stock or 0)} 
-            for r in dir_rows
-        ]
+
+        # Parse pipe attributes for all candidate product codes
+        all_codes = list({r.product_code for r in (cross_rows + similar_rows + dir_rows)})
+        parsed_map = {}
+        if all_codes:
+            p_rows = db.execute(text("""
+                SELECT 
+                    p.code,
+                    p.name,
+                    CASE 
+                        WHEN ppa.is_prof AND ppa.prof_w IS NOT NULL AND ppa.prof_h IS NOT NULL AND ppa.wall IS NOT NULL
+                            THEN 'prof_' || ppa.prof_w::TEXT || 'x' || ppa.prof_h::TEXT || 'x' || ppa.wall::TEXT
+                        WHEN ppa.is_prof AND ppa.prof_w IS NOT NULL AND ppa.prof_h IS NOT NULL
+                            THEN 'prof_' || ppa.prof_w::TEXT || 'x' || ppa.prof_h::TEXT
+                        WHEN NOT ppa.is_prof AND ppa.diameter IS NOT NULL AND ppa.wall IS NOT NULL
+                            THEN 'round_' || ppa.diameter::TEXT || 'x' || ppa.wall::TEXT
+                        ELSE NULL
+                    END AS size_key,
+                    CASE 
+                        WHEN ppa.is_prof AND ppa.prof_w IS NOT NULL AND ppa.prof_h IS NOT NULL AND ppa.wall IS NOT NULL
+                            THEN ppa.prof_w::TEXT || '×' || ppa.prof_h::TEXT || '×' || ppa.wall::TEXT
+                        WHEN ppa.is_prof AND ppa.prof_w IS NOT NULL AND ppa.prof_h IS NOT NULL
+                            THEN ppa.prof_w::TEXT || '×' || ppa.prof_h::TEXT
+                        WHEN NOT ppa.is_prof AND ppa.diameter IS NOT NULL AND ppa.wall IS NOT NULL
+                            THEN ppa.diameter::TEXT || '×' || ppa.wall::TEXT
+                        ELSE NULL
+                    END AS size_display,
+                    CASE 
+                        WHEN ppa.is_prof AND ppa.prof_w = ppa.prof_h THEN 'Квадратная труба'
+                        WHEN ppa.is_prof AND ppa.prof_w <> ppa.prof_h THEN 'Прямоугольная труба'
+                        WHEN NOT ppa.is_prof THEN 'Круглая труба'
+                        ELSE 'Труба'
+                    END AS pipe_type_ua
+                FROM products p
+                CROSS JOIN LATERAL parse_pipe_attributes(p.name) ppa
+                WHERE p.code = ANY(:codes)
+            """), {"codes": all_codes}).fetchall()
+
+            for pr in p_rows:
+                parsed_map[pr.code] = {
+                    "size_key": pr.size_key,
+                    "display_name": f"{pr.pipe_type_ua} {pr.size_display}" if pr.size_key else pr.name
+                }
+
+        def aggregate_block(rows, block_type):
+            seen_sizes = set()
+            items = []
+            for r in rows:
+                p_info = parsed_map.get(r.product_code, {})
+                s_key = p_info.get("size_key") or f"sku_{r.product_code}"
+                if s_key in seen_sizes:
+                    continue
+                seen_sizes.add(s_key)
+
+                d_name = p_info.get("display_name") or r.product_name
+                raw_reason = getattr(r, "reason", "") or ""
+                if block_type == "cross":
+                    reason = "Ранее покупали" if "ранее" in raw_reason.lower() else "Сопутствующий размер"
+                elif block_type == "similar":
+                    reason = "Ближайший типоразмер"
+                else:
+                    reason = "Топ продаж 2026"
+
+                items.append({
+                    "product_code": r.product_code,
+                    "size_key": s_key,
+                    "display_name": d_name,
+                    "product_name": d_name,
+                    "reason": reason,
+                    "in_stock": float(getattr(r, "in_stock", 0) or 0)
+                })
+                if len(items) == 5:
+                    break
+            return items
+
+        cross_sell = aggregate_block(cross_rows, "cross")
+        similar_size = aggregate_block(similar_rows, "similar")
+        direction_variety = aggregate_block(dir_rows, "direction")
+
+        # Fetch warehouse total stock for all distinct size_keys
+        all_size_keys = list({
+            item["size_key"] for item in (cross_sell + similar_size + direction_variety)
+            if item["size_key"] and not item["size_key"].startswith("sku_")
+        })
+
+        if all_size_keys:
+            stock_rows = db.execute(text("""
+                WITH parsed AS (
+                    SELECT 
+                        COALESCE(p.in_stock_balance, 0)::NUMERIC AS stock,
+                        CASE 
+                            WHEN ppa.is_prof AND ppa.prof_w IS NOT NULL AND ppa.prof_h IS NOT NULL AND ppa.wall IS NOT NULL
+                                THEN 'prof_' || ppa.prof_w::TEXT || 'x' || ppa.prof_h::TEXT || 'x' || ppa.wall::TEXT
+                            WHEN ppa.is_prof AND ppa.prof_w IS NOT NULL AND ppa.prof_h IS NOT NULL
+                                THEN 'prof_' || ppa.prof_w::TEXT || 'x' || ppa.prof_h::TEXT
+                            WHEN NOT ppa.is_prof AND ppa.diameter IS NOT NULL AND ppa.wall IS NOT NULL
+                                THEN 'round_' || ppa.diameter::TEXT || 'x' || ppa.wall::TEXT
+                            ELSE NULL
+                        END AS size_key
+                    FROM products p
+                    CROSS JOIN LATERAL parse_pipe_attributes(p.name) ppa
+                    WHERE COALESCE(p.is_service, FALSE) = FALSE AND COALESCE(p.in_stock_balance, 0) > 0
+                )
+                SELECT size_key, SUM(stock) AS total_stock
+                FROM parsed
+                WHERE size_key = ANY(:keys)
+                GROUP BY size_key
+            """), {"keys": all_size_keys}).fetchall()
+            stock_map = {sr.size_key: float(sr.total_stock) for sr in stock_rows}
+
+            for block in [cross_sell, similar_size, direction_variety]:
+                for item in block:
+                    if item["size_key"] in stock_map:
+                        item["in_stock"] = round(stock_map[item["size_key"]], 3)
 
         services = [
             {"product_name": "Послуги порізки та різання металопрокату", "usage_count": "Рекомендовано", "code": "service_cut"},
@@ -366,3 +592,4 @@ def client_products_recommendations(
     except Exception as e:
         logger.error(f"Ошибка client_products_recommendations: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+

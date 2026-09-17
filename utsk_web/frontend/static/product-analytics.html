@@ -3,31 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UTSK — Аналитика продуктов клиента</title>
+    <title>UTSK — Продуктовая аналитика клиента</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --primary: #4f46e5;
             --primary-hover: #4338ca;
+            --primary-light: #eef2ff;
+            --accent: #3b82f6;
             --success: #10b981;
+            --success-light: #d1fae5;
             --warning: #f59e0b;
+            --warning-light: #fef3c7;
             --danger: #ef4444;
+            --danger-light: #fee2e2;
             --info: #0ea5e9;
             --bg: #f8fafc;
             --surface: #ffffff;
             --border: #e2e8f0;
             --text-main: #0f172a;
             --text-muted: #64748b;
+            --radius: 14px;
+            --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -38,7 +42,7 @@
         }
 
         .container {
-            max-width: 1320px;
+            max-width: 1480px;
             margin: 0 auto;
         }
 
@@ -48,11 +52,11 @@
             align-items: center;
             justify-content: space-between;
             background: var(--surface);
-            padding: 20px 24px;
+            padding: 18px 24px;
             border-radius: 16px;
             border: 1px solid var(--border);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
             flex-wrap: wrap;
             gap: 16px;
         }
@@ -60,23 +64,22 @@
         .header-title-group {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 14px;
         }
 
         .back-btn {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            padding: 8px 14px;
+            gap: 8px;
+            padding: 9px 16px;
             background: #f1f5f9;
-            color: #475569;
+            color: #334155;
             text-decoration: none;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 13px;
             font-weight: 600;
             transition: all 0.15s ease;
         }
-
         .back-btn:hover {
             background: #e2e8f0;
             color: var(--text-main);
@@ -86,17 +89,22 @@
             font-size: 20px;
             font-weight: 800;
             color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
         }
 
         .client-badge {
-            display: inline-block;
-            padding: 4px 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
             background: #e0e7ff;
             color: var(--primary);
             border-radius: 20px;
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 700;
-            margin-left: 8px;
         }
 
         .controls {
@@ -117,24 +125,66 @@
             outline: none;
         }
 
-        /* KPI Grid */
+        /* Tabs Navigation */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 8px;
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            padding: 10px 18px;
+            border: none;
+            background: none;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-radius: 10px;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+        .tab-btn:hover {
+            background: #f1f5f9;
+            color: var(--text-main);
+        }
+        .tab-btn.active {
+            background: var(--primary);
+            color: #ffffff;
+            box-shadow: 0 2px 4px rgba(79, 70, 229, 0.2);
+        }
+
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        /* KPI Cards Grid */
         .kpi-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
             gap: 16px;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
         }
 
         .kpi-card {
             background: var(--surface);
             padding: 20px;
-            border-radius: 14px;
+            border-radius: var(--radius);
             border: 1px solid var(--border);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            box-shadow: var(--shadow);
+            border-top: 4px solid var(--accent);
             display: flex;
             flex-direction: column;
         }
-
         .kpi-label {
             font-size: 12px;
             font-weight: 600;
@@ -142,254 +192,621 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
             margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
-
         .kpi-value {
-            font-size: 22px;
-            font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 24px;
+            font-weight: 700;
             color: var(--text-main);
         }
-
         .kpi-sub {
-            font-size: 12px;
+            font-size: 13px;
             color: var(--text-muted);
             margin-top: 4px;
         }
 
-        /* Tabs */
-        .tabs {
+        /* Filter bar for sizes */
+        .filter-bar {
+            background: var(--surface);
+            padding: 14px 20px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
             display: flex;
-            gap: 8px;
-            border-bottom: 2px solid var(--border);
-            margin-bottom: 24px;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .search-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            min-width: 280px;
+            max-width: 480px;
+            position: relative;
+        }
+        .search-group i {
+            position: absolute;
+            left: 12px;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+        .search-input {
+            width: 100%;
+            padding: 9px 12px 9px 36px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 13px;
+            outline: none;
+            background: #f8fafc;
+            transition: all 0.2s;
+        }
+        .search-input:focus {
+            background: #ffffff;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
         }
 
-        .tab-btn {
-            padding: 12px 20px;
-            background: transparent;
-            border: none;
-            border-bottom: 3px solid transparent;
-            font-size: 14px;
+        .filter-pills {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .pill-btn {
+            padding: 6px 14px;
+            border: 1px solid var(--border);
+            background: #f8fafc;
+            color: #475569;
+            border-radius: 20px;
+            font-size: 12px;
             font-weight: 600;
-            color: var(--text-muted);
             cursor: pointer;
             transition: all 0.15s ease;
-            margin-bottom: -2px;
+        }
+        .pill-btn:hover {
+            background: #e2e8f0;
+        }
+        .pill-btn.active {
+            background: var(--accent);
+            color: #ffffff;
+            border-color: var(--accent);
         }
 
-        .tab-btn:hover {
-            color: var(--primary);
-        }
-
-        .tab-btn.active {
-            color: var(--primary);
-            border-bottom-color: var(--primary);
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        /* Grid Layouts */
-        .analytics-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 24px;
-            margin-bottom: 24px;
-        }
-
-        @media (max-width: 992px) {
-            .analytics-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
+        /* Card Container */
         .card {
             background: var(--surface);
-            border-radius: 14px;
+            border-radius: var(--radius);
             border: 1px solid var(--border);
+            box-shadow: var(--shadow);
             padding: 20px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
             margin-bottom: 24px;
         }
-
         .card-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
             margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 10px;
         }
-
         .card-title {
             font-size: 16px;
             font-weight: 700;
             color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .card-subtitle {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 400;
         }
 
-        /* Tables */
+        /* Sizes Table */
         .table-responsive {
+            width: 100%;
             overflow-x: auto;
         }
-
-        table {
+        .sizes-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 13px;
+            font-size: 14px;
         }
-
-        th {
+        .sizes-table th {
             text-align: left;
-            padding: 10px 14px;
-            background: #f8fafc;
+            padding: 12px 14px;
+            background: #f1f5f9;
             color: var(--text-muted);
             font-weight: 600;
-            border-bottom: 1px solid var(--border);
+            font-size: 12px;
+            text-transform: uppercase;
+            border-bottom: 2px solid var(--border);
+            white-space: nowrap;
         }
-
-        td {
+        .sizes-table td {
             padding: 12px 14px;
             border-bottom: 1px solid var(--border);
-            color: var(--text-main);
+            vertical-align: middle;
+        }
+        .sizes-table tbody tr.size-row {
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .sizes-table tbody tr.size-row:hover {
+            background: #eff6ff;
+        }
+        .sizes-table tbody tr.size-row.active {
+            background: #dbeafe;
+            border-left: 4px solid var(--accent);
         }
 
-        tr:last-child td {
-            border-bottom: none;
+        .expand-cell {
+            width: 36px;
+            text-align: center;
+            color: var(--accent);
+            font-size: 13px;
         }
-
-        tr:hover td {
-            background: #f8fafc;
-        }
-
-        td.right, th.right {
-            text-align: right;
-        }
-
-        /* Badges & Progress Bars */
-        .badge {
+        .expand-icon {
+            transition: transform 0.2s ease;
             display: inline-block;
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 700;
+        }
+        .sizes-table tbody tr.size-row.active .expand-icon {
+            transform: rotate(90deg);
+        }
+
+        .num {
+            font-family: 'JetBrains Mono', monospace;
+            text-align: right;
             white-space: nowrap;
         }
 
+        /* Badges */
+        .stock-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+            text-align: right;
+        }
+        .stock-ok {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .stock-low {
+            background: #fed7aa;
+            color: #92400e;
+        }
+        .stock-zero {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .pipe-type-tag {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: #f1f5f9;
+            color: #475569;
+            margin-right: 6px;
+            font-weight: 500;
+        }
+
+        /* Drill-down Inline Row & Panel */
+        .drilldown-row td {
+            padding: 0 !important;
+            border-bottom: 2px solid #93c5fd;
+            background: #f8fafc;
+        }
+        .drilldown-panel {
+            background: #f8fafc;
+            border-left: 4px solid var(--accent);
+            padding: 18px 24px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.04);
+            animation: fadeIn 0.2s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-3px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .drilldown-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        .drilldown-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .drilldown-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 16px;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 6px;
+            transition: all 0.15s;
+        }
+        .drilldown-close:hover {
+            background: #e2e8f0;
+            color: var(--text-main);
+        }
+
+        /* Products Table (Drilldown) */
+        .products-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            background: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            margin-top: 8px;
+        }
+        .products-table th {
+            text-align: left;
+            padding: 10px 12px;
+            background: #f1f5f9;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border);
+        }
+        .products-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+        }
+        .products-table tr:last-child td {
+            border-bottom: none;
+        }
+        .products-table tr.purchased {
+            background: #f0fdf4;
+        }
+        .products-table tr.purchased:hover {
+            background: #dcfce7;
+        }
+        .products-table tr.not-purchased {
+            background: #ffffff;
+        }
+        .products-table tr.not-purchased:hover {
+            background: #f8fafc;
+        }
+        .purchased-badge {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25);
+            margin-right: 4px;
+        }
+        .available-badge {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #f59e0b;
+            box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.25);
+            margin-right: 4px;
+        }
+        .drilldown-section-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin: 14px 0 8px;
+            padding: 7px 12px;
+            background: #f1f5f9;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Common elements */
+        .loading {
+            padding: 30px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+        .error {
+            padding: 30px;
+            text-align: center;
+            color: var(--danger);
+            font-size: 14px;
+        }
+
+        /* Legacy Tab styles */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+        }
+        @media (max-width: 1024px) {
+            .analytics-grid { grid-template-columns: 1fr; }
+        }
+        .ml-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 20px;
+            align-items: stretch;
+        }
+        .ml-grid > .card {
+            margin-bottom: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        .ml-grid > .card > .table-responsive {
+            flex: 1;
+        }
+        @media (max-width: 1024px) {
+            .ml-grid { grid-template-columns: 1fr; }
+        }
+        .card-full-width {
+            grid-column: 1 / -1;
+        }
+        .ml-row-clickable {
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .ml-row-clickable:hover {
+            background-color: #f1f5f9;
+        }
+        .ml-row-clickable td {
+            user-select: none;
+        }
+
+        /* Modal Window for ML Drill-down */
+        .ml-modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: modalFadeIn 0.2s ease-out;
+        }
+        @keyframes modalFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .ml-modal {
+            background: var(--surface);
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            max-width: 920px;
+            width: 100%;
+            max-height: 88vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            animation: modalSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes modalSlideUp {
+            from { opacity: 0; transform: translateY(12px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .ml-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            background: #f8fafc;
+            border-bottom: 1px solid var(--border);
+        }
+        .ml-modal-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .ml-modal-body {
+            padding: 20px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+        }
         .badge.abc-a { background: #d1fae5; color: #065f46; }
         .badge.warning { background: #fef3c7; color: #92400e; }
-        .badge.neutral { background: #e2e8f0; color: #475569; }
-        .badge.stock { background: #e0f2fe; color: #0369a1; }
+        .badge.neutral { background: #f1f5f9; color: #475569; }
         .badge.up { background: #d1fae5; color: #065f46; }
         .badge.down { background: #fee2e2; color: #991b1b; }
-
+        .badge.stock { background: #e0e7ff; color: #4338ca; font-family: 'JetBrains Mono', monospace; }
         .prog-bar-bg {
-            width: 100%;
             height: 6px;
             background: #e2e8f0;
             border-radius: 3px;
-            margin-top: 4px;
             overflow: hidden;
+            margin-top: 4px;
         }
-
         .prog-bar-fill {
             height: 100%;
             border-radius: 3px;
         }
-
-        /* ML Recommendation Grid */
-        .ml-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 20px;
-        }
-
-        .card-full-width {
-            grid-column: 1 / -1;
-        }
-
         .chart-container {
-            position: relative;
             height: 280px;
             width: 100%;
+            position: relative;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
+        <!-- HEADER -->
         <div class="header">
             <div class="header-title-group">
-                <a href="javascript:history.back()" class="back-btn">← Назад</a>
-                <h1>Аналитика продуктов <span id="client-name" class="client-badge">Загрузка...</span></h1>
+                <a href="/client-detail" class="back-btn" id="backBtn">
+                    <i class="fa-solid fa-arrow-left"></i> К клиенту
+                </a>
+                <h1>
+                    Продуктовая аналитика: 
+                    <span id="clientName" style="color:var(--primary);">Загрузка...</span>
+                    <span class="client-badge" id="clientCodeBadge">код <b id="clientCode">—</b></span>
+                </h1>
             </div>
             <div class="controls">
-                <select id="year-select" class="select-input" onchange="initData()">
+                <select id="year-select" class="select-input" onchange="onYearChange()">
                     <option value="2026" selected>2026 год</option>
                     <option value="2025">2025 год</option>
                 </select>
             </div>
         </div>
 
-        <!-- KPI Grid -->
-        <div class="kpi-grid">
-            <div class="kpi-card">
-                <span class="kpi-label">Общая выручка</span>
-                <span class="kpi-value" id="kpi-total">0 ₴</span>
-                <span class="kpi-sub">за выбранный год</span>
-            </div>
-            <div class="kpi-card">
-                <span class="kpi-label">Товарная выручка</span>
-                <span class="kpi-value" id="kpi-goods" style="color:var(--primary)">0 ₴</span>
-                <span class="kpi-sub">без учета услуг</span>
-            </div>
-            <div class="kpi-card">
-                <span class="kpi-label">Услуги</span>
-                <span class="kpi-value" id="kpi-services" style="color:var(--info)">0 ₴</span>
-                <span class="kpi-sub">порезка и доставка</span>
-            </div>
-            <div class="kpi-card">
-                <span class="kpi-label">Уникальных товаров</span>
-                <span class="kpi-value" id="kpi-unique">0 шт</span>
-                <span class="kpi-sub">позиций в накладных</span>
-            </div>
-            <div class="kpi-card">
-                <span class="kpi-label">Потенциал роста</span>
-                <span class="kpi-value" id="kpi-potential" style="color:var(--success)">~0 ₴</span>
-                <span class="kpi-sub">кросс-сейл и расширение</span>
-            </div>
-        </div>
-
-        <!-- Tabs -->
+        <!-- TABS -->
         <div class="tabs">
-            <button class="tab-btn active" onclick="openTab('tab-portfolio', this)">📊 Портфель продуктов</button>
-            <button class="tab-btn" onclick="openTab('tab-yoy', this)">🔄 Динамика 2026 vs 2025</button>
-            <button class="tab-btn" onclick="openTab('tab-ml', this)">🤖 ML-Рекомендации</button>
+            <button class="tab-btn active" onclick="openTab('tab-sizes', this)">
+                <i class="fa-solid fa-ruler-combined"></i> 📏 Все размеры труб (Drill-down)
+            </button>
+            <button class="tab-btn" onclick="openTab('tab-portfolio', this)">
+                <i class="fa-solid fa-chart-pie"></i> 📊 ABC-анализ номенклатуры
+            </button>
+            <button class="tab-btn" onclick="openTab('tab-yoy', this)">
+                <i class="fa-solid fa-arrows-split-up-and-left"></i> 🔄 Динамика 2026 vs 2025
+            </button>
+            <button class="tab-btn" onclick="openTab('tab-ml', this)">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> 🤖 ML-Рекомендации
+            </button>
         </div>
 
-        <!-- TAB 1: PORTFOLIO -->
-        <div id="tab-portfolio" class="tab-content active">
+        <!-- TAB 1: SIZES WITH DRILLDOWN (MAIN UNIFIED TABLE) -->
+        <div id="tab-sizes" class="tab-content active">
+            <!-- KPI GRID FOR SIZES -->
+            <div class="kpi-grid" id="kpiGrid">
+                <div class="kpi-card" style="border-top-color:#3b82f6">
+                    <div class="kpi-label"><i class="fa-solid fa-ruler"></i> Всего размеров</div>
+                    <div class="kpi-value" id="kpiTotalSizes">—</div>
+                    <div class="kpi-sub">Уникальных типоразмеров труб</div>
+                </div>
+                <div class="kpi-card" style="border-top-color:#10b981">
+                    <div class="kpi-label"><i class="fa-solid fa-sack-dollar"></i> Выручка по размерам</div>
+                    <div class="kpi-value" id="kpiTotalRevenue">—</div>
+                    <div class="kpi-sub">По агрегированным позициям</div>
+                </div>
+                <div class="kpi-card" style="border-top-color:#f59e0b">
+                    <div class="kpi-label"><i class="fa-solid fa-trophy"></i> Топ-размер</div>
+                    <div class="kpi-value" id="kpiTopSize" style="font-size:18px;">—</div>
+                    <div class="kpi-sub" id="kpiTopSizeSub">—</div>
+                </div>
+                <div class="kpi-card" style="border-top-color:#8b5cf6">
+                    <div class="kpi-label"><i class="fa-solid fa-warehouse"></i> Общий остаток</div>
+                    <div class="kpi-value" id="kpiTotalStock">—</div>
+                    <div class="kpi-sub">По всем размерам на складе</div>
+                </div>
+            </div>
+
+            <!-- FILTER & SEARCH BAR -->
+            <div class="filter-bar">
+                <div class="search-group">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="sizeSearch" class="search-input" placeholder="Поиск по размеру (например, 76x5, 180)..." oninput="applyFilters()">
+                </div>
+                <div class="filter-pills">
+                    <button class="pill-btn active" data-type="all" onclick="setPipeFilter('all', this)">Все</button>
+                    <button class="pill-btn" data-type="stock" onclick="setPipeFilter('stock', this)">Есть на складе</button>
+                    <button class="pill-btn" data-type="round" onclick="setPipeFilter('round', this)">Круглые</button>
+                    <button class="pill-btn" data-type="square" onclick="setPipeFilter('square', this)">Квадратные</button>
+                    <button class="pill-btn" data-type="rect" onclick="setPipeFilter('rect', this)">Прямоугольные</button>
+                    <span id="filteredCountLabel" style="font-size:12px;color:var(--text-muted);margin-left:8px;"></span>
+                </div>
+            </div>
+
+            <!-- MAIN SIZES TABLE -->
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <h2 class="card-title">
+                            <i class="fa-solid fa-table-list" style="color:var(--accent);"></i> 
+                            Все размеры труб (<span id="totalSizesBadge">0</span>)
+                        </h2>
+                        <div class="card-subtitle">Кликните на строку для раскрытия деталей по ГОСТам, сталям и остаткам</div>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="sizes-table" id="sizesTable">
+                        <thead>
+                            <tr>
+                                <th style="width:36px; text-align:center;"></th>
+                                <th>Размер</th>
+                                <th class="num">Раз</th>
+                                <th class="num">%</th>
+                                <th class="num">Остаток</th>
+                                <th class="num">Позиций</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sizesBody">
+                            <tr><td colspan="6" class="loading"><i class="fa-solid fa-spinner fa-spin"></i> Загрузка размеров труб...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- DRILL-DOWN PANEL CONTAINER (FOR TESTS & DYNAMIC ATTACHMENT) -->
+            <div id="drilldownPanelContainer" style="display:none;">
+                <div class="drilldown-panel" id="drilldownPanel">
+                    <div class="drilldown-header">
+                        <div class="drilldown-title" id="drilldownTitle">—</div>
+                        <button class="drilldown-close" onclick="closeDrilldown()" title="Закрыть детализацию">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                    <div id="drilldownContent"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: PORTFOLIO & ABC ANALYSIS -->
+        <div id="tab-portfolio" class="tab-content">
             <div class="analytics-grid">
                 <div class="card">
                     <div class="card-header">
-                        <h2 class="card-title">Топ-продукты клиента (ABC-анализ)</h2>
+                        <h2 class="card-title"><i class="fa-solid fa-layer-group"></i> Топ-продукты клиента (ABC-анализ номенклатуры)</h2>
                     </div>
                     <div class="table-responsive">
-                        <table>
+                        <table class="sizes-table">
                             <thead>
                                 <tr>
-                                    <th style="width: 125px; min-width: 110px;">Клас</th>
+                                    <th style="width: 110px;">Класс</th>
                                     <th>Товар</th>
-                                    <th class="right">Закупок</th>
-                                    <th class="right">Выручка</th>
-                                    <th class="right">Доля %</th>
-                                    <th class="right">Остаток</th>
+                                    <th class="num">Закупок</th>
+                                    <th class="num">Выручка</th>
+                                    <th class="num">Доля %</th>
+                                    <th class="num">Остаток</th>
                                 </tr>
                             </thead>
                             <tbody id="table-portfolio">
-                                <tr><td colspan="6" style="text-align:center;color:var(--text-muted);">Загрузка...</td></tr>
+                                <tr><td colspan="6" class="loading">Загрузка данных портфеля...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -398,7 +815,7 @@
                 <div>
                     <div class="card">
                         <div class="card-header">
-                            <h2 class="card-title">Топ-5 позиций (выручка)</h2>
+                            <h2 class="card-title">Топ-5 позиций по выручке</h2>
                         </div>
                         <div class="chart-container">
                             <canvas id="chartTopProducts"></canvas>
@@ -416,7 +833,7 @@
             </div>
         </div>
 
-        <!-- TAB 2: YoY COMPARE -->
+        <!-- TAB 3: YoY COMPARE -->
         <div id="tab-yoy" class="tab-content">
             <div class="analytics-grid">
                 <div class="card">
@@ -424,18 +841,18 @@
                         <h2 class="card-title">Сравнение продаж по товарам (2026 vs 2025)</h2>
                     </div>
                     <div class="table-responsive">
-                        <table>
+                        <table class="sizes-table">
                             <thead>
                                 <tr>
                                     <th>Товар</th>
-                                    <th class="right">2025 год</th>
-                                    <th class="right">2026 год</th>
-                                    <th class="right">Разница (₴)</th>
-                                    <th class="right">Рост %</th>
+                                    <th class="num">2025 год</th>
+                                    <th class="num">2026 год</th>
+                                    <th class="num">Разница (₴)</th>
+                                    <th class="num">Рост %</th>
                                 </tr>
                             </thead>
                             <tbody id="table-yoy">
-                                <tr><td colspan="5" style="text-align:center;color:var(--text-muted);">Загрузка...</td></tr>
+                                <tr><td colspan="5" class="loading">Загрузка данных сравнения...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -452,7 +869,7 @@
             </div>
         </div>
 
-        <!-- TAB 3: ML RECOMMENDATIONS -->
+        <!-- TAB 4: ML RECOMMENDATIONS -->
         <div id="tab-ml" class="tab-content">
             <div class="ml-grid">
                 <div class="card">
@@ -460,16 +877,16 @@
                         <h2 class="card-title">🔗 Сопутствующие товары (Cross-sell)</h2>
                     </div>
                     <div class="table-responsive">
-                        <table>
+                        <table class="sizes-table">
                             <thead>
                                 <tr>
-                                    <th>Товар</th>
-                                    <th class="right">Причина</th>
-                                    <th class="right">Склад</th>
+                                    <th>Размер</th>
+                                    <th class="num">Причина</th>
+                                    <th class="num">Склад</th>
                                 </tr>
                             </thead>
                             <tbody id="rec-cross">
-                                <tr><td colspan="3" style="text-align:center;">Загрузка...</td></tr>
+                                <tr><td colspan="3" class="loading">Загрузка...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -480,16 +897,16 @@
                         <h2 class="card-title">📐 Похожие типоразмеры</h2>
                     </div>
                     <div class="table-responsive">
-                        <table>
+                        <table class="sizes-table">
                             <thead>
                                 <tr>
-                                    <th>Товар</th>
-                                    <th class="right">Параметры</th>
-                                    <th class="right">Склад</th>
+                                    <th>Размер</th>
+                                    <th class="num">Причина</th>
+                                    <th class="num">Склад</th>
                                 </tr>
                             </thead>
                             <tbody id="rec-similar">
-                                <tr><td colspan="3" style="text-align:center;">Загрузка...</td></tr>
+                                <tr><td colspan="3" class="loading">Загрузка...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -497,19 +914,19 @@
 
                 <div class="card">
                     <div class="card-header">
-                        <h2 class="card-title">🏢 Популярное в вашем сегменте</h2>
+                        <h2 class="card-title">🏢 Популярное в сегменте</h2>
                     </div>
                     <div class="table-responsive">
-                        <table>
+                        <table class="sizes-table">
                             <thead>
                                 <tr>
-                                    <th>Товар</th>
-                                    <th class="right">Популярность</th>
-                                    <th class="right">Склад</th>
+                                    <th>Размер</th>
+                                    <th class="num">Причина</th>
+                                    <th class="num">Склад</th>
                                 </tr>
                             </thead>
                             <tbody id="rec-industry">
-                                <tr><td colspan="3" style="text-align:center;">Загрузка...</td></tr>
+                                <tr><td colspan="3" class="loading">Загрузка...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -520,15 +937,15 @@
                         <h2 class="card-title">🛠️ Использование сервисов и услуг</h2>
                     </div>
                     <div class="table-responsive">
-                        <table>
+                        <table class="sizes-table">
                             <thead>
                                 <tr>
                                     <th>Услуга</th>
-                                    <th class="right">Закупок в 2026</th>
+                                    <th class="num">Статус</th>
                                 </tr>
                             </thead>
                             <tbody id="rec-services">
-                                <tr><td colspan="2" style="text-align:center;">Загрузка...</td></tr>
+                                <tr><td colspan="2" class="loading">Загрузка...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -537,202 +954,650 @@
         </div>
     </div>
 
+    <!-- ML RECOMMENDATIONS DRILL-DOWN MODAL -->
+    <div id="mlModalBackdrop" class="ml-modal-backdrop" style="display:none;" onclick="handleMLBackdropClick(event)">
+        <div class="ml-modal" onclick="event.stopPropagation();">
+            <div class="ml-modal-header">
+                <div class="ml-modal-title">
+                    <i class="fa-solid fa-layer-group" style="color:var(--primary);"></i>
+                    <span id="mlModalTitle">Типоразмер</span>
+                </div>
+                <button class="drilldown-close" onclick="closeMLModal()" title="Закрыть (Esc)">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="ml-modal-body" id="mlModalContent">
+                <div class="loading">Загрузка данных...</div>
+            </div>
+        </div>
+    </div>
+
     <script>
-    const TOKEN = new URLSearchParams(window.location.search).get('token') || 'utsk2026';
-    const CLIENT_CODE = new URLSearchParams(window.location.search).get('code') || new URLSearchParams(window.location.search).get('client_code') || '';
+        const urlParams = new URLSearchParams(window.location.search);
+        const TOKEN = urlParams.get('token') || 'utsk2026';
+        const CLIENT_CODE = urlParams.get('code') || urlParams.get('client_code') || '4501';
+        let YEAR = urlParams.get('year') || '2026';
+        const INITIAL_SIZE = urlParams.get('size');
 
-    let charts = {};
+        let allSizes = [];
+        let currentFilter = 'all';
+        let currentSizeKey = null;
+        let charts = {};
 
-    const fmtM = (n) => (n / 1e6).toFixed(2) + 'M ₴';
-    const fmtFull = (n) => Number(n || 0).toLocaleString('ru-RU') + ' ₴';
-    const fmtNum = (n) => Number(n || 0).toLocaleString('ru-RU');
-
-    function openTab(tabId, btn) {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        btn.classList.add('active');
-        document.getElementById(tabId).classList.add('active');
-    }
-
-    async function initData() {
-        const year = document.getElementById('year-select').value;
-        
-        try {
-            // Загружаем все данные параллельно
-            const [resProducts, resCompare, resRec] = await Promise.all([
-                fetch(`/api/analytics/client-products/${CLIENT_CODE}?token=${TOKEN}&year=${year}`),
-                fetch(`/api/analytics/client-products-compare/${CLIENT_CODE}?token=${TOKEN}`),
-                fetch(`/api/analytics/client-products-recommendations/${CLIENT_CODE}?token=${TOKEN}`)
-            ]);
-            
-            const dataProducts = await resProducts.json();
-            const dataCompare = await resCompare.json();
-            const dataRec = await resRec.json();
-            
-            // Обновляем KPI
-            updateKPIs(dataProducts);
-            
-            // Обновляем заголовок
-            document.getElementById('client-name').textContent = dataProducts.client_name || CLIENT_CODE;
-            
-            // Рендерим вкладки
-            renderPortfolio(dataProducts.products || [], dataProducts.goods_revenue || 0);
-            renderYoY(dataCompare.products || []);
-            renderML(dataRec);
-            
-        } catch (err) {
-            console.error('Ошибка загрузки:', err);
+        // ---- Formatters ----
+        function fmtMoney(n) {
+            if (n == null) return '—';
+            const num = Number(n);
+            if (Math.abs(num) >= 1e6) return (num / 1e6).toFixed(2) + ' млн ₴';
+            if (Math.abs(num) >= 1e3) return (num / 1e3).toFixed(1) + 'K ₴';
+            return num.toLocaleString('ru-RU', { maximumFractionDigits: 0 }) + ' ₴';
         }
-    }
-
-    function updateKPIs(data) {
-        document.getElementById('kpi-total').textContent = fmtFull(data.total_revenue);
-        document.getElementById('kpi-goods').textContent = fmtFull(data.goods_revenue);
-        document.getElementById('kpi-services').textContent = fmtFull(data.services_revenue);
-        document.getElementById('kpi-unique').textContent = (data.unique_products || 0) + ' шт';
-        
-        // Потенциал ~6% от товарной выручки
-        const potential = (data.goods_revenue || 0) * 0.06;
-        document.getElementById('kpi-potential').textContent = '~' + fmtFull(potential);
-    }
-
-    function renderPortfolio(products, totalGoods) {
-        const tbody = document.getElementById('table-portfolio');
-        
-        if (!products || products.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);">Нет позиций за этот год</td></tr>';
-            return;
+        function fmtFullMoney(n) {
+            return Number(n || 0).toLocaleString('ru-RU', { maximumFractionDigits: 0 }) + ' ₴';
+        }
+        function fmtNum(n, digits = 1) {
+            if (n == null) return '—';
+            return Number(n).toLocaleString('ru-RU', { maximumFractionDigits: digits });
+        }
+        function fmtPct(n) {
+            return n == null ? '—' : Number(n).toFixed(1) + '%';
+        }
+        function pluralizeRaz(n) {
+            n = Number(n);
+            const m10 = n % 10, m100 = n % 100;
+            if (m10 === 1 && m100 !== 11) return 'раз';
+            if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return 'раза';
+            return 'раз';
+        }
+        function stockClass(v) {
+            if (v == null || v <= 0) return 'stock-zero';
+            if (v < 10) return 'stock-low';
+            return 'stock-ok';
         }
 
-        tbody.innerHTML = products.map(p => {
-            const pct = p.pct_of_total || 0;
-            const group = p.abc_group || 'C';
-            let badgeClass = group === 'A' ? 'abc-a' : (group === 'B' ? 'warning' : 'neutral');
-            let groupName = group === 'A' ? 'Опорні' : (group === 'B' ? 'Розвиваючі' : 'Підтримуючі');
-            
-            return `
-                <tr>
-                    <td><span class="badge ${badgeClass}">${groupName}</span></td>
-                    <td><strong>${p.product_name || p.product_code}</strong></td>
-                    <td class="right">${p.invoice_count}</td>
-                    <td class="right">${fmtFull(p.total_sales)}</td>
-                    <td class="right">
-                        <div style="display:flex;justify-content:space-between;font-size:11px;"><span>${pct}%</span></div>
-                        <div class="prog-bar-bg"><div class="prog-bar-fill" style="width:${Math.min(pct*2, 100)}%;background:${group==='A'?'var(--primary)':'var(--info)'}"></div></div>
-                    </td>
-                    <td class="right"><span class="badge stock">${fmtNum(p.in_stock)}</span></td>
-                </tr>
-            `;
-        }).join('');
+        // ---- Tab switching ----
+        function openTab(tabId, btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
 
-        // График топ-продуктов
-        const top5 = products.slice(0, 5);
-        if(charts.top) charts.top.destroy();
-        charts.top = new Chart(document.getElementById('chartTopProducts'), {
-            type: 'bar',
-            data: {
-                labels: top5.map(p => (p.product_name || '').substring(0, 22) + '...'),
-                datasets: [{label: 'Выручка (₴)', data: top5.map(p => p.total_sales), backgroundColor: '#4f46e5', borderRadius: 6}]
-            },
-            options: {indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: {legend: {display: false}}}
-        });
-
-        // ABC-пирог
-        const abcData = [
-            products.filter(p => p.abc_group === 'A').reduce((s, p) => s + p.total_sales, 0),
-            products.filter(p => p.abc_group === 'B').reduce((s, p) => s + p.total_sales, 0),
-            products.filter(p => p.abc_group === 'C').reduce((s, p) => s + p.total_sales, 0)
-        ];
-        if(charts.abc) charts.abc.destroy();
-        charts.abc = new Chart(document.getElementById('chartABC'), {
-            type: 'doughnut',
-            data: {
-                labels: ['Опорні', 'Розвиваючі', 'Підтримуючі'],
-                datasets: [{data: abcData, backgroundColor: ['#10b981', '#f59e0b', '#94a3b8'], borderWidth: 0}]
-            },
-            options: {cutout: '75%', responsive: true, maintainAspectRatio: false, plugins: {legend: {position: 'bottom'}}}
-        });
-    }
-
-    function renderYoY(products) {
-        const tbody = document.getElementById('table-yoy');
-        
-        if (!products || products.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);">Нет данных для сравнения</td></tr>';
-            return;
+            if (tabId === 'tab-portfolio' || tabId === 'tab-yoy' || tabId === 'tab-ml') {
+                if (!window._legacyLoaded) {
+                    loadLegacyAnalytics();
+                }
+            }
         }
-        
-        tbody.innerHTML = products.map(p => {
-            const diff = (p.sales_2026 || 0) - (p.sales_2025 || 0);
-            const pct = p.growth_pct || 0;
-            let badgeHtml = diff > 0 ? `<span class="badge up">▲ +${pct}%</span>` 
-                          : diff < 0 ? `<span class="badge down">▼ ${pct}%</span>` 
-                          : `<span class="badge neutral">0%</span>`;
-            
-            return `
-                <tr>
-                    <td><strong>${p.product_name || '—'}</strong></td>
-                    <td class="right">${fmtFull(p.sales_2025)}</td>
-                    <td class="right" style="font-weight:800;">${fmtFull(p.sales_2026)}</td>
-                    <td class="right" style="color:${diff>0?'var(--success)':diff<0?'var(--danger)':'var(--text-muted)'}">${diff>0?'+':''}${fmtFull(diff)}</td>
-                    <td class="right">${badgeHtml}</td>
-                </tr>
-            `;
-        }).join('');
 
-        // График сравнения
-        const top6 = products.slice(0, 6);
-        if(charts.yoy) charts.yoy.destroy();
-        charts.yoy = new Chart(document.getElementById('chartYoY'), {
-            type: 'bar',
-            data: {
-                labels: top6.map(p => (p.product_name || '').substring(0, 15) + '...'),
-                datasets: [
-                    {label: '2025', data: top6.map(p => p.sales_2025 || 0), backgroundColor: '#cbd5e1', borderRadius: 4},
-                    {label: '2026', data: top6.map(p => p.sales_2026 || 0), backgroundColor: '#0ea5e9', borderRadius: 4}
-                ]
-            },
-            options: {responsive: true, maintainAspectRatio: false}
-        });
-    }
+        function onYearChange() {
+            YEAR = document.getElementById('year-select').value;
+            loadSizes();
+            if (window._legacyLoaded) {
+                loadLegacyAnalytics();
+            }
+        }
 
-    function renderML(data) {
-        const makeRows = (arr, showStock = true) => {
-            if (!arr || arr.length === 0) return '<tr><td colspan="3" style="text-align:center;color:var(--text-muted);padding:20px;">Нет данных</td></tr>';
-            return arr.map(i => `
-                <tr>
-                    <td><strong>${i.product_name || i.name || '—'}</strong></td>
-                    <td class="right" style="color:var(--text-muted);font-size:12px;">${i.reason || i.popularity || i.usage_count || '—'}</td>
-                    ${showStock ? `<td class="right"><span class="badge stock">${fmtNum(i.in_stock || 0)}</span></td>` : ''}
-                </tr>
-            `).join('');
-        };
+        // ---- Load Sizes (Tab 1) ----
+        async function loadSizes() {
+            const tbody = document.getElementById('sizesBody');
+            tbody.innerHTML = '<tr><td colspan="6" class="loading"><i class="fa-solid fa-spinner fa-spin"></i> Загрузка размеров труб...</td></tr>';
+            closeDrilldown();
 
-        document.getElementById('rec-cross').innerHTML = makeRows(data.cross_sell || [], true);
-        document.getElementById('rec-similar').innerHTML = makeRows(data.similar_size || [], true);
-        document.getElementById('rec-industry').innerHTML = makeRows(data.direction_variety || [], true);
+            try {
+                const r = await fetch(`/api/client-products-by-size/${CLIENT_CODE}?token=${TOKEN}&year=${YEAR}`);
+                if (!r.ok) throw new Error(`HTTP ${r.status}`);
+                const data = await r.json();
 
-        // В renderML, блок услуг:
-        const servicesData = data.services || [];
-        if (servicesData.length === 0) {
-            document.getElementById('rec-services').innerHTML = 
-                '<tr><td colspan="2" style="text-align:center;color:var(--text-muted);padding:20px;">Нет данных</td></tr>';
-        } else {
-            document.getElementById('rec-services').innerHTML = servicesData.map(s => {
-                const isRecommended = s.usage_count === 'Рекомендовано' || s.usage_count === 'Доступно';
+                // Update Header info
+                const clientName = data.client_name || CLIENT_CODE;
+                document.getElementById('clientName').textContent = clientName;
+                document.getElementById('clientCode').textContent = CLIENT_CODE;
+                document.getElementById('backBtn').href = `/client-detail?token=${TOKEN}&code=${CLIENT_CODE}`;
+
+                allSizes = data.items || [];
+                document.getElementById('totalSizesBadge').textContent = allSizes.length;
+
+                if (allSizes.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="loading">Нет закупок труб за выбранный год</td></tr>';
+                    document.getElementById('kpiTotalSizes').textContent = '0';
+                    document.getElementById('kpiTotalRevenue').textContent = '0 ₴';
+                    document.getElementById('kpiTopSize').textContent = '—';
+                    document.getElementById('kpiTopSizeSub').textContent = '—';
+                    document.getElementById('kpiTotalStock').textContent = '0 т';
+                    return;
+                }
+
+                // Update KPIs
+                const totalRevenue = allSizes.reduce((s, x) => s + (x.revenue || 0), 0);
+                const totalStock = allSizes.reduce((s, x) => s + (x.stock_total || 0), 0);
+                const topSize = allSizes[0];
+
+                document.getElementById('kpiTotalSizes').textContent = allSizes.length;
+                document.getElementById('kpiTotalRevenue').textContent = fmtMoney(totalRevenue);
+                document.getElementById('kpiTopSize').textContent = topSize ? topSize.display_name : '—';
+                document.getElementById('kpiTopSizeSub').textContent = topSize ? `${fmtPct(topSize.pct)} от бюджета · ${fmtMoney(topSize.revenue)}` : '';
+                document.getElementById('kpiTotalStock').textContent = fmtNum(totalStock, 1) + ' т';
+
+                applyFilters();
+
+                // Check if INITIAL_SIZE was requested via URL query (?size=round_76x5)
+                if (INITIAL_SIZE) {
+                    const match = allSizes.find(s => s.size_key === INITIAL_SIZE);
+                    if (match) {
+                        setTimeout(() => {
+                            toggleDrilldown(match.size_key, match.display_name);
+                            const row = document.querySelector(`tr[data-size="${match.size_key}"]`);
+                            if (row) {
+                                row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            }
+                        }, 250);
+                    }
+                }
+
+            } catch (e) {
+                tbody.innerHTML = `<tr><td colspan="6" class="error"><i class="fa-solid fa-triangle-exclamation"></i> Ошибка: ${e.message}</td></tr>`;
+            }
+        }
+
+        // ---- Filters & Render ----
+        function setPipeFilter(type, btn) {
+            currentFilter = type;
+            document.querySelectorAll('.filter-pills .pill-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const search = (document.getElementById('sizeSearch').value || '').trim().toLowerCase();
+            const filtered = allSizes.filter(item => {
+                if (currentFilter === 'stock' && !item.has_stock) return false;
+                if (currentFilter === 'round' && item.pipe_type !== 'round') return false;
+                if (currentFilter === 'square' && item.pipe_type !== 'square') return false;
+                if (currentFilter === 'rect' && item.pipe_type !== 'rect') return false;
+
+                if (search) {
+                    const haystack = `${item.display_name} ${item.size_key} ${item.pipe_type_ua}`.toLowerCase();
+                    return haystack.includes(search);
+                }
+                return true;
+            });
+
+            document.getElementById('filteredCountLabel').textContent = `Показано: ${filtered.length} из ${allSizes.length}`;
+            renderSizesTable(filtered);
+        }
+
+        function renderSizesTable(items) {
+            const tbody = document.getElementById('sizesBody');
+            closeDrilldown();
+
+            if (items.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="loading">Нет размеров, удовлетворяющих условиям фильтра</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = items.map(x => {
+                const isActive = (currentSizeKey === x.size_key);
+                const safeName = x.display_name.replace(/'/g, "\\'");
+
                 return `
-                <tr>
-                    <td><strong>${s.product_name || s.name || '—'}</strong></td>
-                    <td class="right" style="color:${isRecommended ? 'var(--primary)' : 'var(--text-muted)'};font-size:12px;font-weight:${isRecommended ? '700' : '400'};">
-                        ${s.usage_count || '—'}
-                    </td>
-                </tr>
+                    <tr onclick="toggleDrilldown('${x.size_key}', '${safeName}')" data-size="${x.size_key}" class="size-row ${isActive ? 'active' : ''}">
+                        <td class="expand-cell"><i class="fa-solid fa-chevron-right expand-icon"></i></td>
+                        <td><b>${x.display_name}</b></td>
+                        <td class="num">${x.purchase_count} ${pluralizeRaz(x.purchase_count)}</td>
+                        <td class="num">${fmtPct(x.pct)}</td>
+                        <td class="num">
+                            <span class="stock-badge ${stockClass(x.stock_total)}">${fmtNum(x.stock_total, 1)} т</span>
+                        </td>
+                        <td class="num">${x.products_count}</td>
+                    </tr>
                 `;
             }).join('');
         }
-    }
 
-    document.addEventListener('DOMContentLoaded', initData);
+        // ---- Drill-down logic (Inline Accordion) ----
+        async function toggleDrilldown(sizeKey, displayName) {
+            const targetRow = document.querySelector(`tr[data-size="${sizeKey}"]`);
+            
+            if (currentSizeKey === sizeKey) {
+                closeDrilldown();
+                return;
+            }
+
+            // Close existing
+            closeDrilldown();
+            currentSizeKey = sizeKey;
+
+            if (targetRow) {
+                targetRow.classList.add('active');
+            }
+
+            // Create inline row right under targetRow
+            const drillRow = document.createElement('tr');
+            drillRow.id = 'inlineDrilldownRow';
+            drillRow.className = 'drilldown-row';
+            drillRow.innerHTML = '<td colspan="6" id="inlineDrilldownCell"></td>';
+            
+            if (targetRow) {
+                targetRow.after(drillRow);
+            }
+
+            const panel = document.getElementById('drilldownPanel');
+            document.getElementById('inlineDrilldownCell').appendChild(panel);
+            document.getElementById('drilldownPanelContainer').style.display = 'block';
+
+            document.getElementById('drilldownTitle').innerHTML = 
+                `<i class="fa-solid fa-box-open" style="color:var(--accent);"></i> Все товары размера: <b>${displayName}</b>`;
+
+            const content = document.getElementById('drilldownContent');
+            content.innerHTML = '<div class="loading"><i class="fa-solid fa-spinner fa-spin"></i> Загрузка позиций (ГОСТ / ДСТУ / Марка стали)...</div>';
+
+            drillRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+            try {
+                const r = await fetch(`/api/client-products-by-size/${CLIENT_CODE}/${sizeKey}?token=${TOKEN}&year=${YEAR}`);
+                if (!r.ok) throw new Error(`HTTP ${r.status}`);
+                const data = await r.json();
+
+                if (!data.items || data.items.length === 0) {
+                    content.innerHTML = '<div class="loading">Нет товаров данного размера в базе данных</div>';
+                    return;
+                }
+
+                const purchased = data.items.filter(x => x.is_purchased);
+                const notPurchased = data.items.filter(x => !x.is_purchased);
+
+                let html = `
+                    <div style="margin-bottom:12px;font-size:13px;color:var(--text-muted);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+                        <span>
+                            <span class="purchased-badge"></span> 
+                            Куплено клиентом в ${YEAR}: <b>${purchased.length}</b>
+                        </span>
+                        <span>
+                            <span class="available-badge"></span> 
+                            Доступно на складе: <b>${notPurchased.length}</b>
+                        </span>
+                    </div>
+                `;
+
+                if (purchased.length > 0) {
+                    html += `
+                        <div class="drilldown-section-title">
+                            <i class="fa-solid fa-circle-check" style="color:#10b981;"></i>
+                            Куплено клиентом в ${YEAR}
+                        </div>
+                        <table class="products-table">
+                            <thead>
+                                <tr>
+                                    <th style="width:80px;">Код</th>
+                                    <th>Наименование (ГОСТ / ДСТУ / Марка стали)</th>
+                                    <th class="num">Раз</th>
+                                    <th class="num">Выручка</th>
+                                    <th class="num">Остаток</th>
+                                    <th>Последняя закупка</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${purchased.map(p => `
+                                    <tr class="purchased">
+                                        <td><code style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#475569;">${p.product_code}</code></td>
+                                        <td><b>${p.product_name}</b></td>
+                                        <td class="num">${p.purchase_count} ${pluralizeRaz(p.purchase_count)}</td>
+                                        <td class="num" style="font-weight:700;">${fmtMoney(p.revenue)}</td>
+                                        <td class="num">
+                                            <span class="stock-badge ${stockClass(p.stock_balance)}">${fmtNum(p.stock_balance, 1)} т</span>
+                                        </td>
+                                        <td style="font-size:12px;white-space:nowrap;">
+                                            ${p.last_purchase_date || '—'}${p.days_since_last != null ? ` <small style="color:var(--text-muted);">(${p.days_since_last} дн.)</small>` : ''}
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+                }
+
+                if (notPurchased.length > 0) {
+                    html += `
+                        <div class="drilldown-section-title" style="margin-top:16px;">
+                            <i class="fa-solid fa-warehouse" style="color:#f59e0b;"></i>
+                            Доступно на складе (можно предложить)
+                        </div>
+                        <table class="products-table">
+                            <thead>
+                                <tr>
+                                    <th style="width:80px;">Код</th>
+                                    <th>Наименование (ГОСТ / ДСТУ / Марка стали)</th>
+                                    <th class="num">Остаток на складе</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${notPurchased.map(p => `
+                                    <tr class="not-purchased">
+                                        <td><code style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#475569;">${p.product_code}</code></td>
+                                        <td><b>${p.product_name}</b></td>
+                                        <td class="num">
+                                            <span class="stock-badge ${stockClass(p.stock_balance)}">${fmtNum(p.stock_balance, 1)} т</span>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+                }
+
+                if (purchased.length === 0 && notPurchased.length === 0) {
+                    html = '<div class="loading">Нет товаров этого размера в наличии или истории клиента за данный год</div>';
+                }
+
+                content.innerHTML = html;
+            } catch (e) {
+                content.innerHTML = `<div class="error"><i class="fa-solid fa-triangle-exclamation"></i> Ошибка: ${e.message}</div>`;
+            }
+        }
+
+        function closeDrilldown() {
+            currentSizeKey = null;
+            document.querySelectorAll('#sizesBody tr.size-row').forEach(tr => tr.classList.remove('active'));
+            const panel = document.getElementById('drilldownPanel');
+            const container = document.getElementById('drilldownPanelContainer');
+            if (panel && container) {
+                container.appendChild(panel);
+                container.style.display = 'none';
+            }
+            const existingInlineRow = document.getElementById('inlineDrilldownRow');
+            if (existingInlineRow) {
+                existingInlineRow.remove();
+            }
+        }
+
+        // ---- Legacy Tabs: Portfolio, YoY, ML Recommendations ----
+        async function loadLegacyAnalytics() {
+            window._legacyLoaded = true;
+            try {
+                const [resProducts, resCompare, resRec] = await Promise.all([
+                    fetch(`/api/analytics/client-products/${CLIENT_CODE}?token=${TOKEN}&year=${YEAR}`),
+                    fetch(`/api/analytics/client-products-compare/${CLIENT_CODE}?token=${TOKEN}`),
+                    fetch(`/api/analytics/client-products-recommendations/${CLIENT_CODE}?token=${TOKEN}`)
+                ]);
+
+                const dataProducts = await resProducts.json();
+                const dataCompare = await resCompare.json();
+                const dataRec = await resRec.json();
+
+                renderPortfolio(dataProducts.products || []);
+                renderYoY(dataCompare.products || []);
+                renderML(dataRec);
+            } catch (err) {
+                console.error('Ошибка загрузки сопутствующих данных:', err);
+            }
+        }
+
+        function renderPortfolio(products) {
+            const tbody = document.getElementById('table-portfolio');
+            if (!products || products.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="loading">Нет позиций за этот год</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = products.map(p => {
+                const pct = p.pct_of_total || 0;
+                const group = p.abc_group || 'C';
+                const badgeClass = group === 'A' ? 'abc-a' : (group === 'B' ? 'warning' : 'neutral');
+                const groupName = group === 'A' ? 'Опорные (A)' : (group === 'B' ? 'Развивающие (B)' : 'Поддерживающие (C)');
+
+                return `
+                    <tr>
+                        <td><span class="badge ${badgeClass}">${groupName}</span></td>
+                        <td><b>${p.product_name || p.product_code}</b></td>
+                        <td class="num">${p.invoice_count}</td>
+                        <td class="num">${fmtFullMoney(p.total_sales)}</td>
+                        <td class="num">
+                            <div style="display:flex;justify-content:space-between;font-size:11px;"><span>${pct}%</span></div>
+                            <div class="prog-bar-bg"><div class="prog-bar-fill" style="width:${Math.min(pct*2, 100)}%;background:${group==='A'?'var(--primary)':'var(--info)'}"></div></div>
+                        </td>
+                        <td class="num"><span class="badge stock">${fmtNum(p.in_stock)} т</span></td>
+                    </tr>
+                `;
+            }).join('');
+
+            const top5 = products.slice(0, 5);
+            if (charts.top) charts.top.destroy();
+            charts.top = new Chart(document.getElementById('chartTopProducts'), {
+                type: 'bar',
+                data: {
+                    labels: top5.map(p => (p.product_name || '').substring(0, 22) + '...'),
+                    datasets: [{label: 'Выручка (₴)', data: top5.map(p => p.total_sales), backgroundColor: '#4f46e5', borderRadius: 6}]
+                },
+                options: {indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: {legend: {display: false}}}
+            });
+
+            const abcData = [
+                products.filter(p => p.abc_group === 'A').reduce((s, p) => s + p.total_sales, 0),
+                products.filter(p => p.abc_group === 'B').reduce((s, p) => s + p.total_sales, 0),
+                products.filter(p => p.abc_group === 'C').reduce((s, p) => s + p.total_sales, 0)
+            ];
+            if (charts.abc) charts.abc.destroy();
+            charts.abc = new Chart(document.getElementById('chartABC'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Опорные (A)', 'Развивающие (B)', 'Поддерживающие (C)'],
+                    datasets: [{data: abcData, backgroundColor: ['#10b981', '#f59e0b', '#94a3b8'], borderWidth: 0}]
+                },
+                options: {cutout: '72%', responsive: true, maintainAspectRatio: false, plugins: {legend: {position: 'bottom'}}}
+            });
+        }
+
+        function renderYoY(products) {
+            const tbody = document.getElementById('table-yoy');
+            if (!products || products.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="loading">Нет данных для сравнения</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = products.map(p => {
+                const diff = (p.sales_2026 || 0) - (p.sales_2025 || 0);
+                const pct = p.growth_pct || 0;
+                let badgeHtml = diff > 0 ? `<span class="badge up">▲ +${pct}%</span>` 
+                              : diff < 0 ? `<span class="badge down">▼ ${pct}%</span>` 
+                              : `<span class="badge neutral">0%</span>`;
+
+                return `
+                    <tr>
+                        <td><b>${p.product_name || '—'}</b></td>
+                        <td class="num">${fmtFullMoney(p.sales_2025)}</td>
+                        <td class="num" style="font-weight:700;">${fmtFullMoney(p.sales_2026)}</td>
+                        <td class="num" style="color:${diff>0?'var(--success)':diff<0?'var(--danger)':'var(--text-muted)'}">${diff>0?'+':''}${fmtFullMoney(diff)}</td>
+                        <td class="num">${badgeHtml}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            const top6 = products.slice(0, 6);
+            if (charts.yoy) charts.yoy.destroy();
+            charts.yoy = new Chart(document.getElementById('chartYoY'), {
+                type: 'bar',
+                data: {
+                    labels: top6.map(p => (p.product_name || '').substring(0, 15) + '...'),
+                    datasets: [
+                        {label: '2025', data: top6.map(p => p.sales_2025 || 0), backgroundColor: '#cbd5e1', borderRadius: 4},
+                        {label: '2026', data: top6.map(p => p.sales_2026 || 0), backgroundColor: '#0ea5e9', borderRadius: 4}
+                    ]
+                },
+                options: {responsive: true, maintainAspectRatio: false}
+            });
+        }
+
+        function renderML(data) {
+            const makeRows = (arr) => {
+                if (!arr || arr.length === 0) return '<tr><td colspan="3" class="loading">Нет данных</td></tr>';
+                return arr.map(i => {
+                    const sizeKey = i.size_key || '';
+                    const displayName = i.display_name || i.product_name || '—';
+                    const safeName = displayName.replace(/'/g, "\\'");
+                    const safeKey = sizeKey.replace(/'/g, "\\'");
+                    const canDrilldown = Boolean(sizeKey && !sizeKey.startsWith('sku_'));
+                    const rowClass = canDrilldown ? 'class="ml-row-clickable"' : '';
+                    const clickAttr = canDrilldown ? `onclick="openMLModal('${safeKey}', '${safeName}')" title="Кликните для детального просмотра товаров"` : '';
+
+                    return `
+                        <tr ${rowClass} ${clickAttr}>
+                            <td>
+                                <b>${displayName}</b>
+                                ${canDrilldown ? '<i class="fa-solid fa-chevron-right" style="font-size:10px;color:var(--text-muted);margin-left:6px;opacity:0.6;"></i>' : ''}
+                            </td>
+                            <td class="num" style="color:var(--text-muted);font-size:12px;">${i.reason || '—'}</td>
+                            <td class="num"><span class="badge stock">${fmtNum(i.in_stock || 0)} т</span></td>
+                        </tr>
+                    `;
+                }).join('');
+            };
+
+            document.getElementById('rec-cross').innerHTML = makeRows(data.cross_sell || []);
+            document.getElementById('rec-similar').innerHTML = makeRows(data.similar_size || []);
+            document.getElementById('rec-industry').innerHTML = makeRows(data.direction_variety || []);
+
+            const servicesData = data.services || [];
+            if (servicesData.length === 0) {
+                document.getElementById('rec-services').innerHTML = '<tr><td colspan="2" class="loading">Нет данных</td></tr>';
+            } else {
+                document.getElementById('rec-services').innerHTML = servicesData.map(s => {
+                    const isRecommended = s.usage_count === 'Рекомендовано' || s.usage_count === 'Доступно';
+                    return `
+                    <tr>
+                        <td><b>${s.product_name || s.name || '—'}</b></td>
+                        <td class="num" style="color:${isRecommended ? 'var(--primary)' : 'var(--text-muted)'};font-size:12px;font-weight:${isRecommended ? '700' : '400'};">
+                            ${s.usage_count || '—'}
+                        </td>
+                    </tr>
+                    `;
+                }).join('');
+            }
+        }
+
+        async function openMLModal(sizeKey, displayName) {
+            const backdrop = document.getElementById('mlModalBackdrop');
+            const titleEl = document.getElementById('mlModalTitle');
+            const contentEl = document.getElementById('mlModalContent');
+            if (!backdrop || !contentEl) return;
+
+            titleEl.textContent = displayName || sizeKey;
+            contentEl.innerHTML = '<div class="loading"><i class="fa-solid fa-spinner fa-spin"></i> Загрузка деталей по размеру...</div>';
+            backdrop.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+
+            try {
+                const res = await fetch(`/api/client-products-by-size/${CLIENT_CODE}/${sizeKey}?token=${TOKEN}&year=${YEAR}`);
+                const data = await res.json();
+                if (data.status !== 'ok') {
+                    throw new Error(data.detail || 'Не удалось загрузить данные');
+                }
+
+                const purchased = (data.items || []).filter(p => p.is_purchased);
+                const notPurchased = (data.items || []).filter(p => !p.is_purchased && p.stock_balance > 0);
+
+                let html = '';
+
+                if (purchased.length > 0) {
+                    html += `
+                        <div class="drilldown-section-title">
+                            <i class="fa-solid fa-circle-check" style="color:#10b981;"></i>
+                            Куплено клиентом в ${YEAR}
+                        </div>
+                        <table class="products-table">
+                            <thead>
+                                <tr>
+                                    <th style="width:80px;">Код</th>
+                                    <th>Товар (ГОСТ / ДСТУ / Марка стали)</th>
+                                    <th class="num">Покупок</th>
+                                    <th class="num">Сумма</th>
+                                    <th class="num">Остаток</th>
+                                    <th>Посл. покупка</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${purchased.map(p => `
+                                    <tr class="purchased">
+                                        <td><code style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#475569;">${p.product_code}</code></td>
+                                        <td><b>${p.product_name}</b></td>
+                                        <td class="num">${p.purchase_count} ${pluralizeRaz(p.purchase_count)}</td>
+                                        <td class="num" style="font-weight:700;">${fmtMoney(p.revenue)}</td>
+                                        <td class="num">
+                                            <span class="stock-badge ${stockClass(p.stock_balance)}">${fmtNum(p.stock_balance, 1)} т</span>
+                                        </td>
+                                        <td style="font-size:12px;white-space:nowrap;">
+                                            ${p.last_purchase_date || '—'}${p.days_since_last != null ? ` <small style="color:var(--text-muted);">(${p.days_since_last} дн.)</small>` : ''}
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+                }
+
+                if (notPurchased.length > 0) {
+                    html += `
+                        <div class="drilldown-section-title" style="margin-top:16px;">
+                            <i class="fa-solid fa-warehouse" style="color:#f59e0b;"></i>
+                            Доступно на складе (можно предложить)
+                        </div>
+                        <table class="products-table">
+                            <thead>
+                                <tr>
+                                    <th style="width:80px;">Код</th>
+                                    <th>Товар (ГОСТ / ДСТУ / Марка стали)</th>
+                                    <th class="num">Остаток на складе</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${notPurchased.map(p => `
+                                    <tr class="not-purchased">
+                                        <td><code style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#475569;">${p.product_code}</code></td>
+                                        <td><b>${p.product_name}</b></td>
+                                        <td class="num">
+                                            <span class="stock-badge ${stockClass(p.stock_balance)}">${fmtNum(p.stock_balance, 1)} т</span>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+                }
+
+                if (purchased.length === 0 && notPurchased.length === 0) {
+                    html = '<div class="loading">Нет доступных остатков или покупок данного размера в выбранном году</div>';
+                }
+
+                contentEl.innerHTML = html;
+            } catch (err) {
+                contentEl.innerHTML = `<div class="error"><i class="fa-solid fa-triangle-exclamation"></i> Ошибка загрузки: ${err.message}</div>`;
+            }
+        }
+
+        function closeMLModal() {
+            const backdrop = document.getElementById('mlModalBackdrop');
+            if (backdrop) {
+                backdrop.style.display = 'none';
+            }
+            document.body.style.overflow = '';
+        }
+
+        function handleMLBackdropClick(e) {
+            if (e.target && e.target.id === 'mlModalBackdrop') {
+                closeMLModal();
+            }
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeMLModal();
+            }
+        });
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('year-select').value = YEAR;
+            loadSizes();
+        });
     </script>
 </body>
 </html>
