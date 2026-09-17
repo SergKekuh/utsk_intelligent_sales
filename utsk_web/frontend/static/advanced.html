@@ -602,22 +602,11 @@
         // ====== ЗАГРУЗКА ПРОДУКЦИИ ======
         async function loadProductsData() {
             try {
-                const resp = await fetch(`/api/analytics/monthly-revenue?token=${TOKEN}&year=2026`);
-                const data = await resp.json();
+                const resp = await fetch(`/api/analytics/product-categories?token=${TOKEN}&year=2026`);
+                const json = await resp.json();
 
-                if (data.status === 'ok') {
-                    const totalGoods = data.data.reduce((s, r) => s + (r.goods_revenue || 0), 0);
-                    const totalInv = data.data.reduce((s, r) => s + (r.invoice_count || 0), 0);
-
-                    // Примерная структура продуктов
-                    const products = [
-                        { name: 'Труба профильная', revenue: totalGoods * 0.35, ton: 12500 },
-                        { name: 'Труба круглая', revenue: totalGoods * 0.25, ton: 8400 },
-                        { name: 'Листовой прокат', revenue: totalGoods * 0.18, ton: 5200 },
-                        { name: 'Арматура', revenue: totalGoods * 0.12, ton: 3100 },
-                        { name: 'Крепеж и фитинги', revenue: totalGoods * 0.10, ton: 850 }
-                    ];
-
+                if (json.status === 'ok') {
+                    const products = json.data || [];
                     renderProductsChart(products);
                     renderTonChart(products);
                     renderProductsTable(products);
@@ -630,13 +619,24 @@
             charts.products = new Chart($('chartProducts'), {
                 type: 'bar',
                 data: {
-                    labels: products.map(p => p.name),
-                    datasets: [{ label: 'Выручка (млн ₴)', data: products.map(p => p.revenue / 1_000_000), backgroundColor: '#0ea5e9', borderRadius: 8 }]
+                    labels: products.map(p => `${p.icon} ${p.name}`),
+                    datasets: [{
+                        label: 'Выручка (млн ₴)',
+                        data: products.map(p => p.revenue / 1_000_000),
+                        backgroundColor: products.map(p => p.color || '#0ea5e9'),
+                        borderRadius: 8
+                    }]
                 },
                 options: {
                     responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true, ticks: { callback: v => v + 'M' } }, x: { grid: { display: false } } }
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { callbacks: { label: ctx => ` ${moneyM(products[ctx.dataIndex].revenue)}` } }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { callback: v => v + 'M' } },
+                        x: { grid: { display: false }, ticks: { font: { size: 10 } } }
+                    }
                 }
             });
         }
@@ -646,32 +646,45 @@
             charts.ton = new Chart($('chartTon'), {
                 type: 'bar',
                 data: {
-                    labels: products.map(p => p.name),
-                    datasets: [{ label: 'Тоннаж (т)', data: products.map(p => p.ton), backgroundColor: '#6366f1', borderRadius: 8 }]
+                    labels: products.map(p => `${p.icon} ${p.name}`),
+                    datasets: [{
+                        label: 'Тоннаж (т)',
+                        data: products.map(p => p.ton),
+                        backgroundColor: products.map(p => p.color || '#6366f1'),
+                        borderRadius: 8
+                    }]
                 },
                 options: {
                     indexAxis: 'y', responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { x: { beginAtZero: true }, y: { grid: { display: false } } }
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { callbacks: { label: ctx => ` ${num(products[ctx.dataIndex].ton)} т` } }
+                    },
+                    scales: {
+                        x: { beginAtZero: true },
+                        y: { grid: { display: false }, ticks: { font: { size: 10 } } }
+                    }
                 }
             });
         }
 
         function renderProductsTable(products) {
             const rows = products.map((p, i) => `<tr>
-                <td>${i + 1}</td><td style="font-weight:700;">${p.name}</td>
-                <td>${moneyM(p.revenue)}</td><td>${num(p.ton)} т</td>
-                <td>${moneyK(p.ton > 0 ? p.revenue / p.ton : 0)}/т</td>
+                <td>${i + 1}</td>
+                <td style="font-weight:700;"><span style="color:${p.color};font-size:14px;margin-right:6px;">${p.icon}</span>${p.name}</td>
+                <td style="font-weight:700;">${moneyM(p.revenue)}</td>
+                <td>${num(p.ton)} т</td>
+                <td>${p.ton > 0 ? moneyK(p.revenue / p.ton) + '/т' : '—'}</td>
             </tr>`).join('');
 
             const totalRev = products.reduce((s, p) => s + p.revenue, 0);
             const totalTon = products.reduce((s, p) => s + p.ton, 0);
 
             $('prodTableContainer').innerHTML = `<table>
-                <thead><tr><th>#</th><th>Продукт</th><th>Выручка</th><th>Тоннаж</th><th>Цена/т</th></tr></thead>
+                <thead><tr><th>#</th><th>Категория</th><th>Выручка</th><th>Тоннаж</th><th>Цена/т</th></tr></thead>
                 <tbody>${rows}
                 <tr style="background:#f1f5f9;font-weight:800;">
-                    <td colspan="2">ИТОГО</td><td>${moneyM(totalRev)}</td><td>${num(totalTon)} т</td><td>${moneyK(totalTon > 0 ? totalRev / totalTon : 0)}/т</td>
+                    <td colspan="2">ИТОГО</td><td>${moneyM(totalRev)}</td><td>${num(totalTon)} т</td><td>${totalTon > 0 ? moneyK(totalRev / totalTon) + '/т' : '—'}</td>
                 </tr></tbody></table>`;
         }
 

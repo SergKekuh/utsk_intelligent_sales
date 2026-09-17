@@ -11,7 +11,9 @@ from .api import (
     new_clients,
     inactive_clients,
     top_sales,
-    client_analytics
+    client_analytics,
+    returned_clients,
+    directions
 )
 
 app = FastAPI(title="UTSK Intelligent Sales API", version="1.0.0")
@@ -27,6 +29,8 @@ app.include_router(clients.router)
 app.include_router(products.router)
 app.include_router(analytics.router)
 app.include_router(new_clients.router)
+app.include_router(returned_clients.router)
 app.include_router(inactive_clients.router)
 app.include_router(top_sales.router)
 app.include_router(client_analytics.router)
+app.include_router(directions.router)

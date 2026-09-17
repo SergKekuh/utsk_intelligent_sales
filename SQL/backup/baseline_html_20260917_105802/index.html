@@ -1,0 +1,1724 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UTSK Intelligent Sales — Аналитика</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-app: #f8fafc;
+            --bg-surface: #ffffff;
+            --bg-sidebar: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --text-accent: #3b82f6;
+            --border: #e2e8f0;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+            --radius-sm: 12px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
+            --sidebar-width: 240px;
+            --header-height: 64px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background: #f1f5f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 24px;
+            color: var(--text-main);
+            font-size: 14px;
+        }
+
+        .app-window {
+            width: 100%;
+            max-width: 1400px;
+            height: 92vh;
+            background: var(--bg-app);
+            border-radius: var(--radius-lg);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        /* Titlebar */
+        .titlebar {
+            height: var(--header-height);
+            background: var(--bg-surface);
+            display: flex;
+            align-items: center;
+            padding: 0 28px;
+            border-bottom: 1px solid var(--border);
+            gap: 16px;
+        }
+
+        .titlebar-dots {
+            display: flex;
+            gap: 8px;
+        }
+
+        .titlebar-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .titlebar-dot.red {
+            background: #ef4444;
+        }
+
+        .titlebar-dot.yellow {
+            background: #f59e0b;
+        }
+
+        .titlebar-dot.green {
+            background: #10b981;
+        }
+
+        .titlebar-logo {
+            font-weight: 700;
+            font-size: 15px;
+            color: var(--text-main);
+            letter-spacing: -0.3px;
+        }
+
+        .titlebar-badge {
+            background: #e0f2fe;
+            color: #0369a1;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        .titlebar-actions {
+            margin-left: auto;
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Layout */
+        .main-content {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--bg-sidebar);
+            padding: 20px 12px;
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .sidebar-section {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #94a3b8;
+            padding: 16px 12px 6px;
+            letter-spacing: 1px;
+        }
+
+        .sidebar-item {
+            padding: 10px 12px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.15s;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            text-decoration: none;
+        }
+
+        .sidebar-item:hover {
+            background: #f1f5f9;
+            color: var(--text-main);
+        }
+
+        .sidebar-item.active {
+            background: var(--text-main);
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Workspace */
+        .workspace {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-app);
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 28px 32px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* Header */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            background: var(--bg-surface);
+            color: var(--text-main);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background: #f1f5f9;
+        }
+
+        .btn-primary {
+            background: var(--text-main);
+            color: white;
+            border-color: var(--text-main);
+        }
+
+        .btn-primary:hover {
+            background: #1e293b;
+        }
+
+        .btn-accent {
+            background: #10b981;
+            color: white;
+            border-color: #10b981;
+        }
+
+        .btn-accent:hover {
+            background: #059669;
+        }
+
+        .search-wrapper {
+            position: relative;
+        }
+
+        .search-input {
+            padding: 10px 16px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--bg-surface);
+            font-size: 13px;
+            outline: none;
+            width: 280px;
+            transition: border 0.2s, box-shadow 0.2s;
+        }
+
+        .search-input:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        }
+
+        /* Search Dropdown */
+        .search-dropdown {
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0;
+            width: 360px;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.15), 0 8px 10px -6px rgba(15, 23, 42, 0.1);
+            z-index: 1000;
+            max-height: 320px;
+            overflow-y: auto;
+        }
+
+        .search-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            cursor: pointer;
+            transition: background 0.15s;
+            border-bottom: 1px solid #f8fafc;
+        }
+
+        .search-dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .search-dropdown-item:hover {
+            background: #eef2ff;
+        }
+
+        .search-client-code {
+            font-weight: 700;
+            color: #4f46e5;
+            min-width: 50px;
+            font-size: 12px;
+        }
+
+        .search-client-name {
+            color: var(--text-main);
+            font-weight: 500;
+            font-size: 13px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .search-results-table-wrapper {
+            background: var(--bg-surface);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .search-result-row {
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .search-result-row:hover td {
+            background: #eef2ff !important;
+        }
+
+        .badge-link {
+            color: #4f46e5;
+            font-weight: 700;
+            font-size: 12px;
+            transition: transform 0.15s;
+            display: inline-block;
+        }
+
+        .search-result-row:hover .badge-link {
+            transform: translateX(3px);
+        }
+
+        /* KPI Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+        }
+
+        .kpi-card {
+            background: var(--bg-surface);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            border: 1px solid var(--border);
+            transition: all 0.2s;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-value {
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+
+        .kpi-trend {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: #f1f5f9;
+            width: fit-content;
+        }
+
+        /* Main Grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+            flex: 1;
+            min-height: 0;
+        }
+
+        /* Table Block */
+        .table-block {
+            background: var(--bg-surface);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .table-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-title {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .table-scroll {
+            flex: 1;
+            overflow: auto;
+            padding: 0 24px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            color: #94a3b8;
+            padding: 12px 12px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            text-align: left;
+            border-bottom: 2px solid #f1f5f9;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 14px 12px;
+            font-size: 13px;
+            border-bottom: 1px solid #f8fafc;
+            vertical-align: middle;
+        }
+
+        tr:hover td {
+            background: #f8fafc;
+        }
+
+        .status-pill {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status-pill.green {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .status-pill.blue {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .status-pill.orange {
+            background: #fff7ed;
+            color: #c2410c;
+        }
+
+        .medal-top3 {
+            font-size: 24px;
+            line-height: 1;
+            display: inline-block;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        /* Кнопки выбора года (воронка) */
+        .year-btn {
+            padding: 5px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--bg-surface);
+            color: var(--text-muted);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .year-btn:hover {
+            background: #f1f5f9;
+            color: var(--text-main);
+        }
+
+        .year-btn-active {
+            background: var(--text-main) !important;
+            color: white !important;
+            border-color: var(--text-main) !important;
+        }
+
+        /* ====== ШАПКА ТАБЛИЦЫ ТОП ПРОДАЖ ====== */
+        #table-head th {
+            padding: 8px 12px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            color: #0f172a;
+            text-align: left;
+            border-bottom: 2px solid #f1f5f9;
+            white-space: nowrap;
+        }
+
+        #table-head th[rowspan="2"] {
+            background: #f8fafc;
+        }
+
+        /* Заголовок "Статус" */
+        #table-head th[colspan="2"] {
+            text-align: center;
+            background: #e2e8f0;
+            color: #1e293b;
+            font-weight: 800;
+            font-size: 12px;
+            border-bottom: 1px solid #cbd5e1;
+        }
+
+        /* Подзаголовок "базовый 2025" */
+        #table-head tr:last-child th:first-child {
+            background: #fefce8;
+            color: #854d0e;
+            font-weight: 700;
+            border-bottom: 2px solid #fde68a;
+            text-align: center;
+        }
+
+        /* Кнопка-ободок для заголовка ТОП продаж */
+        .top-sales-link {
+            padding: 10px 16px;
+            background: #ffffff;
+            border: 2px solid #4f46e5;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 2px 6px rgba(79, 70, 229, 0.1);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .top-sales-link:hover {
+            background: #eef2ff;
+            border-color: #4338ca;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .top-sales-link:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 3px rgba(79, 70, 229, 0.15);
+        }
+
+        .top-sales-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .top-sales-badge {
+            font-size: 13px;
+            font-weight: 800;
+            color: #1e293b;
+            background: #bae6fd;
+            padding: 4px 10px;
+            border-radius: 20px;
+            letter-spacing: 0.3px;
+            white-space: nowrap;
+            transition: background 0.15s;
+        }
+
+        .top-sales-link:hover .top-sales-badge {
+            background: #93c5fd;
+        }
+
+        /* ====== FUNNEL TOOLTIPS ====== */
+        .tooltip-trigger {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: help;
+        }
+
+        .tooltip-info-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 17px;
+            height: 17px;
+            border-radius: 50%;
+            background: #f1f5f9;
+            color: #64748b;
+            font-size: 11px;
+            font-weight: 700;
+            border: 1px solid #cbd5e1;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .tooltip-trigger:hover .tooltip-info-badge,
+        .tooltip-trigger:focus .tooltip-info-badge {
+            background: #e2e8f0;
+            color: #0f172a;
+            border-color: #94a3b8;
+            transform: scale(1.1);
+        }
+
+        .funnel-tooltip-text {
+            visibility: hidden;
+            opacity: 0;
+            position: absolute;
+            top: calc(100% + 10px);
+            left: 0;
+            z-index: 1000;
+            width: 330px;
+            background: #0f172a;
+            color: #ffffff;
+            padding: 14px 16px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 400;
+            line-height: 1.5;
+            box-shadow: 0 12px 28px -4px rgba(0, 0, 0, 0.3), 0 4px 10px rgba(0, 0, 0, 0.2);
+            border: 1px solid #334155;
+            pointer-events: none; /* Не блокирует клики по карточке */
+            transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+            transform: translateY(4px);
+            text-align: left;
+        }
+
+        .funnel-tooltip-text::before {
+            content: '';
+            position: absolute;
+            top: -6px;
+            left: 20px;
+            width: 12px;
+            height: 12px;
+            background: #0f172a;
+            border-left: 1px solid #334155;
+            border-top: 1px solid #334155;
+            transform: rotate(45deg);
+        }
+
+        .tooltip-trigger:hover .funnel-tooltip-text,
+        .tooltip-trigger:focus .funnel-tooltip-text,
+        .tooltip-trigger:active .funnel-tooltip-text {
+            visibility: visible;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+    </style>
+</head>
+
+<body>
+    <div class="app-window">
+        <!-- Titlebar -->
+        <div class="titlebar">
+            <div class="titlebar-dots">
+                <div class="titlebar-dot red"></div>
+                <div class="titlebar-dot yellow"></div>
+                <div class="titlebar-dot green"></div>
+            </div>
+            <span class="titlebar-logo">UTSK Studio</span>
+            <span class="titlebar-badge">Intelligent Sales v7.5</span>
+            <div class="titlebar-actions">
+                <button class="btn" onclick="refreshAll()">🔄 Обновить</button>
+                <a href="https://grandkid-unrest-undesired.ngrok-free.dev/?token=utsk2026" target="_blank"
+                    class="btn btn-accent">🌐 Live Demo</a>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <div class="sidebar-section">Мониторинг</div>
+                <button class="sidebar-item active" data-page="dashboard">📊 Дашборд</button>
+                <button class="sidebar-item" data-page="clients">👥 Активные</button>
+                <button class="sidebar-item" data-page="funnel">🏷️ Воронка</button>
+                <div class="sidebar-section">AI Аналитика</div>
+                <button class="sidebar-item" data-page="recommendations">✨ Рекомендации</button>
+                <button class="sidebar-item" data-page="churn">⚠️ Риск оттока</button>
+                <div class="sidebar-section">Инструменты</div>
+                <a href="/top-sales-analytics?token=utsk2026" target="_blank" class="sidebar-item">🏆 ТОП продаж — Визуализация</a>
+                <a href="/new-clients-analytics?token=utsk2026" target="_blank" class="sidebar-item">🌱 Аналитика Новых клиентов</a>
+                <a href="/returned-clients-analytics?token=utsk2026" target="_blank" class="sidebar-item">🔄 Аналитика Вернувшихся клиентов</a>
+                <a href="/inactive-clients-analytics?token=utsk2026" target="_blank" class="sidebar-item">💤 Аналитика Неактивных клиентов</a>
+                <a href="/comparison?token=utsk2026" target="_blank" class="sidebar-item">📊 Расширенная аналитика</a>
+                <a href="/abc-structure?token=utsk2026" target="_blank" class="sidebar-item">🏗️ Аналитика ABC</a>
+            </div>
+
+            <!-- Workspace -->
+            <div class="workspace">
+                <div class="content-area" id="content-area">
+                    <!-- Header -->
+                    <div class="page-header">
+                        <h1 class="page-title" id="page-title">Обзорный дашборд</h1>
+                        <div class="search-wrapper">
+                            <input type="text" class="search-input" id="search-input" placeholder="🔍 Поиск по клиентам...">
+                        </div>
+                    </div>
+
+                    <!-- KPI Cards -->
+                    <div class="kpi-grid" id="kpi-grid">
+                        <div class="kpi-card" onclick="window.location.href='/analytics?token=utsk2026'">
+                            <span class="kpi-label">👥 Активных клиентов</span>
+                            <span class="kpi-value" id="kpi-total-clients">—</span>
+                            <span class="kpi-trend">В аналитике 2026</span>
+                        </div>
+                        <div class="kpi-card" onclick="window.location.href='/monthly?token=utsk2026'">
+                            <span class="kpi-label">📅 Покупок за 30 дн.</span>
+                            <span class="kpi-value" id="kpi-active-30d">—</span>
+                            <span class="kpi-trend">Активных клиентов</span>
+                        </div>
+                        <div class="kpi-card" onclick="window.location.href='/advanced?token=utsk2026'"
+                            style="cursor:pointer;">
+                            <span class="kpi-label">💰 Выручка 2026</span>
+                            <span class="kpi-value" id="kpi-total-revenue">—</span>
+                            <span class="kpi-trend">Товарная</span>
+                        </div>
+                        <div class="kpi-card" onclick="window.location.href='/avg-check?token=utsk2026'"
+                            style="cursor:pointer;">
+                            <span class="kpi-label">🛒 Средний чек</span>
+                            <span class="kpi-value" id="kpi-avg-check">—</span>
+                            <span class="kpi-trend">Без услуг</span>
+                        </div>
+                    </div>
+
+                    <!-- Main Grid -->
+                    <div class="main-grid">
+                        <div class="table-block">
+                            <div class="table-header">
+                                <a href="/top-sales-analytics?token=utsk2026" id="top-sales-link" class="top-sales-link">
+                                    <span class="top-sales-title" id="block-title">📊 ТОП продаж (80% правило)</span>
+                                    <span class="top-sales-badge">📈 Визуализация</span>
+                                </a>
+                                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                                    <label style="font-size:11px;color:var(--text-muted);font-weight:600;">С:</label>
+                                    <input type="date" id="date-from" style="padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:12px;background:#fff;" onchange="refreshAll()">
+                                    <label style="font-size:11px;color:var(--text-muted);font-weight:600;">По:</label>
+                                    <input type="date" id="date-to" style="padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:12px;background:#fff;" onchange="refreshAll()">
+                                    <button class="btn" onclick="refreshAll()" style="padding:6px 12px;font-size:12px;">🔄</button>
+                                </div>
+                            </div>
+                            <div id="table-filter-bar"
+                                style="display:none; padding:12px 24px 0; border-bottom:1px solid var(--border);"></div>
+                            <div class="table-scroll" id="table-scroll-container">
+                                <table>
+                                    <thead id="table-head">
+                                        <tr>
+                                            <th rowspan="2" style="text-align:center;">#</th>
+                                            <th rowspan="2">Клиент</th>
+                                            <th colspan="2" style="text-align:center;background:#e2e8f0;color:#1e293b;font-weight:800;font-size:12px;">Статус</th>
+                                            <th rowspan="2" style="text-align:right;">Продажи</th>
+                                            <th rowspan="2" style="text-align:right;">% от общих</th>
+                                        </tr>
+                                        <tr>
+                                            <th style="text-align:center;background:#fefce8;color:#854d0e;font-weight:700;">базовый 2025</th>
+                                            <th style="text-align:center;background:#ecfdf5;color:#065f46;font-weight:700;">текущий 2026</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="clients-table-body">
+                                        <tr>
+                                            <td colspan="6" style="text-align:center;padding:40px;">⏳ Загрузка...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const TOKEN = new URLSearchParams(window.location.search).get('token') || 'utsk2026';
+        let currentPage = 'dashboard';
+        let funnelYear = new Date().getFullYear();
+
+        function $(id) { return document.getElementById(id); }
+        function safeText(id, text) { const el = $(id); if (el) el.textContent = text; }
+        function formatNum(n) { return (n == null) ? '—' : Number(n).toLocaleString('ru-RU'); }
+        
+        function trimProductCode(name) {
+            if (!name) return '—';
+            const parts = name.trim().split(/\s+/);
+            if (parts.length <= 1) return name;
+            const lastWord = parts[parts.length - 1];
+            if (/^\d+$/.test(lastWord) || (lastWord.length > 4 && /^[A-Za-z0-9]+$/.test(lastWord))) {
+                parts.pop();
+            }
+            return parts.join(' ') || name;
+        }
+        const pf = new Intl.NumberFormat('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        function formatCur(n) {
+            if (n == null) return '—';
+            n = Number(n);
+            if (n >= 1e6) return '₴ ' + (n / 1e6).toFixed(1) + 'M';
+            if (n >= 1e3) return '₴ ' + Math.round(n / 1000) + 'K';
+            return '₴ ' + formatNum(Math.round(n));
+        }
+
+        // ====== KPI ======
+        async function loadDashboard() {
+            try {
+                const r = await fetch(`/api/dashboard?token=${TOKEN}`);
+                if (!r.ok) throw new Error(r.status);
+                const d = await r.json();
+                safeText('kpi-active-30d', formatNum(d.active_30d));
+
+                const [respClients, resp2026] = await Promise.all([
+                    fetch(`/api/analytics/yearly-clients-count?token=${TOKEN}&year=2026`),
+                    fetch(`/api/analytics/monthly-revenue?token=${TOKEN}&year=2026`)
+                ]);
+
+                const jsonClients = await respClients.json();
+                if (jsonClients.status === 'ok') {
+                    safeText('kpi-total-clients', formatNum(jsonClients.active_clients));
+                }
+
+                const json2026 = await resp2026.json();
+                if (json2026.status === 'ok' && json2026.data.length) {
+                    const totalGoods = json2026.data.reduce((s, r) => s + (r.goods_revenue || 0), 0);
+                    const totalInvoices = json2026.data.reduce((s, r) => s + (r.invoice_count || 0), 0);
+                    const avgTicket = totalInvoices > 0 ? Math.round(totalGoods / totalInvoices) : 0;
+                    safeText('kpi-total-revenue', formatCur(totalGoods));
+                    safeText('kpi-avg-check', formatCur(avgTicket));
+                }
+            } catch (e) { console.error('KPI error:', e); }
+        }
+
+        // ====== ТОП ПРОДАЖ (80% RULE) ======
+        async function loadTopSales() {
+            const tb = $('clients-table-body');
+            tb.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;">⏳ Загрузка...</td></tr>';
+            try {
+                const dateFrom = $('date-from')?.value || '';
+                const dateTo = $('date-to')?.value || '';
+                
+                let url = `/api/clients/top-sales?token=${TOKEN}`;
+                if (dateFrom) url += `&date_from=${dateFrom}`;
+                if (dateTo) url += `&date_to=${dateTo}`;
+                
+                const r = await fetch(url);
+                if (!r.ok) throw new Error(r.status);
+                const data = await r.json();
+                
+                if (data.status !== 'ok') throw new Error('Invalid response');
+                
+                // Обновляем заголовок таблицы
+                const bt = $('block-title');
+                if (bt) {
+                    const periodText = data.period_label ? ` — ${data.period_label}` : '';
+                    bt.textContent = `📊 ТОП продаж (80% правило)${periodText}`;
+                }
+                const topSalesLink = $('top-sales-link');
+                if (topSalesLink) topSalesLink.href = `/top-sales-analytics?token=${TOKEN}`;
+                
+                tb.innerHTML = '';
+                if (!data.clients || !data.clients.length) {
+                    tb.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;">📭 Нет данных</td></tr>';
+                    return;
+                }
+                
+                data.clients.forEach((c, i) => {
+                    const rankCell = i < 3 
+                        ? `<span class="medal-top3">${i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉'}</span>` 
+                        : `<span style="font-weight:700;font-size:16px;color:#0f172a;">${i + 1}.</span>`;
+                    
+                    // Статус 2025
+                    const status2025 = c.status_2025 || '—';
+                    let cls25 = 'blue';
+                    if (status2025.includes('Спящ') || status2025.includes('Ушедш')) cls25 = 'orange';
+                    else if (status2025 !== '—' && !status2025.includes('Новы')) cls25 = 'green';
+                    
+                    // Статус 2026
+                    const status2026 = c.status_2026 || '—';
+                    let cls26 = 'blue';
+                    if (status2026.includes('Спящ') || status2026.includes('Ушедш')) cls26 = 'orange';
+                    else if (status2026 !== '—' && !status2026.includes('Новы')) cls26 = 'green';
+                    
+                    // Процентная шкала
+                    const pctWidth = Math.min(c.pct_of_total || 0, 30);
+                    const pctColor = '#0f172a'; // ЧЁРНЫЙ ЦВЕТ
+                    
+                    tb.innerHTML += `
+                        <tr onclick="window.open('/client-detail?token=${TOKEN}&code=${c.code}', '_blank')" 
+                            style="cursor:pointer;" 
+                            onmouseover="this.style.background='#e0f2fe'" 
+                            onmouseout="this.style.background=''">
+                            <td style="text-align:center;vertical-align:middle;">${rankCell}</td>
+                            <td>
+                                <b>${c.name || '—'}</b>
+                                <br><small style="color:var(--text-muted);">Код: ${c.code} | Счетов: ${c.invoice_count || 0}</small>
+                            </td>
+                            <td style="text-align:center;"><span class="status-pill ${cls25}">${status2025}</span></td>
+                            <td style="text-align:center;"><span class="status-pill ${cls26}">${status2026}</span></td>
+                            <td style="text-align:right;font-weight:700;color:#047857;">₴ ${formatNum(Math.round(c.goods_revenue || 0))}</td>
+                            <td style="text-align:right;">
+                                <div style="display:flex;align-items:center;gap:8px;justify-content:flex-end;">
+                                    <div style="flex:1;max-width:80px;height:6px;background:#f1f5f9;border-radius:3px;overflow:hidden;">
+                                        <div style="width:${pctWidth * 2.5}%;height:100%;background:#0ea5e9;border-radius:3px;"></div>
+                                    </div>
+                                    <span style="font-weight:700;font-size:13px;color:${pctColor};min-width:50px;text-align:right;">${pf.format(c.pct_of_total)}%</span>
+                                </div>
+                                <small style="color:var(--text-muted);font-size:10px;">накоп. ${pf.format(c.running_pct)}%</small>
+                            </td>
+                        </tr>`;
+                });
+                
+                // Итоговые строки
+                if (data.total_revenue) {
+                    const includedClients = data.clients.filter(c => c.is_included !== false);
+                    const selectedSum = includedClients.reduce((sum, c) => sum + (c.goods_revenue || 0), 0);
+                    const lastRunningPct = includedClients.length > 0 ? includedClients[includedClients.length - 1].running_pct : 80;
+                    
+                    tb.innerHTML += `
+                        <tr style="background:#f0fdf4;font-weight:700;border-top:1px solid var(--border);">
+                            <td colspan="4" style="text-align:right;">Общие продажи выбранных (80%):</td>
+                            <td style="text-align:right;color:#047857;font-size:14px;">₴ ${formatNum(Math.round(selectedSum))}</td>
+                            <td style="text-align:right;color:#047857;">${pf.format(lastRunningPct)}%</td>
+                        </tr>`;
+                    
+                    tb.innerHTML += `
+                        <tr style="background:#f8fafc;font-weight:700;border-top:2px solid var(--border);">
+                            <td colspan="4" style="text-align:right;">📊 Общие продажи за период:</td>
+                            <td style="text-align:right;color:#047857;font-size:15px;">₴ ${formatNum(Math.round(data.total_revenue))}</td>
+                            <td style="text-align:right;color:var(--text-muted);">100%</td>
+                        </tr>`;
+                }
+                
+            } catch (e) {
+                console.error('Top sales error:', e);
+                tb.innerHTML = '<tr><td colspan="6" style="color:#ef4444;text-align:center;">⚠️ Ошибка загрузки данных</td></tr>';
+            }
+        }
+
+        // ====== АКТИВНЫЕ КЛИЕНТЫ ======
+        async function loadActive() {
+            const tb = $('clients-table-body');
+            tb.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;">⏳ Загрузка...</td></tr>';
+            try {
+                const r = await fetch(`/api/clients/active?token=${TOKEN}&limit=15`);
+                if (!r.ok) throw new Error(r.status);
+                const raw = await r.json();
+                const data = Array.isArray(raw) ? raw : (raw.data || []);
+                tb.innerHTML = '';
+                if (!data.length) { tb.innerHTML = '<tr><td colspan="4">📭 Нет активных</td></tr>'; return; }
+                data.forEach(c => {
+                    tb.innerHTML += `<tr>
+                        <td><b>${c.name || '—'}</b><br><small>Код: ${c.code}</small></td>
+                        <td><span class="status-pill green">${c.status || '—'}</span></td>
+                        <td>${c.last_purchase_date || '—'}</td>
+                        <td style="font-weight:600;color:#047857;">₴ ${formatNum(Math.round(c.total_revenue || 0))}</td>
+                    </tr>`;
+                });
+            } catch (e) { tb.innerHTML = '<tr><td colspan="4" style="color:#ef4444;">⚠️ Ошибка</td></tr>'; }
+        }
+
+        // ====== ВОРОНКА ======
+        async function loadFunnel(year) {
+            if (year) funnelYear = year;
+            setTableForPage('funnel');
+            document.querySelectorAll('.year-btn').forEach(btn => {
+                btn.classList.toggle('year-btn-active', parseInt(btn.dataset.year) === funnelYear);
+            });
+            const container = $('table-scroll-container') || document.querySelector('.table-scroll');
+            if (!container) return;
+
+            container.innerHTML = `<div style="text-align:center;padding:30px;color:var(--text-muted);font-weight:600;">⏳ Загрузка воронки продаж за ${funnelYear} год...</div>`;
+
+            try {
+                const r = await fetch(`/api/funnel?token=${TOKEN}&year=${funnelYear}`);
+                if (!r.ok) throw new Error(r.status);
+                const data = await r.json();
+
+                const activeList = Array.isArray(data) ? data : (data.funnel || []);
+                const lifecycleList = Array.isArray(data) ? [] : (data.lifecycle || []);
+                const returnedClientsList = Array.isArray(data) ? [] : (data.returned_clients_funnel || []);
+                const newClientsList = Array.isArray(data) ? [] : (data.new_clients_funnel || []);
+
+                // Вычисление численности групп для всплывающих подсказок (tooltip)
+                let sleepingCount = 0;
+                let leftCount = 0;
+                lifecycleList.forEach(item => {
+                    if (item.status_id === 8 || (item.status_name && item.status_name.includes('Спящие'))) sleepingCount = item.count;
+                    if (item.status_id === 9 || (item.status_name && item.status_name.includes('Ушедшие'))) leftCount = item.count;
+                });
+
+                let totalRetCount = 0;
+                let totalRetRevenue = 0;
+                returnedClientsList.forEach(item => {
+                    totalRetCount += item.count || 0;
+                    totalRetRevenue += item.revenue || 0;
+                });
+
+                let totalNewCount = 0;
+                let totalNewRevenue = 0;
+                newClientsList.forEach(item => {
+                    totalNewCount += item.count || 0;
+                    totalNewRevenue += item.revenue || 0;
+                });
+
+                let html = '<div style="display:flex; flex-direction:column; gap:20px; padding: 4px 0;">';
+
+                // ====== ТАБЛИЦА 1: Жизненный цикл клиентов (Спящие, Ушедшие, Вернувшиеся) ======
+                html += `
+                <div class="lifecycle-table-card" 
+                     onclick="window.location.href='/inactive-clients-analytics?token=' + TOKEN + '&year=' + funnelYear" 
+                     style="background:#fff; border-radius:12px; padding:16px; border:1px solid #e2e8f0; box-shadow:0 1px 3px rgba(0,0,0,0.02); cursor:pointer; transition:all 0.2s ease;"
+                     onmouseover="this.style.borderColor='#ef4444'; this.style.boxShadow='0 6px 16px rgba(239, 68, 68, 0.15)'; this.style.transform='translateY(-2px)';"
+                     onmouseout="this.style.borderColor='#e2e8f0'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.02)'; this.style.transform='none';">
+                    <div style="margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid #f1f5f9; display:flex; align-items:center; justify-content:space-between;">
+                        <div>
+                            <div class="tooltip-trigger" tabindex="0">
+                                <div style="font-size:14px; font-weight:700; color:#1e293b; display:flex; align-items:center; gap:8px;">
+                                    <span>💤</span> Жизненный цикл клиентов 🔗
+                                </div>
+                                <span class="tooltip-info-badge" title="Справка по группе">?</span>
+                                <div class="funnel-tooltip-text">
+                                    <div style="font-weight:700; color:#f59e0b; margin-bottom:4px; font-size:12px;">💤 Спящие (${formatNum(sleepingCount || 401)})</div>
+                                    <div style="color:#cbd5e1; margin-bottom:10px; font-size:11px; line-height:1.4;">
+                                        Покупали в ${funnelYear-1}, но в ${funnelYear} — тишина.<br>
+                                        Клиент «засыпает» — пора напомнить о себе.
+                                    </div>
+                                    <div style="font-weight:700; color:#ef4444; margin-bottom:4px; font-size:12px;">👻 Ушедшие (${formatNum(leftCount || 605)})</div>
+                                    <div style="color:#cbd5e1; font-size:11px; line-height:1.4;">
+                                        Не покупали ни в ${funnelYear-1}, ни в ${funnelYear}.<br>
+                                        Потерянная база — кандидаты на реактивацию.
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="font-size:11px; color:#64748b; margin-top:2px;">Показывает неактивных и вернувшихся клиентов за ${funnelYear} год</div>
+                        </div>
+                        <div style="font-size:12px; font-weight:700; color:#ef4444; background:#fee2e2; padding:4px 10px; border-radius:8px; display:flex; align-items:center; gap:4px; transition:background 0.2s;">
+                            Аналитика 🔗
+                        </div>
+                    </div>
+                    <table style="width:100%; border-collapse:collapse;">
+                        <thead>
+                            <tr style="background:#f8fafc; border-bottom:1px solid #e2e8f0;">
+                                <th style="padding:10px 14px; text-align:left; font-size:12px; font-weight:700; color:#475569;">Статус</th>
+                                <th style="padding:10px 14px; text-align:center; font-size:12px; font-weight:700; color:#475569;">Количество</th>
+                                <th style="padding:10px 14px; text-align:left; font-size:12px; font-weight:700; color:#475569;">Описание</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                if (!lifecycleList.length) {
+                    html += `<tr><td colspan="3" style="text-align:center; padding:14px; color:#94a3b8; font-size:13px;">📭 Нет данных о неактивных клиентах</td></tr>`;
+                } else {
+                    lifecycleList.forEach(item => {
+                        const isSleeping = item.status_id === 8 || (item.status_name && item.status_name.includes('Спящие'));
+                        const isReturned = item.status_id === 10 || (item.status_name && item.status_name.includes('Вернувшиеся'));
+                        const icon = isReturned ? '🔄' : (isSleeping ? '💤' : '👻');
+                        const pillBg = isReturned ? '#e0f2fe' : (isSleeping ? '#fef3c7' : '#fee2e2');
+                        const pillColor = isReturned ? '#0369a1' : (isSleeping ? '#92400e' : '#991b1b');
+
+                        html += `
+                            <tr style="border-bottom:1px solid #f1f5f9;">
+                                <td style="padding:10px 14px; font-size:13px;">
+                                    <span style="display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:12px; background:${pillBg}; color:${pillColor}; font-weight:700; font-size:12px;">
+                                        ${icon} ${item.status_name}
+                                    </span>
+                                </td>
+                                <td style="padding:10px 14px; text-align:center; font-weight:700; font-size:14px; color:#1e293b;">${formatNum(item.count)}</td>
+                                <td style="padding:10px 14px; font-size:12px; color:#64748b;">${item.description || '—'}</td>
+                            </tr>
+                        `;
+                    });
+                }
+
+                html += `
+                        </tbody>
+                    </table>
+                </div>
+                `;
+
+                // ====== ТАБЛИЦА 2: Вернувшиеся клиенты по частоте покупок (status_id=10) ======
+                html += `
+                <div class="funnel-table-card" 
+                     onclick="window.location.href='/returned-clients-analytics?token=' + TOKEN + '&year=' + funnelYear" 
+                     style="background:#fff; border-radius:12px; padding:16px; border:1px solid #e2e8f0; box-shadow:0 1px 3px rgba(0,0,0,0.02); cursor:pointer; transition:all 0.2s ease;"
+                     onmouseover="this.style.borderColor='#0284c7'; this.style.boxShadow='0 6px 16px rgba(2, 132, 199, 0.18)'; this.style.transform='translateY(-2px)';"
+                     onmouseout="this.style.borderColor='#e2e8f0'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.02)'; this.style.transform='none';">
+                    <div style="margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid #f1f5f9; display:flex; align-items:center; justify-content:space-between;">
+                        <div>
+                            <div class="tooltip-trigger" tabindex="0">
+                                <div style="font-size:14px; font-weight:700; color:#1e293b; display:flex; align-items:center; gap:8px;">
+                                    <span>🔄</span> Вернувшиеся клиенты по частоте покупок 🔗
+                                </div>
+                                <span class="tooltip-info-badge" title="Справка по группе">?</span>
+                                <div class="funnel-tooltip-text">
+                                    <div style="font-weight:700; color:#38bdf8; margin-bottom:4px; font-size:12px;">🔄 Вернувшиеся (${formatNum(totalRetCount || 31)})</div>
+                                    <div style="color:#cbd5e1; margin-bottom:8px; font-size:11px; line-height:1.4;">
+                                        Покупали в ${funnelYear-2} → пропустили ${funnelYear-1} → вернулись в ${funnelYear}.<br>
+                                        Сигнал: компания снова активна на рынке.
+                                    </div>
+                                    <div style="color:#6ee7b7; font-size:11px; font-weight:600;">
+                                        ✨ Отличный момент для восстановления партнёрства!
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="font-size:11px; color:#64748b; margin-top:2px;">Покупали в 2024, пропустили 2025, вернулись в ${funnelYear} (status_id=10)</div>
+                        </div>
+                        <div style="font-size:12px; font-weight:700; color:#0284c7; background:#e0f2fe; padding:4px 10px; border-radius:8px; display:flex; align-items:center; gap:4px; transition:background 0.2s;">
+                            Аналитика 🔗
+                        </div>
+                    </div>
+                    <table style="width:100%; border-collapse:collapse;">
+                        <thead>
+                            <tr style="background:#f8fafc; border-bottom:1px solid #e2e8f0;">
+                                <th style="padding:10px 14px; text-align:left; font-size:12px; font-weight:700; color:#475569;">Группа частоты</th>
+                                <th style="padding:10px 14px; text-align:center; font-size:12px; font-weight:700; color:#475569;">Количество</th>
+                                <th style="padding:10px 14px; text-align:right; font-size:12px; font-weight:700; color:#475569;">Товарная выручка (${funnelYear})</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                if (!returnedClientsList.length) {
+                    html += `<tr><td colspan="3" style="text-align:center; padding:14px; color:#94a3b8; font-size:13px;">📭 Нет вернувшихся клиентов за ${funnelYear}</td></tr>`;
+                } else {
+                    returnedClientsList.forEach(item => {
+                        html += `
+                            <tr style="border-bottom:1px solid #f1f5f9;">
+                                <td style="padding:10px 14px; font-size:13px; font-weight:600; color:#334155;">${item.stage}</td>
+                                <td style="padding:10px 14px; text-align:center; font-weight:600; font-size:13px; color:#1e293b;">${formatNum(item.count)}</td>
+                                <td style="padding:10px 14px; text-align:right; font-weight:700; font-size:13px; color:#047857;">${formatCur(item.revenue)}</td>
+                            </tr>
+                        `;
+                    });
+
+                    html += `
+                        <tr style="background:#f8fafc; border-top:2px solid #e2e8f0;">
+                            <td style="padding:10px 14px; font-size:13px; font-weight:800; color:#0f172a;">Итого Вернувшихся</td>
+                            <td style="padding:10px 14px; text-align:center; font-weight:800; font-size:14px; color:#0f172a;">${formatNum(totalRetCount)}</td>
+                            <td style="padding:10px 14px; text-align:right; font-weight:800; font-size:14px; color:#047857;">${formatCur(totalRetRevenue)}</td>
+                        </tr>
+                    `;
+                }
+
+                html += `
+                        </tbody>
+                    </table>
+                </div>
+                `;
+
+                // ====== ТАБЛИЦА 3: Новые клиенты по частоте покупок (status_id=1) ======
+                html += `
+                <div class="funnel-table-card" 
+                     onclick="window.location.href='/new-clients-analytics?token=' + TOKEN + '&year=' + funnelYear" 
+                     style="background:#fff; border-radius:12px; padding:16px; border:1px solid #e2e8f0; box-shadow:0 1px 3px rgba(0,0,0,0.02); cursor:pointer; transition:all 0.2s ease;"
+                     onmouseover="this.style.borderColor='#8b5cf6'; this.style.boxShadow='0 6px 16px rgba(139, 92, 246, 0.18)'; this.style.transform='translateY(-2px)';"
+                     onmouseout="this.style.borderColor='#e2e8f0'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.02)'; this.style.transform='none';">
+                    <div style="margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid #f1f5f9; display:flex; align-items:center; justify-content:space-between;">
+                        <div>
+                            <div class="tooltip-trigger" tabindex="0">
+                                <div style="font-size:14px; font-weight:700; color:#1e293b; display:flex; align-items:center; gap:8px;">
+                                    <span>🆕</span> Новые клиенты по частоте покупок 🔗
+                                </div>
+                                <span class="tooltip-info-badge" title="Справка по группе">?</span>
+                                <div class="funnel-tooltip-text">
+                                    <div style="font-weight:700; color:#c084fc; margin-bottom:4px; font-size:12px;">🆕 Новые (${formatNum(totalNewCount || 119)})</div>
+                                    <div style="color:#cbd5e1; margin-bottom:8px; font-size:11px; line-height:1.4;">
+                                        Не покупали 2 года (${funnelYear-2}–${funnelYear-1}) → первая покупка в ${funnelYear}.<br>
+                                        Это действительно новый контакт для компании.
+                                    </div>
+                                    <div style="color:#fde68a; font-size:11px; font-weight:600;">
+                                        ⚠️ Требует подтверждения (опрос) и внимания менеджера.
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="font-size:11px; color:#64748b; margin-top:2px;">Распределение только Новых клиентов (status_id=1) за ${funnelYear} год</div>
+                        </div>
+                        <div style="font-size:12px; font-weight:700; color:#8b5cf6; background:#f5f3ff; padding:4px 10px; border-radius:8px; display:flex; align-items:center; gap:4px; transition:background 0.2s;">
+                            Аналитика 🔗
+                        </div>
+                    </div>
+                    <table style="width:100%; border-collapse:collapse;">
+                        <thead>
+                            <tr style="background:#f8fafc; border-bottom:1px solid #e2e8f0;">
+                                <th style="padding:10px 14px; text-align:left; font-size:12px; font-weight:700; color:#475569;">Группа частоты</th>
+                                <th style="padding:10px 14px; text-align:center; font-size:12px; font-weight:700; color:#475569;">Количество</th>
+                                <th style="padding:10px 14px; text-align:right; font-size:12px; font-weight:700; color:#475569;">Товарная выручка (${funnelYear})</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                if (!newClientsList.length) {
+                    html += `<tr><td colspan="3" style="text-align:center; padding:14px; color:#94a3b8; font-size:13px;">📭 Нет новых клиентов за ${funnelYear}</td></tr>`;
+                } else {
+                    newClientsList.forEach(item => {
+                        totalNewCount += item.count || 0;
+                        totalNewRevenue += item.revenue || 0;
+
+                        html += `
+                            <tr style="border-bottom:1px solid #f1f5f9;">
+                                <td style="padding:10px 14px; font-size:13px; font-weight:600; color:#334155;">${item.stage}</td>
+                                <td style="padding:10px 14px; text-align:center; font-weight:600; font-size:13px; color:#1e293b;">${formatNum(item.count)}</td>
+                                <td style="padding:10px 14px; text-align:right; font-weight:700; font-size:13px; color:#047857;">${formatCur(item.revenue)}</td>
+                            </tr>
+                        `;
+                    });
+
+                    html += `
+                        <tr style="background:#f8fafc; border-top:2px solid #e2e8f0;">
+                            <td style="padding:10px 14px; font-size:13px; font-weight:800; color:#0f172a;">Итого Новых</td>
+                            <td style="padding:10px 14px; text-align:center; font-weight:800; font-size:14px; color:#0f172a;">${formatNum(totalNewCount)}</td>
+                            <td style="padding:10px 14px; text-align:right; font-weight:800; font-size:14px; color:#047857;">${formatCur(totalNewRevenue)}</td>
+                        </tr>
+                    `;
+                }
+
+                html += `
+                        </tbody>
+                    </table>
+                </div>
+                `;
+
+                // ====== ТАБЛИЦА 4: Активные клиенты по частоте (Существующая воронка) ======
+                html += `
+                <div class="funnel-table-card" 
+                     onclick="window.location.href='/analytics?token=' + TOKEN" 
+                     style="background:#fff; border-radius:12px; padding:16px; border:1px solid #e2e8f0; box-shadow:0 1px 3px rgba(0,0,0,0.02); cursor:pointer; transition:all 0.2s ease;"
+                     onmouseover="this.style.borderColor='#4f46e5'; this.style.boxShadow='0 4px 12px rgba(79, 70, 229, 0.15)'; this.style.transform='translateY(-1px)';"
+                     onmouseout="this.style.borderColor='#e2e8f0'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.02)'; this.style.transform='none';">
+                    <div style="margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid #f1f5f9; display:flex; align-items:center; justify-content:space-between;">
+                        <div>
+                            <div style="font-size:14px; font-weight:700; color:#1e293b; display:flex; align-items:center; gap:8px;">
+                                <span>📈</span> Активные клиенты по частоте 🔗
+                            </div>
+                            <div style="font-size:11px; color:#64748b; margin-top:2px;">Распределение всех активных клиентов за ${funnelYear} год</div>
+                        </div>
+                        <div style="font-size:12px; font-weight:700; color:#4f46e5; background:#e0e7ff; padding:4px 10px; border-radius:8px; display:flex; align-items:center; gap:4px; transition:background 0.2s;">
+                            Аналитика 🔗
+                        </div>
+                    </div>
+                    <table style="width:100%; border-collapse:collapse;">
+                        <thead>
+                            <tr style="background:#f8fafc; border-bottom:1px solid #e2e8f0;">
+                                <th style="padding:10px 14px; text-align:left; font-size:12px; font-weight:700; color:#475569;">Группа частоты</th>
+                                <th style="padding:10px 14px; text-align:center; font-size:12px; font-weight:700; color:#475569;">Количество фирм</th>
+                                <th style="padding:10px 14px; text-align:right; font-size:12px; font-weight:700; color:#475569;">Товарная выручка (${funnelYear})</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                if (!activeList.length) {
+                    html += `<tr><td colspan="3" style="text-align:center; padding:14px; color:#94a3b8; font-size:13px;">📭 Нет данных за ${funnelYear}</td></tr>`;
+                } else {
+                    let totalActiveCount = 0;
+                    let totalActiveRevenue = 0;
+
+                    activeList.forEach(item => {
+                        totalActiveCount += item.count || 0;
+                        totalActiveRevenue += item.revenue || 0;
+
+                        html += `
+                            <tr style="border-bottom:1px solid #f1f5f9;">
+                                <td style="padding:10px 14px; font-size:13px; font-weight:600; color:#334155;">${item.stage}</td>
+                                <td style="padding:10px 14px; text-align:center; font-weight:600; font-size:13px; color:#1e293b;">${formatNum(item.count)}</td>
+                                <td style="padding:10px 14px; text-align:right; font-weight:700; font-size:13px; color:#047857;">${formatCur(item.revenue)}</td>
+                            </tr>
+                        `;
+                    });
+
+                    html += `
+                        <tr style="background:#f8fafc; border-top:2px solid #e2e8f0;">
+                            <td style="padding:10px 14px; font-size:13px; font-weight:800; color:#0f172a;">Итого</td>
+                            <td style="padding:10px 14px; text-align:center; font-weight:800; font-size:14px; color:#0f172a;">${formatNum(totalActiveCount)}</td>
+                            <td style="padding:10px 14px; text-align:right; font-weight:800; font-size:14px; color:#047857;">${formatCur(totalActiveRevenue)}</td>
+                        </tr>
+                    `;
+                }
+
+                html += `
+                        </tbody>
+                    </table>
+                </div>
+                `;
+
+                html += '</div>';
+                container.innerHTML = html;
+
+            } catch (e) {
+                container.innerHTML = `<div style="padding:24px; color:#ef4444; text-align:center; font-weight:600;">⚠️ Ошибка загрузки воронки: ${e.message}</div>`;
+            }
+        }
+
+        // ====== РИСК ОТТОКА ======
+        async function loadChurn() {
+            const tb = $('clients-table-body');
+            tb.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;">⏳ Загрузка...</td></tr>';
+            try {
+                const r = await fetch(`/api/clients/churn-risk?token=${TOKEN}&limit=15`);
+                if (!r.ok) throw new Error(r.status);
+                const raw = await r.json();
+                const data = Array.isArray(raw) ? raw : (raw.data || []);
+                tb.innerHTML = '';
+                if (!data.length) { tb.innerHTML = '<tr><td colspan="4">✅ Риска оттока нет</td></tr>'; return; }
+                data.forEach(c => {
+                    tb.innerHTML += `<tr style="background:#fff5f5;">
+                        <td><b>${c.name || '—'}</b><br><small>Код: ${c.code}</small></td>
+                        <td><span class="status-pill orange">${c.status || '—'}</span></td>
+                        <td>${c.last_purchase_date || '—'}</td>
+                        <td style="color:#ef4444;font-weight:700;">⚠️ ${c.days_since_last || 0} дн.</td>
+                    </tr>`;
+                });
+            } catch (e) { tb.innerHTML = '<tr><td colspan="4" style="color:#ef4444;">⚠️ Ошибка</td></tr>'; }
+        }
+
+        // ====== РЕКОМЕНДАЦИИ (упрощённый поиск) ======
+        async function showRecSearch() {
+            const tb = $('clients-table-body');
+            tb.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:20px;">
+                <div style="font-size:16px;margin-bottom:12px;">🔍 Введите название или код клиента</div>
+                <input type="text" id="rec-search-input" placeholder="Название компании..." 
+                    style="padding:12px 20px;border-radius:10px;border:1px solid var(--border);font-size:14px;width:320px;"
+                    oninput="filterClientList()" autofocus>
+                <br><small style="color:var(--text-muted);">Список обновится автоматически</small>
+            </td></tr>
+            <tr><td colspan="5" id="client-list-cell" style="padding:0;"></td></tr>`;
+            loadAllClientsForSearch();
+        }
+
+        async function loadAllClientsForSearch() {
+            const cell = $('client-list-cell');
+            cell.innerHTML = '<div style="text-align:center;padding:20px;">⏳ Загрузка...</div>';
+            try {
+                const r = await fetch(`/api/clients?token=${TOKEN}&limit=500`);
+                if (!r.ok) throw new Error(r.status);
+                const raw = await r.json();
+                window.allClientsCache = Array.isArray(raw) ? raw : (raw.data || []);
+                filterClientList();
+            } catch (e) { cell.innerHTML = '<div style="color:#ef4444;">⚠️ Ошибка</div>'; }
+        }
+
+        function filterClientList() {
+            const inp = $('rec-search-input');
+            const cell = $('client-list-cell');
+            if (!cell) return;
+            const query = (inp && inp.value.trim()) ? inp.value.trim().toLowerCase() : '';
+            let filtered = window.allClientsCache || [];
+            if (query) filtered = filtered.filter(c => (c.name && c.name.toLowerCase().includes(query)) || (c.code && c.code.toString().includes(query)));
+            const display = filtered.slice(0, 50);
+            if (!display.length) { cell.innerHTML = '<div style="text-align:center;padding:15px;">Ничего не найдено</div>'; return; }
+
+            let html = '<table style="width:100%;"><thead><tr><th>Код</th><th>Название</th><th>Статус</th><th></th></tr></thead><tbody>';
+            display.forEach(c => {
+                let cls = 'blue';
+                if (c.status && (c.status.includes('Спящ') || c.status.includes('Ушедш'))) cls = 'orange';
+                else if (c.status && !c.status.includes('Новы')) cls = 'green';
+                html += `<tr style="cursor:pointer;" onclick="loadRecsForClient('${c.code}')" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background=''">
+                    <td style="padding:10px 16px;font-weight:600;">${c.code}</td>
+                    <td style="padding:10px 16px;">${c.name || '—'}</td>
+                    <td style="padding:10px 16px;"><span class="status-pill ${cls}">${c.status || '—'}</span></td>
+                    <td style="padding:10px 16px;color:#6366f1;font-weight:600;">💡 Выбрать</td>
+                </tr>`;
+            });
+            html += '</tbody></table>';
+            cell.innerHTML = html;
+        }
+
+        async function loadRecsForClient(clientCode) {
+            const tb = $('clients-table-body');
+            tb.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;">⏳ Загрузка рекомендаций...</td></tr>';
+            try {
+                const r = await fetch(`/api/recommendations/${clientCode}?token=${TOKEN}`);
+                if (!r.ok) throw new Error(r.status);
+                const data = await r.json();
+                tb.innerHTML = '';
+                if (!data.recommendations || !data.recommendations.length) {
+                    tb.innerHTML = `<tr><td colspan="5" style="text-align:center;">📭 Нет рекомендаций для <b>${data.client_name || clientCode}</b></td></tr>`;
+                    return;
+                }
+
+                tb.innerHTML += `<tr style="background:#f0fdf4;"><td colspan="5" style="text-align:center;font-weight:700;padding:12px;">🎯 Рекомендации для: <b>${data.client_name}</b> (${data.client_code})</td></tr>`;
+                tb.innerHTML += '<tr><td colspan="5" style="text-align:center;padding:8px;"><button onclick="showRecSearch()" style="padding:8px 20px;background:#6366f1;color:white;border:none;border-radius:10px;cursor:pointer;font-weight:600;">🔍 Искать другого</button></td></tr>';
+
+                data.recommendations.forEach((p, i) => {
+                    const reasonText = p.reason || 'Часто покупаете';
+                    tb.innerHTML += `<tr>
+                        <td style="text-align:center;font-weight:600;">${i + 1}</td>
+                        <td><b>${trimProductCode(p.name) || '—'}</b><br><small>${p.code || ''}</small></td>
+                        <td style="text-align:center;color:#047857;font-weight:600;">${reasonText}</td>
+                        <td style="text-align:center;">${p.in_stock || p.in_stock_balance || 0}</td>
+                        <td style="text-align:center;"><span class="status-pill green">Рекомендовано</span></td>
+                    </tr>`;
+                });
+            } catch (e) { tb.innerHTML = '<tr><td colspan="5" style="color:#ef4444;">⚠️ Ошибка</td></tr>'; }
+        }
+
+        // ====== УМНОЕ ОБНОВЛЕНИЕ ======
+        function refreshAll() {
+            loadDashboard();
+            if (currentPage === 'clients') loadActive();
+            else if (currentPage === 'churn') loadChurn();
+            else if (currentPage === 'funnel') loadFunnel();
+            else if (currentPage === 'recommendations') showRecSearch();
+            else loadTopSales();
+        }
+
+        function ensureStandardTable() {
+            const container = $('table-scroll-container') || document.querySelector('.table-scroll');
+            if (container && !$('clients-table-body')) {
+                container.innerHTML = `
+                    <table id="main-table">
+                        <thead id="table-head"></thead>
+                        <tbody id="clients-table-body"></tbody>
+                    </table>
+                `;
+            }
+        }
+
+        function setTableForPage(page) {
+            const bt = $('block-title');
+            const pt = $('page-title');
+            const filterBar = $('table-filter-bar');
+
+            if (page !== 'funnel') {
+                ensureStandardTable();
+            }
+
+            const thead = $('table-head');
+
+            if (page === 'dashboard') {
+                if (pt) pt.textContent = 'Обзорный дашборд';
+                if (bt) bt.textContent = 'ТОП продаж';
+                if (thead) {
+                    thead.innerHTML = `
+                        <tr>
+                            <th rowspan="2" style="text-align:center;">#</th>
+                            <th rowspan="2">Клиент</th>
+                            <th colspan="2" style="text-align:center;background:#e2e8f0;color:#1e293b;font-weight:800;font-size:12px;">Статус</th>
+                            <th rowspan="2" style="text-align:right;">Продажи</th>
+                            <th rowspan="2" style="text-align:right;">% от общих</th>
+                        </tr>
+                        <tr>
+                            <th style="text-align:center;background:#fefce8;color:#854d0e;font-weight:700;">базовый 2025</th>
+                            <th style="text-align:center;background:#ecfdf5;color:#065f46;font-weight:700;">текущий 2026</th>
+                        </tr>
+                    `;
+                }
+                if (filterBar) { filterBar.style.display = 'none'; filterBar.innerHTML = ''; }
+                return;
+            }
+
+            const configs = {
+                clients: { title: 'Активные клиенты', block: 'Покупки за последние 30 дней', cols: 4, headers: ['Клиент', 'Статус', 'Последняя покупка', 'Выручка'] },
+                funnel: { title: 'Воронка продаж', block: `Воронка продаж и жизненный цикл клиентов — ${funnelYear}`, cols: 3, headers: ['Группа частоты', 'Количество фирм', `Товарная выручка (${funnelYear})`] },
+                churn: { title: 'Риск оттока', block: 'Без покупок более 90 дней', cols: 4, headers: ['Клиент', 'Статус', 'Последняя покупка', 'Предупреждение'] },
+                recommendations: { title: 'Рекомендации', block: 'Персональные для клиента', cols: 5, headers: ['#', 'Товар', 'Причина', 'Остаток', 'Статус'] }
+            };
+
+            const cfg = configs[page] || configs.clients;
+            if (pt) pt.textContent = cfg.title;
+            if (bt) bt.textContent = cfg.block;
+            if (thead && page !== 'funnel') thead.innerHTML = `<tr>${cfg.headers.map(h => `<th>${h}</th>`).join('')}</tr>`;
+
+            // Фильтр-бар: показываем только для воронки
+            if (filterBar) {
+                if (page === 'funnel') {
+                    const years = [2024, 2025, 2026];
+                    filterBar.innerHTML = `
+                        <div style="display:flex;align-items:center;gap:8px;padding-bottom:12px;">
+                            <span style="font-size:12px;font-weight:600;color:var(--text-muted);">Год:</span>
+                            ${years.map(y => `
+                                <button class="year-btn ${y === funnelYear ? 'year-btn-active' : ''}" 
+                                    data-year="${y}" onclick="loadFunnel(${y})">${y}</button>
+                            `).join('')}
+                        </div>`;
+                    filterBar.style.display = 'block';
+                } else {
+                    filterBar.style.display = 'none';
+                    filterBar.innerHTML = '';
+                }
+            }
+        }
+
+        // ====== ЖИВОЙ ПОИСК КЛИЕНТОВ ======
+        let searchTimer = null;
+
+        function initClientSearch() {
+            const searchInput = $('search-input');
+            if (!searchInput) return;
+
+            searchInput.addEventListener('input', (e) => {
+                clearTimeout(searchTimer);
+                const query = e.target.value.trim();
+                
+                if (query.length < 1) {
+                    hideDropdown();
+                    return;
+                }
+                
+                searchTimer = setTimeout(() => {
+                    searchClients(query);
+                }, 300);
+            });
+            
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    const query = e.target.value.trim();
+                    if (query.length >= 1) {
+                        hideDropdown();
+                        showSearchResults(query);
+                    }
+                }
+            });
+
+            // Закрывать dropdown при клике вне поискового блока
+            document.addEventListener('click', (e) => {
+                const searchWrapper = document.querySelector('.search-wrapper');
+                if (searchWrapper && !searchWrapper.contains(e.target)) {
+                    hideDropdown();
+                }
+            });
+        }
+
+        // Поиск клиентов (dropdown)
+        async function searchClients(query) {
+            try {
+                const res = await fetch(`/api/clients?token=${TOKEN}&search=${encodeURIComponent(query)}&limit=10`);
+                const response = await res.json();
+                const data = response.data || response;
+                
+                if (data && data.length > 0) {
+                    showDropdown(data);
+                } else {
+                    hideDropdown();
+                }
+            } catch (err) {
+                console.error('Ошибка поиска клиентов:', err);
+            }
+        }
+
+        // Показать dropdown
+        function showDropdown(clients) {
+            hideDropdown();
+            
+            const searchInput = $('search-input');
+            if (!searchInput || !searchInput.parentElement) return;
+
+            const dropdown = document.createElement('div');
+            dropdown.id = 'search-dropdown';
+            dropdown.className = 'search-dropdown';
+            
+            dropdown.innerHTML = clients.map(c => {
+                const safeName = (c.name || '').replace(/'/g, "\\'");
+                return `
+                    <div class="search-dropdown-item" onclick="selectClient('${c.code}', '${safeName}')">
+                        <span class="search-client-code">${c.code}</span>
+                        <span class="search-client-name">${c.name || '—'}</span>
+                    </div>
+                `;
+            }).join('');
+            
+            searchInput.parentElement.appendChild(dropdown);
+        }
+
+        function hideDropdown() {
+            const existing = document.getElementById('search-dropdown');
+            if (existing) existing.remove();
+        }
+
+        // Выбор клиента из dropdown
+        function selectClient(code, name) {
+            const searchInput = $('search-input');
+            if (searchInput) searchInput.value = name;
+            hideDropdown();
+            showSearchResults(name || code);
+        }
+
+        // Показать результаты поиска (таблица)
+        async function showSearchResults(query) {
+            hideDropdown();
+            
+            // Скрыть основной контент дашборда
+            const contentArea = document.getElementById('content-area');
+            if (contentArea) contentArea.style.display = 'none';
+            
+            // Получить или создать блок результатов
+            let resultsBlock = document.getElementById('search-results-block');
+            if (!resultsBlock) {
+                resultsBlock = document.createElement('div');
+                resultsBlock.id = 'search-results-block';
+                resultsBlock.className = 'content-area';
+                document.querySelector('.workspace').appendChild(resultsBlock);
+            }
+            
+            resultsBlock.style.display = 'flex';
+            resultsBlock.innerHTML = `
+                <div class="page-header">
+                    <h2 class="page-title" style="font-size: 20px;">🔍 Результаты поиска: "${query}"</h2>
+                    <button class="btn btn-primary" onclick="backToDashboard()">← Назад на дашборд</button>
+                </div>
+                <div class="search-results-table-wrapper table-block">
+                    <div class="table-scroll" style="max-height: 65vh;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width: 100px;">Код</th>
+                                    <th>Название компании</th>
+                                    <th style="width: 160px; text-align: center;">Статус</th>
+                                    <th style="width: 140px; text-align: right;">Действие</th>
+                                </tr>
+                            </thead>
+                            <tbody id="search-results-body">
+                                <tr><td colspan="4" style="text-align:center; padding: 30px;">⏳ Поиск клиентов...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+            
+            try {
+                const res = await fetch(`/api/clients?token=${TOKEN}&search=${encodeURIComponent(query)}&limit=50`);
+                const response = await res.json();
+                const data = response.data || response;
+                const tbody = document.getElementById('search-results-body');
+                
+                if (data && data.length > 0) {
+                    tbody.innerHTML = data.map(c => `
+                        <tr class="search-result-row clickable-row" onclick="window.location.href='/client-detail?token=${TOKEN}&code=${encodeURIComponent(c.code)}'">
+                            <td><code style="font-weight:700;color:#4f46e5;">${c.code}</code></td>
+                            <td style="color:#0f172a;font-weight:600;">${c.name || '—'}</td>
+                            <td style="text-align:center;"><span class="status-pill blue">${c.status || '—'}</span></td>
+                            <td style="text-align:right;"><span class="badge-link">Открыть →</span></td>
+                        </tr>
+                    `).join('');
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding: 40px; color: var(--text-muted);">Ничего не найдено по запросу "${query}"</td></tr>`;
+                }
+            } catch (err) {
+                console.error('Ошибка загрузки результатов поиска:', err);
+                const tbody = document.getElementById('search-results-body');
+                if (tbody) {
+                    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding: 30px; color: #ef4444;">Ошибка при поиске</td></tr>`;
+                }
+            }
+        }
+
+        // Вернуться на дашборд
+        function backToDashboard() {
+            const contentArea = document.getElementById('content-area');
+            if (contentArea) contentArea.style.display = 'flex';
+            const resultsBlock = document.getElementById('search-results-block');
+            if (resultsBlock) resultsBlock.remove();
+            const searchInput = $('search-input');
+            if (searchInput) searchInput.value = '';
+            hideDropdown();
+        }
+
+        // ====== ЗАПУСК ======
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.sidebar-item[data-page]').forEach(item => {
+                item.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const page = this.getAttribute('data-page');
+
+                    backToDashboard();
+
+                    document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                    currentPage = page;
+
+                    setTableForPage(page);
+
+                    if (page === 'dashboard') refreshAll();
+                    else if (page === 'clients') loadActive();
+                    else if (page === 'funnel') loadFunnel();
+                    else if (page === 'churn') loadChurn();
+                    else if (page === 'recommendations') showRecSearch();
+                });
+            });
+
+            initClientSearch();
+
+            console.log('🚀 UTSK v7.5 запущен');
+            refreshAll();
+        });
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UTSK Intelligent Sales — Аналитика Отраслей и Направлений</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --bg-app: #f8fafc;
+            --bg-surface: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --border-subtle: #f1f5f9;
+            --brand: #0ea5e9;
+            --brand-soft: #e0f2fe;
+            --brand-dark: #0284c7;
+            --good: #10b981;
+            --good-soft: #d1fae5;
+            --warn: #f59e0b;
+            --warn-soft: #fef3c7;
+            --bad: #ef4444;
+            --bad-soft: #fee2e2;
+            --accent: #6366f1;
+            --accent-soft: #e0e7ff;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -2px rgba(0,0,0,0.03);
+            --radius-sm: 8px;
+            --radius: 14px;
+            --radius-lg: 20px;
+            --header-height: 64px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+
+        body {
+            background: #f1f5f9;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--text-main);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .app-window {
+            width: 100%;
+            max-width: 1440px;
+            background: var(--bg-app);
+            border-radius: var(--radius-lg);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.12);
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        /* Header */
+        .header {
+            height: var(--header-height);
+            background: var(--bg-surface);
+            display: flex;
+            align-items: center;
+            padding: 0 28px;
+            border-bottom: 1px solid var(--border);
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .header-logo {
+            font-weight: 800;
+            font-size: 17px;
+            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: var(--text-main);
+        }
+        .header-badge {
+            background: #f0fdf4;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: auto;
+        }
+        .select-year {
+            padding: 7px 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            border: 1px solid var(--border);
+            background: var(--bg-surface);
+            color: var(--text-main);
+            outline: none;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .select-year:hover { border-color: var(--brand); }
+
+        .btn-nav {
+            padding: 7px 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            background: var(--bg-surface);
+            color: var(--text-main);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s;
+            text-decoration: none;
+        }
+        .btn-nav:hover { background: #f8fafc; border-color: #cbd5e1; }
+
+        /* Main Content */
+        .content {
+            padding: 24px 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* KPI Cards Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+        }
+        .kpi-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            box-shadow: var(--shadow-sm);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--brand);
+        }
+        .kpi-card.green::before { background: var(--good); }
+        .kpi-card.purple::before { background: var(--accent); }
+        .kpi-card.amber::before { background: var(--warn); }
+        .kpi-card.indigo::before { background: #6366f1; }
+
+        .kpi-card.kpi-link {
+            text-decoration: none;
+            color: inherit;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .kpi-card.kpi-link:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.1);
+            border-color: var(--brand);
+        }
+        .kpi-card.kpi-link .kpi-arrow {
+            font-size: 11px;
+            opacity: 0.35;
+            margin-left: auto;
+            transition: opacity 0.2s, transform 0.2s;
+        }
+        .kpi-card.kpi-link:hover .kpi-arrow {
+            opacity: 1;
+            transform: translate(2px, -2px);
+            color: var(--brand);
+        }
+        .kpi-hint {
+            font-size: 11.5px;
+            font-weight: 600;
+            color: var(--brand);
+            margin-top: 6px;
+            opacity: 0.85;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: opacity 0.2s;
+        }
+        .kpi-card.kpi-link:hover .kpi-hint {
+            opacity: 1;
+            text-decoration: underline;
+        }
+
+        .kpi-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .kpi-val {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--text-main);
+            letter-spacing: -0.5px;
+        }
+        .kpi-sub {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* Charts Layout */
+        .charts-row {
+            display: grid;
+            grid-template-columns: 1fr 1.6fr;
+            gap: 20px;
+        }
+        @media (max-width: 1024px) {
+            .charts-row { grid-template-columns: 1fr; }
+        }
+
+        .chart-box {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            box-shadow: var(--shadow-sm);
+        }
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .chart-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .chart-container {
+            position: relative;
+            height: 320px;
+            width: 100%;
+        }
+
+        /* Section Containers */
+        .section-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 22px 24px;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .section-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-desc {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* Tables */
+        .table-responsive {
+            overflow-x: auto;
+            width: 100%;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: left;
+        }
+        th {
+            background: #f8fafc;
+            color: var(--text-muted);
+            font-weight: 600;
+            padding: 10px 14px;
+            border-bottom: 2px solid var(--border);
+            white-space: nowrap;
+        }
+        td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border-subtle);
+            vertical-align: middle;
+        }
+        tbody tr:hover {
+            background: #f8fafc;
+        }
+        tr.clickable-row {
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        tr.selected-row {
+            background: #e0f2fe !important;
+            border-left: 4px solid var(--brand);
+        }
+
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+
+        /* Progress Bar */
+        .progress-bar-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 120px;
+        }
+        .progress-bar {
+            flex: 1;
+            height: 7px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.4s ease;
+        }
+        .progress-pct {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            width: 44px;
+            text-align: right;
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 9px;
+            border-radius: 6px;
+            font-size: 11.5px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .badge-abc {
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-weight: 700;
+            font-size: 11px;
+        }
+        .abc-A1 { background: #dcfce7; color: #15803d; }
+        .abc-A2 { background: #dcfce7; color: #166534; }
+        .abc-B1 { background: #e0f2fe; color: #0369a1; }
+        .abc-B2 { background: #f3e8ff; color: #7e22ce; }
+        .abc-C1 { background: #fef3c7; color: #b45309; }
+        .abc-C2 { background: #f1f5f9; color: #475569; }
+
+        /* Search & Filter Bar */
+        .filter-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            background: #f8fafc;
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+        .search-input {
+            flex: 1;
+            min-width: 220px;
+            padding: 8px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            font-size: 13px;
+            background: #ffffff;
+            outline: none;
+        }
+        .search-input:focus {
+            border-color: var(--brand);
+            box-shadow: 0 0 0 2px var(--brand-soft);
+        }
+        .filter-select {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            font-size: 13px;
+            background: #ffffff;
+            outline: none;
+            cursor: pointer;
+        }
+        .btn-filter {
+            padding: 8px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: #ffffff;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-main);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s;
+        }
+        .btn-filter:hover {
+            background: #f1f5f9;
+        }
+        .btn-filter.active-dir-pill {
+            background: var(--brand-soft);
+            color: var(--brand-dark);
+            border-color: var(--brand);
+        }
+
+        .active-filter-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--brand-dark);
+        }
+        .btn-clear-filter {
+            padding: 2px 8px;
+            font-size: 11px;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            background: #fff;
+            cursor: pointer;
+            color: #64748b;
+        }
+        .btn-clear-filter:hover {
+            background: #fee2e2;
+            color: #ef4444;
+            border-color: #fca5a5;
+        }
+
+        .client-link {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .client-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Loading / Empty */
+        .state-container {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+        }
+        .spinner {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(14, 165, 233, 0.2);
+            border-radius: 50%;
+            border-top-color: var(--brand);
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-window">
+    <!-- Header -->
+    <header class="header">
+        <a href="/?token=utsk2026" class="header-logo">
+            <span>⚡ UTSK Intelligent Sales</span>
+        </a>
+        <div class="header-badge">
+            <span>🏗️ Аналитика Отраслей и Направлений</span>
+        </div>
+
+        <div class="header-controls">
+            <select id="year-select" class="select-year" onchange="onYearChange()">
+                <option value="2026" selected>2026 год</option>
+                <option value="2025">2025 год</option>
+                <option value="2024">2024 год</option>
+            </select>
+            <a href="/analytics?token=utsk2026" class="btn-nav">📊 Аналитика</a>
+            <a href="/top-sales-analytics?token=utsk2026" class="btn-nav">🏆 ТОП-продаж</a>
+            <a href="/?token=utsk2026" class="btn-nav">🏠 Дашборд</a>
+        </div>
+    </header>
+
+    <!-- Content -->
+    <main class="content">
+        <!-- KPI Cards -->
+        <section class="kpi-grid">
+            <a href="/directions-revenue-analytics?token=utsk2026&year=2026" id="kpi-link-revenue" class="kpi-card green kpi-link">
+                <div class="kpi-title">
+                    <span>💰 Выручка от товаров</span>
+                    <i class="fa-solid fa-arrow-up-right-from-square kpi-arrow"></i>
+                </div>
+                <div class="kpi-val" id="kpi-revenue">—</div>
+                <div class="kpi-sub" id="kpi-revenue-sub">Объем реализации трубного проката</div>
+                <div class="kpi-hint">Детальная аналитика выручки →</div>
+            </a>
+            <a href="/directions-clients-analytics?token=utsk2026&year=2026" id="kpi-link-clients" class="kpi-card purple kpi-link">
+                <div class="kpi-title">
+                    <span>👥 Активных клиентов</span>
+                    <i class="fa-solid fa-arrow-up-right-from-square kpi-arrow"></i>
+                </div>
+                <div class="kpi-val" id="kpi-clients">—</div>
+                <div class="kpi-sub" id="kpi-clients-sub">Покупали в выбранном году</div>
+                <div class="kpi-hint">Детализация клиентов и статусов →</div>
+            </a>
+            <a href="/directions-invoices-analytics?token=utsk2026&year=2026" id="kpi-link-invoices" class="kpi-card amber kpi-link">
+                <div class="kpi-title">
+                    <span>📑 Накладных / Отгрузок</span>
+                    <i class="fa-solid fa-arrow-up-right-from-square kpi-arrow"></i>
+                </div>
+                <div class="kpi-val" id="kpi-invoices">—</div>
+                <div class="kpi-sub" id="kpi-invoices-sub">Всего документов реализации</div>
+                <div class="kpi-hint">Анализ отгрузок и дней недели →</div>
+            </a>
+            <a href="/directions-avg-check-analytics?token=utsk2026&year=2026" id="kpi-link-avg-ticket" class="kpi-card indigo kpi-link">
+                <div class="kpi-title">
+                    <span>🏷️ Средний чек</span>
+                    <i class="fa-solid fa-arrow-up-right-from-square kpi-arrow"></i>
+                </div>
+                <div class="kpi-val" id="kpi-avg-ticket">—</div>
+                <div class="kpi-sub">Выручка / количество накладных</div>
+                <div class="kpi-hint">Сравнение чеков и медианы →</div>
+            </a>
+            <a href="/directions-leader-analytics?token=utsk2026&year=2026" id="kpi-link-top-dir" class="kpi-card kpi-link">
+                <div class="kpi-title">
+                    <span>🏆 Отрасль-лидер</span>
+                    <i class="fa-solid fa-arrow-up-right-from-square kpi-arrow"></i>
+                </div>
+                <div class="kpi-val" id="kpi-top-dir" style="font-size: 19px;">—</div>
+                <div class="kpi-sub" id="kpi-top-dir-sub">Доля в общей выручке</div>
+                <div class="kpi-hint">Анализ концентрации и лидеров →</div>
+            </a>
+        </section>
+
+        <!-- Charts Row -->
+        <section class="charts-row">
+            <!-- Chart 1: Revenue Structure Doughnut -->
+            <div class="chart-box">
+                <div class="chart-header">
+                    <h3 class="chart-title">🍩 Структура выручки по отраслям</h3>
+                    <span id="chart-pie-subtitle" style="font-size:12px;color:var(--text-muted);">2026</span>
+                </div>
+                <div class="chart-container">
+                    <canvas id="chartDirectionsPie"></canvas>
+                </div>
+            </div>
+
+            <!-- Chart 2: Monthly Dynamics Stacked -->
+            <div class="chart-box">
+                <div class="chart-header">
+                    <h3 class="chart-title">📈 Помесячная динамика отраслей</h3>
+                    <span style="font-size:12px;color:var(--text-muted);">Выручка по месяцам (млн ₴)</span>
+                </div>
+                <div class="chart-container">
+                    <canvas id="chartMonthlyDynamics"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Summary Table of Directions -->
+        <section class="section-card">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">🏗️ Сводная матрица отраслей и направлений деятельности</h2>
+                    <p class="section-desc">Нажмите на любую строку отрасли для детализации и просмотра списка компаний</p>
+                </div>
+                <div>
+                    <button class="btn-filter" onclick="resetDirectionSelection()">
+                        <span>Сбросить выбор (Все отрасли)</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Отрасль деятельности</th>
+                            <th class="text-right">Покупателей</th>
+                            <th class="text-right">В базе всего</th>
+                            <th class="text-right">Накладных</th>
+                            <th class="text-right">Выручка от товаров</th>
+                            <th class="text-right">Средний чек</th>
+                            <th>Доля в выручке</th>
+                            <th>Доля в клиентах</th>
+                            <th class="text-center">Действие</th>
+                        </tr>
+                    </thead>
+                    <tbody id="directions-table-body">
+                        <tr>
+                            <td colspan="9" class="state-container">
+                                <div class="spinner"></div>
+                                <div style="margin-top:8px;">Загрузка данных отраслей...</div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Companies Drill-down Table -->
+        <section class="section-card" id="companies-section">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title" id="companies-title">🏢 Компании отрасли: Все направления</h2>
+                    <p class="section-desc" id="companies-subtitle">Список предприятий, их реквизиты (ЄДРПОУ, ИПН), выручка и статус</p>
+                </div>
+                <div>
+                    <button class="btn-filter" onclick="exportCompaniesCSV()">
+                        <span>📥 Экспорт в CSV</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filter Bar -->
+            <div class="filter-bar">
+                <div class="active-filter-indicator" id="active-filter-badge">
+                    <span>Выбрано: 🌐 Все отрасли</span>
+                </div>
+                <input type="text" id="client-search" class="search-input" placeholder="Поиск по названию, коду или ЄДРПОУ..." oninput="debounceSearch()">
+                <select id="abc-filter" class="filter-select" onchange="onFilterChange()">
+                    <option value="ALL">Все группы ABC</option>
+                    <option value="A1">A1 (Крупнейшие)</option>
+                    <option value="A2">A2 (Очень крупные)</option>
+                    <option value="B1">B1 (Крупные)</option>
+                    <option value="B2">B2 (Средние)</option>
+                    <option value="C1">C1 (Малые)</option>
+                    <option value="C2">C2 (Разовые/Мелкие)</option>
+                </select>
+                <div style="margin-left:auto;font-size:12.5px;color:var(--text-muted);" id="companies-count-badge">
+                    Загрузка...
+                </div>
+            </div>
+
+            <!-- Companies Table -->
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width:40px;">#</th>
+                            <th>Код</th>
+                            <th>Название компании</th>
+                            <th>ЄДРПОУ / ОКПО</th>
+                            <th>ИПН</th>
+                            <th>Статус клиента</th>
+                            <th class="text-center">ABC</th>
+                            <th class="text-right">Накладных</th>
+                            <th class="text-right">Выручка ₴</th>
+                            <th class="text-right">Ср. чек ₴</th>
+                            <th>Посл. отгрузка</th>
+                            <th class="text-center">Карточка</th>
+                        </tr>
+                    </thead>
+                    <tbody id="companies-table-body">
+                        <tr>
+                            <td colspan="12" class="state-container">
+                                <div class="spinner"></div>
+                                <div style="margin-top:8px;">Загрузка списка компаний...</div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination Bar -->
+            <div style="display:flex;justify-content:space-between;align-items:center;padding-top:12px;">
+                <div style="font-size:13px;color:var(--text-muted);" id="pagination-info">
+                    —
+                </div>
+                <div style="display:flex;gap:8px;">
+                    <button class="btn-filter" id="btn-prev-page" onclick="changePage(-1)" disabled>← Назад</button>
+                    <button class="btn-filter" id="btn-next-page" onclick="changePage(1)" disabled>Вперед →</button>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+
+<script>
+    // URL params & state
+    const urlParams = new URLSearchParams(window.location.search);
+    const TOKEN = urlParams.get('token') || 'utsk2026';
+    let currentYear = parseInt(urlParams.get('year')) || 2026;
+    let selectedDirectionId = parseInt(urlParams.get('direction_id')) || 0;
+    let selectedDirectionName = 'Все отрасли';
+
+    let summaryData = [];
+    let companiesData = [];
+    let currentPage = 0;
+    const PAGE_SIZE = 50;
+    let totalMatchingCompanies = 0;
+    let searchDebounceTimer = null;
+
+    let pieChartInstance = null;
+    let monthlyChartInstance = null;
+
+    // Currency and number formatters
+    function fmtM(val) {
+        if (!val || isNaN(val)) return '0 ₴';
+        const v = parseFloat(val);
+        if (Math.abs(v) >= 1000000) {
+            return (v / 1000000).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' млн ₴';
+        }
+        return Math.round(v).toLocaleString('ru-RU') + ' ₴';
+    }
+
+    function fmtCur(val) {
+        if (!val || isNaN(val)) return '0 ₴';
+        return Math.round(parseFloat(val)).toLocaleString('ru-RU') + ' ₴';
+    }
+
+    function fmtNum(val) {
+        if (!val || isNaN(val)) return '0';
+        return parseInt(val).toLocaleString('ru-RU');
+    }
+
+    function fmtPct(val) {
+        if (!val || isNaN(val)) return '0.0%';
+        return parseFloat(val).toFixed(1) + '%';
+    }
+
+    // Init Page
+    window.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('year-select').value = currentYear;
+        loadAllData();
+    });
+
+    function onYearChange() {
+        currentYear = parseInt(document.getElementById('year-select').value);
+        currentPage = 0;
+        loadAllData();
+    }
+
+    async function loadAllData() {
+        updateKpiLinks();
+        await Promise.all([
+            loadKPI(),
+            loadSummary(),
+            loadMonthlyDynamics(),
+            loadCompanies()
+        ]);
+    }
+
+    function updateKpiLinks() {
+        const revEl = document.getElementById('kpi-link-revenue');
+        if (revEl) revEl.href = `/directions-revenue-analytics?token=${TOKEN}&year=${currentYear}`;
+        const cliEl = document.getElementById('kpi-link-clients');
+        if (cliEl) cliEl.href = `/directions-clients-analytics?token=${TOKEN}&year=${currentYear}`;
+        const invEl = document.getElementById('kpi-link-invoices');
+        if (invEl) invEl.href = `/directions-invoices-analytics?token=${TOKEN}&year=${currentYear}`;
+        const avgEl = document.getElementById('kpi-link-avg-ticket');
+        if (avgEl) avgEl.href = `/directions-avg-check-analytics?token=${TOKEN}&year=${currentYear}`;
+        const topEl = document.getElementById('kpi-link-top-dir');
+        if (topEl) topEl.href = `/directions-leader-analytics?token=${TOKEN}&year=${currentYear}`;
+    }
+
+    // 1. Load KPI
+    async function loadKPI() {
+        try {
+            const res = await fetch(`/api/analytics/directions/kpi?token=${TOKEN}&year=${currentYear}`);
+            const json = await res.json();
+            if (json.status === 'ok' && json.data) {
+                const d = json.data;
+                document.getElementById('kpi-revenue').textContent = fmtM(d.total_revenue);
+                document.getElementById('kpi-clients').textContent = fmtNum(d.total_clients);
+                document.getElementById('kpi-invoices').textContent = fmtNum(d.total_invoices);
+                document.getElementById('kpi-avg-ticket').textContent = fmtCur(d.avg_ticket);
+                document.getElementById('kpi-top-dir').textContent = d.top_direction_name || '—';
+                document.getElementById('kpi-top-dir-sub').textContent = `Доля: ${fmtPct(d.top_direction_share_pct)} (${fmtM(d.top_direction_revenue)})`;
+            }
+        } catch (e) {
+            console.error('Ошибка загрузки KPI:', e);
+        }
+    }
+
+    // 2. Load Summary
+    async function loadSummary() {
+        try {
+            const res = await fetch(`/api/analytics/directions/summary?token=${TOKEN}&year=${currentYear}`);
+            const json = await res.json();
+            if (json.status === 'ok' && json.data) {
+                summaryData = json.data;
+                renderSummaryTable(summaryData);
+                renderPieChart(summaryData);
+            }
+        } catch (e) {
+            console.error('Ошибка загрузки Summary:', e);
+            document.getElementById('directions-table-body').innerHTML = `<tr><td colspan="9" class="state-container">⚠️ Ошибка загрузки: ${e.message}</td></tr>`;
+        }
+    }
+
+    // Render Summary Table
+    function renderSummaryTable(data) {
+        const tbody = document.getElementById('directions-table-body');
+        if (!data || data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="9" class="state-container">Нет данных за выбранный год</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = data.map(r => {
+            const isSelected = selectedDirectionId === r.id;
+            return `
+                <tr class="clickable-row ${isSelected ? 'selected-row' : ''}" onclick="selectDirection(${r.id}, '${r.icon} ${r.name}')">
+                    <td>
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <span style="font-size:20px;">${r.icon}</span>
+                            <div>
+                                <div style="font-weight:700;color:var(--text-main);">${r.name}</div>
+                                <div style="font-size:11px;color:var(--text-muted);">ID: ${r.id}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="text-right" style="font-weight:600;">${fmtNum(r.clients_count)}</td>
+                    <td class="text-right" style="color:var(--text-muted);">${fmtNum(r.total_clients_in_base)}</td>
+                    <td class="text-right">${fmtNum(r.invoices_count)}</td>
+                    <td class="text-right" style="font-weight:700;color:#0f172a;">${fmtCur(r.goods_revenue)}</td>
+                    <td class="text-right" style="font-weight:600;color:#2563eb;">${fmtCur(r.avg_ticket)}</td>
+                    <td>
+                        <div class="progress-bar-wrap">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width:${Math.min(100, r.revenue_share_pct)}%;background:${r.color};"></div>
+                            </div>
+                            <span class="progress-pct">${fmtPct(r.revenue_share_pct)}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="progress-bar-wrap">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width:${Math.min(100, r.clients_share_pct)}%;background:${r.color};"></div>
+                            </div>
+                            <span class="progress-pct">${fmtPct(r.clients_share_pct)}</span>
+                        </div>
+                    </td>
+                    <td class="text-center">
+                        <button class="btn-filter ${isSelected ? 'active-dir-pill' : ''}" style="padding:4px 10px;font-size:12px;">
+                            ${isSelected ? '✓ Выбрано' : 'Клиенты'}
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    // Render Pie Chart
+    function renderPieChart(data) {
+        const ctx = document.getElementById('chartDirectionsPie').getContext('2d');
+        if (pieChartInstance) pieChartInstance.destroy();
+
+        // Take top directions with revenue > 0
+        const active = data.filter(d => d.goods_revenue > 0);
+        const labels = active.map(d => `${d.icon} ${d.name}`);
+        const values = active.map(d => d.goods_revenue);
+        const colors = active.map(d => d.color);
+
+        pieChartInstance = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: values,
+                    backgroundColor: colors,
+                    borderWidth: 2,
+                    borderColor: '#ffffff',
+                    hoverOffset: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            font: { family: 'Inter', size: 11.5 },
+                            boxWidth: 14,
+                            padding: 10
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const val = context.raw || 0;
+                                const item = active[context.dataIndex];
+                                const share = item ? fmtPct(item.revenue_share_pct) : '';
+                                return ` ${fmtM(val)} (${share})`;
+                            }
+                        }
+                    }
+                },
+                cutout: '62%'
+            }
+        });
+    }
+
+    // 3. Load Monthly Dynamics
+    async function loadMonthlyDynamics() {
+        try {
+            const res = await fetch(`/api/analytics/directions/monthly?token=${TOKEN}&year=${currentYear}`);
+            const json = await res.json();
+            if (json.status === 'ok' && json.data) {
+                renderMonthlyChart(json.data);
+            }
+        } catch (e) {
+            console.error('Ошибка загрузки Monthly Dynamics:', e);
+        }
+    }
+
+    function renderMonthlyChart(data) {
+        const ctx = document.getElementById('chartMonthlyDynamics').getContext('2d');
+        if (monthlyChartInstance) monthlyChartInstance.destroy();
+
+        // 12 months
+        const monthNames = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'];
+        
+        // Group by direction
+        const dirMap = {};
+        data.forEach(r => {
+            if (!dirMap[r.direction_id]) {
+                dirMap[r.direction_id] = {
+                    id: r.direction_id,
+                    name: r.direction_name,
+                    months: new Array(12).fill(0)
+                };
+            }
+            if (r.month_num >= 1 && r.month_num <= 12) {
+                dirMap[r.direction_id].months[r.month_num - 1] = r.goods_revenue / 1000000.0; // In millions
+            }
+        });
+
+        // Pick colors from summary or palette
+        const colorPalette = {
+            1: '#10b981', 2: '#0ea5e9', 3: '#f59e0b', 4: '#06b6d4',
+            5: '#84cc16', 6: '#8b5cf6', 7: '#ec4899', 8: '#6366f1', 9: '#94a3b8'
+        };
+
+        const datasets = Object.values(dirMap)
+            .filter(d => d.months.some(v => v > 0))
+            .map(d => {
+                const col = colorPalette[d.id] || '#64748b';
+                return {
+                    label: d.name,
+                    data: d.months,
+                    backgroundColor: col,
+                    borderRadius: 4
+                };
+            });
+
+        monthlyChartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: monthNames,
+                datasets: datasets
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        stacked: true,
+                        grid: { display: false }
+                    },
+                    y: {
+                        stacked: true,
+                        ticks: {
+                            callback: function(v) { return v + 'M ₴'; }
+                        },
+                        grid: { color: '#f1f5f9' }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: { family: 'Inter', size: 11 },
+                            boxWidth: 12,
+                            padding: 10
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(ctx) {
+                                return ` ${ctx.dataset.label}: ${ctx.raw.toFixed(2)} млн ₴`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // 4. Select Direction & Drill-down
+    function selectDirection(dirId, dirName) {
+        selectedDirectionId = dirId;
+        selectedDirectionName = dirName;
+        currentPage = 0;
+
+        // Update UI pill & titles
+        document.getElementById('active-filter-badge').innerHTML = `
+            <span>Выбрано: <strong>${dirName}</strong></span>
+            <button class="btn-clear-filter" onclick="event.stopPropagation(); resetDirectionSelection()">Сбросить ✕</button>
+        `;
+        document.getElementById('companies-title').textContent = `🏢 Компании отрасли: ${dirName}`;
+        
+        // Re-render summary table to reflect selection
+        renderSummaryTable(summaryData);
+
+        // Load companies
+        loadCompanies();
+
+        // Scroll to companies section
+        document.getElementById('companies-section').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function resetDirectionSelection() {
+        selectedDirectionId = 0;
+        selectedDirectionName = 'Все отрасли';
+        currentPage = 0;
+        document.getElementById('active-filter-badge').innerHTML = `<span>Выбрано: 🌐 Все отрасли</span>`;
+        document.getElementById('companies-title').textContent = `🏢 Компании отрасли: Все направления`;
+        renderSummaryTable(summaryData);
+        loadCompanies();
+    }
+
+    // 5. Load Companies Table
+    async function loadCompanies() {
+        const tbody = document.getElementById('companies-table-body');
+        tbody.innerHTML = `<tr><td colspan="12" class="state-container"><div class="spinner"></div><div style="margin-top:8px;">Загрузка списка компаний...</div></td></tr>`;
+
+        const search = (document.getElementById('client-search').value || '').trim();
+        const abc = document.getElementById('abc-filter').value;
+        const offset = currentPage * PAGE_SIZE;
+
+        try {
+            let url = `/api/analytics/directions/companies?token=${TOKEN}&direction_id=${selectedDirectionId}&year=${currentYear}&limit=${PAGE_SIZE}&offset=${offset}`;
+            if (search) url += `&search=${encodeURIComponent(search)}`;
+            if (abc && abc !== 'ALL') url += `&abc_group=${encodeURIComponent(abc)}`;
+
+            const res = await fetch(url);
+            const json = await res.json();
+
+            if (json.status === 'ok') {
+                companiesData = json.data || [];
+                totalMatchingCompanies = json.total_matching || 0;
+                renderCompaniesTable(companiesData);
+                updatePagination();
+            } else {
+                tbody.innerHTML = `<tr><td colspan="12" class="state-container">⚠️ Ошибка: ${json.detail || 'Не удалось загрузить данные'}</td></tr>`;
+            }
+        } catch (e) {
+            console.error('Ошибка загрузки компаний:', e);
+            tbody.innerHTML = `<tr><td colspan="12" class="state-container">⚠️ Ошибка: ${e.message}</td></tr>`;
+        }
+    }
+
+    function renderCompaniesTable(data) {
+        const tbody = document.getElementById('companies-table-body');
+        if (!data || data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="12" class="state-container">Компании не найдены по заданным критериям</td></tr>`;
+            document.getElementById('companies-count-badge').textContent = `Найдено: 0`;
+            return;
+        }
+
+        const startIdx = currentPage * PAGE_SIZE;
+        tbody.innerHTML = data.map((c, i) => {
+            const abcCls = `abc-${c.abc_group || 'C2'}`;
+            return `
+                <tr>
+                    <td style="color:var(--text-muted);font-size:12px;">${startIdx + i + 1}</td>
+                    <td>
+                        <a href="/client-detail?token=${TOKEN}&code=${c.code}" class="client-link" target="_blank">${c.code}</a>
+                    </td>
+                    <td>
+                        <div style="font-weight:600;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${c.name}">
+                            ${c.name}
+                        </div>
+                    </td>
+                    <td>
+                        <span style="font-family:monospace;font-weight:600;color:#334155;">${c.edrpou || '—'}</span>
+                    </td>
+                    <td>
+                        <span style="font-family:monospace;font-size:11.5px;color:#64748b;">${c.ipn || '—'}</span>
+                    </td>
+                    <td>
+                        <span class="badge" style="background:#f1f5f9;color:#334155;">${c.status_name}</span>
+                    </td>
+                    <td class="text-center">
+                        <span class="badge badge-abc ${abcCls}">${c.abc_group}</span>
+                    </td>
+                    <td class="text-right">${fmtNum(c.invoices_count)}</td>
+                    <td class="text-right" style="font-weight:700;color:#0f172a;">${fmtCur(c.goods_revenue)}</td>
+                    <td class="text-right" style="font-weight:600;color:#2563eb;">${fmtCur(c.avg_ticket)}</td>
+                    <td style="font-size:12px;color:var(--text-muted);">${c.last_purchase_date || '—'}</td>
+                    <td class="text-center">
+                        <a href="/client-detail?token=${TOKEN}&code=${c.code}" target="_blank" class="btn-filter" style="padding:3px 8px;font-size:11.5px;text-decoration:none;">
+                            Карточка ↗
+                        </a>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+
+        document.getElementById('companies-count-badge').textContent = `Показано: ${data.length} из ${totalMatchingCompanies}`;
+    }
+
+    function updatePagination() {
+        const totalPages = Math.ceil(totalMatchingCompanies / PAGE_SIZE) || 1;
+        const start = totalMatchingCompanies > 0 ? (currentPage * PAGE_SIZE + 1) : 0;
+        const end = Math.min((currentPage + 1) * PAGE_SIZE, totalMatchingCompanies);
+
+        document.getElementById('pagination-info').textContent = `Показано ${start}–${end} из ${totalMatchingCompanies} (страница ${currentPage + 1} из ${totalPages})`;
+        document.getElementById('btn-prev-page').disabled = currentPage === 0;
+        document.getElementById('btn-next-page').disabled = (currentPage + 1) >= totalPages;
+    }
+
+    function changePage(delta) {
+        currentPage += delta;
+        if (currentPage < 0) currentPage = 0;
+        loadCompanies();
+    }
+
+    function onFilterChange() {
+        currentPage = 0;
+        loadCompanies();
+    }
+
+    function debounceSearch() {
+        clearTimeout(searchDebounceTimer);
+        searchDebounceTimer = setTimeout(() => {
+            currentPage = 0;
+            loadCompanies();
+        }, 300);
+    }
+
+    // Export CSV
+    function exportCompaniesCSV() {
+        if (!companiesData || companiesData.length === 0) {
+            alert('Нет данных для экспорта');
+            return;
+        }
+        const headers = ['Код', 'Компания', 'ЕДРПОУ', 'ИПН', 'Статус', 'ABC', 'Накладных', 'Выручка_грн', 'Средний_чек_грн', 'Дата_покупки'];
+        const csvRows = [headers.join(';')];
+
+        companiesData.forEach(c => {
+            const row = [
+                c.code,
+                `"${(c.name || '').replace(/"/g, '""')}"`,
+                `"${c.edrpou || ''}"`,
+                `"${c.ipn || ''}"`,
+                `"${c.status_name || ''}"`,
+                c.abc_group,
+                c.invoices_count,
+                c.goods_revenue,
+                c.avg_ticket,
+                c.last_purchase_date
+            ];
+            csvRows.push(row.join(';'));
+        });
+
+        const blob = new Blob(['\uFEFF' + csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `companies_direction_${selectedDirectionId}_${currentYear}.csv`;
+        link.click();
+    }
+</script>
+
+</body>
+</html>

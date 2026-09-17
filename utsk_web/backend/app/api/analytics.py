@@ -1749,3 +1749,45 @@ def sleeping_segmentation_companies(
     except Exception as e:
         logger.error(f'Ошибка sleeping_segmentation_companies: {e}')
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get('/api/analytics/product-categories')
+def product_categories(token: str = Query(None), year: int = 2026, db: Session = Depends(get_db)):
+    verify_token(token)
+    try:
+        rows = db.execute(
+            text('SELECT * FROM get_product_categories(:year)'),
+            {'year': year}
+        ).fetchall()
+
+        categories = []
+        total_revenue = 0.0
+        total_ton = 0.0
+
+        for r in rows:
+            m = dict(r._mapping)
+            rev = float(m.get('revenue') or 0.0)
+            ton = float(m.get('ton') or 0.0)
+            total_revenue += rev
+            total_ton += ton
+            categories.append({
+                'id': int(m.get('id')),
+                'name': str(m.get('name')),
+                'icon': str(m.get('icon')),
+                'color': str(m.get('color')),
+                'revenue': round(rev, 2),
+                'ton': round(ton, 2),
+                'price_per_ton': round(float(m.get('price_per_ton') or 0.0), 2),
+                'lines_count': int(m.get('lines_count') or 0)
+            })
+
+        return {
+            'status': 'ok',
+            'year': year,
+            'total_revenue': round(total_revenue, 2),
+            'total_ton': round(total_ton, 2),
+            'data': categories
+        }
+    except Exception as e:
+        logger.error(f'Ошибка product_categories: {e}')
+        raise HTTPException(status_code=500, detail=str(e))

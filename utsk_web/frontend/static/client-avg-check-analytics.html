@@ -367,6 +367,12 @@
                 document.getElementById('kpi-avg-curr').textContent = fmtCur(kpi.avg_check_curr);
                 document.getElementById('kpi-avg-prev').textContent = fmtCur(kpi.avg_check_prev);
                 document.getElementById('kpi-median').textContent = fmtCur(kpi.median_check);
+                if (document.getElementById('stat-max-check')) {
+                    document.getElementById('stat-max-check').textContent = fmtCur(kpi.max_check);
+                }
+                if (document.getElementById('stat-min-check')) {
+                    document.getElementById('stat-min-check').textContent = fmtCur(kpi.min_check);
+                }
 
                 const growthElem = document.getElementById('kpi-growth');
                 if (kpi.growth_yoy_pct !== null && kpi.growth_yoy_pct !== undefined) {

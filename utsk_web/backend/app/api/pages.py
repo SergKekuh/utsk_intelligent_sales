@@ -198,6 +198,15 @@ async def new_clients_analytics_page(request: Request, token: str = Query(None))
             return HTMLResponse(content=f.read())
     raise HTTPException(status_code=404, detail="Страница анализа новых клиентов не найдена")
 
+@router.get("/returned-clients-analytics", response_class=HTMLResponse)
+async def returned_clients_analytics_page(request: Request, token: str = Query(None)):
+    verify_token(token)
+    filepath = find_file("returned-clients-analytics.html", get_search_dirs())
+    if filepath:
+        with open(filepath, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    raise HTTPException(status_code=404, detail="Страница анализа вернувшихся клиентов не найдена")
+
 @router.get("/inactive-clients-analytics", response_class=HTMLResponse)
 async def inactive_clients_analytics_page(request: Request, token: str = Query(None)):
     verify_token(token)
@@ -269,3 +278,58 @@ async def client_month_analytics_page(request: Request, token: str = Query(None)
         with open(filepath, "r", encoding="utf-8") as f:
             return HTMLResponse(content=f.read())
     raise HTTPException(status_code=404, detail="Страница анализа месяца не найдена")
+
+@router.get("/directions-analytics", response_class=HTMLResponse)
+async def directions_analytics_page(request: Request, token: str = Query(None)):
+    verify_token(token)
+    filepath = find_file("directions-analytics.html", get_search_dirs())
+    if filepath:
+        with open(filepath, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    raise HTTPException(status_code=404, detail="Страница аналитики направлений не найдена")
+
+@router.get("/directions-revenue-analytics", response_class=HTMLResponse)
+async def directions_revenue_analytics_page(request: Request, token: str = Query(None)):
+    verify_token(token)
+    filepath = find_file("directions-revenue-analytics.html", get_search_dirs())
+    if filepath:
+        with open(filepath, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    raise HTTPException(status_code=404, detail="Страница аналитики выручки направлений не найдена")
+
+@router.get("/directions-clients-analytics", response_class=HTMLResponse)
+async def directions_clients_analytics_page(request: Request, token: str = Query(None)):
+    verify_token(token)
+    filepath = find_file("directions-clients-analytics.html", get_search_dirs())
+    if filepath:
+        with open(filepath, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    raise HTTPException(status_code=404, detail="Страница аналитики клиентов по направлениям не найдена")
+
+@router.get("/directions-invoices-analytics", response_class=HTMLResponse)
+async def directions_invoices_analytics_page(request: Request, token: str = Query(None)):
+    verify_token(token)
+    filepath = find_file("directions-invoices-analytics.html", get_search_dirs())
+    if filepath:
+        with open(filepath, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    raise HTTPException(status_code=404, detail="Страница аналитики накладных по направлениям не найдена")
+
+@router.get("/directions-avg-check-analytics", response_class=HTMLResponse)
+async def directions_avg_check_analytics_page(request: Request, token: str = Query(None)):
+    verify_token(token)
+    filepath = find_file("directions-avg-check-analytics.html", get_search_dirs())
+    if filepath:
+        with open(filepath, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    raise HTTPException(status_code=404, detail="Страница аналитики среднего чека по направлениям не найдена")
+
+@router.get("/directions-leader-analytics", response_class=HTMLResponse)
+async def directions_leader_analytics_page(request: Request, token: str = Query(None)):
+    verify_token(token)
+    filepath = find_file("directions-leader-analytics.html", get_search_dirs())
+    if filepath:
+        with open(filepath, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    raise HTTPException(status_code=404, detail="Страница аналитики отрасли-лидера не найдена")
+

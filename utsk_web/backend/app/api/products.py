@@ -96,6 +96,67 @@ def recommendations_for_client(client_code: str, token: str = Query(None), db: S
         logger.error(f"Ошибка рекомендаций для {client_code}: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+# ====== API: РЕКОМЕНДАЦИИ ПО РАЗМЕРУ ДЛЯ КЛИЕНТА ======
+@router.get("/api/recommendations-by-size/{client_code}")
+@router.get("/recommendations-by-size/{client_code}")
+def get_recommendations_by_size_endpoint(
+    client_code: str,
+    token: str = Query(...),
+    limit: int = Query(5, ge=1, le=20),
+    db: Session = Depends(get_db),
+):
+    """
+    ТОП покупок клиента, агрегированный по размеру трубы.
+    Возвращает: {size_key, display_name, count, pct, stock}.
+    """
+    verify_token(token)
+
+    try:
+        rows = db.execute(
+            text("""
+                SELECT 
+                    size_key,
+                    size_display,
+                    pipe_type_ua,
+                    display_name,
+                    purchase_count_current,
+                    revenue_current,
+                    pct_of_client_total,
+                    purchase_count_prev,
+                    revenue_prev,
+                    stock_balance_total
+                FROM get_recommendations_by_size(:code, :lim)
+            """),
+            {"code": client_code, "lim": limit},
+        ).mappings().all()
+
+        items = []
+        for r in rows:
+            items.append({
+                "size_key": r["size_key"],
+                "size_display": r["size_display"],
+                "pipe_type_ua": r["pipe_type_ua"],
+                "display_name": r["display_name"],
+                "count": int(r["purchase_count_current"] or 0),
+                "pct": float(r["pct_of_client_total"] or 0),
+                "revenue": float(r["revenue_current"] or 0),
+                "count_prev": int(r["purchase_count_prev"] or 0),
+                "revenue_prev": float(r["revenue_prev"] or 0),
+                "stock": float(r["stock_balance_total"] or 0),
+                "reason": "Часто покупаете",
+            })
+
+        return {
+            "status": "ok",
+            "client_code": client_code,
+            "year": 2026,
+            "count": len(items),
+            "items": items,
+        }
+    except Exception as e:
+        logger.error(f"Ошибка get_recommendations_by_size_endpoint: {e}")
+        raise HTTPException(status_code=500, detail=f"SQL error: {str(e)}")
+
 # ====== API: ТОП РЕКОМЕНДАЦИЙ (общие) ======
 @router.get("/api/recommendations")
 def top_recommendations(token: str = Query(None), limit: int = 10, db: Session = Depends(get_db)):

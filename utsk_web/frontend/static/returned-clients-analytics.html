@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UTSK Intelligent Sales — Аналитика Вернувшихся Клиентов</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --bg-app: #f8fafc;
+            --bg-surface: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --brand: #0284c7;
+            --brand-soft: #e0f2fe;
+            --good: #10b981;
+            --good-soft: #d1fae5;
+            --warn: #f59e0b;
+            --warn-soft: #fef3c7;
+            --bad: #ef4444;
+            --bad-soft: #fee2e2;
+            --accent: #6366f1;
+            --accent-soft: #e0e7ff;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -2px rgba(0,0,0,0.03);
+            --radius-sm: 10px;
+            --radius: 16px;
+            --radius-lg: 20px;
+            --header-height: 64px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+
+        body {
+            background: #f1f5f9;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--text-main);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .app-window {
+            width: 100%;
+            max-width: 1440px;
+            background: var(--bg-app);
+            border-radius: var(--radius-lg);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.12);
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        /* Header */
+        .header {
+            min-height: var(--header-height);
+            background: var(--bg-surface);
+            display: flex;
+            align-items: center;
+            padding: 12px 28px;
+            border-bottom: 1px solid var(--border);
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .header-logo { font-weight: 800; font-size: 17px; letter-spacing: -0.3px; display: flex; align-items: center; gap: 8px; }
+        .header-badge {
+            background: var(--brand-soft); color: #0369a1;
+            padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 700;
+            display: inline-flex; align-items: center; gap: 6px;
+        }
+        .header-subtext {
+            font-size: 12px; color: var(--text-muted); margin-left: 4px;
+        }
+        .header-controls {
+            display: flex; align-items: center; gap: 12px; margin-left: auto;
+        }
+        .select-year {
+            padding: 8px 14px; border-radius: 10px; font-size: 13px; font-weight: 600;
+            border: 1px solid var(--border); background: var(--bg-surface); color: var(--text-main);
+            outline: none; cursor: pointer; transition: all 0.15s;
+        }
+        .select-year:hover { border-color: var(--brand); }
+
+        .btn {
+            padding: 8px 16px; border-radius: 10px; font-size: 13px; font-weight: 600;
+            cursor: pointer; border: 1px solid var(--border); background: var(--bg-surface);
+            color: var(--text-main); display: inline-flex; align-items: center; gap: 6px;
+            transition: all 0.15s; text-decoration: none;
+        }
+        .btn:hover { background: #f1f5f9; }
+        .btn-primary { background: var(--text-main); color: white; border-color: var(--text-main); }
+        .btn-primary:hover { background: #1e293b; }
+
+        /* Main container */
+        .content { padding: 24px 28px; display: flex; flex-direction: column; gap: 24px; }
+
+        /* KPI Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 16px;
+        }
+        .kpi-card {
+            background: var(--bg-surface);
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+        .kpi-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+        .kpi-title { font-size: 12px; font-weight: 600; color: var(--text-muted); display: flex; align-items: center; justify-content: space-between; }
+        .kpi-value { font-size: 22px; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; }
+        .kpi-sub { font-size: 11px; font-weight: 600; color: var(--text-muted); }
+
+        /* Tabs Navigation */
+        .tabs-nav {
+            display: flex; gap: 8px; background: var(--bg-surface);
+            border: 1px solid var(--border); border-radius: var(--radius);
+            padding: 6px; box-shadow: var(--shadow-sm); flex-wrap: wrap;
+        }
+        .tab-btn {
+            padding: 10px 18px; border-radius: 10px; font-size: 13px; font-weight: 600;
+            cursor: pointer; border: none; background: transparent; color: var(--text-muted);
+            transition: all 0.15s; display: flex; align-items: center; gap: 8px;
+        }
+        .tab-btn:hover { color: var(--text-main); background: #f8fafc; }
+        .tab-btn.active { background: var(--text-main); color: white; box-shadow: var(--shadow-sm); }
+
+        /* Tab Content */
+        .tab-content { display: none; flex-direction: column; gap: 20px; }
+        .tab-content.active { display: flex; }
+
+        /* Card Section */
+        .card-section {
+            background: var(--bg-surface);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+        .card-header {
+            display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+        }
+        .card-title { font-size: 16px; font-weight: 700; color: var(--text-main); }
+        .card-desc { font-size: 13px; color: var(--text-muted); }
+
+        .two-cols {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        /* Tables */
+        .table-container { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border); width: 100%; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
+        th { background: #f8fafc; color: var(--text-muted); font-weight: 600; padding: 12px 16px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+        td { padding: 12px 16px; border-bottom: 1px solid var(--border); color: var(--text-main); }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #f8fafc; }
+
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+
+        .badge-abc {
+            display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 700; text-align: center; min-width: 95px; white-space: nowrap;
+        }
+        .badge-a { background: #d1fae5; color: #047857; }
+        .badge-b { background: #fef3c7; color: #b45309; }
+        .badge-c { background: #f1f5f9; color: #475569; }
+
+        /* Search & Filters */
+        .filters-row {
+            display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+        }
+        .search-input {
+            padding: 9px 14px; border-radius: 10px; border: 1px solid var(--border);
+            font-size: 13px; width: 320px; outline: none; transition: border-color 0.15s;
+        }
+        .search-input:focus { border-color: var(--brand); }
+        .abc-filters { display: flex; gap: 6px; }
+        .filter-chip {
+            padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border);
+            background: var(--bg-surface); font-size: 12px; font-weight: 600; cursor: pointer;
+            transition: all 0.15s; color: var(--text-muted);
+        }
+        .filter-chip:hover { border-color: var(--brand); color: var(--text-main); }
+        .filter-chip.active { background: var(--brand-soft); color: #0369a1; border-color: #7dd3fc; }
+
+        .chart-box {
+            position: relative; width: 100%; height: 320px;
+        }
+
+        /* Responsive layout */
+        @media (max-width: 1200px) {
+            .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+            .two-cols { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 768px) {
+            .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-window">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-logo">
+                🔄 UTSK Sales Analytics
+            </div>
+            <div class="header-badge">
+                Вернувшиеся клиенты (<span id="display-year">2026</span>)
+            </div>
+            <span class="header-subtext">Клиенты, покупавшие в 2024, пропустившие 2025, вернувшиеся в 2026 (ID=10)</span>
+            <div class="header-controls">
+                <select id="year-select" class="select-year" onchange="initApp()">
+                    <option value="2026" selected>Год 2026</option>
+                    <option value="2025">Год 2025</option>
+                </select>
+                <a href="/?token=utsk2026" id="back-dashboard-btn" class="btn">
+                    ← На дашборд
+                </a>
+            </div>
+        </header>
+
+        <main class="content">
+            <!-- 6 KPI Cards -->
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-title">👥 Всего вернувшихся <span>🔄</span></div>
+                    <div class="kpi-value" id="kpi-total-returned">—</div>
+                    <div class="kpi-sub">Статус ID = 10</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-title">💰 Выручка <span>📈</span></div>
+                    <div class="kpi-value" id="kpi-total-revenue">—</div>
+                    <div class="kpi-sub">Товарная выручка</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-title">📄 Накладных <span>🧾</span></div>
+                    <div class="kpi-value" id="kpi-total-invoices">—</div>
+                    <div class="kpi-sub">Товарных счетов в 2026</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-title">🛒 Средний чек <span>💳</span></div>
+                    <div class="kpi-value" id="kpi-avg-ticket">—</div>
+                    <div class="kpi-sub">Выручка / Счетов</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-title">📊 % от активных клиентов <span>🥧</span></div>
+                    <div class="kpi-value" id="kpi-pct-active">—</div>
+                    <div class="kpi-sub">Среди 729 активных клиентов</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-title">⏰ Средний перерыв <span>⏳</span></div>
+                    <div class="kpi-value" id="kpi-break-period">1 год</div>
+                    <div class="kpi-sub">Пропустили 2025 год</div>
+                </div>
+            </div>
+
+            <!-- Tabs Navigation -->
+            <nav class="tabs-nav">
+                <button class="tab-btn active" onclick="switchTab(1, this)">
+                    📊 Распределение по частоте
+                </button>
+                <button class="tab-btn" onclick="switchTab(2, this)">
+                    🔤 ABC-анализ
+                </button>
+                <button class="tab-btn" onclick="switchTab(3, this)">
+                    ⚖️ Сравнение с Новыми
+                </button>
+                <button class="tab-btn" onclick="switchTab(4, this)">
+                    📋 Список компаний (<span id="tab-count-clients">31</span>)
+                </button>
+            </nav>
+
+            <!-- TAB 1: Frequency -->
+            <div id="tab-1" class="tab-content active">
+                <div class="card-section">
+                    <div class="card-header">
+                        <div class="card-title">📊 Визуализация: Распределение Вернувшихся по частотным группам</div>
+                    </div>
+                    <div class="chart-box" style="height: 320px;">
+                        <canvas id="chart-frequency"></canvas>
+                    </div>
+                </div>
+
+                <div class="card-section">
+                    <div class="card-header">
+                        <div class="card-title">📋 Матрица частоты покупок: Вернувшиеся клиенты</div>
+                        <div class="card-desc">Покупали в 2024, пропустили 2025 и совершили покупки в текущем году</div>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Группа частоты</th>
+                                    <th class="text-center">Количество клиентов</th>
+                                    <th class="text-right">Товарная выручка (₴)</th>
+                                    <th class="text-right">Средний чек (₴)</th>
+                                    <th class="text-center">Доля в выручке (%)</th>
+                                    <th class="text-center">Доля в клиентах (%)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-frequency">
+                                <tr><td colspan="6" style="text-align:center; color: var(--text-muted);">Загрузка данных...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: ABC Analysis -->
+            <div id="tab-2" class="tab-content">
+                <div class="card-section">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">ABC-анализ вернувшихся клиентов</div>
+                            <div class="card-desc">Классификация клиентов по вкладу в выручку сегмента: A (80%), B (15%), C (5%)</div>
+                        </div>
+                    </div>
+                    <div class="two-cols">
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th style="min-width: 120px;">Класс</th>
+                                        <th class="text-center">Кол-во клиентов</th>
+                                        <th class="text-right">Выручка (₴)</th>
+                                        <th class="text-center">Доля в выручке (%)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-abc">
+                                    <tr><td colspan="4" style="text-align:center; color: var(--text-muted);">Загрузка данных...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="chart-box">
+                            <canvas id="chart-abc"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: Compare with New -->
+            <div id="tab-3" class="tab-content">
+                <div class="card-section">
+                    <div class="card-header">
+                        <div class="card-title">📊 Сравнение объёмов: Вернувшиеся vs Новые клиенты</div>
+                        <div class="card-desc">Сравнение распределения по частотным сегментам</div>
+                    </div>
+                    <div class="chart-box" style="height: 350px;">
+                        <canvas id="chart-compare"></canvas>
+                    </div>
+                </div>
+
+                <div class="card-section">
+                    <div class="card-header">
+                        <div class="card-title">📋 Сравнительная таблица: Вернувшиеся vs Новые</div>
+                        <div class="card-desc">Анализ средних чеков, выручки и объёмов между когортами</div>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Группа частоты</th>
+                                    <th class="text-center" style="background:#f0f9ff; color:#0369a1;">Вернувшиеся (Кол-во)</th>
+                                    <th class="text-right" style="background:#f0f9ff; color:#0369a1;">Вернувшиеся (Выручка, ₴)</th>
+                                    <th class="text-right" style="background:#f0f9ff; color:#0369a1;">Ср. чек (Вернувшиеся)</th>
+                                    <th class="text-center" style="background:#f0fdf4; color:#15803d;">Новые (Кол-во)</th>
+                                    <th class="text-right" style="background:#f0fdf4; color:#15803d;">Новые (Выручка, ₴)</th>
+                                    <th class="text-right" style="background:#f0fdf4; color:#15803d;">Ср. чек (Новые)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-compare">
+                                <tr><td colspan="7" style="text-align:center; color: var(--text-muted);">Загрузка данных...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: Client List -->
+            <div id="tab-4" class="tab-content">
+                <div class="card-section">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">Полный список вернувшихся компаний (31 клиент)</div>
+                            <div class="card-desc">Кликните по компании для перехода в карточку детальной истории</div>
+                        </div>
+                    </div>
+
+                    <div class="filters-row">
+                        <input type="text" id="search-input" class="search-input" placeholder="Поиск по названию или коду компании..." oninput="onSearchChange()">
+                        <div class="abc-filters">
+                            <button class="filter-chip active" onclick="setAbcFilter('', this)">Все классы</button>
+                            <button class="filter-chip" onclick="setAbcFilter('A', this)">🟢 Опорные (A: 6)</button>
+                            <button class="filter-chip" onclick="setAbcFilter('B', this)">🟡 Развивающие (B: 9)</button>
+                            <button class="filter-chip" onclick="setAbcFilter('C', this)">⚪ Поддерживающие (C: 16)</button>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Код</th>
+                                    <th>Наименование клиента</th>
+                                    <th class="text-center">Группа частоты</th>
+                                    <th class="text-center">Счетов</th>
+                                    <th class="text-right">Товарная выручка (₴)</th>
+                                    <th style="min-width: 120px;" class="text-center">Класс</th>
+                                    <th>Первая дата</th>
+                                    <th>Последняя дата</th>
+                                    <th class="text-center">Действие</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-list">
+                                <tr><td colspan="9" style="text-align:center; color: var(--text-muted);">Загрузка списка клиентов...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let currentYear = 2026;
+        let selectedAbcGroup = '';
+        let searchTimeout = null;
+        let chartFreqInstance = null;
+        let chartAbcInstance = null;
+        let chartCompareInstance = null;
+
+        function fmtNum(n) {
+            if (n === null || n === undefined) return '0';
+            return Number(n).toLocaleString('ru-RU');
+        }
+
+        function fmtMoney(n) {
+            if (n === null || n === undefined) return '₴ 0';
+            return '₴ ' + new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 0 }).format(n);
+        }
+
+        function fmtShort(n) {
+            if (!n) return '₴ 0';
+            if (Math.abs(n) >= 1e9) return '₴ ' + (n / 1e9).toFixed(2) + ' млрд';
+            if (Math.abs(n) >= 1e6) return '₴ ' + (n / 1e6).toFixed(2) + ' млн';
+            if (Math.abs(n) >= 1e3) return '₴ ' + (n / 1e3).toFixed(1) + ' тыс';
+            return '₴ ' + Number(n).toFixed(0);
+        }
+
+        function getURLToken() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('token') || 'utsk2026';
+        }
+
+        function switchTab(tabNum, btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(`tab-${tabNum}`).classList.add('active');
+        }
+
+        async function initApp() {
+            currentYear = document.getElementById('year-select').value;
+            document.getElementById('display-year').textContent = currentYear;
+            const TOKEN = getURLToken();
+
+            document.getElementById('back-dashboard-btn').href = `/?token=${TOKEN}`;
+
+            try {
+                const [overview, frequency, abc, compare, list] = await Promise.all([
+                    fetch(`/api/analytics/returned-clients-overview?token=${TOKEN}&year=${currentYear}`).then(r => r.json()),
+                    fetch(`/api/analytics/returned-clients-frequency?token=${TOKEN}&year=${currentYear}`).then(r => r.json()),
+                    fetch(`/api/analytics/returned-clients-abc?token=${TOKEN}&year=${currentYear}`).then(r => r.json()),
+                    fetch(`/api/analytics/returned-clients-compare-new?token=${TOKEN}&year=${currentYear}`).then(r => r.json()),
+                    fetch(`/api/analytics/returned-clients-list?token=${TOKEN}&year=${currentYear}&limit=200`).then(r => r.json())
+                ]);
+
+                renderKPI(overview);
+                renderFrequency(frequency.data || []);
+                renderABC(abc.data || []);
+                renderCompare(compare.data || []);
+                renderList(list.data || []);
+            } catch (err) {
+                console.error('Ошибка загрузки аналитики вернувшихся клиентов:', err);
+            }
+        }
+
+        function renderKPI(data) {
+            if (!data) return;
+            document.getElementById('kpi-total-returned').textContent = fmtNum(data.total_returned);
+            document.getElementById('kpi-total-revenue').textContent = fmtShort(data.total_revenue);
+            document.getElementById('kpi-total-invoices').textContent = fmtNum(data.total_invoices);
+            document.getElementById('kpi-avg-ticket').textContent = fmtShort(data.avg_ticket);
+            document.getElementById('kpi-pct-active').textContent = (data.pct_of_active_clients || 0) + '%';
+            document.getElementById('kpi-break-period').textContent = data.avg_break_period || '1 год';
+            document.getElementById('tab-count-clients').textContent = fmtNum(data.total_returned);
+        }
+
+        function renderFrequency(data) {
+            const tbody = document.getElementById('tbody-frequency');
+            tbody.innerHTML = '';
+
+            if (!data || data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color: var(--text-muted);">Нет данных</td></tr>';
+                return;
+            }
+
+            let labels = [];
+            let counts = [];
+            let totalCount = 0;
+            let totalRevenue = 0;
+
+            data.forEach(item => {
+                labels.push(item.frequency_group);
+                counts.push(item.returned_count);
+                totalCount += item.returned_count || 0;
+                totalRevenue += item.returned_revenue || 0;
+            });
+
+            data.forEach(item => {
+                const revPct = totalRevenue > 0 ? ((item.returned_revenue || 0) * 100.0 / totalRevenue).toFixed(1) : '0.0';
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${item.frequency_group}</strong></td>
+                    <td class="text-center"><strong>${fmtNum(item.returned_count)}</strong></td>
+                    <td class="text-right">${fmtMoney(item.returned_revenue)}</td>
+                    <td class="text-right">${fmtMoney(item.avg_ticket)}</td>
+                    <td class="text-center"><strong>${revPct}%</strong></td>
+                    <td class="text-center"><span style="font-weight:700; color:#0369a1;">${item.returned_pct}%</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Итоговая строка
+            const avgCheck = totalCount > 0 ? totalRevenue / totalCount : 0;
+            const trTotal = document.createElement('tr');
+            trTotal.style.background = '#f8fafc';
+            trTotal.style.borderTop = '2px solid #e2e8f0';
+            trTotal.innerHTML = `
+                <td><strong>Итого Вернувшихся</strong></td>
+                <td class="text-center"><strong>${fmtNum(totalCount)}</strong></td>
+                <td class="text-right"><strong>${fmtMoney(totalRevenue)}</strong></td>
+                <td class="text-right"><strong>${fmtMoney(avgCheck)}</strong></td>
+                <td class="text-center"><strong>100.0%</strong></td>
+                <td class="text-center"><strong>100.0%</strong></td>
+            `;
+            tbody.appendChild(trTotal);
+
+            const ctx = document.getElementById('chart-frequency').getContext('2d');
+            if (chartFreqInstance) chartFreqInstance.destroy();
+
+            chartFreqInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Кол-во вернувшихся клиентов',
+                        data: counts,
+                        backgroundColor: '#0284c7',
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        title: { display: true, text: 'Вернувшиеся клиенты по частотным диапазонам', font: { size: 14, weight: 'bold' } }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { stepSize: 5 } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        function renderABC(data) {
+            const tbody = document.getElementById('tbody-abc');
+            tbody.innerHTML = '';
+
+            if (!data || data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color: var(--text-muted);">Нет данных</td></tr>';
+                return;
+            }
+
+            let labels = [];
+            let revenues = [];
+            let totalCount = 0;
+            let totalRev = 0;
+            const groupNames = { 'A': 'Опорные (A)', 'B': 'Развивающие (B)', 'C': 'Поддерживающие (C)' };
+
+            data.forEach(item => {
+                labels.push(groupNames[item.abc_group] || `Класс ${item.abc_group}`);
+                revenues.push(item.revenue);
+                totalCount += item.count || 0;
+                totalRev += item.revenue || 0;
+
+                const badgeClass = item.abc_group === 'A' ? 'badge-a' : (item.abc_group === 'B' ? 'badge-b' : 'badge-c');
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><span class="badge-abc ${badgeClass}">${groupNames[item.abc_group] || item.abc_group}</span></td>
+                    <td class="text-center">${fmtNum(item.count)}</td>
+                    <td class="text-right">${fmtMoney(item.revenue)}</td>
+                    <td class="text-center"><strong>${item.pct}%</strong></td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Total row
+            const trTotal = document.createElement('tr');
+            trTotal.style.background = '#f8fafc';
+            trTotal.style.borderTop = '2px solid #e2e8f0';
+            trTotal.innerHTML = `
+                <td><strong>Итого</strong></td>
+                <td class="text-center"><strong>${fmtNum(totalCount)}</strong></td>
+                <td class="text-right"><strong>${fmtMoney(totalRev)}</strong></td>
+                <td class="text-center"><strong>100.0%</strong></td>
+            `;
+            tbody.appendChild(trTotal);
+
+            const ctx = document.getElementById('chart-abc').getContext('2d');
+            if (chartAbcInstance) chartAbcInstance.destroy();
+
+            chartAbcInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: revenues,
+                        backgroundColor: ['#10b981', '#f59e0b', '#94a3b8'],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        title: { display: true, text: 'Выручка вернувшихся клиентов по классам', font: { size: 14, weight: 'bold' } }
+                    }
+                }
+            });
+        }
+
+        function renderCompare(data) {
+            const tbody = document.getElementById('tbody-compare');
+            tbody.innerHTML = '';
+
+            if (!data || data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color: var(--text-muted);">Нет данных</td></tr>';
+                return;
+            }
+
+            let labels = [];
+            let retCounts = [];
+            let newCounts = [];
+            let totRetCount = 0, totRetRev = 0;
+            let totNewCount = 0, totNewRev = 0;
+
+            data.forEach(item => {
+                labels.push(item.frequency_group);
+                retCounts.push(item.returned_count);
+                newCounts.push(item.new_count);
+
+                totRetCount += item.returned_count || 0;
+                totRetRev += item.returned_revenue || 0;
+                totNewCount += item.new_count || 0;
+                totNewRev += item.new_revenue || 0;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${item.frequency_group}</strong></td>
+                    <td class="text-center" style="font-weight:700; color:#0369a1;">${fmtNum(item.returned_count)}</td>
+                    <td class="text-right" style="font-weight:700; color:#0369a1;">${fmtMoney(item.returned_revenue)}</td>
+                    <td class="text-right">${fmtMoney(item.returned_avg_ticket)}</td>
+                    <td class="text-center" style="font-weight:700; color:#15803d;">${fmtNum(item.new_count)}</td>
+                    <td class="text-right" style="font-weight:700; color:#15803d;">${fmtMoney(item.new_revenue)}</td>
+                    <td class="text-right">${fmtMoney(item.new_avg_ticket)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Итоговая строка
+            const avgRetTicket = totRetCount > 0 ? totRetRev / totRetCount : 0;
+            const avgNewTicket = totNewCount > 0 ? totNewRev / totNewCount : 0;
+            const trTotal = document.createElement('tr');
+            trTotal.style.background = '#f8fafc';
+            trTotal.style.borderTop = '2px solid #e2e8f0';
+            trTotal.innerHTML = `
+                <td><strong>Итого</strong></td>
+                <td class="text-center" style="font-weight:800; color:#0369a1;">${fmtNum(totRetCount)}</td>
+                <td class="text-right" style="font-weight:800; color:#0369a1;">${fmtMoney(totRetRev)}</td>
+                <td class="text-right" style="font-weight:800;">${fmtMoney(avgRetTicket)}</td>
+                <td class="text-center" style="font-weight:800; color:#15803d;">${fmtNum(totNewCount)}</td>
+                <td class="text-right" style="font-weight:800; color:#15803d;">${fmtMoney(totNewRev)}</td>
+                <td class="text-right" style="font-weight:800;">${fmtMoney(avgNewTicket)}</td>
+            `;
+            tbody.appendChild(trTotal);
+
+            const ctx = document.getElementById('chart-compare').getContext('2d');
+            if (chartCompareInstance) chartCompareInstance.destroy();
+
+            chartCompareInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        { label: 'Вернувшиеся (Кол-во)', data: retCounts, backgroundColor: '#0284c7', borderRadius: 6 },
+                        { label: 'Новые (Кол-во)', data: newCounts, backgroundColor: '#10b981', borderRadius: 6 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top' },
+                        title: { display: true, text: 'Сравнение численности клиентов (Вернувшиеся vs Новые)', font: { size: 14, weight: 'bold' } }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        function renderList(data) {
+            const tbody = document.getElementById('tbody-list');
+            tbody.innerHTML = '';
+
+            if (!data || data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; color: var(--text-muted);">Клиенты не найдены</td></tr>';
+                return;
+            }
+
+            const TOKEN = getURLToken();
+
+            data.forEach(item => {
+                const badgeClass = item.abc_group === 'A' ? 'badge-a' : (item.abc_group === 'B' ? 'badge-b' : 'badge-c');
+                const groupNames = { 'A': 'Опорные (A)', 'B': 'Развивающие (B)', 'C': 'Поддерживающие (C)' };
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><code>${item.code}</code></td>
+                    <td>
+                        <a href="/client-detail?code=${item.code}&token=${TOKEN}" style="color:var(--text-main); font-weight:700; text-decoration:none;">
+                            ${item.name}
+                        </a>
+                    </td>
+                    <td class="text-center"><span style="font-size:12px; color:#475569; font-weight:600;">${item.frequency_group || '—'}</span></td>
+                    <td class="text-center">${fmtNum(item.docs)}</td>
+                    <td class="text-right"><strong>${fmtMoney(item.revenue)}</strong></td>
+                    <td class="text-center"><span class="badge-abc ${badgeClass}">${groupNames[item.abc_group] || item.abc_group || 'C'}</span></td>
+                    <td>${item.first_date || '—'}</td>
+                    <td>${item.last_date || '—'}</td>
+                    <td class="text-center">
+                        <a href="/client-detail?code=${item.code}&token=${TOKEN}" class="btn" style="padding: 4px 10px; font-size: 11px;">
+                            Детализация →
+                        </a>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function fetchFilteredList() {
+            const TOKEN = getURLToken();
+            const searchVal = encodeURIComponent(document.getElementById('search-input').value.trim());
+            const abcVal = selectedAbcGroup;
+
+            try {
+                const res = await fetch(`/api/analytics/returned-clients-list?token=${TOKEN}&year=${currentYear}&search=${searchVal}&abc_group=${abcVal}&limit=200`).then(r => r.json());
+                renderList(res.data || []);
+            } catch (err) {
+                console.error('Ошибка загрузки списка клиентов:', err);
+            }
+        }
+
+        function onSearchChange() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(fetchFilteredList, 300);
+        }
+
+        function setAbcFilter(group, btn) {
+            document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            selectedAbcGroup = group;
+            fetchFilteredList();
+        }
+
+        window.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>

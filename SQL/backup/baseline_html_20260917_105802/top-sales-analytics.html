@@ -1,0 +1,1824 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📊 ТОП продаж — Визуализация | UTSK Intelligent Sales</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --bg-app: #f8fafc;
+            --bg-main: #f1f5f9;
+            --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%);
+            --bg-surface: #ffffff;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --radius-sm: 10px;
+            --radius: 16px;
+            --radius-lg: 20px;
+            --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.05);
+            --shadow-md: 0 4px 15px -3px rgba(15, 23, 42, 0.08);
+
+            /* Brand Accent Palette */
+            --primary: #4f46e5;
+            --primary-soft: #e0e7ff;
+            --success: #10b981;
+            --success-soft: #d1fae5;
+            --warning: #f59e0b;
+            --warning-soft: #fef3c7;
+            --danger: #ef4444;
+            --danger-soft: #fee2e2;
+            --cyan: #06b6d4;
+            --cyan-soft: #cffafe;
+            --purple: #a855f7;
+            --purple-soft: #f3e8ff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 24px 24px 24px 72px;
+            position: relative;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 16px 16px 16px 56px;
+            }
+        }
+
+        /* Side Vertical Branding Inscription */
+        .side-vertical-banner {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 48px;
+            background: #ffffff;
+            border-right: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .vertical-text {
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+            font-size: 13px;
+            font-weight: 900;
+            letter-spacing: 7px;
+            color: var(--primary);
+            text-transform: uppercase;
+            opacity: 0.85;
+            user-select: none;
+            white-space: nowrap;
+        }
+
+        /* Main Container */
+        .app-container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* Page Header */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 18px 28px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .header-title-box {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header-title {
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-badge {
+            background: var(--primary-soft);
+            color: var(--primary);
+            border: 1px solid rgba(79, 70, 229, 0.25);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .year-selector-label {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .year-select {
+            background: var(--card-bg);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.15s;
+        }
+
+        .year-select:hover {
+            border-color: var(--primary);
+        }
+
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--card-bg);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            padding: 8px 18px;
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.15s;
+        }
+
+        .btn-back:hover {
+            background: var(--text-main);
+            color: white;
+            border-color: var(--text-main);
+        }
+
+        /* Checkpoint Cards & Top Section */
+        .checkpoints-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .checkpoint-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 0px;
+        }
+
+        .checkpoint-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            background: #eef2ff;
+            border: 1px solid #c7d2fe;
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-size: 13px;
+        }
+
+        .cp-label {
+            font-weight: 700;
+            color: #3730a3;
+            min-width: 50px;
+        }
+
+        .cp-pct {
+            font-weight: 800;
+            color: #4f46e5;
+            min-width: 50px;
+            text-align: center;
+        }
+
+        .cp-sum {
+            font-weight: 600;
+            color: #1e293b;
+            text-align: right;
+            font-size: 12px;
+        }
+
+        /* KPI Grid (1 ряд — все 6 карточек) */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 12px;
+        }
+
+        @media (max-width: 1200px) {
+            .kpi-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .checkpoint-row {
+                grid-template-columns: 1fr;
+            }
+            .kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .checkpoint-wide {
+                flex-direction: column;
+                gap: 8px;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .checkpoint-wide {
+            background: #fef3c7;
+            border: 1px solid #fbbf24;
+            border-radius: 10px;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 14px;
+            font-weight: 600;
+            color: #92400e;
+        }
+
+        .checkpoint-label {
+            font-weight: 700;
+        }
+
+        .checkpoint-pct {
+            font-weight: 800;
+            color: #d97706;
+            font-size: 18px;
+        }
+
+        .checkpoint-sum {
+            font-weight: 800;
+            color: #b45309;
+        }
+
+        .kpi-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px 16px;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--primary);
+            border-radius: 4px 0 0 4px;
+        }
+
+        .kpi-card:nth-child(2)::before { background: var(--cyan); }
+        .kpi-card:nth-child(3)::before { background: var(--warning); }
+        .kpi-card:nth-child(4)::before { background: var(--purple); }
+        .kpi-card:nth-child(5)::before { background: var(--success); }
+        .kpi-card:nth-child(6)::before { background: #ec4899; }
+
+        .kpi-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        .kpi-value {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-main);
+            letter-spacing: -0.5px;
+            margin-top: 2px;
+            white-space: nowrap;
+        }
+
+        .kpi-subtext {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Tabs Navigation (Bento UI - Full Width) */
+        .tabs-nav {
+            display: flex;
+            width: 100%;
+            gap: 4px;
+            background: #ffffff;
+            padding: 6px;
+            border-radius: 14px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+            box-sizing: border-box;
+        }
+
+        .tab-btn {
+            flex: 1;
+            min-width: 0;
+            padding: 10px 8px;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 12px;
+            font-weight: 600;
+            border: none;
+            background: transparent;
+            border-radius: 10px;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .tab-btn:hover {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+
+        .tab-btn.active {
+            background: #4f46e5;
+            color: #ffffff;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 3px;
+            background: #4f46e5;
+            border-radius: 2px;
+        }
+
+        @media (max-width: 900px) {
+            .tabs-nav {
+                flex-wrap: wrap;
+            }
+            .tab-btn {
+                flex: 1 1 calc(25% - 4px);
+                min-width: 90px;
+            }
+        }
+
+        @media (max-width: 550px) {
+            .tab-btn {
+                flex: 1 1 calc(50% - 4px);
+                font-size: 11px;
+                padding: 8px 4px;
+            }
+        }
+
+        /* Tab Content Container */
+        .tab-content {
+            display: none;
+            flex-direction: column;
+            gap: 20px;
+            animation: fadeIn 0.25s ease-in-out;
+        }
+
+        .tab-content.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Panel Cards & Layout */
+        .panel-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .panel-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .panel-subtitle {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        @media (max-width: 1100px) {
+            .grid-2, .grid-3 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Data Tables */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+        }
+
+        table.custom-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: left;
+        }
+
+        table.custom-table th {
+            background: #f8fafc;
+            color: var(--text-muted);
+            font-weight: 700;
+            padding: 12px 16px;
+            border-bottom: 2px solid var(--border);
+            white-space: nowrap;
+        }
+
+        table.custom-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-main);
+            white-space: nowrap;
+        }
+
+        table.custom-table tbody tr {
+            transition: background 0.12s;
+        }
+
+        table.custom-table tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        table.custom-table tbody tr.clickable-row {
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        table.custom-table tbody tr.clickable-row:hover {
+            background: #eef2ff;
+        }
+
+        table.custom-table tbody tr.clickable-row:hover .client-link {
+            text-decoration: underline;
+            color: #4338ca;
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 9px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .badge-status {
+            background: #e0f2fe;
+            color: #0369a1;
+            border: 1px solid #bae6fd;
+        }
+
+        .badge-abc {
+            font-weight: 700;
+            padding: 4px 10px;
+            min-width: 95px;
+            white-space: nowrap;
+            display: inline-block;
+            text-align: center;
+        }
+        .badge-a {
+            background: #d1fae5;
+            color: #047857;
+        }
+        .badge-b {
+            background: #fef3c7;
+            color: #b45309;
+        }
+        .badge-c {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        .badge-positive {
+            background: var(--success-soft);
+            color: #047857;
+        }
+
+        .badge-negative {
+            background: var(--danger-soft);
+            color: #b91c1c;
+        }
+
+        .badge-neutral {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        .client-link {
+            color: #4f46e5;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.15s;
+            cursor: pointer;
+        }
+        .client-link:hover {
+            text-decoration: underline;
+            color: #4338ca;
+        }
+
+        /* Top 1 Company Banner */
+        .company-banner {
+            background: linear-gradient(135deg, #e0e7ff 0%, #ffffff 100%);
+            border: 1px solid #c7d2fe;
+            border-radius: var(--radius-lg);
+            padding: 16px 38px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .company-banner:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary);
+            background: linear-gradient(135deg, #dbeafe 0%, #ffffff 100%);
+        }
+
+        .company-banner-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .company-name-large {
+            font-size: 20px;
+            font-weight: 900;
+            color: var(--text-main);
+            letter-spacing: -0.5px;
+            line-height: 1.2;
+        }
+
+        .company-code-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .company-banner-metrics {
+            display: flex;
+            gap: 24px;
+        }
+
+        .banner-metric-box {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 2px;
+        }
+
+        .banner-metric-val {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--primary);
+            line-height: 1.2;
+        }
+
+        .banner-metric-lbl {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 320px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Vertical Side Banner -->
+    <div class="side-vertical-banner">
+        <span class="vertical-text">ВИЗУАЛИЗАЦИЯ</span>
+    </div>
+
+    <!-- Main Content Container -->
+    <div class="app-container">
+
+        <!-- Page Header -->
+        <header class="page-header">
+            <div class="header-title-box">
+                <h1 class="header-title">📊 ТОП продаж — Визуализация</h1>
+                <span class="header-badge">7 ВКЛАДОК</span>
+            </div>
+            <div class="header-controls">
+                <span class="year-selector-label">Год:</span>
+                <select id="year-select" class="year-select" onchange="loadAllAnalytics()">
+                    <option value="2026" selected>2026</option>
+                    <option value="2025">2025</option>
+                    <option value="2024">2024</option>
+                </select>
+                <a id="btn-dashboard-link" href="/?token=utsk2026" class="btn-back">
+                    ← На дашборд
+                </a>
+            </div>
+        </header>
+
+        <!-- РЯД 1: Checkpoint-карточки над KPI -->
+        <div class="checkpoints-wrapper">
+            <!-- Под-ряд 1A -->
+            <div class="checkpoint-row" id="checkpoint-row-1"></div>
+
+            <!-- Под-ряд 1B -->
+            <div class="checkpoint-row" id="checkpoint-row-2"></div>
+        </div>
+
+        <!-- РЯД 2: KPI-карточки (6 штук в 2 ряда по 3) -->
+        <section class="kpi-grid">
+            <div class="kpi-card">
+                <span class="kpi-title">💰 Общая выручка</span>
+                <span class="kpi-value" id="kpi-total-revenue">—</span>
+                <span class="kpi-subtext">Товарная (без услуг)</span>
+            </div>
+            <div class="kpi-card">
+                <span class="kpi-title">👥 Всего активных клиентов</span>
+                <span class="kpi-value" id="kpi-active-clients">—</span>
+                <span class="kpi-subtext">Клиентов с покупками</span>
+            </div>
+            <div class="kpi-card">
+                <span class="kpi-title">⭐ ТОП-1 доля</span>
+                <span class="kpi-value" id="kpi-top1-share">—</span>
+                <span class="kpi-subtext">% от общей выручки</span>
+            </div>
+            <div class="kpi-card">
+                <span class="kpi-title">📈 ТОП-10 доля</span>
+                <span class="kpi-value" id="kpi-top10-share">—</span>
+                <span class="kpi-subtext">Совокупная доля ТОП-10</span>
+            </div>
+            <div class="kpi-card">
+                <span class="kpi-title">🎯 Клиентов 80%</span>
+                <span class="kpi-value" id="kpi-clients-80">—</span>
+                <span class="kpi-subtext">Ядро продаж компании</span>
+            </div>
+            <div class="kpi-card">
+                <span class="kpi-title">📊 Средний чек</span>
+                <span class="kpi-value" id="kpi-avg-check">—</span>
+                <span class="kpi-subtext">Выручка / накладные</span>
+            </div>
+        </section>
+
+        <!-- РЯД 3: Широкий блок 80% -->
+        <div class="checkpoint-wide">
+            <span class="checkpoint-label" id="cp-wide-label">—</span>
+            <span class="checkpoint-pct" id="cp-wide-pct">—</span>
+            <span class="checkpoint-sum" id="cp-wide-sum">—</span>
+        </div>
+
+        <!-- Tabs Navigation -->
+        <div class="tabs-nav">
+            <button class="tab-btn active" onclick="switchTab(1)">🥇 ТОП-1</button>
+            <button class="tab-btn" onclick="switchTab(2)">🥈 ТОП-5</button>
+            <button class="tab-btn" onclick="switchTab(3)">🥉 ТОП-10</button>
+            <button class="tab-btn" onclick="switchTab(4)">📊 ТОП-25</button>
+            <button class="tab-btn" onclick="switchTab(5)">📈 ТОП-50%</button>
+            <button class="tab-btn" onclick="switchTab(6)">📋 ТОП-70%</button>
+            <button class="tab-btn" onclick="switchTab(7)">📊 ТОП-80%</button>
+        </div>
+
+        <!-- ==================== TAB 1: ТОП-1 компания ==================== -->
+        <div id="tab-1" class="tab-content active">
+            <div class="company-banner" id="top1-banner">
+                <div class="company-banner-info">
+                    <span class="badge badge-abc" id="top1-abc">ABC</span>
+                    <div class="company-name-large" id="top1-name">Загрузка...</div>
+                    <div class="company-code-status">
+                        <span>Код: <strong id="top1-code">—</strong></span>
+                        <span>•</span>
+                        <span class="badge badge-status" id="top1-status">—</span>
+                    </div>
+                </div>
+                <div class="company-banner-metrics">
+                    <div class="banner-metric-box">
+                        <div class="banner-metric-val" id="top1-revenue">—</div>
+                        <div class="banner-metric-lbl">Выручка за год</div>
+                    </div>
+                    <div class="banner-metric-box">
+                        <div class="banner-metric-val" id="top1-growth">—</div>
+                        <div class="banner-metric-lbl">Темп роста YoY %</div>
+                    </div>
+                    <div class="banner-metric-box">
+                        <div class="banner-metric-val" id="top1-share">—</div>
+                        <div class="banner-metric-lbl">Доля от общей</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="panel-card">
+                    <div class="panel-title">
+                        <span>📈 Месячная динамика выручки</span>
+                        <span class="panel-subtitle" id="top1-chart-subtitle">Сравнение с прошлым годом</span>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="chart-top1-monthly"></canvas>
+                    </div>
+                </div>
+
+                <div class="panel-card">
+                    <div class="panel-title">
+                        <span>🛍️ ТОП-5 товаров этой компании</span>
+                        <span class="panel-subtitle">По суммам продаж</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Код</th>
+                                    <th>Наименование товара</th>
+                                    <th style="text-align:right;">Выручка (₴)</th>
+                                    <th style="text-align:right;">Доля %</th>
+                                </tr>
+                            </thead>
+                            <tbody id="top1-products-body">
+                                <tr><td colspan="5" style="text-align:center;">Загрузка...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== TAB 2: ТОП-5 компаний ==================== -->
+        <div id="tab-2" class="tab-content">
+            <div class="panel-card">
+                <div class="panel-title">
+                    <span>🥈 Рейтинг ТОП-5 компаний</span>
+                    <span class="panel-subtitle">Агрегированная аналитика лучших лидеров</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Код</th>
+                                <th>Компания</th>
+                                <th style="text-align:right;">Выручка (₴)</th>
+                                <th style="text-align:center;">% от общей</th>
+                                <th style="text-align:center;">Накоп. %</th>
+                                <th style="text-align:center;">Статус</th>
+                                <th style="text-align:center;">Накладных</th>
+                                <th style="text-align:right;">Средний чек (₴)</th>
+                                <th style="text-align:center;">Темп роста YoY %</th>
+                            </tr>
+                        </thead>
+                        <tbody id="top5-table-body">
+                            <tr><td colspan="10" style="text-align:center;">Загрузка...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="panel-card">
+                    <div class="panel-title">📊 Сравнение выручки ТОП-5 компаний</div>
+                    <div class="chart-container">
+                        <canvas id="chart-top5-bar"></canvas>
+                    </div>
+                </div>
+                <div class="panel-card">
+                    <div class="panel-title">🍰 Доля ТОП-5 в общей выручке</div>
+                    <div class="chart-container">
+                        <canvas id="chart-top5-pie"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== TAB 3: ТОП-10 компаний ==================== -->
+        <div id="tab-3" class="tab-content">
+            <div class="grid-3">
+                <div class="kpi-card">
+                    <span class="kpi-title">🔄 Сохранность в ТОП-10</span>
+                    <span class="kpi-value" id="top10-retained-cnt">—</span>
+                    <span class="kpi-subtext">Остались в ТОП-10 с прошлого года</span>
+                </div>
+                <div class="kpi-card">
+                    <span class="kpi-title">✨ Новые в ТОП-10</span>
+                    <span class="kpi-value" id="top10-new-cnt">—</span>
+                    <span class="kpi-subtext">Вошли в ТОП-10 в текущем году</span>
+                </div>
+                <div class="kpi-card">
+                    <span class="kpi-title">🚪 Выбыли из ТОП-10</span>
+                    <span class="kpi-value" id="top10-left-cnt">—</span>
+                    <span class="kpi-subtext">Покинули ТОП-10 по сравнению с прошлым годом</span>
+                </div>
+            </div>
+
+            <div class="panel-card">
+                <div class="panel-title">🥉 Таблица ТОП-10 компаний</div>
+                <div class="table-responsive">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Код</th>
+                                <th>Компания</th>
+                                <th style="text-align:right;">Выручка (₴)</th>
+                                <th style="text-align:center;">% от общей</th>
+                                <th style="text-align:center;">Накоп. %</th>
+                                <th style="text-align:center;">Статус</th>
+                                <th style="text-align:center;">Накладных</th>
+                                <th style="text-align:right;">Средний чек (₴)</th>
+                                <th style="text-align:center;">Темп роста YoY %</th>
+                            </tr>
+                        </thead>
+                        <tbody id="top10-table-body">
+                            <tr><td colspan="10" style="text-align:center;">Загрузка...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="panel-card">
+                <div class="panel-title">📊 Сравнение ТОП-10 компаний: Текущий год vs Прошлый год</div>
+                <div class="chart-container">
+                    <canvas id="chart-top10-yoy"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== TAB 4: ТОП-25 компаний ==================== -->
+        <div id="tab-4" class="tab-content">
+            <div class="grid-2">
+                <div class="panel-card">
+                    <div class="panel-title">🏷️ Распределение ТОП-25 по статусам</div>
+                    <div class="chart-container">
+                        <canvas id="chart-top25-status"></canvas>
+                    </div>
+                </div>
+                <div class="panel-card">
+                    <div class="panel-title">🍰 Совокупная доля ТОП-25 компаний</div>
+                    <div class="chart-container">
+                        <canvas id="chart-top25-share"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-card">
+                <div class="panel-title">📊 Полная таблица ТОП-25 компаний</div>
+                <div class="table-responsive">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Код</th>
+                                <th>Компания</th>
+                                <th style="text-align:right;">Выручка (₴)</th>
+                                <th style="text-align:center;">% от общей</th>
+                                <th style="text-align:center;">Накоп. %</th>
+                                <th style="text-align:center;">Статус</th>
+                                <th style="text-align:center;min-width:115px;">Клас</th>
+                                <th style="text-align:center;">Накладных</th>
+                                <th style="text-align:right;">Средний чек (₴)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="top25-table-body">
+                            <tr><td colspan="10" style="text-align:center;">Загрузка...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== TAB 5: ТОП-50% выручки ==================== -->
+        <div id="tab-5" class="tab-content">
+            <div class="panel-card">
+                <div class="panel-title">
+                    <span>🎯 Клиенты, формирующие 50% выручки</span>
+                    <span class="badge badge-positive" id="core50-count-badge">— клиентов</span>
+                </div>
+                <div class="chart-container">
+                    <canvas id="chart-pareto-50"></canvas>
+                </div>
+            </div>
+
+            <div class="panel-card">
+                <div class="panel-title">📋 Список клиентов (50% выручки)</div>
+                <div class="table-responsive">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Код</th>
+                                <th>Компания</th>
+                                <th style="text-align:right;">Выручка (₴)</th>
+                                <th style="text-align:center;">% от общей</th>
+                                <th style="text-align:center;">Накоп. %</th>
+                                <th style="text-align:center;">Статус</th>
+                                <th style="text-align:center;min-width:115px;">Клас</th>
+                            </tr>
+                        </thead>
+                        <tbody id="core50-table-body">
+                            <tr><td colspan="8" style="text-align:center;">Загрузка...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== TAB 6: ТОП-70% выручки ==================== -->
+        <div id="tab-6" class="tab-content" data-tab="tab-top70">
+            <div class="panel-card">
+                <div class="panel-title">
+                    <span>🎯 Клиенты, формирующие 70% выручки</span>
+                    <span class="badge badge-positive" id="core70-count-badge">— клиентов</span>
+                </div>
+                <div class="chart-container">
+                    <canvas id="chart-pareto-70"></canvas>
+                </div>
+            </div>
+
+            <div class="panel-card">
+                <div class="panel-title">📋 Список клиентов (70% выручки)</div>
+                <div class="table-responsive">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Код</th>
+                                <th>Компания</th>
+                                <th style="text-align:right;">Выручка (₴)</th>
+                                <th style="text-align:center;">% от общей</th>
+                                <th style="text-align:center;">Накоп. %</th>
+                                <th style="text-align:center;">Статус</th>
+                                <th style="text-align:center;min-width:115px;">Клас</th>
+                            </tr>
+                        </thead>
+                        <tbody id="core70-table-body">
+                            <tr><td colspan="8" style="text-align:center;">Загрузка...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== TAB 7: ТОП-80% выручки (Ядро) ==================== -->
+        <div id="tab-7" class="tab-content" data-tab="tab-top80">
+            <div class="grid-2">
+                <div class="panel-card">
+                    <div class="panel-title">📍 Таблица контрольных точек (Checkpoints)</div>
+                    <div class="table-responsive">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>ТОП</th>
+                                    <th style="text-align:center;">Накопительный %</th>
+                                    <th style="text-align:right;">Выручка (₴)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="checkpoints-table-body">
+                                <tr><td colspan="3" style="text-align:center;">Загрузка...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="panel-card">
+                    <div class="panel-title">📈 Накопительный график ядра (80%)</div>
+                    <div class="chart-container">
+                        <canvas id="chart-pareto-80"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-card">
+                <div class="panel-title">
+                    <span>👑 Список клиентов Ядра бизнеса (80% выручки)</span>
+                    <span class="badge badge-positive" id="core80-count-badge">— клиентов</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Код</th>
+                                <th>Компания</th>
+                                <th style="text-align:right;">Выручка (₴)</th>
+                                <th style="text-align:center;">% от общей</th>
+                                <th style="text-align:center;">Накоп. %</th>
+                                <th style="text-align:center;">Статус</th>
+                                <th style="text-align:center;min-width:115px;">Клас</th>
+                                <th style="text-align:center;">Накладных</th>
+                            </tr>
+                        </thead>
+                        <tbody id="core80-table-body">
+                            <tr><td colspan="9" style="text-align:center;">Загрузка...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ==================== JAVASCRIPT LOGIC ==================== -->
+    <script>
+        // Global variables & state
+        const TOKEN = new URLSearchParams(window.location.search).get('token') || 'utsk2026';
+        let currentYear = 2026;
+        let chartInstances = {};
+
+        // Helper formatters
+        function fmtNum(n) {
+            if (n === null || n === undefined) return '—';
+            return new Intl.NumberFormat('ru-RU').format(Math.round(n));
+        }
+
+        function fmtMln(n) {
+            if (!n) return '0 млн ₴';
+            return (n / 1000000).toFixed(1) + ' млн ₴';
+        }
+
+        function fmtPct(n) {
+            if (n === null || n === undefined) return '—';
+            return n.toFixed(1) + '%';
+        }
+
+        function renderClientLink(code, name) {
+            if (!name) return '—';
+            return `<a href="/client-detail?token=${TOKEN}&code=${encodeURIComponent(code)}" class="client-link">${name}</a>`;
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            const dashLink = document.getElementById('btn-dashboard-link');
+            if (dashLink) dashLink.href = `/?token=${TOKEN}`;
+
+            loadAllAnalytics();
+        });
+
+        function getAbcBadge(abc) {
+            const nameMap = { 'A': 'Опорні', 'B': 'Розвиваючі', 'C': 'Підтримуючі' };
+            const clsMap = { 'A': 'badge-a', 'B': 'badge-b', 'C': 'badge-c' };
+            const name = nameMap[abc] || abc || 'C';
+            const cls = clsMap[abc] || 'badge-c';
+            return `<span class="badge badge-abc ${cls}">${name}</span>`;
+        }
+
+        // Tab Switching
+        function switchTab(tabIndex) {
+            let targetIdx = 0;
+            if (typeof tabIndex === 'number') {
+                targetIdx = tabIndex - 1;
+            } else if (typeof tabIndex === 'string') {
+                if (tabIndex === 'tab-top70' || tabIndex === 'tab-70') {
+                    targetIdx = 5;
+                } else if (tabIndex === 'tab-top80' || tabIndex === 'tab-80') {
+                    targetIdx = 6;
+                } else if (tabIndex.startsWith('tab-')) {
+                    targetIdx = parseInt(tabIndex.replace('tab-', '')) - 1;
+                }
+            }
+
+            document.querySelectorAll('.tab-btn').forEach((btn, idx) => {
+                btn.classList.toggle('active', idx === targetIdx);
+            });
+
+            document.querySelectorAll('.tab-content').forEach((content, idx) => {
+                content.classList.toggle('active', idx === targetIdx);
+            });
+        }
+
+        // Main load function
+        async function loadAllAnalytics() {
+            currentYear = parseInt(document.getElementById('year-select').value);
+            
+            try {
+                await Promise.all([
+                    loadKpiData(),
+                    loadTab1Data(),
+                    loadTab2Data(),
+                    loadTab3Data(),
+                    loadTab4Data(),
+                    loadTab5Data(),
+                    loadTab6Data(),
+                    loadTab7Data()
+                ]);
+            } catch (err) {
+                console.error('Error loading analytics:', err);
+            }
+        }
+
+        // ==================== CHECKPOINT BLOCKS & WIDE BLOCK ====================
+        function renderCheckpointBlocks(cpData) {
+            // Под-ряд 1A: ТОП-1, ТОП-10, ТОП-50
+            const row1 = [
+                { label: "ТОП-1",  pct: cpData.top1_pct,  sum: cpData.top1_revenue },
+                { label: "ТОП-10", pct: cpData.top10_pct, sum: cpData.top10_revenue },
+                { label: "ТОП-50", pct: cpData.top50_pct, sum: cpData.top50_revenue }
+            ];
+            
+            // Под-ряд 1B: ТОП-5, ТОП-25, ТОП-70
+            const row2 = [
+                { label: "ТОП-5",  pct: cpData.top5_pct,  sum: cpData.top5_revenue },
+                { label: "ТОП-25", pct: cpData.top25_pct, sum: cpData.top25_revenue },
+                { label: "ТОП-70", pct: cpData.top70_pct, sum: cpData.top70_revenue }
+            ];
+            
+            const row1El = document.getElementById('checkpoint-row-1');
+            if (row1El) {
+                row1El.innerHTML = row1.map(cp => `
+                    <div class="checkpoint-card">
+                        <span class="cp-label">${cp.label}</span>
+                        <span class="cp-pct">${cp.pct}%</span>
+                        <span class="cp-sum">₴ ${fmtNum(cp.sum)}</span>
+                    </div>
+                `).join('');
+            }
+            
+            const row2El = document.getElementById('checkpoint-row-2');
+            if (row2El) {
+                row2El.innerHTML = row2.map(cp => `
+                    <div class="checkpoint-card">
+                        <span class="cp-label">${cp.label}</span>
+                        <span class="cp-pct">${cp.pct}%</span>
+                        <span class="cp-sum">₴ ${fmtNum(cp.sum)}</span>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function renderWideBlock(coreData) {
+            const wideLabel = document.getElementById('cp-wide-label');
+            const widePct = document.getElementById('cp-wide-pct');
+            const wideSum = document.getElementById('cp-wide-sum');
+            if (wideLabel) wideLabel.textContent = `~${coreData.count} (Ядро)`;
+            if (widePct) widePct.textContent = `${coreData.pct}%`;
+            if (wideSum) wideSum.textContent = `₴ ${fmtNum(coreData.sum)}`;
+        }
+
+        // ==================== KPI CARDS ====================
+        async function loadKpiData() {
+            const r = await fetch(`/api/analytics/top-sales/kpi?token=${TOKEN}&year=${currentYear}`);
+            const data = await r.json();
+            if (data.status !== 'ok') return;
+
+            document.getElementById('kpi-total-revenue').textContent = fmtMln(data.total_revenue);
+            document.getElementById('kpi-active-clients').textContent = fmtNum(data.active_clients_count);
+            document.getElementById('kpi-top1-share').textContent = data.top1_share_pct + '%';
+            document.getElementById('kpi-top10-share').textContent = data.top10_share_pct + '%';
+            document.getElementById('kpi-clients-80').textContent = '~' + data.clients_for_80pct;
+            document.getElementById('kpi-avg-check').textContent = '₴ ' + fmtNum(data.avg_check);
+        }
+
+        // ==================== TAB 1 ====================
+        async function loadTab1Data() {
+            const r = await fetch(`/api/analytics/top-sales/company-detail?token=${TOKEN}&year=${currentYear}`);
+            const res = await r.json();
+            if (res.status !== 'ok' || !res.data) return;
+
+            const c = res.data;
+            const banner = document.getElementById('top1-banner');
+            if (banner) {
+                banner.onclick = () => {
+                    window.location.href = `/client-detail?token=${TOKEN}&code=${encodeURIComponent(c.code)}`;
+                };
+                banner.title = `Перейти в детализацию клиента ${c.name}`;
+            }
+            document.getElementById('top1-name').innerHTML = renderClientLink(c.code, c.name);
+            document.getElementById('top1-code').textContent = c.code;
+            document.getElementById('top1-status').textContent = c.status_name;
+            const top1AbcElem = document.getElementById('top1-abc');
+            if (top1AbcElem) {
+                const nameMap = { 'A': 'Опорні', 'B': 'Розвиваючі', 'C': 'Підтримуючі' };
+                const clsMap = { 'A': 'badge-a', 'B': 'badge-b', 'C': 'badge-c' };
+                top1AbcElem.textContent = nameMap[c.abc_group] || c.abc_group;
+                top1AbcElem.className = 'badge badge-abc ' + (clsMap[c.abc_group] || 'badge-c');
+            }
+            document.getElementById('top1-revenue').textContent = fmtMln(c.goods_revenue);
+            
+            const growthElem = document.getElementById('top1-growth');
+            if (c.growth_yoy_pct !== null && c.growth_yoy_pct !== undefined) {
+                growthElem.textContent = fmtPct(c.growth_yoy_pct);
+                const isGood = c.prev_period_revenue !== undefined && c.prev_period_revenue !== null
+                    ? (c.goods_revenue >= c.prev_period_revenue)
+                    : (c.goods_revenue >= (c.prev_year_revenue || 0));
+                growthElem.style.color = isGood ? '#10b981' : '#ef4444';
+            } else {
+                growthElem.textContent = '—';
+                growthElem.style.color = '#64748b';
+            }
+
+            document.getElementById('top1-share').textContent = c.pct_of_total + '%';
+            document.getElementById('top1-chart-subtitle').textContent = `Динамика по месяцам (${c.year} vs ${c.year - 1})`;
+
+            // Monthly Chart
+            const currMonthly = (c.monthly_curr || []).map(m => m.rev / 1000000);
+            const prevMonthly = (c.monthly_prev || []).map(m => m.rev / 1000000);
+            const monthLabels = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'];
+
+            renderChart('chart-top1-monthly', 'line', {
+                labels: monthLabels,
+                datasets: [
+                    {
+                        label: `${c.year} год (млн ₴)`,
+                        data: currMonthly,
+                        borderColor: '#4f46e5',
+                        backgroundColor: 'rgba(79, 70, 229, 0.12)',
+                        fill: true,
+                        tension: 0.3
+                    },
+                    {
+                        label: `${c.year - 1} год (млн ₴)`,
+                        data: prevMonthly,
+                        borderColor: '#94a3b8',
+                        borderDash: [4, 4],
+                        fill: false,
+                        tension: 0.3
+                    }
+                ]
+            });
+
+            // Top Products Table
+            const tbody = document.getElementById('top1-products-body');
+            tbody.innerHTML = '';
+            if (!c.top_products || !c.top_products.length) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Нет данных по товарам</td></tr>';
+                return;
+            }
+
+            c.top_products.forEach((p, idx) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${idx + 1}</td>
+                    <td><code>${p.product_code}</code></td>
+                    <td>${p.product_name}</td>
+                    <td style="text-align:right;font-weight:700;">₴ ${fmtNum(p.amount)}</td>
+                    <td style="text-align:right;">${p.share_pct}%</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // ==================== TAB 2 ====================
+        async function loadTab2Data() {
+            const r = await fetch(`/api/analytics/top-sales/companies?token=${TOKEN}&year=${currentYear}&limit=5`);
+            const res = await r.json();
+            if (res.status !== 'ok') return;
+
+            const list = res.companies;
+            const tbody = document.getElementById('top5-table-body');
+            tbody.innerHTML = '';
+
+            const names = [];
+            const revenues = [];
+            let top5Sum = 0;
+
+            list.forEach(c => {
+                names.push(c.name.length > 20 ? c.name.substring(0, 20) + '...' : c.name);
+                revenues.push(c.goods_revenue / 1000000);
+                top5Sum += c.goods_revenue;
+
+                const growthStr = c.growth_yoy_pct !== null ? fmtPct(c.growth_yoy_pct) : '—';
+                const isGood = c.prev_period_revenue !== undefined && c.prev_period_revenue !== null
+                    ? (c.goods_revenue >= c.prev_period_revenue)
+                    : (c.goods_revenue >= (c.prev_year_revenue || 0));
+                const growthClass = c.growth_yoy_pct !== null ? (isGood ? 'badge-positive' : 'badge-negative') : 'badge-neutral';
+
+                const tr = document.createElement('tr');
+                tr.className = 'clickable-row';
+                tr.title = `Перейти в карточку клиента ${c.name}`;
+                tr.onclick = () => {
+                    window.location.href = `/client-detail?token=${TOKEN}&code=${encodeURIComponent(c.code)}`;
+                };
+                tr.innerHTML = `
+                    <td style="font-weight:800;">${c.rank}</td>
+                    <td><code>${c.code}</code></td>
+                    <td style="font-weight:600;">${renderClientLink(c.code, c.name)}</td>
+                    <td style="text-align:right;font-weight:700;color:#4f46e5;">₴ ${fmtNum(c.goods_revenue)}</td>
+                    <td style="text-align:center;">${c.pct_of_total}%</td>
+                    <td style="text-align:center;font-weight:700;">${c.running_pct}%</td>
+                    <td style="text-align:center;"><span class="badge badge-status">${c.status_name}</span></td>
+                    <td style="text-align:center;">${c.invoice_count}</td>
+                    <td style="text-align:right;">₴ ${fmtNum(c.avg_check)}</td>
+                    <td style="text-align:center;"><span class="badge ${growthClass}">${growthStr}</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Bar Chart
+            renderChart('chart-top5-bar', 'bar', {
+                labels: names,
+                datasets: [{
+                    label: 'Выручка (млн ₴)',
+                    data: revenues,
+                    backgroundColor: ['#4f46e5', '#06b6d4', '#10b981', '#f59e0b', '#a855f7'],
+                    borderRadius: 6
+                }]
+            });
+
+            // Pie Chart (TOP 5 vs Rest)
+            const kpiRes = await (await fetch(`/api/analytics/top-sales/kpi?token=${TOKEN}&year=${currentYear}`)).json();
+            const totalRev = kpiRes.total_revenue || 0;
+            const restRev = Math.max(0, totalRev - top5Sum);
+
+            renderChart('chart-top5-pie', 'doughnut', {
+                labels: ['ТОП-5 компаний', 'Остальные клиенты'],
+                datasets: [{
+                    data: [top5Sum / 1000000, restRev / 1000000],
+                    backgroundColor: ['#4f46e5', '#cbd5e1'],
+                    borderWidth: 0
+                }]
+            });
+        }
+
+        // ==================== TAB 3 ====================
+        async function loadTab3Data() {
+            const [compRes, yoyRes] = await Promise.all([
+                fetch(`/api/analytics/top-sales/companies?token=${TOKEN}&year=${currentYear}&limit=10`).then(r => r.json()),
+                fetch(`/api/analytics/top-sales/compare-yoy?token=${TOKEN}&year=${currentYear}&limit=10`).then(r => r.json())
+            ]);
+
+            if (compRes.status === 'ok') {
+                const tbody = document.getElementById('top10-table-body');
+                tbody.innerHTML = '';
+
+                compRes.companies.forEach(c => {
+                    const growthStr = c.growth_yoy_pct !== null ? fmtPct(c.growth_yoy_pct) : '—';
+                    const isGood = c.prev_period_revenue !== undefined && c.prev_period_revenue !== null
+                        ? (c.goods_revenue >= c.prev_period_revenue)
+                        : (c.goods_revenue >= (c.prev_year_revenue || 0));
+                    const growthClass = c.growth_yoy_pct !== null ? (isGood ? 'badge-positive' : 'badge-negative') : 'badge-neutral';
+                    const tr = document.createElement('tr');
+                    tr.className = 'clickable-row';
+                    tr.title = `Перейти в карточку клиента ${c.name}`;
+                    tr.onclick = () => {
+                        window.location.href = `/client-detail?token=${TOKEN}&code=${encodeURIComponent(c.code)}`;
+                    };
+                    tr.innerHTML = `
+                        <td style="font-weight:800;">${c.rank}</td>
+                        <td><code>${c.code}</code></td>
+                        <td style="font-weight:600;">${renderClientLink(c.code, c.name)}</td>
+                        <td style="text-align:right;font-weight:700;color:#4f46e5;">₴ ${fmtNum(c.goods_revenue)}</td>
+                        <td style="text-align:center;">${c.pct_of_total}%</td>
+                        <td style="text-align:center;font-weight:700;">${c.running_pct}%</td>
+                        <td style="text-align:center;"><span class="badge badge-status">${c.status_name}</span></td>
+                        <td style="text-align:center;">${c.invoice_count}</td>
+                        <td style="text-align:right;">₴ ${fmtNum(c.avg_check)}</td>
+                        <td style="text-align:center;"><span class="badge ${growthClass}">${growthStr}</span></td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            if (yoyRes.status === 'ok' && yoyRes.data) {
+                const d = yoyRes.data;
+                document.getElementById('top10-retained-cnt').textContent = d.retained_count;
+                document.getElementById('top10-new-cnt').textContent = d.new_entries_count;
+                document.getElementById('top10-left-cnt').textContent = d.left_top_count;
+
+                const currList = d.current_top || [];
+                const labels = currList.map(c => c.client_name.substring(0, 15) + '...');
+                const currRev = currList.map(c => c.curr_revenue / 1000000);
+                const prevRev = currList.map(c => c.prev_revenue / 1000000);
+
+                renderChart('chart-top10-yoy', 'bar', {
+                    labels: labels,
+                    datasets: [
+                        { label: `${currentYear} (млн ₴)`, data: currRev, backgroundColor: '#4f46e5', borderRadius: 4 },
+                        { label: `${currentYear - 1} (млн ₴)`, data: prevRev, backgroundColor: '#94a3b8', borderRadius: 4 }
+                    ]
+                });
+            }
+        }
+
+        // ==================== TAB 4 ====================
+        async function loadTab4Data() {
+            const r = await fetch(`/api/analytics/top-sales/companies?token=${TOKEN}&year=${currentYear}&limit=25`);
+            const res = await r.json();
+            if (res.status !== 'ok') return;
+
+            const list = res.companies;
+            const tbody = document.getElementById('top25-table-body');
+            tbody.innerHTML = '';
+
+            const statusCounts = {};
+            let top25Sum = 0;
+
+            list.forEach(c => {
+                top25Sum += c.goods_revenue;
+                statusCounts[c.status_name] = (statusCounts[c.status_name] || 0) + 1;
+
+                const tr = document.createElement('tr');
+                tr.className = 'clickable-row';
+                tr.title = `Перейти в карточку клиента ${c.name}`;
+                tr.onclick = () => {
+                    window.location.href = `/client-detail?token=${TOKEN}&code=${encodeURIComponent(c.code)}`;
+                };
+                tr.innerHTML = `
+                    <td style="font-weight:800;">${c.rank}</td>
+                    <td><code>${c.code}</code></td>
+                    <td style="font-weight:600;">${renderClientLink(c.code, c.name)}</td>
+                    <td style="text-align:right;font-weight:700;color:#4f46e5;">₴ ${fmtNum(c.goods_revenue)}</td>
+                    <td style="text-align:center;">${c.pct_of_total}%</td>
+                    <td style="text-align:center;font-weight:700;">${c.running_pct}%</td>
+                    <td style="text-align:center;"><span class="badge badge-status">${c.status_name}</span></td>
+                    <td style="text-align:center;">${getAbcBadge(c.abc_group)}</td>
+                    <td style="text-align:center;">${c.invoice_count}</td>
+                    <td style="text-align:right;">₴ ${fmtNum(c.avg_check)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Status Distribution Chart
+            renderChart('chart-top25-status', 'doughnut', {
+                labels: Object.keys(statusCounts),
+                datasets: [{
+                    data: Object.values(statusCounts),
+                    backgroundColor: ['#4f46e5', '#06b6d4', '#10b981', '#f59e0b', '#ec4899', '#a855f7'],
+                    borderWidth: 0
+                }]
+            });
+
+            // Share of TOP-25 Chart
+            const kpiRes = await (await fetch(`/api/analytics/top-sales/kpi?token=${TOKEN}&year=${currentYear}`)).json();
+            const totalRev = kpiRes.total_revenue || 0;
+            const restRev = Math.max(0, totalRev - top25Sum);
+
+            renderChart('chart-top25-share', 'doughnut', {
+                labels: ['ТОП-25 компаний', 'Остальные'],
+                datasets: [{
+                    data: [top25Sum / 1000000, restRev / 1000000],
+                    backgroundColor: ['#10b981', '#cbd5e1'],
+                    borderWidth: 0
+                }]
+            });
+        }
+
+        // ==================== TAB 5 ====================
+        async function loadTab5Data() {
+            const r = await fetch(`/api/analytics/top-sales/core?token=${TOKEN}&year=${currentYear}&pct=50`);
+            const res = await r.json();
+            if (res.status !== 'ok') return;
+
+            document.getElementById('core50-count-badge').textContent = `${res.count} клиентов (${currentYear - 1}: ${res.prev_year_count})`;
+
+            const list = res.companies;
+            const tbody = document.getElementById('core50-table-body');
+            tbody.innerHTML = '';
+
+            const ranks = [];
+            const runningPcts = [];
+
+            list.forEach(c => {
+                ranks.push(c.rank);
+                runningPcts.push(c.running_pct);
+
+                const tr = document.createElement('tr');
+                tr.className = 'clickable-row';
+                tr.title = `Перейти в карточку клиента ${c.name}`;
+                tr.onclick = () => {
+                    window.location.href = `/client-detail?token=${TOKEN}&code=${encodeURIComponent(c.code)}`;
+                };
+                tr.innerHTML = `
+                    <td style="font-weight:800;">${c.rank}</td>
+                    <td><code>${c.code}</code></td>
+                    <td style="font-weight:600;">${renderClientLink(c.code, c.name)}</td>
+                    <td style="text-align:right;font-weight:700;color:#4f46e5;">₴ ${fmtNum(c.goods_revenue)}</td>
+                    <td style="text-align:center;">${c.pct_of_total}%</td>
+                    <td style="text-align:center;font-weight:700;">${c.running_pct}%</td>
+                    <td style="text-align:center;"><span class="badge badge-status">${c.status_name}</span></td>
+                    <td style="text-align:center;">${getAbcBadge(c.abc_group)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            renderChart('chart-pareto-50', 'line', {
+                labels: ranks,
+                datasets: [{
+                    label: 'Накопительный % выручки',
+                    data: runningPcts,
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.12)',
+                    fill: true,
+                    stepped: true
+                }]
+            });
+        }
+
+        // ==================== TAB 6 (ТОП-70%) ====================
+        async function loadTab6Data() {
+            const r = await fetch(`/api/analytics/top-sales/core?token=${TOKEN}&year=${currentYear}&pct=70`);
+            const res = await r.json();
+            if (res.status !== 'ok') return;
+
+            document.getElementById('core70-count-badge').textContent = `${res.count} клиентов (${currentYear - 1}: ${res.prev_year_count})`;
+
+            const list = res.companies;
+            const tbody = document.getElementById('core70-table-body');
+            tbody.innerHTML = '';
+
+            const ranks = [];
+            const runningPcts = [];
+
+            list.forEach(c => {
+                ranks.push(c.rank);
+                runningPcts.push(c.running_pct);
+
+                const tr = document.createElement('tr');
+                tr.className = 'clickable-row';
+                tr.title = `Перейти в карточку клиента ${c.name}`;
+                tr.onclick = () => {
+                    window.location.href = `/client-detail?token=${TOKEN}&code=${encodeURIComponent(c.code)}`;
+                };
+                tr.innerHTML = `
+                    <td style="font-weight:800;">${c.rank}</td>
+                    <td><code>${c.code}</code></td>
+                    <td style="font-weight:600;">${renderClientLink(c.code, c.name)}</td>
+                    <td style="text-align:right;font-weight:700;color:#4f46e5;">₴ ${fmtNum(c.goods_revenue)}</td>
+                    <td style="text-align:center;">${c.pct_of_total}%</td>
+                    <td style="text-align:center;font-weight:700;">${c.running_pct}%</td>
+                    <td style="text-align:center;"><span class="badge badge-status">${c.status_name}</span></td>
+                    <td style="text-align:center;">${getAbcBadge(c.abc_group)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            renderChart('chart-pareto-70', 'line', {
+                labels: ranks,
+                datasets: [{
+                    label: 'Накопительный % выручки',
+                    data: runningPcts,
+                    borderColor: '#06b6d4',
+                    backgroundColor: 'rgba(6, 182, 212, 0.12)',
+                    fill: true,
+                    stepped: true
+                }]
+            });
+        }
+
+        // ==================== TAB 7 (ТОП-80% Ядро) ====================
+        async function loadTab7Data() {
+            const r = await fetch(`/api/analytics/top-sales/core?token=${TOKEN}&year=${currentYear}&pct=80`);
+            const res = await r.json();
+            if (res.status !== 'ok') return;
+
+            document.getElementById('core80-count-badge').textContent = `${res.count} клиентов Ядра (${currentYear - 1}: ${res.prev_year_count})`;
+
+            const list = res.companies;
+            const tbody = document.getElementById('core80-table-body');
+            tbody.innerHTML = '';
+
+            const ranks = [];
+            const runningPcts = [];
+
+            list.forEach(c => {
+                ranks.push(c.rank);
+                runningPcts.push(c.running_pct);
+
+                const tr = document.createElement('tr');
+                tr.className = 'clickable-row';
+                tr.title = `Перейти в карточку клиента ${c.name}`;
+                tr.onclick = () => {
+                    window.location.href = `/client-detail?token=${TOKEN}&code=${encodeURIComponent(c.code)}`;
+                };
+                tr.innerHTML = `
+                    <td style="font-weight:800;">${c.rank}</td>
+                    <td><code>${c.code}</code></td>
+                    <td style="font-weight:600;">${renderClientLink(c.code, c.name)}</td>
+                    <td style="text-align:right;font-weight:700;color:#4f46e5;">₴ ${fmtNum(c.goods_revenue)}</td>
+                    <td style="text-align:center;">${c.pct_of_total}%</td>
+                    <td style="text-align:center;font-weight:700;">${c.running_pct}%</td>
+                    <td style="text-align:center;"><span class="badge badge-status">${c.status_name}</span></td>
+                    <td style="text-align:center;">${getAbcBadge(c.abc_group)}</td>
+                    <td style="text-align:center;">${c.invoice_count}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Extract Checkpoints Data
+            const getCpInfo = (rk) => {
+                const item = list.find(c => c.rank === rk) || (rk <= list.length ? list[rk - 1] : null);
+                if (!item) return { pct: 0, sum: 0 };
+                const idx = list.indexOf(item);
+                const sum = list.slice(0, idx + 1).reduce((s, x) => s + x.goods_revenue, 0);
+                return { pct: item.running_pct, sum: sum };
+            };
+
+            const cp1 = getCpInfo(1);
+            const cp5 = getCpInfo(5);
+            const cp10 = getCpInfo(10);
+            const cp25 = getCpInfo(25);
+            const cp50 = getCpInfo(50);
+            const cp70 = getCpInfo(70);
+
+            const lastItem = list[list.length - 1];
+            const coreSum = list.reduce((s, x) => s + x.goods_revenue, 0);
+            const corePct = lastItem ? lastItem.running_pct : 0;
+
+            // 1. Render checkpoint blocks above KPI
+            renderCheckpointBlocks({
+                top1_pct: cp1.pct, top1_revenue: cp1.sum,
+                top5_pct: cp5.pct, top5_revenue: cp5.sum,
+                top10_pct: cp10.pct, top10_revenue: cp10.sum,
+                top25_pct: cp25.pct, top25_revenue: cp25.sum,
+                top50_pct: cp50.pct, top50_revenue: cp50.sum,
+                top70_pct: cp70.pct, top70_revenue: cp70.sum
+            });
+
+            // 2. Render wide block 80%
+            renderWideBlock({
+                count: res.count || list.length,
+                pct: corePct,
+                sum: coreSum
+            });
+
+            // 3. Checkpoints Table on Tab 7
+            const cpTbody = document.getElementById('checkpoints-table-body');
+            cpTbody.innerHTML = '';
+
+            const checkpoints = [
+                { rank: 1, info: cp1 },
+                { rank: 5, info: cp5 },
+                { rank: 10, info: cp10 },
+                { rank: 25, info: cp25 },
+                { rank: 50, info: cp50 },
+                { rank: 70, info: cp70 }
+            ];
+
+            checkpoints.forEach(cp => {
+                if (cp.info.sum > 0) {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td style="font-weight:800;">ТОП-${cp.rank}</td>
+                        <td style="text-align:center;font-weight:700;color:#10b981;">${cp.info.pct}%</td>
+                        <td style="text-align:right;font-weight:700;color:#4f46e5;">₴ ${fmtNum(cp.info.sum)}</td>
+                    `;
+                    cpTbody.appendChild(tr);
+                }
+            });
+
+            // Core Checkpoint item (~150 / last item)
+            if (lastItem) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="font-weight:800;color:#a855f7;">~${lastItem.rank} (Ядро)</td>
+                    <td style="text-align:center;font-weight:700;color:#a855f7;">${lastItem.running_pct}%</td>
+                    <td style="text-align:right;font-weight:700;color:#a855f7;">₴ ${fmtNum(coreSum)}</td>
+                `;
+                cpTbody.appendChild(tr);
+            }
+
+            renderChart('chart-pareto-80', 'line', {
+                labels: ranks,
+                datasets: [{
+                    label: 'Накопительный % выручки (80% Ядро)',
+                    data: runningPcts,
+                    borderColor: '#a855f7',
+                    backgroundColor: 'rgba(168, 85, 247, 0.12)',
+                    fill: true,
+                    stepped: true
+                }]
+            });
+        }
+
+        // Universal Chart Renderer
+        function renderChart(canvasId, type, configData) {
+            if (chartInstances[canvasId]) {
+                chartInstances[canvasId].destroy();
+            }
+
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            chartInstances[canvasId] = new Chart(ctx, {
+                type: type,
+                data: configData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#475569', font: { family: 'Inter', size: 12, weight: 600 } }
+                        }
+                    },
+                    scales: type === 'doughnut' || type === 'pie' ? {} : {
+                        x: {
+                            grid: { color: '#e2e8f0' },
+                            ticks: { color: '#64748b', font: { family: 'Inter', size: 11 } }
+                        },
+                        y: {
+                            grid: { color: '#e2e8f0' },
+                            ticks: { color: '#64748b', font: { family: 'Inter', size: 11 } }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

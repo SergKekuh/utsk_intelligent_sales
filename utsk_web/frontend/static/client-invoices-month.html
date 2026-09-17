@@ -385,11 +385,11 @@
             document.getElementById('invoice-modal').style.display = 'flex';
 
             try {
-                const res = await fetch(`/api/client/${CLIENT_CODE}/invoice/${docId}?token=${TOKEN}`);
+                const res = await fetch(`/api/invoices/${encodeURIComponent(docNumber)}/items?token=${TOKEN}`);
                 const data = await res.json();
                 tbody.innerHTML = '';
 
-                const items = data.items || [];
+                const items = data.items || data.data?.items || [];
                 if (!items.length) {
                     tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Нет данных по позициям</td></tr>';
                     return;
@@ -397,12 +397,17 @@
 
                 items.forEach(p => {
                     const tr = document.createElement('tr');
+                    const itemCode = p.product_code || p.code || '—';
+                    const itemName = p.product_name || p.name || '—';
+                    const itemQty = p.quantity !== undefined ? p.quantity : '0';
+                    const itemPrice = p.price || 0;
+                    const itemTotal = p.total !== undefined ? p.total : (p.amount !== undefined ? p.amount : 0);
                     tr.innerHTML = `
-                        <td><code>${p.product_code || p.code || '—'}</code></td>
-                        <td style="font-weight:600;">${p.product_name || p.name || '—'}</td>
-                        <td style="text-align:right;">${p.quantity}</td>
-                        <td style="text-align:right;">₴ ${fmtNum(p.price)}</td>
-                        <td style="text-align:right;font-weight:700;color:#4f46e5;">₴ ${fmtNum(p.amount)}</td>
+                        <td><code>${itemCode}</code></td>
+                        <td style="font-weight:600;">${itemName}</td>
+                        <td style="text-align:right;">${itemQty}</td>
+                        <td style="text-align:right;">₴ ${fmtNum(itemPrice)}</td>
+                        <td style="text-align:right;font-weight:700;color:#4f46e5;">₴ ${fmtNum(itemTotal)}</td>
                     `;
                     tbody.appendChild(tr);
                 });

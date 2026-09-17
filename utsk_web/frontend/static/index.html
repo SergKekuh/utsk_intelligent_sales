@@ -605,6 +605,83 @@
             background: #93c5fd;
         }
 
+        /* ====== FUNNEL TOOLTIPS ====== */
+        .tooltip-trigger {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: help;
+        }
+
+        .tooltip-info-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 17px;
+            height: 17px;
+            border-radius: 50%;
+            background: #f1f5f9;
+            color: #64748b;
+            font-size: 11px;
+            font-weight: 700;
+            border: 1px solid #cbd5e1;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .tooltip-trigger:hover .tooltip-info-badge,
+        .tooltip-trigger:focus .tooltip-info-badge {
+            background: #e2e8f0;
+            color: #0f172a;
+            border-color: #94a3b8;
+            transform: scale(1.1);
+        }
+
+        .funnel-tooltip-text {
+            visibility: hidden;
+            opacity: 0;
+            position: absolute;
+            top: calc(100% + 10px);
+            left: 0;
+            z-index: 1000;
+            width: 330px;
+            background: #0f172a;
+            color: #ffffff;
+            padding: 14px 16px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 400;
+            line-height: 1.5;
+            box-shadow: 0 12px 28px -4px rgba(0, 0, 0, 0.3), 0 4px 10px rgba(0, 0, 0, 0.2);
+            border: 1px solid #334155;
+            pointer-events: none; /* Не блокирует клики по карточке */
+            transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+            transform: translateY(4px);
+            text-align: left;
+        }
+
+        .funnel-tooltip-text::before {
+            content: '';
+            position: absolute;
+            top: -6px;
+            left: 20px;
+            width: 12px;
+            height: 12px;
+            background: #0f172a;
+            border-left: 1px solid #334155;
+            border-top: 1px solid #334155;
+            transform: rotate(45deg);
+        }
+
+        .tooltip-trigger:hover .funnel-tooltip-text,
+        .tooltip-trigger:focus .funnel-tooltip-text,
+        .tooltip-trigger:active .funnel-tooltip-text {
+            visibility: visible;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
     </style>
 </head>
 
@@ -639,9 +716,11 @@
                 <div class="sidebar-section">Инструменты</div>
                 <a href="/top-sales-analytics?token=utsk2026" target="_blank" class="sidebar-item">🏆 ТОП продаж — Визуализация</a>
                 <a href="/new-clients-analytics?token=utsk2026" target="_blank" class="sidebar-item">🌱 Аналитика Новых клиентов</a>
+                <a href="/returned-clients-analytics?token=utsk2026" target="_blank" class="sidebar-item">🔄 Аналитика Вернувшихся клиентов</a>
                 <a href="/inactive-clients-analytics?token=utsk2026" target="_blank" class="sidebar-item">💤 Аналитика Неактивных клиентов</a>
                 <a href="/comparison?token=utsk2026" target="_blank" class="sidebar-item">📊 Расширенная аналитика</a>
                 <a href="/abc-structure?token=utsk2026" target="_blank" class="sidebar-item">🏗️ Аналитика ABC</a>
+                <a href="/directions-analytics?token=utsk2026" target="_blank" class="sidebar-item">🏢 Аналитика Отраслей</a>
             </div>
 
             <!-- Workspace -->
@@ -932,11 +1011,34 @@
 
                 const activeList = Array.isArray(data) ? data : (data.funnel || []);
                 const lifecycleList = Array.isArray(data) ? [] : (data.lifecycle || []);
+                const returnedClientsList = Array.isArray(data) ? [] : (data.returned_clients_funnel || []);
                 const newClientsList = Array.isArray(data) ? [] : (data.new_clients_funnel || []);
+
+                // Вычисление численности групп для всплывающих подсказок (tooltip)
+                let sleepingCount = 0;
+                let leftCount = 0;
+                lifecycleList.forEach(item => {
+                    if (item.status_id === 8 || (item.status_name && item.status_name.includes('Спящие'))) sleepingCount = item.count;
+                    if (item.status_id === 9 || (item.status_name && item.status_name.includes('Ушедшие'))) leftCount = item.count;
+                });
+
+                let totalRetCount = 0;
+                let totalRetRevenue = 0;
+                returnedClientsList.forEach(item => {
+                    totalRetCount += item.count || 0;
+                    totalRetRevenue += item.revenue || 0;
+                });
+
+                let totalNewCount = 0;
+                let totalNewRevenue = 0;
+                newClientsList.forEach(item => {
+                    totalNewCount += item.count || 0;
+                    totalNewRevenue += item.revenue || 0;
+                });
 
                 let html = '<div style="display:flex; flex-direction:column; gap:20px; padding: 4px 0;">';
 
-                // ====== ТАБЛИЦА 1: Жизненный цикл клиентов (Спящие / Ушедшие) ======
+                // ====== ТАБЛИЦА 1: Жизненный цикл клиентов (Спящие, Ушедшие, Вернувшиеся) ======
                 html += `
                 <div class="lifecycle-table-card" 
                      onclick="window.location.href='/inactive-clients-analytics?token=' + TOKEN + '&year=' + funnelYear" 
@@ -945,10 +1047,25 @@
                      onmouseout="this.style.borderColor='#e2e8f0'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.02)'; this.style.transform='none';">
                     <div style="margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid #f1f5f9; display:flex; align-items:center; justify-content:space-between;">
                         <div>
-                            <div style="font-size:14px; font-weight:700; color:#1e293b; display:flex; align-items:center; gap:8px;">
-                                <span>💤</span> Жизненный цикл клиентов 🔗
+                            <div class="tooltip-trigger" tabindex="0">
+                                <div style="font-size:14px; font-weight:700; color:#1e293b; display:flex; align-items:center; gap:8px;">
+                                    <span>💤</span> Жизненный цикл клиентов 🔗
+                                </div>
+                                <span class="tooltip-info-badge" title="Справка по группе">?</span>
+                                <div class="funnel-tooltip-text">
+                                    <div style="font-weight:700; color:#f59e0b; margin-bottom:4px; font-size:12px;">💤 Спящие (${formatNum(sleepingCount || 401)})</div>
+                                    <div style="color:#cbd5e1; margin-bottom:10px; font-size:11px; line-height:1.4;">
+                                        Покупали в ${funnelYear-1}, но в ${funnelYear} — тишина.<br>
+                                        Клиент «засыпает» — пора напомнить о себе.
+                                    </div>
+                                    <div style="font-weight:700; color:#ef4444; margin-bottom:4px; font-size:12px;">👻 Ушедшие (${formatNum(leftCount || 605)})</div>
+                                    <div style="color:#cbd5e1; font-size:11px; line-height:1.4;">
+                                        Не покупали ни в ${funnelYear-1}, ни в ${funnelYear}.<br>
+                                        Потерянная база — кандидаты на реактивацию.
+                                    </div>
+                                </div>
                             </div>
-                            <div style="font-size:11px; color:#64748b; margin-top:2px;">Показывает неактивных клиентов за ${funnelYear} год</div>
+                            <div style="font-size:11px; color:#64748b; margin-top:2px;">Показывает неактивных и вернувшихся клиентов за ${funnelYear} год</div>
                         </div>
                         <div style="font-size:12px; font-weight:700; color:#ef4444; background:#fee2e2; padding:4px 10px; border-radius:8px; display:flex; align-items:center; gap:4px; transition:background 0.2s;">
                             Аналитика 🔗
@@ -970,9 +1087,10 @@
                 } else {
                     lifecycleList.forEach(item => {
                         const isSleeping = item.status_id === 8 || (item.status_name && item.status_name.includes('Спящие'));
-                        const icon = isSleeping ? '💤' : '👻';
-                        const pillBg = isSleeping ? '#fef3c7' : '#fee2e2';
-                        const pillColor = isSleeping ? '#92400e' : '#991b1b';
+                        const isReturned = item.status_id === 10 || (item.status_name && item.status_name.includes('Вернувшиеся'));
+                        const icon = isReturned ? '🔄' : (isSleeping ? '💤' : '👻');
+                        const pillBg = isReturned ? '#e0f2fe' : (isSleeping ? '#fef3c7' : '#fee2e2');
+                        const pillColor = isReturned ? '#0369a1' : (isSleeping ? '#92400e' : '#991b1b');
 
                         html += `
                             <tr style="border-bottom:1px solid #f1f5f9;">
@@ -994,7 +1112,77 @@
                 </div>
                 `;
 
-                // ====== ТАБЛИЦА 2: Новые клиенты по частоте покупок (status_id=1) ======
+                // ====== ТАБЛИЦА 2: Вернувшиеся клиенты по частоте покупок (status_id=10) ======
+                html += `
+                <div class="funnel-table-card" 
+                     onclick="window.location.href='/returned-clients-analytics?token=' + TOKEN + '&year=' + funnelYear" 
+                     style="background:#fff; border-radius:12px; padding:16px; border:1px solid #e2e8f0; box-shadow:0 1px 3px rgba(0,0,0,0.02); cursor:pointer; transition:all 0.2s ease;"
+                     onmouseover="this.style.borderColor='#0284c7'; this.style.boxShadow='0 6px 16px rgba(2, 132, 199, 0.18)'; this.style.transform='translateY(-2px)';"
+                     onmouseout="this.style.borderColor='#e2e8f0'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.02)'; this.style.transform='none';">
+                    <div style="margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid #f1f5f9; display:flex; align-items:center; justify-content:space-between;">
+                        <div>
+                            <div class="tooltip-trigger" tabindex="0">
+                                <div style="font-size:14px; font-weight:700; color:#1e293b; display:flex; align-items:center; gap:8px;">
+                                    <span>🔄</span> Вернувшиеся клиенты по частоте покупок 🔗
+                                </div>
+                                <span class="tooltip-info-badge" title="Справка по группе">?</span>
+                                <div class="funnel-tooltip-text">
+                                    <div style="font-weight:700; color:#38bdf8; margin-bottom:4px; font-size:12px;">🔄 Вернувшиеся (${formatNum(totalRetCount || 31)})</div>
+                                    <div style="color:#cbd5e1; margin-bottom:8px; font-size:11px; line-height:1.4;">
+                                        Покупали в ${funnelYear-2} → пропустили ${funnelYear-1} → вернулись в ${funnelYear}.<br>
+                                        Сигнал: компания снова активна на рынке.
+                                    </div>
+                                    <div style="color:#6ee7b7; font-size:11px; font-weight:600;">
+                                        ✨ Отличный момент для восстановления партнёрства!
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="font-size:11px; color:#64748b; margin-top:2px;">Покупали в 2024, пропустили 2025, вернулись в ${funnelYear} (status_id=10)</div>
+                        </div>
+                        <div style="font-size:12px; font-weight:700; color:#0284c7; background:#e0f2fe; padding:4px 10px; border-radius:8px; display:flex; align-items:center; gap:4px; transition:background 0.2s;">
+                            Аналитика 🔗
+                        </div>
+                    </div>
+                    <table style="width:100%; border-collapse:collapse;">
+                        <thead>
+                            <tr style="background:#f8fafc; border-bottom:1px solid #e2e8f0;">
+                                <th style="padding:10px 14px; text-align:left; font-size:12px; font-weight:700; color:#475569;">Группа частоты</th>
+                                <th style="padding:10px 14px; text-align:center; font-size:12px; font-weight:700; color:#475569;">Количество</th>
+                                <th style="padding:10px 14px; text-align:right; font-size:12px; font-weight:700; color:#475569;">Товарная выручка (${funnelYear})</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                if (!returnedClientsList.length) {
+                    html += `<tr><td colspan="3" style="text-align:center; padding:14px; color:#94a3b8; font-size:13px;">📭 Нет вернувшихся клиентов за ${funnelYear}</td></tr>`;
+                } else {
+                    returnedClientsList.forEach(item => {
+                        html += `
+                            <tr style="border-bottom:1px solid #f1f5f9;">
+                                <td style="padding:10px 14px; font-size:13px; font-weight:600; color:#334155;">${item.stage}</td>
+                                <td style="padding:10px 14px; text-align:center; font-weight:600; font-size:13px; color:#1e293b;">${formatNum(item.count)}</td>
+                                <td style="padding:10px 14px; text-align:right; font-weight:700; font-size:13px; color:#047857;">${formatCur(item.revenue)}</td>
+                            </tr>
+                        `;
+                    });
+
+                    html += `
+                        <tr style="background:#f8fafc; border-top:2px solid #e2e8f0;">
+                            <td style="padding:10px 14px; font-size:13px; font-weight:800; color:#0f172a;">Итого Вернувшихся</td>
+                            <td style="padding:10px 14px; text-align:center; font-weight:800; font-size:14px; color:#0f172a;">${formatNum(totalRetCount)}</td>
+                            <td style="padding:10px 14px; text-align:right; font-weight:800; font-size:14px; color:#047857;">${formatCur(totalRetRevenue)}</td>
+                        </tr>
+                    `;
+                }
+
+                html += `
+                        </tbody>
+                    </table>
+                </div>
+                `;
+
+                // ====== ТАБЛИЦА 3: Новые клиенты по частоте покупок (status_id=1) ======
                 html += `
                 <div class="funnel-table-card" 
                      onclick="window.location.href='/new-clients-analytics?token=' + TOKEN + '&year=' + funnelYear" 
@@ -1003,8 +1191,21 @@
                      onmouseout="this.style.borderColor='#e2e8f0'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.02)'; this.style.transform='none';">
                     <div style="margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid #f1f5f9; display:flex; align-items:center; justify-content:space-between;">
                         <div>
-                            <div style="font-size:14px; font-weight:700; color:#1e293b; display:flex; align-items:center; gap:8px;">
-                                <span>🆕</span> Новые клиенты по частоте покупок
+                            <div class="tooltip-trigger" tabindex="0">
+                                <div style="font-size:14px; font-weight:700; color:#1e293b; display:flex; align-items:center; gap:8px;">
+                                    <span>🆕</span> Новые клиенты по частоте покупок 🔗
+                                </div>
+                                <span class="tooltip-info-badge" title="Справка по группе">?</span>
+                                <div class="funnel-tooltip-text">
+                                    <div style="font-weight:700; color:#c084fc; margin-bottom:4px; font-size:12px;">🆕 Новые (${formatNum(totalNewCount || 119)})</div>
+                                    <div style="color:#cbd5e1; margin-bottom:8px; font-size:11px; line-height:1.4;">
+                                        Не покупали 2 года (${funnelYear-2}–${funnelYear-1}) → первая покупка в ${funnelYear}.<br>
+                                        Это действительно новый контакт для компании.
+                                    </div>
+                                    <div style="color:#fde68a; font-size:11px; font-weight:600;">
+                                        ⚠️ Требует подтверждения (опрос) и внимания менеджера.
+                                    </div>
+                                </div>
                             </div>
                             <div style="font-size:11px; color:#64748b; margin-top:2px;">Распределение только Новых клиентов (status_id=1) за ${funnelYear} год</div>
                         </div>
@@ -1026,9 +1227,6 @@
                 if (!newClientsList.length) {
                     html += `<tr><td colspan="3" style="text-align:center; padding:14px; color:#94a3b8; font-size:13px;">📭 Нет новых клиентов за ${funnelYear}</td></tr>`;
                 } else {
-                    let totalNewCount = 0;
-                    let totalNewRevenue = 0;
-
                     newClientsList.forEach(item => {
                         totalNewCount += item.count || 0;
                         totalNewRevenue += item.revenue || 0;
@@ -1057,7 +1255,7 @@
                 </div>
                 `;
 
-                // ====== ТАБЛИЦА 3: Активные клиенты по частоте (Существующая воронка) ======
+                // ====== ТАБЛИЦА 4: Активные клиенты по частоте (Существующая воронка) ======
                 html += `
                 <div class="funnel-table-card" 
                      onclick="window.location.href='/analytics?token=' + TOKEN" 

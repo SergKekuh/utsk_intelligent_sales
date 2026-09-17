@@ -126,6 +126,19 @@ def get_client_detail(code: str, token: str = Query(None), year: int = 2026, db:
 
         last_date_str = client_data["last_purchase_date"].strftime("%d.%m.%Y") if client_data.get("last_purchase_date") else "—"
 
+        meta_row = db.execute(
+            text("""
+                SELECT c.edrpou, c.ipn, ad.name AS direction_name
+                FROM clients c
+                LEFT JOIN activity_directions ad ON c.activity_direction_id = ad.id
+                WHERE c.code = :code
+            """),
+            {"code": code}
+        ).fetchone()
+        edrpou_val = meta_row.edrpou if meta_row and meta_row.edrpou else "—"
+        ipn_val = meta_row.ipn if meta_row and meta_row.ipn else "—"
+        direction_val = meta_row.direction_name if meta_row and meta_row.direction_name else "—"
+
         return {
             "status": "ok",
             "client": {
@@ -138,6 +151,9 @@ def get_client_detail(code: str, token: str = Query(None), year: int = 2026, db:
                 "total_positions": int(client_data.get("total_positions", 0) or 0),
                 "avg_check": float(client_data["avg_check"]),
                 "last_purchase_date": last_date_str,
+                "edrpou": edrpou_val,
+                "ipn": ipn_val,
+                "direction": direction_val,
                 "monthly_data": monthly_data,
                 "last_invoices": last_invoices
             }
@@ -206,9 +222,10 @@ def get_client_invoices(
 def get_invoice_items(number: str, token: str = Query(None), db: Session = Depends(get_db)):
     verify_token(token)
     try:
+        norm_number = number.strip().replace("ЮОГ", "ЮГ")
         invoice_row = db.execute(
             text("SELECT * FROM get_invoice_header(:number)"),
-            {"number": number}
+            {"number": norm_number}
         ).fetchone()
         if not invoice_row:
             raise HTTPException(status_code=404, detail=f"Накладная '{number}' не найдена")
@@ -216,7 +233,7 @@ def get_invoice_items(number: str, token: str = Query(None), db: Session = Depen
         inv_data = dict(invoice_row._mapping)
 
         q_items = text("SELECT * FROM get_invoice_items(:number)")
-        item_rows = db.execute(q_items, {"number": number}).fetchall()
+        item_rows = db.execute(q_items, {"number": norm_number}).fetchall()
         items = []
         for r in item_rows:
             m = dict(r._mapping)
@@ -266,6 +283,7 @@ def funnel(token: str = Query(None), year: int = 2026, db: Session = Depends(get
 
         desc_sleeping = f"Нет покупок в {year}, были в {year-1}"
         desc_left = f"Нет покупок в {year} и {year-1}"
+        desc_returned = f"Покупали в {year} и {year-2}, пропустили {year-1}"
         result_lifecycle = db.execute(text("""
             SELECT 
                 sr.id AS status_id,
@@ -274,15 +292,16 @@ def funnel(token: str = Query(None), year: int = 2026, db: Session = Depends(get
                 CASE sr.id
                     WHEN 8 THEN :desc_sleeping
                     WHEN 9 THEN :desc_left
+                    WHEN 10 THEN :desc_returned
                     ELSE 'Неактивные клиенты'
                 END AS description
             FROM clients c
             JOIN status_rules sr ON c.current_status_id = sr.id
-            WHERE c.current_status_id IN (8, 9)
+            WHERE c.current_status_id IN (8, 9, 10)
               AND c.code NOT IN ('9653', '11230')
             GROUP BY sr.id, sr.status_name
-            ORDER BY CASE sr.id WHEN 8 THEN 1 WHEN 9 THEN 2 ELSE 3 END
-        """), {"desc_sleeping": desc_sleeping, "desc_left": desc_left})
+            ORDER BY CASE sr.id WHEN 8 THEN 1 WHEN 9 THEN 2 WHEN 10 THEN 3 ELSE 4 END
+        """), {"desc_sleeping": desc_sleeping, "desc_left": desc_left, "desc_returned": desc_returned})
 
         lifecycle = []
         for row in result_lifecycle:
@@ -292,6 +311,19 @@ def funnel(token: str = Query(None), year: int = 2026, db: Session = Depends(get
                 "status_name": r["status_name"],
                 "count": r["count"],
                 "description": r["description"]
+            })
+
+        result_returned = db.execute(text("SELECT * FROM get_returned_clients_frequency(:year)"), {"year": year})
+        returned_clients_funnel = []
+        for row in result_returned:
+            r = dict(row._mapping)
+            returned_clients_funnel.append({
+                "stage": r["frequency_group"],
+                "sort_order": r["sort_order"],
+                "count": r["returned_count"],
+                "revenue": round(float(r["returned_revenue"]), 2),
+                "avg_ticket": round(float(r["avg_ticket"]), 2) if r.get("avg_ticket") else 0.0,
+                "pct": round(float(r["returned_pct"]), 1) if r.get("returned_pct") else 0.0
             })
 
         result_new = db.execute(text("SELECT * FROM get_new_clients_frequency(:year)"), {"year": year})
@@ -311,6 +343,7 @@ def funnel(token: str = Query(None), year: int = 2026, db: Session = Depends(get
             "year": year,
             "funnel": active_funnel,
             "lifecycle": lifecycle,
+            "returned_clients_funnel": returned_clients_funnel,
             "new_clients_funnel": new_clients_funnel
         }
     except Exception as e:
