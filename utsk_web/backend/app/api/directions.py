@@ -275,3 +275,169 @@ def get_leader_analytics(
         logger.error(f"Ошибка get_leader_analytics: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+
+# ============================================================
+# DIRECTION-DETAIL: 7 новых эндпоинтов
+# ============================================================
+
+@router.get("/api/analytics/direction/kpi")
+def get_direction_detail_kpi(
+    token: str = Query(None),
+    direction_id: int = Query(...),
+    year: int = Query(2026),
+    db: Session = Depends(get_db),
+):
+    verify_token(token)
+    try:
+        row = db.execute(
+            text("SELECT * FROM get_direction_detail_kpi(:did, :year)"),
+            {"did": direction_id, "year": year},
+        ).fetchone()
+        if not row:
+            raise HTTPException(status_code=404, detail="Направление не найдено")
+        return {"status": "ok", "year": year, "data": dict(row._mapping)}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Ошибка get_direction_detail_kpi: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/api/analytics/direction/top-clients")
+def get_direction_top_clients(
+    token: str = Query(None),
+    direction_id: int = Query(...),
+    year: int = Query(2026),
+    limit: int = Query(10, ge=1, le=50),
+    db: Session = Depends(get_db),
+):
+    verify_token(token)
+    try:
+        rows = db.execute(
+            text("SELECT * FROM get_direction_top_clients(:did, :year, :lim)"),
+            {"did": direction_id, "year": year, "lim": limit},
+        ).fetchall()
+        return {"status": "ok", "year": year, "data": [dict(r._mapping) for r in rows]}
+    except Exception as e:
+        logger.error(f"Ошибка get_direction_top_clients: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/api/analytics/direction/clients")
+def get_direction_clients(
+    token: str = Query(None),
+    direction_id: int = Query(...),
+    year: int = Query(2026),
+    search: str = Query(None),
+    abc_group: str = Query(None),
+    limit: int = Query(50, ge=1, le=200),
+    offset: int = Query(0, ge=0),
+    db: Session = Depends(get_db),
+):
+    verify_token(token)
+    try:
+        rows = db.execute(
+            text("""SELECT * FROM get_direction_clients_list(
+                :did, :year, :search, :abc, :lim, :off)"""),
+            {
+                "did": direction_id,
+                "year": year,
+                "search": search or None,
+                "abc": abc_group or None,
+                "lim": limit,
+                "off": offset,
+            },
+        ).fetchall()
+        total_count = rows[0].total_count if rows else 0
+        return {
+            "status": "ok",
+            "year": year,
+            "total_count": int(total_count),
+            "data": [dict(r._mapping) for r in rows],
+        }
+    except Exception as e:
+        logger.error(f"Ошибка get_direction_clients: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/api/analytics/direction/products-by-size")
+def get_direction_products_by_size(
+    token: str = Query(None),
+    direction_id: int = Query(...),
+    year: int = Query(2026),
+    db: Session = Depends(get_db),
+):
+    verify_token(token)
+    try:
+        rows = db.execute(
+            text("SELECT * FROM get_direction_products_by_size(:did, :year)"),
+            {"did": direction_id, "year": year},
+        ).fetchall()
+        return {"status": "ok", "year": year, "data": [dict(r._mapping) for r in rows]}
+    except Exception as e:
+        logger.error(f"Ошибка get_direction_products_by_size: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/api/analytics/direction/size-drilldown")
+@router.get("/api/analytics/directions/size-drilldown")
+def get_direction_size_drilldown_api(
+    token: str = Query(None),
+    direction_id: int = Query(...),
+    year: int = Query(2026),
+    size_key: str = Query(...),
+    db: Session = Depends(get_db),
+):
+    verify_token(token)
+    try:
+        rows = db.execute(
+            text("SELECT * FROM get_direction_size_drilldown(:did, :size_key, :year)"),
+            {
+                "did": direction_id,
+                "size_key": size_key,
+                "year": year,
+            },
+        ).fetchall()
+        return {"status": "ok", "year": year, "data": [dict(r._mapping) for r in rows]}
+    except Exception as e:
+        logger.error(f"Ошибка get_direction_size_drilldown: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/api/analytics/direction/clients-yoy")
+def get_direction_clients_yoy(
+    token: str = Query(None),
+    direction_id: int = Query(...),
+    year: int = Query(2026),
+    db: Session = Depends(get_db),
+):
+    verify_token(token)
+    try:
+        rows = db.execute(
+            text("SELECT * FROM get_direction_clients_yoy(:did, :year)"),
+            {"did": direction_id, "year": year},
+        ).fetchall()
+        return {"status": "ok", "year": year, "data": [dict(r._mapping) for r in rows]}
+    except Exception as e:
+        logger.error(f"Ошибка get_direction_clients_yoy: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/api/analytics/direction/sizes-yoy")
+@router.get("/api/analytics/directions/sizes-yoy")
+def get_direction_sizes_yoy_api(
+    token: str = Query(None),
+    direction_id: int = Query(...),
+    year: int = Query(2026),
+    db: Session = Depends(get_db),
+):
+    verify_token(token)
+    try:
+        rows = db.execute(
+            text("SELECT * FROM get_direction_sizes_yoy(:did, :year)"),
+            {"did": direction_id, "year": year},
+        ).fetchall()
+        return {"status": "ok", "year": year, "data": [dict(r._mapping) for r in rows]}
+    except Exception as e:
+        logger.error(f"Ошибка get_direction_sizes_yoy: {e}")
+        raise HTTPException(status_code=500, detail=str(e))

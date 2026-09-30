@@ -645,81 +645,7 @@
             </div>
         </section>
 
-        <!-- Companies Drill-down Table -->
-        <section class="section-card" id="companies-section">
-            <div class="section-header">
-                <div>
-                    <h2 class="section-title" id="companies-title">🏢 Компании отрасли: Все направления</h2>
-                    <p class="section-desc" id="companies-subtitle">Список предприятий, их реквизиты (ЄДРПОУ, ИПН), выручка и статус</p>
-                </div>
-                <div>
-                    <button class="btn-filter" onclick="exportCompaniesCSV()">
-                        <span>📥 Экспорт в CSV</span>
-                    </button>
-                </div>
-            </div>
 
-            <!-- Filter Bar -->
-            <div class="filter-bar">
-                <div class="active-filter-indicator" id="active-filter-badge">
-                    <span>Выбрано: 🌐 Все отрасли</span>
-                </div>
-                <input type="text" id="client-search" class="search-input" placeholder="Поиск по названию, коду или ЄДРПОУ..." oninput="debounceSearch()">
-                <select id="abc-filter" class="filter-select" onchange="onFilterChange()">
-                    <option value="ALL">Все группы ABC</option>
-                    <option value="A1">A1 (Крупнейшие)</option>
-                    <option value="A2">A2 (Очень крупные)</option>
-                    <option value="B1">B1 (Крупные)</option>
-                    <option value="B2">B2 (Средние)</option>
-                    <option value="C1">C1 (Малые)</option>
-                    <option value="C2">C2 (Разовые/Мелкие)</option>
-                </select>
-                <div style="margin-left:auto;font-size:12.5px;color:var(--text-muted);" id="companies-count-badge">
-                    Загрузка...
-                </div>
-            </div>
-
-            <!-- Companies Table -->
-            <div class="table-responsive">
-                <table>
-                    <thead>
-                        <tr>
-                            <th style="width:40px;">#</th>
-                            <th>Код</th>
-                            <th>Название компании</th>
-                            <th>ЄДРПОУ / ОКПО</th>
-                            <th>ИПН</th>
-                            <th>Статус клиента</th>
-                            <th class="text-center">ABC</th>
-                            <th class="text-right">Накладных</th>
-                            <th class="text-right">Выручка ₴</th>
-                            <th class="text-right">Ср. чек ₴</th>
-                            <th>Посл. отгрузка</th>
-                            <th class="text-center">Карточка</th>
-                        </tr>
-                    </thead>
-                    <tbody id="companies-table-body">
-                        <tr>
-                            <td colspan="12" class="state-container">
-                                <div class="spinner"></div>
-                                <div style="margin-top:8px;">Загрузка списка компаний...</div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Pagination Bar -->
-            <div style="display:flex;justify-content:space-between;align-items:center;padding-top:12px;">
-                <div style="font-size:13px;color:var(--text-muted);" id="pagination-info">
-                    —
-                </div>
-                <div style="display:flex;gap:8px;">
-                    <button class="btn-filter" id="btn-prev-page" onclick="changePage(-1)" disabled>← Назад</button>
-                    <button class="btn-filter" id="btn-next-page" onclick="changePage(1)" disabled>Вперед →</button>
-                </div>
-            </div>
-        </section>
     </main>
 </div>
 
@@ -732,11 +658,6 @@
     let selectedDirectionName = 'Все отрасли';
 
     let summaryData = [];
-    let companiesData = [];
-    let currentPage = 0;
-    const PAGE_SIZE = 50;
-    let totalMatchingCompanies = 0;
-    let searchDebounceTimer = null;
 
     let pieChartInstance = null;
     let monthlyChartInstance = null;
@@ -774,7 +695,6 @@
 
     function onYearChange() {
         currentYear = parseInt(document.getElementById('year-select').value);
-        currentPage = 0;
         loadAllData();
     }
 
@@ -784,7 +704,6 @@
             loadKPI(),
             loadSummary(),
             loadMonthlyDynamics(),
-            loadCompanies()
         ]);
     }
 
@@ -845,9 +764,12 @@
         }
 
         tbody.innerHTML = data.map(r => {
-            const isSelected = selectedDirectionId === r.id;
+            const href = `/direction-detail?token=${TOKEN}&direction_id=${r.id}&year=${currentYear}`;
             return `
-                <tr class="clickable-row ${isSelected ? 'selected-row' : ''}" onclick="selectDirection(${r.id}, '${r.icon} ${r.name}')">
+                <tr class="clickable-row"
+                    onclick="location.href='${href}'"
+                    style="cursor:pointer;"
+                    title="Открыть детальную аналитику: ${r.name}">
                     <td>
                         <div style="display:flex;align-items:center;gap:10px;">
                             <span style="font-size:20px;">${r.icon}</span>
@@ -879,9 +801,7 @@
                         </div>
                     </td>
                     <td class="text-center">
-                        <button class="btn-filter ${isSelected ? 'active-dir-pill' : ''}" style="padding:4px 10px;font-size:12px;">
-                            ${isSelected ? '✓ Выбрано' : 'Клиенты'}
-                        </button>
+                        <span style="color:var(--brand);font-size:16px;">→</span>
                     </td>
                 </tr>
             `;
@@ -1035,180 +955,18 @@
         });
     }
 
-    // 4. Select Direction & Drill-down
+    // 4. Переход на детальную страницу отрасли — теперь через onclick="location.href=..." в строке таблицы.
+    // Заглушки оставлены для обратной совместимости.
     function selectDirection(dirId, dirName) {
-        selectedDirectionId = dirId;
-        selectedDirectionName = dirName;
-        currentPage = 0;
-
-        // Update UI pill & titles
-        document.getElementById('active-filter-badge').innerHTML = `
-            <span>Выбрано: <strong>${dirName}</strong></span>
-            <button class="btn-clear-filter" onclick="event.stopPropagation(); resetDirectionSelection()">Сбросить ✕</button>
-        `;
-        document.getElementById('companies-title').textContent = `🏢 Компании отрасли: ${dirName}`;
-        
-        // Re-render summary table to reflect selection
-        renderSummaryTable(summaryData);
-
-        // Load companies
-        loadCompanies();
-
-        // Scroll to companies section
-        document.getElementById('companies-section').scrollIntoView({ behavior: 'smooth' });
+        const href = `/direction-detail?token=${TOKEN}&direction_id=${dirId}&year=${currentYear}`;
+        location.href = href;
     }
 
     function resetDirectionSelection() {
-        selectedDirectionId = 0;
-        selectedDirectionName = 'Все отрасли';
-        currentPage = 0;
-        document.getElementById('active-filter-badge').innerHTML = `<span>Выбрано: 🌐 Все отрасли</span>`;
-        document.getElementById('companies-title').textContent = `🏢 Компании отрасли: Все направления`;
-        renderSummaryTable(summaryData);
-        loadCompanies();
+        // Устарела — блок компаний удалён
     }
 
-    // 5. Load Companies Table
-    async function loadCompanies() {
-        const tbody = document.getElementById('companies-table-body');
-        tbody.innerHTML = `<tr><td colspan="12" class="state-container"><div class="spinner"></div><div style="margin-top:8px;">Загрузка списка компаний...</div></td></tr>`;
 
-        const search = (document.getElementById('client-search').value || '').trim();
-        const abc = document.getElementById('abc-filter').value;
-        const offset = currentPage * PAGE_SIZE;
-
-        try {
-            let url = `/api/analytics/directions/companies?token=${TOKEN}&direction_id=${selectedDirectionId}&year=${currentYear}&limit=${PAGE_SIZE}&offset=${offset}`;
-            if (search) url += `&search=${encodeURIComponent(search)}`;
-            if (abc && abc !== 'ALL') url += `&abc_group=${encodeURIComponent(abc)}`;
-
-            const res = await fetch(url);
-            const json = await res.json();
-
-            if (json.status === 'ok') {
-                companiesData = json.data || [];
-                totalMatchingCompanies = json.total_matching || 0;
-                renderCompaniesTable(companiesData);
-                updatePagination();
-            } else {
-                tbody.innerHTML = `<tr><td colspan="12" class="state-container">⚠️ Ошибка: ${json.detail || 'Не удалось загрузить данные'}</td></tr>`;
-            }
-        } catch (e) {
-            console.error('Ошибка загрузки компаний:', e);
-            tbody.innerHTML = `<tr><td colspan="12" class="state-container">⚠️ Ошибка: ${e.message}</td></tr>`;
-        }
-    }
-
-    function renderCompaniesTable(data) {
-        const tbody = document.getElementById('companies-table-body');
-        if (!data || data.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="12" class="state-container">Компании не найдены по заданным критериям</td></tr>`;
-            document.getElementById('companies-count-badge').textContent = `Найдено: 0`;
-            return;
-        }
-
-        const startIdx = currentPage * PAGE_SIZE;
-        tbody.innerHTML = data.map((c, i) => {
-            const abcCls = `abc-${c.abc_group || 'C2'}`;
-            return `
-                <tr>
-                    <td style="color:var(--text-muted);font-size:12px;">${startIdx + i + 1}</td>
-                    <td>
-                        <a href="/client-detail?token=${TOKEN}&code=${c.code}" class="client-link" target="_blank">${c.code}</a>
-                    </td>
-                    <td>
-                        <div style="font-weight:600;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${c.name}">
-                            ${c.name}
-                        </div>
-                    </td>
-                    <td>
-                        <span style="font-family:monospace;font-weight:600;color:#334155;">${c.edrpou || '—'}</span>
-                    </td>
-                    <td>
-                        <span style="font-family:monospace;font-size:11.5px;color:#64748b;">${c.ipn || '—'}</span>
-                    </td>
-                    <td>
-                        <span class="badge" style="background:#f1f5f9;color:#334155;">${c.status_name}</span>
-                    </td>
-                    <td class="text-center">
-                        <span class="badge badge-abc ${abcCls}">${c.abc_group}</span>
-                    </td>
-                    <td class="text-right">${fmtNum(c.invoices_count)}</td>
-                    <td class="text-right" style="font-weight:700;color:#0f172a;">${fmtCur(c.goods_revenue)}</td>
-                    <td class="text-right" style="font-weight:600;color:#2563eb;">${fmtCur(c.avg_ticket)}</td>
-                    <td style="font-size:12px;color:var(--text-muted);">${c.last_purchase_date || '—'}</td>
-                    <td class="text-center">
-                        <a href="/client-detail?token=${TOKEN}&code=${c.code}" target="_blank" class="btn-filter" style="padding:3px 8px;font-size:11.5px;text-decoration:none;">
-                            Карточка ↗
-                        </a>
-                    </td>
-                </tr>
-            `;
-        }).join('');
-
-        document.getElementById('companies-count-badge').textContent = `Показано: ${data.length} из ${totalMatchingCompanies}`;
-    }
-
-    function updatePagination() {
-        const totalPages = Math.ceil(totalMatchingCompanies / PAGE_SIZE) || 1;
-        const start = totalMatchingCompanies > 0 ? (currentPage * PAGE_SIZE + 1) : 0;
-        const end = Math.min((currentPage + 1) * PAGE_SIZE, totalMatchingCompanies);
-
-        document.getElementById('pagination-info').textContent = `Показано ${start}–${end} из ${totalMatchingCompanies} (страница ${currentPage + 1} из ${totalPages})`;
-        document.getElementById('btn-prev-page').disabled = currentPage === 0;
-        document.getElementById('btn-next-page').disabled = (currentPage + 1) >= totalPages;
-    }
-
-    function changePage(delta) {
-        currentPage += delta;
-        if (currentPage < 0) currentPage = 0;
-        loadCompanies();
-    }
-
-    function onFilterChange() {
-        currentPage = 0;
-        loadCompanies();
-    }
-
-    function debounceSearch() {
-        clearTimeout(searchDebounceTimer);
-        searchDebounceTimer = setTimeout(() => {
-            currentPage = 0;
-            loadCompanies();
-        }, 300);
-    }
-
-    // Export CSV
-    function exportCompaniesCSV() {
-        if (!companiesData || companiesData.length === 0) {
-            alert('Нет данных для экспорта');
-            return;
-        }
-        const headers = ['Код', 'Компания', 'ЕДРПОУ', 'ИПН', 'Статус', 'ABC', 'Накладных', 'Выручка_грн', 'Средний_чек_грн', 'Дата_покупки'];
-        const csvRows = [headers.join(';')];
-
-        companiesData.forEach(c => {
-            const row = [
-                c.code,
-                `"${(c.name || '').replace(/"/g, '""')}"`,
-                `"${c.edrpou || ''}"`,
-                `"${c.ipn || ''}"`,
-                `"${c.status_name || ''}"`,
-                c.abc_group,
-                c.invoices_count,
-                c.goods_revenue,
-                c.avg_ticket,
-                c.last_purchase_date
-            ];
-            csvRows.push(row.join(';'));
-        });
-
-        const blob = new Blob(['\uFEFF' + csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = `companies_direction_${selectedDirectionId}_${currentYear}.csv`;
-        link.click();
-    }
 </script>
 
 </body>

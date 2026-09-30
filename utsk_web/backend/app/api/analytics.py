@@ -359,14 +359,14 @@ def recurrent_clients(token: str=Query(None), year: int=2026, multiplier: float=
             r = dict(row._mapping)
             days = r.get('days_between') or 0
             inv_count = int(r.get('invoice_count', 2))
-            if days <= 7:
-                rec_class = 'g1'
-                rec_label = 'Ближе к разовым'
-                recommendation = 'Стимулировать регулярность'
-            elif inv_count >= 3:
+            if inv_count >= 3:
                 rec_class = 'g3'
                 rec_label = 'Ближе к постоянным'
                 recommendation = 'Программа лояльности'
+            elif days <= 7:
+                rec_class = 'g1'
+                rec_label = 'Ближе к разовым'
+                recommendation = 'Стимулировать регулярность'
             else:
                 rec_class = 'g2'
                 rec_label = 'Повторные (Центр)'

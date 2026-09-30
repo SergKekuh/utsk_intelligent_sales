@@ -45,6 +45,15 @@ async def client_detail_page(request: Request, token: str = Query(None)):
             return HTMLResponse(content=f.read())
     raise HTTPException(status_code=404, detail="Страница клиента не найдена")
 
+@router.get("/direction-detail", response_class=HTMLResponse)
+async def direction_detail_page(request: Request, token: str = Query(None)):
+    verify_token(token)
+    filepath = find_file("direction-detail.html", get_search_dirs())
+    if filepath:
+        with open(filepath, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    raise HTTPException(status_code=404, detail="Страница детализации направления не найдена")
+
 @router.get("/segment-detail", response_class=HTMLResponse)
 async def segment_detail_page(request: Request, token: str = Query(None)):
     verify_token(token)

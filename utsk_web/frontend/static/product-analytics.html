@@ -836,34 +836,43 @@
         <!-- TAB 3: YoY COMPARE -->
         <div id="tab-yoy" class="tab-content">
             <div class="analytics-grid">
+                <!-- Таблица размеров с YoY -->
                 <div class="card">
                     <div class="card-header">
-                        <h2 class="card-title">Сравнение продаж по товарам (2026 vs 2025)</h2>
+                        <h2 class="card-title">🔄 Сравнення розмірів (2026 vs 2025)</h2>
+                        <div class="card-subtitle" style="font-size:13px;margin-top:4px;color:var(--text-muted);">
+                            Агрегація по розміру труби. ДСТУ/ГОСТ/сталь не враховуються.<br>
+                            <span style="color:var(--accent);">Клік по рядку — деталізація по ГОСТах і сталях.</span>
+                        </div>
                     </div>
                     <div class="table-responsive">
-                        <table class="sizes-table">
+                        <table class="sizes-table" id="yoySizesTable">
                             <thead>
                                 <tr>
-                                    <th>Товар</th>
-                                    <th class="num">2025 год</th>
-                                    <th class="num">2026 год</th>
-                                    <th class="num">Разница (₴)</th>
-                                    <th class="num">Рост %</th>
+                                    <th style="width:36px;text-align:center;"></th>
+                                    <th>Розмір</th>
+                                    <th class="num">Раз 2026</th>
+                                    <th class="num">2025 ₴</th>
+                                    <th class="num">2026 ₴</th>
+                                    <th class="num">Δ ₴</th>
+                                    <th class="num">Ріст %</th>
+                                    <th>Тренд</th>
                                 </tr>
                             </thead>
-                            <tbody id="table-yoy">
-                                <tr><td colspan="5" class="loading">Загрузка данных сравнения...</td></tr>
+                            <tbody id="yoySizesBody">
+                                <tr><td colspan="8" class="loading"><i class="fa-solid fa-spinner fa-spin"></i> Завантаження порівняння розмірів...</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
 
+                <!-- График ТОП-10 размеров -->
                 <div class="card">
                     <div class="card-header">
-                        <h2 class="card-title">Динамика ключевых товаров</h2>
+                        <h2 class="card-title">ТОП-10 розмірів по виручці</h2>
                     </div>
                     <div class="chart-container" style="height:400px;">
-                        <canvas id="chartYoY"></canvas>
+                        <canvas id="chartYoYSizes"></canvas>
                     </div>
                 </div>
             </div>
@@ -1022,16 +1031,25 @@
             btn.classList.add('active');
             document.getElementById(tabId).classList.add('active');
 
-            if (tabId === 'tab-portfolio' || tabId === 'tab-yoy' || tabId === 'tab-ml') {
+            if (tabId === 'tab-portfolio' || tabId === 'tab-ml') {
                 if (!window._legacyLoaded) {
                     loadLegacyAnalytics();
                 }
+            }
+            if (tabId === 'tab-yoy') {
+                // YoY грузится отдельно — по размерам, а не по товарам
+                loadYoYBySizes();
             }
         }
 
         function onYearChange() {
             YEAR = document.getElementById('year-select').value;
             loadSizes();
+            // Обновляем YoY, если вкладка активна
+            const activeTabEl = document.querySelector('.tab-content.active');
+            if (activeTabEl && activeTabEl.id === 'tab-yoy') {
+                loadYoYBySizes();
+            }
             if (window._legacyLoaded) {
                 loadLegacyAnalytics();
             }
@@ -1156,7 +1174,7 @@
 
         // ---- Drill-down logic (Inline Accordion) ----
         async function toggleDrilldown(sizeKey, displayName) {
-            const targetRow = document.querySelector(`tr[data-size="${sizeKey}"]`);
+            const targetRow = document.querySelector(`#sizesBody tr[data-size="${sizeKey}"]`);
             
             if (currentSizeKey === sizeKey) {
                 closeDrilldown();
@@ -1310,22 +1328,20 @@
             }
         }
 
-        // ---- Legacy Tabs: Portfolio, YoY, ML Recommendations ----
+        // ---- Legacy Tabs: Portfolio, ML Recommendations ----
+        // Примечание: вкладка YoY теперь загружается отдельно через loadYoYBySizes()
         async function loadLegacyAnalytics() {
             window._legacyLoaded = true;
             try {
-                const [resProducts, resCompare, resRec] = await Promise.all([
+                const [resProducts, resRec] = await Promise.all([
                     fetch(`/api/analytics/client-products/${CLIENT_CODE}?token=${TOKEN}&year=${YEAR}`),
-                    fetch(`/api/analytics/client-products-compare/${CLIENT_CODE}?token=${TOKEN}`),
                     fetch(`/api/analytics/client-products-recommendations/${CLIENT_CODE}?token=${TOKEN}`)
                 ]);
 
                 const dataProducts = await resProducts.json();
-                const dataCompare = await resCompare.json();
                 const dataRec = await resRec.json();
 
                 renderPortfolio(dataProducts.products || []);
-                renderYoY(dataCompare.products || []);
                 renderML(dataRec);
             } catch (err) {
                 console.error('Ошибка загрузки сопутствующих данных:', err);
@@ -1387,43 +1403,255 @@
             });
         }
 
-        function renderYoY(products) {
-            const tbody = document.getElementById('table-yoy');
-            if (!products || products.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="loading">Нет данных для сравнения</td></tr>';
-                return;
-            }
+        // ============================================================
+        // ВКЛАДКА «Динамика 2026 vs 2025» — сравнение по РАЗМЕРАМ
+        // ============================================================
 
-            tbody.innerHTML = products.map(p => {
-                const diff = (p.sales_2026 || 0) - (p.sales_2025 || 0);
-                const pct = p.growth_pct || 0;
-                let badgeHtml = diff > 0 ? `<span class="badge up">▲ +${pct}%</span>` 
-                              : diff < 0 ? `<span class="badge down">▼ ${pct}%</span>` 
-                              : `<span class="badge neutral">0%</span>`;
+        async function loadYoYBySizes() {
+            const tbody = document.getElementById('yoySizesBody');
+            if (!tbody) return;
+
+            tbody.innerHTML = `<tr><td colspan="8" class="loading"><i class="fa-solid fa-spinner fa-spin"></i> Завантаження порівняння розмірів...</td></tr>`;
+
+            try {
+                const res = await fetch(`/api/analytics/client-sizes-compare/${CLIENT_CODE}?token=${TOKEN}&year=${YEAR}`);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+
+                if (!data.items || data.items.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="8" class="loading">Немає даних для порівняння за ${YEAR} / ${parseInt(YEAR) - 1}</td></tr>`;
+                    return;
+                }
+
+                renderYoYSizesTable(data.items);
+                renderYoYSizesChart(data.items);
+            } catch (e) {
+                console.error('loadYoYBySizes error:', e);
+                tbody.innerHTML = `<tr><td colspan="8" class="loading" style="color:var(--danger);"><i class="fa-solid fa-triangle-exclamation"></i> Помилка: ${e.message}</td></tr>`;
+            }
+        }
+
+        function renderYoYSizesTable(items) {
+            const tbody = document.getElementById('yoySizesBody');
+
+            tbody.innerHTML = items.map(x => {
+                // Стиль тренда
+                let trendClass = '';
+                if (x.trend && (x.trend.includes('Зростання') || x.trend.includes('Новий'))) trendClass = 'positive';
+                else if (x.trend && (x.trend.includes('Спад') || x.trend.includes('Пішов'))) trendClass = 'negative';
+
+                // Класс для Δ ₴
+                const deltaClass = x.yoy_abs > 0 ? 'positive' : x.yoy_abs < 0 ? 'negative' : '';
+
+                // Текст Δ ₴
+                const deltaText = x.yoy_abs === 0 ? '—'
+                    : (x.yoy_abs > 0 ? '+' : '') + fmtFullMoney(x.yoy_abs);
+
+                // Текст Рост %
+                let yoyText = '—';
+                if (x.yoy_pct != null) {
+                    const arrow = x.yoy_pct >= 100 ? '↑' : '↓';
+                    yoyText = arrow + ' ' + x.yoy_pct.toFixed(0) + '%';
+                }
+
+                // Иконка типа трубы
+                const typeIcon = { round: '⭕', square: '⬛', rect: '▬' }[x.pipe_type] || '❓';
+
+                // Безопасные значения для onclick
+                const safeName = (x.display_name || '').replace(/'/g, "\\'");
+                const safeKey  = (x.size_key  || '').replace(/'/g, "\\'");
 
                 return `
-                    <tr>
-                        <td><b>${p.product_name || '—'}</b></td>
-                        <td class="num">${fmtFullMoney(p.sales_2025)}</td>
-                        <td class="num" style="font-weight:700;">${fmtFullMoney(p.sales_2026)}</td>
-                        <td class="num" style="color:${diff>0?'var(--success)':diff<0?'var(--danger)':'var(--text-muted)'}">${diff>0?'+':''}${fmtFullMoney(diff)}</td>
-                        <td class="num">${badgeHtml}</td>
+                    <tr class="size-row"
+                        onclick="toggleYoYDrilldown('${safeKey}', '${safeName}')"
+                        data-size="${x.size_key}"
+                        style="cursor:pointer;"
+                        title="Клік для деталізації по ГОСТах та сталях">
+                        <td class="expand-cell" style="text-align:center;color:var(--text-muted);">
+                            <i class="fa-solid fa-chevron-right expand-icon" style="font-size:10px;"></i>
+                        </td>
+                        <td>
+                            <div style="display:flex;align-items:center;gap:8px;">
+                                <span title="${x.pipe_type_ua || ''}" style="font-size:14px;">${typeIcon}</span>
+                                <b>${x.display_name || x.size_key}</b>
+                            </div>
+                        </td>
+                        <td class="num">${x.invoices_current} раз</td>
+                        <td class="num" style="color:var(--text-muted);">${fmtFullMoney(x.revenue_prev)}</td>
+                        <td class="num" style="font-weight:700;">${fmtFullMoney(x.revenue_current)}</td>
+                        <td class="num ${deltaClass}">${deltaText}</td>
+                        <td class="num ${trendClass}">${yoyText}</td>
+                        <td style="font-size:13px;white-space:nowrap;">${x.trend || '—'}</td>
                     </tr>
                 `;
             }).join('');
+        }
 
-            const top6 = products.slice(0, 6);
-            if (charts.yoy) charts.yoy.destroy();
-            charts.yoy = new Chart(document.getElementById('chartYoY'), {
+        // При клике — переключиться на вкладку «Всі розміри» и открыть drill-down
+
+        let currentYoYSizeKey = null;
+
+        function closeYoYDrilldown() {
+            currentYoYSizeKey = null;
+            document.querySelectorAll('#yoySizesBody tr.size-row').forEach(tr => tr.classList.remove('active'));
+            const panel = document.getElementById('yoyDrilldownPanel');
+            const container = document.getElementById('yoyDrilldownPanelContainer');
+            if (panel && container) {
+                container.appendChild(panel);
+                container.style.display = 'none';
+            }
+            const existingInlineRow = document.getElementById('yoyInlineDrilldownRow');
+            if (existingInlineRow) {
+                existingInlineRow.remove();
+            }
+        }
+
+        async function toggleYoYDrilldown(sizeKey, displayName) {
+            const targetRow = document.querySelector(`#yoySizesBody tr[data-size="${sizeKey}"]`);
+            
+            if (currentYoYSizeKey === sizeKey) {
+                closeYoYDrilldown();
+                return;
+            }
+
+            closeYoYDrilldown();
+            currentYoYSizeKey = sizeKey;
+
+            if (targetRow) {
+                targetRow.classList.add('active');
+            }
+
+            const drillRow = document.createElement('tr');
+            drillRow.id = 'yoyInlineDrilldownRow';
+            drillRow.className = 'drilldown-row';
+            // YoY table has 8 columns
+            drillRow.innerHTML = '<td colspan="8" id="yoyInlineDrilldownCell"></td>';
+            
+            if (targetRow) {
+                targetRow.after(drillRow);
+            }
+
+            const panel = document.getElementById('yoyDrilldownPanel');
+            document.getElementById('yoyInlineDrilldownCell').appendChild(panel);
+
+            document.getElementById('yoyDrilldownTitle').innerHTML = 
+                `<i class="fa-solid fa-scale-balanced" style="color:var(--accent);"></i> Порівняння товарів розміру: <b>${displayName}</b>`;
+
+            const content = document.getElementById('yoyDrilldownContent');
+            content.innerHTML = '<div class="loading"><i class="fa-solid fa-spinner fa-spin"></i> Завантаження...</div>';
+
+            drillRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+            try {
+                // Call the correct API for YoY products compare
+                const r = await fetch(`/api/analytics/client-products-compare/${CLIENT_CODE}?token=${TOKEN}`);
+                if (!r.ok) throw new Error(`HTTP ${r.status}`);
+                const data = await r.json();
+
+                // We must filter the returned items by sizeKey!
+                // Wait, if /api/analytics/client-products-compare returns ALL products, we filter them locally:
+                const items = (data.data || data).filter(x => x.size_key === sizeKey);
+
+                if (!items || items.length === 0) {
+                    content.innerHTML = '<div class="loading">Немає товарів даного розміру у порівнянні</div>';
+                    return;
+                }
+
+                let html = `
+                    <table class="sizes-table" style="margin-top:10px;">
+                        <thead>
+                            <tr>
+                                <th>Товар (ДСТУ / Марка)</th>
+                                <th class="num">2025 ₴</th>
+                                <th class="num">2026 ₴</th>
+                                <th class="num">Δ ₴</th>
+                                <th class="num">Ріст %</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                items.forEach(x => {
+                    const arrow = x.yoy_pct >= 100 ? '<span style="color:var(--success);">↑</span>' : '<span style="color:var(--danger);">↓</span>';
+                    const yoyText = x.yoy_pct != null ? `${arrow} ${x.yoy_pct.toFixed(0)}%` : '—';
+                    html += `
+                        <tr>
+                            <td>${x.display_name || x.product_name || '-'}</td>
+                            <td class="num">${fmtM(x.revenue_prev)}</td>
+                            <td class="num">${fmtM(x.revenue_current)}</td>
+                            <td class="num">${fmtM(x.yoy_abs)}</td>
+                            <td class="num">${yoyText}</td>
+                        </tr>
+                    `;
+                });
+
+                html += '</tbody></table>';
+                content.innerHTML = html;
+            } catch (e) {
+                console.error(e);
+                content.innerHTML = '<div class="loading" style="color:var(--danger);">Ошибка загрузки: ' + e.message + '</div>';
+            }
+        }
+
+        // График ТОП-10 размеров (grouped bar)
+        // График ТОП-10 размеров (grouped bar)
+        function renderYoYSizesChart(items) {
+            const ctx = document.getElementById('chartYoYSizes');
+            if (!ctx) return;
+
+            if (charts.yoySizes) charts.yoySizes.destroy();
+
+            const top10 = items
+                .filter(x => x.revenue_current > 0 || x.revenue_prev > 0)
+                .slice(0, 10);
+
+            if (top10.length === 0) return;
+
+            const yr = parseInt(YEAR);
+            charts.yoySizes = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: top6.map(p => (p.product_name || '').substring(0, 15) + '...'),
+                    labels: top10.map(x => x.size_display || x.size_key),
                     datasets: [
-                        {label: '2025', data: top6.map(p => p.sales_2025 || 0), backgroundColor: '#cbd5e1', borderRadius: 4},
-                        {label: '2026', data: top6.map(p => p.sales_2026 || 0), backgroundColor: '#0ea5e9', borderRadius: 4}
+                        {
+                            label: `${yr - 1} рік`,
+                            data: top10.map(x => x.revenue_prev),
+                            backgroundColor: '#cbd5e1',
+                            borderRadius: 4,
+                        },
+                        {
+                            label: `${yr} рік`,
+                            data: top10.map(x => x.revenue_current),
+                            backgroundColor: '#0ea5e9',
+                            borderRadius: 4,
+                        }
                     ]
                 },
-                options: {responsive: true, maintainAspectRatio: false}
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top' },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => ctx.dataset.label + ': ' + fmtFullMoney(ctx.parsed.y)
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { ticks: { font: { size: 11 } } },
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: (v) => {
+                                    if (v >= 1e6) return (v / 1e6).toFixed(1) + 'M';
+                                    if (v >= 1e3) return (v / 1e3).toFixed(0) + 'K';
+                                    return v;
+                                }
+                            }
+                        }
+                    }
+                }
             });
         }
 

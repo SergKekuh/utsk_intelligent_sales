@@ -593,3 +593,72 @@ def client_products_recommendations(
         logger.error(f"Ошибка client_products_recommendations: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+
+# ====== API: YoY-СРАВНЕНИЕ РАЗМЕРОВ ТРУБ КЛИЕНТА (агрегация по size_key) ======
+@router.get("/api/analytics/client-sizes-compare/{client_code}")
+def get_client_sizes_compare_api(
+    client_code: str,
+    token: str = Query(...),
+    year: int = Query(2026),
+    db: Session = Depends(get_db),
+):
+    """
+    YoY-сравнение размеров труб клиента.
+    Агрегация по size_key (без учёта ГОСТ/стали).
+    """
+    verify_token(token)
+
+    try:
+        rows = db.execute(
+            text("""
+                SELECT
+                    size_key,
+                    size_display,
+                    pipe_type,
+                    pipe_type_ua,
+                    display_name,
+                    revenue_current,
+                    qty_current,
+                    invoices_current,
+                    revenue_prev,
+                    qty_prev,
+                    invoices_prev,
+                    yoy_abs,
+                    yoy_pct,
+                    yoy_qty_abs,
+                    trend
+                FROM get_client_sizes_compare(:code, :yr)
+            """),
+            {"code": client_code, "yr": year},
+        ).mappings().all()
+
+        items = []
+        for r in rows:
+            items.append({
+                "size_key": r["size_key"],
+                "size_display": r["size_display"],
+                "pipe_type": r["pipe_type"],
+                "pipe_type_ua": r["pipe_type_ua"],
+                "display_name": r["display_name"],
+                "revenue_current": float(r["revenue_current"] or 0),
+                "qty_current": float(r["qty_current"] or 0),
+                "invoices_current": int(r["invoices_current"] or 0),
+                "revenue_prev": float(r["revenue_prev"] or 0),
+                "qty_prev": float(r["qty_prev"] or 0),
+                "invoices_prev": int(r["invoices_prev"] or 0),
+                "yoy_abs": float(r["yoy_abs"] or 0),
+                "yoy_pct": float(r["yoy_pct"]) if r["yoy_pct"] is not None else None,
+                "yoy_qty_abs": float(r["yoy_qty_abs"] or 0),
+                "trend": r["trend"],
+            })
+
+        return {
+            "status": "ok",
+            "client_code": client_code,
+            "year": year,
+            "count": len(items),
+            "items": items,
+        }
+    except Exception as e:
+        logger.error(f"Ошибка get_client_sizes_compare_api: {e}")
+        raise HTTPException(status_code=500, detail=f"SQL error: {str(e)}")

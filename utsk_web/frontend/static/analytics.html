@@ -2045,8 +2045,8 @@
                                     <strong style="color:#d97706;">💡 Лайт <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:11px;color:#d97706;margin-left:4px;"></i></strong>
                                 </td>
                                 <td class="clickable-cell cell-c2" id="t2-c2-raz" onclick="goToSegmentDetail('c2_raz', 'current', 'C2: Разові (1)')">30</td>
-                                <td colspan="2" class="clickable-cell cell-c2 text-center" id="t2-c2-povt" onclick="goToSegmentDetail('c2_povt', 'current', 'C2: Повторні (2-3)')">60</td>
-                                <td class="clickable-cell cell-c2" id="t2-c2-cand" onclick="goToSegmentDetail('c2_cand', 'current', 'C2: 3 покупки (кандидати)')">0</td>
+                                <td colspan="2" class="clickable-cell cell-c2 text-center" id="t2-c2-povt" onclick="goToSegmentDetail('c2_dubl_center', 'current', 'C2: Швидкий дубль + Центр (2)')">—</td>
+                                <td class="clickable-cell cell-c2" id="t2-c2-cand" onclick="goToSegmentDetail('c2_cand', 'current', 'C2: 3 покупки (кандидати)')">—</td>
                                 <td class="clickable-cell cell-c2" id="t2-c2-kvart" onclick="goToSegmentDetail('c2_kvart', 'current', 'C2: Квартальні (4-10)')">126</td>
                                 <td class="clickable-cell cell-c2" id="t2-c2-mes" onclick="goToSegmentDetail('c2_mes', 'current', 'C2: Місячні (11-40)')">121</td>
                                 <td class="clickable-cell cell-c2" id="t2-c2-ned" onclick="goToSegmentDetail('c2_ned', 'current', 'C2: Неділя (41-170)')">13</td>
@@ -2127,7 +2127,7 @@
                                     </div>
                                 </td>
                                 <td class="clickable-cell cell-churn" id="t3-churn-raz" onclick="goToSegmentDetail('churn_raz', 'past', 'Вибули: Разові (1)')">96</td>
-                                <td colspan="2" class="clickable-cell cell-churn text-center" id="t3-churn-povt" onclick="goToSegmentDetail('churn_povt', 'past', 'Вибули: Повторні (2-3)')">48</td>
+                                <td colspan="2" class="clickable-cell cell-churn text-center" id="t3-churn-povt" onclick="goToSegmentDetail('churn_dubl_center', 'past', 'Вибули: 2 покупки (Швидкий дубль + Центр)')">—</td>
                                 <td class="clickable-cell cell-churn" id="t3-churn-cand" onclick="goToSegmentDetail('churn_cand', 'past', 'Вибули: 3 покупки (кандидати)')">30</td>
                                 <td class="clickable-cell cell-churn" id="t3-churn-kvart" onclick="goToSegmentDetail('churn_kvart', 'past', 'Вибули: Квартальні (4-10)')">16</td>
                                 <td class="clickable-cell cell-churn" id="t3-churn-mes" onclick="goToSegmentDetail('churn_mes', 'past', 'Вибули: Місячні (11-40)')">3</td>
@@ -2145,7 +2145,7 @@
                                     </div>
                                 </td>
                                 <td class="clickable-cell cell-sleep" id="t3-sleep-raz" onclick="goToSegmentDetail('sleep_raz', 'past', 'Сплячі: Разові (1)')">42</td>
-                                <td colspan="2" class="clickable-cell cell-sleep text-center" id="t3-sleep-povt" onclick="goToSegmentDetail('sleep_povt', 'past', 'Сплячі: Повторні (2-3)')">26</td>
+                                <td colspan="2" class="clickable-cell cell-sleep text-center" id="t3-sleep-povt" onclick="goToSegmentDetail('sleep_dubl_center', 'past', 'Сплячі: 2 покупки (Швидкий дубль + Центр)')">—</td>
                                 <td class="clickable-cell cell-sleep" id="t3-sleep-cand" onclick="goToSegmentDetail('sleep_cand', 'past', 'Сплячі: 3 покупки (кандидати)')">12</td>
                                 <td class="clickable-cell cell-sleep" id="t3-sleep-kvart" onclick="goToSegmentDetail('sleep_kvart', 'past', 'Сплячі: Квартальні (4-10)')">6</td>
                                 <td class="clickable-cell cell-sleep" id="t3-sleep-mes" onclick="goToSegmentDetail('sleep_mes', 'past', 'Сплячі: Місячні (11-40)')">2</td>
@@ -3747,18 +3747,20 @@
                     var y2El = document.getElementById('t2-year-lbl'); if (y2El) y2El.textContent = year;
 
                     try {
-                        var [respCurr, respPast] = await Promise.all([
+                        var [respCurr, respPast, respRecurrent] = await Promise.all([
                             fetch('/api/analytics/segmentation-current-year?token=' + TOKEN + '&year=' + year + '&limit_price=' + limitPrice),
-                            fetch('/api/analytics/segmentation-past-years?token=' + TOKEN + '&year=' + year)
+                            fetch('/api/analytics/segmentation-past-years?token=' + TOKEN + '&year=' + year),
+                            fetch('/api/analytics/recurrent-clients?token=' + TOKEN + '&year=' + year)
                         ]);
 
                         var jsonCurr = await respCurr.json();
                         var jsonPast = await respPast.json();
+                        var jsonRecurrent = await respRecurrent.json();
 
                         if (jsonCurr.status === 'ok' && jsonPast.status === 'ok') {
                             segMatrixData = jsonCurr;
                             segPastData = jsonPast;
-                            renderSegTables(jsonCurr, jsonPast, year);
+                            renderSegTables(jsonCurr, jsonPast, year, jsonRecurrent);
                             renderAllCharts(jsonCurr, jsonPast);
                         }
                     } catch (e) {
@@ -3766,11 +3768,21 @@
                     }
                 }
 
-                function renderSegTables(currRes, pastRes, year) {
+                function renderSegTables(currRes, pastRes, year, recurrentRes) {
                     var currMap = (currRes && currRes.by_freq) || {};
                     var currTotals = (currRes && currRes.totals) || {};
                     var sleepMap = (pastRes && pastRes.sleeping_by_freq) || {};
                     var churnMap = (pastRes && pastRes.churned_by_freq) || {};
+
+                    // === Разбивка повторных (2-3) по подгруппам ===
+                    var recurrentRows = (recurrentRes && (recurrentRes.data || recurrentRes.rows)) || [];
+                    var povtBreakdown = { dubl: 0, center: 0, cand: 0 };
+                    recurrentRows.forEach(function(r) {
+                        var lbl = String(r.rec_label || '');
+                        if (lbl.indexOf('разовым') !== -1)       povtBreakdown.dubl++;
+                        else if (lbl.indexOf('Центр') !== -1)    povtBreakdown.center++;
+                        else if (lbl.indexOf('постоянным') !== -1) povtBreakdown.cand++;
+                    });
                     var pastTotals = (pastRes && pastRes.totals) || {};
 
                     var setVal = function(id, val) {
@@ -3796,36 +3808,68 @@
                     setVal('t1-gen-den', genDen);
                     setVal('t1-gen-all', genAll);
 
-                    // 3. Повторні (розкладені): — | 25 | 87 | 62 | — | — | — | 174
-                    setVal('t1-dec-dubl', 25);
-                    setVal('t1-dec-center', 87);
-                    setVal('t1-dec-cand', 62);
-                    setVal('t1-dec-all', 174);
+                    // 3. Повторні (розкладені) — из /api/analytics/recurrent-clients
+                    setVal('t1-dec-dubl',   povtBreakdown.dubl);
+                    setVal('t1-dec-center', povtBreakdown.center);
+                    setVal('t1-dec-cand',   povtBreakdown.cand);
+                    setVal('t1-dec-all',    povtBreakdown.dubl + povtBreakdown.center + povtBreakdown.cand);
 
-                    // 5. Всі (консолідовано): (226+25)=251 | 87 | 62 | 188 | 126 | 13 | 2 | 729
+                    // 5. Всі (консолідовано)
+                    var genRaz   = (currMap.raz && Number(currMap.raz.total_count)) || 0;
+                    var consRaz  = genRaz + povtBreakdown.dubl;
+
                     var elConsRaz = document.getElementById('t1-cons-raz');
                     if (elConsRaz) {
-                        elConsRaz.innerHTML = '(226+25)<br><span class="text-xs text-amber-600">= 251</span>';
-                        elConsRaz.title = '226 разових + 25 дублів = 251';
+                        elConsRaz.innerHTML = '(' + genRaz + '+' + povtBreakdown.dubl + ')<br>'
+                            + '<span class="text-xs text-amber-600">= ' + consRaz + '</span>';
+                        elConsRaz.title = genRaz + ' разових + ' + povtBreakdown.dubl + ' дублів = ' + consRaz;
                     }
-                    setVal('t1-cons-center', 87);
-                    setVal('t1-cons-cand', 62);
-                    setVal('t1-cons-kvart', 188);
-                    setVal('t1-cons-mes', 126);
-                    setVal('t1-cons-ned', genNed);
-                    setVal('t1-cons-den', 2);
-                    setVal('t1-cons-all', 729);
 
-                    // ====== ТАБЛИЦЯ 2 ======
-                    // 1. Лайт: 30 | 60 | 0 | 126 | 121 | 13 | 2 | 352
-                    setVal('t2-c2-raz', 30);
-                    setVal('t2-c2-povt', 60);
-                    setVal('t2-c2-cand', 0);
-                    setVal('t2-c2-kvart', 126);
-                    setVal('t2-c2-mes', 121);
-                    setVal('t2-c2-ned', 13);
-                    setVal('t2-c2-den', 2);
-                    setVal('t2-c2-all', 352);
+                    setVal('t1-cons-center', povtBreakdown.center);
+                    setVal('t1-cons-cand',   povtBreakdown.cand);
+
+                    var consKvart = (currMap.kvart && Number(currMap.kvart.total_count)) || 0;
+                    var consMes   = (currMap.mes   && Number(currMap.mes.total_count))   || 0;
+                    var consDen   = (currMap.den   && Number(currMap.den.total_count))   || 0;
+
+                    setVal('t1-cons-kvart', consKvart);
+                    setVal('t1-cons-mes',   consMes);
+                    setVal('t1-cons-ned',   genNed);
+                    setVal('t1-cons-den',   consDen);
+
+                    var consAll = consRaz + povtBreakdown.center + povtBreakdown.cand
+                                + consKvart + consMes + genNed + consDen;
+                    setVal('t1-cons-all', consAll);
+
+                    // ====== ТАБЛИЦЯ 2: ЛАЙТ (C2) ======
+                    // Источник: API get_segmentation_current_year → currRes.by_freq
+                    // Поле: currMap[группа].c2_count
+                    // Раньше здесь был захардкоженный мок: 30|60|0|126|121|13|2|352
+                    // Фикс 2026-09-29: заменили на реальные данные из БД.
+
+                    function getC2Count(group) {
+                        return (currMap && currMap[group] && Number(currMap[group].c2_count)) || 0;
+                    }
+
+                    var povtTotal   = getC2Count('povt');
+                    var candCount   = (currMap.povt && Number(currMap.povt.c2_cand_count)) || 0;
+                    var dublCenter  = povtTotal - candCount;
+
+                    setVal('t2-c2-raz',   getC2Count('raz'));
+                    setVal('t2-c2-povt',  dublCenter);
+                    setVal('t2-c2-cand',  candCount);
+                    setVal('t2-c2-kvart', getC2Count('kvart'));
+                    setVal('t2-c2-mes',   getC2Count('mes'));
+                    setVal('t2-c2-ned',   getC2Count('ned'));
+                    setVal('t2-c2-den',   getC2Count('den'));
+
+                    // Итого Лайт = сумма всех корзин
+                    var c2Total = ['raz', 'povt', 'kvart', 'mes', 'ned', 'den']
+                        .reduce(function(sum, k) { return sum + getC2Count(k); }, 0);
+                    // ВАЖНО: c2Total использует povt=114 (вся группа 2-3).
+                    // Визуально в ячейке t2-c2-povt — только 78 (без кандидатов).
+                    // 36 кандидатов показаны отдельно в t2-c2-cand.
+                    setVal('t2-c2-all', c2Total);
 
                     // 2. Нові клієнти (из БД): 97 | 35 | 14 | 4 | 1 | 0 | 0 | 151
                     var newRaz = (currMap.raz && currMap.raz.new_count != null) ? currMap.raz.new_count : 97;
@@ -3849,26 +3893,53 @@
                     var newBadgeEl = document.getElementById('t2-new-badge');
                     if (newBadgeEl) newBadgeEl.textContent = newAll + ' фірм';
 
-                    // ====== ТАБЛИЦЯ 3 ======
-                    // 1. Вибули (Ушедшие) (из БД): 96 | 48 | 30 | 16 | 3 | 1 | 0 | 194
-                    setVal('t3-churn-raz', 96);
-                    setVal('t3-churn-povt', 48);
-                    setVal('t3-churn-cand', 30);
-                    setVal('t3-churn-kvart', 16);
-                    setVal('t3-churn-mes', 3);
-                    setVal('t3-churn-ned', 1);
-                    setVal('t3-churn-den', 0);
-                    setVal('t3-churn-all', 194);
+                    // ====== ТАБЛИЦЯ 3: ВИБУЛИ / СПЛЯЧІ (Промт 10C, 2026-09-29) ======
+                    function getCount(map, group) {
+                        return (map && map[group] && Number(map[group].total_count)) || 0;
+                    }
+                    function getSubgroupCount(map, group, field) {
+                        return (map && map[group] && Number(map[group][field])) || 0;
+                    }
 
-                    // 2. Сплячі (из БД): 42 | 26 | 12 | 6 | 2 | 0 | 0 | 88
-                    setVal('t3-sleep-raz', 42);
-                    setVal('t3-sleep-povt', 26);
-                    setVal('t3-sleep-cand', 12);
-                    setVal('t3-sleep-kvart', 6);
-                    setVal('t3-sleep-mes', 2);
-                    setVal('t3-sleep-ned', 0);
-                    setVal('t3-sleep-den', 0);
-                    setVal('t3-sleep-all', 88);
+                    // --- Вибули (churn) ---
+                    setVal('t3-churn-raz',   getCount(churnMap, 'raz'));
+                    setVal('t3-churn-povt',  getSubgroupCount(churnMap, 'povt', 'dubl_count')
+                                           + getSubgroupCount(churnMap, 'povt', 'center_count'));
+                    setVal('t3-churn-cand',  getSubgroupCount(churnMap, 'povt', 'cand_count'));
+                    setVal('t3-churn-kvart', getCount(churnMap, 'kvart'));
+                    setVal('t3-churn-mes',   getCount(churnMap, 'mes'));
+                    setVal('t3-churn-ned',   getCount(churnMap, 'ned'));
+                    setVal('t3-churn-den',   getCount(churnMap, 'den'));
+
+                    var churnTotal = getCount(churnMap, 'raz')
+                                   + getSubgroupCount(churnMap, 'povt', 'dubl_count')
+                                   + getSubgroupCount(churnMap, 'povt', 'center_count')
+                                   + getSubgroupCount(churnMap, 'povt', 'cand_count')
+                                   + getCount(churnMap, 'kvart')
+                                   + getCount(churnMap, 'mes')
+                                   + getCount(churnMap, 'ned')
+                                   + getCount(churnMap, 'den');
+                    setVal('t3-churn-all', churnTotal);
+
+                    // --- Сплячі (sleep) ---
+                    setVal('t3-sleep-raz',   getCount(sleepMap, 'raz'));
+                    setVal('t3-sleep-povt',  getSubgroupCount(sleepMap, 'povt', 'dubl_count')
+                                           + getSubgroupCount(sleepMap, 'povt', 'center_count'));
+                    setVal('t3-sleep-cand',  getSubgroupCount(sleepMap, 'povt', 'cand_count'));
+                    setVal('t3-sleep-kvart', getCount(sleepMap, 'kvart'));
+                    setVal('t3-sleep-mes',   getCount(sleepMap, 'mes'));
+                    setVal('t3-sleep-ned',   getCount(sleepMap, 'ned'));
+                    setVal('t3-sleep-den',   getCount(sleepMap, 'den'));
+
+                    var sleepTotal = getCount(sleepMap, 'raz')
+                                   + getSubgroupCount(sleepMap, 'povt', 'dubl_count')
+                                   + getSubgroupCount(sleepMap, 'povt', 'center_count')
+                                   + getSubgroupCount(sleepMap, 'povt', 'cand_count')
+                                   + getCount(sleepMap, 'kvart')
+                                   + getCount(sleepMap, 'mes')
+                                   + getCount(sleepMap, 'ned')
+                                   + getCount(sleepMap, 'den');
+                    setVal('t3-sleep-all', sleepTotal);
                 }
 
                 function renderAllCharts(currRes, pastRes) {

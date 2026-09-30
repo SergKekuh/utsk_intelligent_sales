@@ -728,6 +728,9 @@
                 const c = data.client;
 
                 // Заполнение заглавной информации
+                document.getElementById('client-name').textContent = c.name;
+                document.title = `UTSK — ${c.name}`;
+                
                 let metaParts = [`Код клиента: ${c.code}`];
                 if (c.edrpou && c.edrpou !== '—') metaParts.push(`ЄДРПОУ: ${c.edrpou}`);
                 if (c.ipn && c.ipn !== '—') metaParts.push(`ИПН: ${c.ipn}`);
@@ -894,7 +897,7 @@
                     <td style="text-align:right;font-weight:700;color:#047857;">₴ ${formatNum(Math.round(inv.total || 0))}</td>
                     <td style="text-align:center;font-weight:600;color:#475569;">${inv.positions || 0} поз.</td>
                     <td style="text-align:center;">
-                        <button onclick="showInvoiceDetail('${inv.number}')" class="btn-detail">📄 Открыть ➔</button>
+                        <button onclick="showInvoiceDetail(${inv.doc_id}, '${inv.number}')" class="btn-detail">📄 Открыть ➔</button>
                     </td>
                 </tr>`;
             });
@@ -909,7 +912,7 @@
         }
 
         // Открыть модальное окно с деталями накладной
-        async function showInvoiceDetail(invoiceNumber) {
+        async function showInvoiceDetail(docId, invoiceNumber) {
             const modal = document.getElementById('invoice-modal');
             const itemsBody = document.getElementById('modal-invoice-items');
             const footer = document.getElementById('modal-invoice-footer');
@@ -922,8 +925,12 @@
             footer.style.display = 'none';
             
             try {
-                const resp = await fetch(`/api/invoices/${encodeURIComponent(invoiceNumber)}/items?token=${TOKEN}`);
-                if (!resp.ok) throw new Error(resp.status);
+                const resp = await fetch(`/api/invoices/${docId}/items?token=${TOKEN}`);
+    if (!resp.ok) {
+        const errText = await resp.text();
+        console.error(`[Invoice] HTTP ${resp.status}: ${errText.substring(0, 200)}`);
+        return;
+    }
                 const data = await resp.json();
                 
                 document.getElementById('modal-invoice-date').textContent = data.date || '—';

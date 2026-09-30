@@ -1,0 +1,28 @@
+==============================================
+ДИАГНОСТИКА: API drill-down (round_57x10)
+==============================================
+
+1. Проверка существования функции:
+----------------------------------------------
+           proname            |                                 args                                 |                                                                                                                         returns                                                                                                                         
+------------------------------+----------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ get_direction_size_drilldown | p_direction_id integer, p_size_key text, p_year integer DEFAULT 2026 | TABLE(product_code character varying, product_name character varying, standard character varying, is_purchased boolean, purchase_count bigint, quantity numeric, revenue numeric, clients_count bigint, last_purchase_date date, stock_balance numeric)
+
+2. Прямой вызов функции:
+----------------------------------------------
+ product_code |             product_name             |    standard    | is_purchased | purchase_count | quantity |  revenue   | clients_count | last_purchase_date | stock_balance 
+--------------+--------------------------------------+----------------+--------------+----------------+----------+------------+---------------+--------------------+---------------
+ 14922        | ГАРЯЧА GB/T 8162:2018 57х10 ст20     | GB/T 8162:2018 | t            |              5 |    5.000 | 2712720.00 |             3 | 2026-03-18         |         0.000
+ 11851        | ГОСТ 8734 57х10 ст20 7304318090      | ГОСТ 8734 57   | t            |              1 |    1.000 |    7140.00 |             1 | 2026-01-15         |         1.000
+ 13968        | GB/T 8162:2018 57х10 ст20 7304318090 | GB/T 8162:2018 | f            |              0 |        0 |          0 |             0 |                    |         5.000
+
+3. Вывод curl (API тест):
+----------------------------------------------
+< HTTP/1.1 200 OK
+< date: Wed, 23 Sep 2026 08:54:44 GMT
+< server: uvicorn
+< content-length: 787
+< content-type: application/json
+< 
+{"status":"ok","year":2026,"data":[{"product_code":"14922","product_name":"ГАРЯЧА GB/T 8162:2018 57х10 ст20","standard":"GB/T 8162:2018","is_purchased":true,"purchase_count":5,"quantity":5.0,"revenue":2712720.0,"clients_count":3,"last_purchase_date":"2026-03-18","stock_balance":0.0},{"product_code":"11851","product_name":"ГОСТ 8734 57х10 ст20 7304318090","standard":"ГОСТ 8734 57","is_purchased":true,"purchase_count":1,"quantity":1.0,"revenue":7140.0,"clients_count":1,"last_purchase_date":"2026-01-15","stock_balance":1.0},{"product_code":"13968","product_name":"GB/T 8162:2018 57х10 ст20 7304318090","standard":"GB/T 8162:2018","is_purchased":false,"purchase_count":0,"quantity":0,"revenue":0,"clients_count":0,"last_purchase_date":null,"stock_balance":5.0}]}
+

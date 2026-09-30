@@ -1,0 +1,36 @@
+897    abc_structure.html                       UTSK — Структурный анализ ABC (5 Вкладок)
+707    advanced.html                            UTSK Intelligent Sales — Расширенная Аналитика
+4102   analytics.html                           UTSK — Аналитика по клиентам
+566    avg-check.html                           UTSK Intelligent Sales — Аналитика Среднего Чека
+1159   c2-segmentation.html                     UTSK — 💡 Лайт (Дрібні клієнти)
+1151   churned-segmentation.html                UTSK — 👻 Вибули (Ушедшие) клієнти
+450    client-avg-check-analytics.html          🛒 UTSK — Анализ среднего чека клиента
+1071   client-detail.html                       UTSK — Детализация клиента
+542    client-invoices-analytics.html           📄 UTSK — Анализ накладных клиента
+425    client-invoices-month.html               📄 UTSK — Накладные клиента за месяц
+387    client-last-purchase-analytics.html      🕒 UTSK — Анализ последней покупки клиента
+689    client-month-analytics.html              📅 UTSK — Анализ месяца компании
+499    client-revenue-analytics.html            💰 UTSK — Анализ выручки клиента
+650    comparison.html                          Сравнительный анализ сегментов — UTSK
+1176   consolidated-segmentation.html           UTSK — Всі (консолідовано) реєстр компаній
+1723   db_reference.html                        Справочник по базе данных UTSK v7.1
+1215   directions-analytics.html                UTSK Intelligent Sales — Аналитика Отраслей и Направлений
+507    directions-avg-check-analytics.html      💵 UTSK — Аналитика среднего чека по отраслям
+527    directions-clients-analytics.html        👥 UTSK — Аналитика клиентов по отраслям
+513    directions-invoices-analytics.html       📑 UTSK — Аналитика накладных по отраслям
+553    directions-leader-analytics.html         🏆 UTSK — Аналитика отрасли-лидера и концентрации
+538    directions-revenue-analytics.html        💰 UTSK — Аналитика выручки по отраслям
+1262   general-segmentation.html                UTSK — Загальна сегментація клієнтської бази
+819    inactive-clients-analytics.html          UTSK Intelligent Sales — Аналитика Неактивных Клиентов
+1725   index.html                               UTSK Intelligent Sales — Аналитика
+768    monthly.html                             UTSK — Аналитика за месяц
+777    new-clients-analytics.html               UTSK Intelligent Sales — Аналитика Новых Клиентов
+1219   new-clients-segmentation.html            UTSK — Нові клієнти: Сегментація за частотою
+1409   plan.html                                UTSK Intelligent Sales — План разработки v7.1
+1603   product-analytics.html                   UTSK — Продуктовая аналитика клиента
+72     product-recommendations.html             UTSK — Рекомендации по продукту
+1190   repeat-segmentation.html                 UTSK — Повторні (розкладені) деталізація
+812    returned-clients-analytics.html          UTSK Intelligent Sales — Аналитика Вернувшихся Клиентов
+652    segment-detail.html                      UTSK — Деталізація сегменту
+1160   sleeping-segmentation.html               UTSK — 💤 Сплячі клієнти (Аналіз бази)
+1824   top-sales-analytics.html                 📊 ТОП продаж — Визуализация | UTSK Intelligent Sales

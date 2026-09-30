@@ -1,0 +1,358 @@
+table_name                          | pos  | column_name                    | data_type                 | nullable | default
+------------------------------------------------------------------------------------------------------------------------
+ab_tests                            | 1    | id                             | integer                   | NO       | nextval('ab_tests_id_seq'::regclass)
+ab_tests                            | 2    | test_name                      | character varying(100)    | NO       | —
+ab_tests                            | 3    | variant                        | character(1)              | NO       | —
+ab_tests                            | 4    | content                        | jsonb                     | NO       | —
+ab_tests                            | 5    | impressions                    | integer                   | YES      | 0
+ab_tests                            | 6    | clicks                         | integer                   | YES      | 0
+ab_tests                            | 7    | add_to_cart                    | integer                   | YES      | 0
+ab_tests                            | 8    | ctr                            | numeric                   | YES      | —
+ab_tests                            | 9    | conversion_rate                | numeric                   | YES      | —
+ab_tests                            | 10   | is_active                      | boolean                   | YES      | true
+ab_tests                            | 11   | start_date                     | date                      | YES      | CURRENT_DATE
+ab_tests                            | 12   | end_date                       | date                      | YES      | —
+ab_tests                            | 13   | created_at                     | timestamp without time zone | YES      | CURRENT_TIMESTAMP
+ab_tests                            | 14   | updated_at                     | timestamp without time zone | YES      | CURRENT_TIMESTAMP
+activity_directions                 | 1    | id                             | integer                   | NO       | nextval('activity_directions_id_seq'::regclass)
+activity_directions                 | 2    | name                           | character varying(100)    | NO       | —
+activity_directions                 | 3    | description                    | text                      | YES      | —
+activity_directions                 | 4    | created_at                     | timestamp without time zone | YES      | CURRENT_TIMESTAMP
+activity_directions                 | 5    | updated_at                     | timestamp without time zone | YES      | CURRENT_TIMESTAMP
+activity_directions                 | 6    | icon                           | character varying(10)     | YES      | —
+activity_directions                 | 7    | sort_order                     | integer                   | YES      | —
+activity_directions                 | 8    | color                          | character varying(20)     | YES      | —
+activity_directions_bkp_20260917_v3 | 1    | id                             | integer                   | YES      | —
+activity_directions_bkp_20260917_v3 | 2    | name                           | character varying(100)    | YES      | —
+activity_directions_bkp_20260917_v3 | 3    | description                    | text                      | YES      | —
+activity_directions_bkp_20260917_v3 | 4    | created_at                     | timestamp without time zone | YES      | —
+activity_directions_bkp_20260917_v3 | 5    | updated_at                     | timestamp without time zone | YES      | —
+activity_directions_bkp_20260917_v3 | 6    | icon                           | character varying(10)     | YES      | —
+activity_directions_bkp_20260917_v3 | 7    | sort_order                     | integer                   | YES      | —
+backup_client_year_activity_20260810 | 1    | id                             | bigint                    | YES      | —
+backup_client_year_activity_20260810 | 2    | client_code                    | character varying(50)     | YES      | —
+backup_client_year_activity_20260810 | 3    | sales_year                     | integer                   | YES      | —
+backup_client_year_activity_20260810 | 4    | is_active                      | boolean                   | YES      | —
+backup_client_year_activity_20260810 | 5    | is_manual                      | boolean                   | YES      | —
+backup_client_year_activity_20260810 | 6    | activation_reason              | character varying(100)    | YES      | —
+backup_client_year_activity_20260810 | 7    | deactivation_reason            | character varying(100)    | YES      | —
+backup_client_year_activity_20260810 | 8    | total_revenue                  | numeric                   | YES      | —
+backup_client_year_activity_20260810 | 9    | goods_revenue                  | numeric                   | YES      | —
+backup_client_year_activity_20260810 | 10   | total_docs                     | integer                   | YES      | —
+backup_client_year_activity_20260810 | 11   | abc_group                      | character varying(5)      | YES      | —
+backup_client_year_activity_20260810 | 12   | created_at                     | timestamp without time zone | YES      | —
+backup_client_year_activity_20260810 | 13   | updated_at                     | timestamp without time zone | YES      | —
+backup_clients_20260810             | 1    | code                           | character varying(50)     | YES      | —
+backup_clients_20260810             | 2    | name                           | character varying(255)    | YES      | —
+backup_clients_20260810             | 3    | client_type                    | character varying(50)     | YES      | —
+backup_clients_20260810             | 4    | current_status_id              | integer                   | YES      | —
+backup_clients_20260810             | 5    | status_history                 | jsonb                     | YES      | —
+backup_clients_20260810             | 6    | last_status_push_to_crm        | timestamp without time zone | YES      | —
+backup_clients_20260810             | 7    | first_purchase_date            | date                      | YES      | —
+backup_clients_20260810             | 8    | last_purchase_date             | date                      | YES      | —
+backup_clients_20260810             | 9    | activity_direction_id          | integer                   | YES      | —
+backup_clients_20260810             | 10   | direction_confidence           | numeric                   | YES      | —
+backup_clients_20260810             | 11   | is_direction_manual            | boolean                   | YES      | —
+backup_clients_20260810             | 12   | requires_survey                | boolean                   | YES      | —
+backup_clients_20260810             | 13   | survey_completed_at            | timestamp without time zone | YES      | —
+backup_clients_20260810             | 14   | survey_completed_by            | character varying(100)    | YES      | —
+backup_clients_20260810             | 15   | created_at                     | timestamp without time zone | YES      | —
+backup_clients_20260810             | 16   | updated_at                     | timestamp without time zone | YES      | —
+backup_clients_20260810             | 17   | legacy_unit_id                 | integer                   | YES      | —
+backup_clients_20260810             | 18   | okpo_code                      | character varying(20)     | YES      | —
+backup_clients_20260810             | 19   | okpo_s1c8                      | character varying(20)     | YES      | —
+backup_clients_20260810             | 20   | ipn                            | character varying(20)     | YES      | —
+backup_clients_20260810             | 21   | legal_entity_type              | character varying(50)     | YES      | —
+backup_clients_20260810             | 22   | full_unit_name                 | text                      | YES      | —
+backup_clients_20260810             | 23   | group_id                       | integer                   | YES      | —
+backup_clients_20260810             | 24   | active_years                   | ARRAY                     | YES      | —
+backup_clients_20260810             | 25   | is_active_current              | boolean                   | YES      | —
+backup_clients_20260810             | 26   | analysis_updated_at            | timestamp without time zone | YES      | —
+backup_documents_20260810           | 1    | id                             | bigint                    | YES      | —
+backup_documents_20260810           | 2    | client_code                    | character varying(50)     | YES      | —
+backup_documents_20260810           | 3    | invoice_date                   | date                      | YES      | —
+backup_documents_20260810           | 4    | total_amount                   | numeric                   | YES      | —
+backup_documents_20260810           | 5    | created_at                     | timestamp without time zone | YES      | —
+backup_documents_20260810           | 6    | doc_number                     | character varying(50)     | YES      | —
+backup_functions_20260813           | 1    | proname                        | name                      | YES      | —
+backup_functions_20260813           | 2    | definition                     | text                      | YES      | —
+backup_products_20260810            | 1    | code                           | character varying(50)     | YES      | —
+backup_products_20260810            | 2    | name                           | character varying(255)    | YES      | —
+backup_products_20260810            | 3    | anchor_direction_id            | integer                   | YES      | —
+backup_products_20260810            | 4    | is_auto_tagged                 | boolean                   | YES      | —
+backup_products_20260810            | 5    | material_grade                 | character varying(50)     | YES      | —
+backup_products_20260810            | 6    | is_new_arrival                 | boolean                   | YES      | —
+backup_products_20260810            | 7    | in_stock_balance               | numeric                   | YES      | —
+backup_products_20260810            | 8    | created_at                     | timestamp without time zone | YES      | —
+backup_products_20260810            | 9    | updated_at                     | timestamp without time zone | YES      | —
+backup_products_20260810            | 10   | diameter                       | numeric                   | YES      | —
+backup_products_20260810            | 11   | wall_thickness                 | numeric                   | YES      | —
+backup_products_20260810            | 12   | profile_width                  | numeric                   | YES      | —
+backup_products_20260810            | 13   | profile_height                 | numeric                   | YES      | —
+backup_products_20260810            | 14   | is_profile                     | boolean                   | YES      | —
+backup_products_20260810            | 15   | standard_name                  | character varying(100)    | YES      | —
+backup_products_20260810            | 16   | weight_per_meter               | numeric                   | YES      | —
+backup_products_20260810            | 17   | first_purchase_date            | date                      | YES      | —
+backup_products_20260810            | 18   | last_purchase_date             | date                      | YES      | —
+backup_products_20260810            | 19   | unit                           | character varying(20)     | YES      | —
+backup_products_20260810            | 20   | is_service                     | boolean                   | YES      | —
+backup_sales_lines_20260810         | 1    | id                             | bigint                    | YES      | —
+backup_sales_lines_20260810         | 2    | document_id                    | bigint                    | YES      | —
+backup_sales_lines_20260810         | 3    | product_code                   | character varying(50)     | YES      | —
+backup_sales_lines_20260810         | 4    | quantity                       | numeric                   | YES      | —
+backup_sales_lines_20260810         | 5    | amount                         | numeric                   | YES      | —
+backup_sales_lines_20260810         | 6    | recorded_at                    | timestamp without time zone | YES      | —
+backup_status_change_log_20260810   | 1    | id                             | bigint                    | YES      | —
+backup_status_change_log_20260810   | 2    | client_code                    | character varying(50)     | YES      | —
+backup_status_change_log_20260810   | 3    | old_status_id                  | integer                   | YES      | —
+backup_status_change_log_20260810   | 4    | new_status_id                  | integer                   | YES      | —
+backup_status_change_log_20260810   | 5    | changed_by                     | character varying(50)     | YES      | —
+backup_status_change_log_20260810   | 6    | change_reason                  | text                      | YES      | —
+backup_status_change_log_20260810   | 7    | documents_count_current_year   | integer                   | YES      | —
+backup_status_change_log_20260810   | 8    | documents_count_prev_year      | integer                   | YES      | —
+backup_status_change_log_20260810   | 9    | changed_at                     | timestamp without time zone | YES      | —
+backup_status_rules_20260810        | 1    | id                             | integer                   | YES      | —
+backup_status_rules_20260810        | 2    | status_name                    | character varying(50)     | YES      | —
+backup_status_rules_20260810        | 3    | min_current_year               | integer                   | YES      | —
+backup_status_rules_20260810        | 4    | max_current_year               | integer                   | YES      | —
+backup_status_rules_20260810        | 5    | min_prev_year                  | integer                   | YES      | —
+backup_status_rules_20260810        | 6    | max_prev_year                  | integer                   | YES      | —
+backup_status_rules_20260810        | 7    | min_days_since_last_purchase   | integer                   | YES      | —
+backup_status_rules_20260810        | 8    | min_days_between_purchases     | integer                   | YES      | —
+backup_status_rules_20260810        | 9    | priority                       | integer                   | YES      | —
+backup_status_rules_20260810        | 10   | description                    | text                      | YES      | —
+backup_status_rules_20260810        | 11   | created_at                     | timestamp without time zone | YES      | —
+backup_status_rules_20260810        | 12   | updated_at                     | timestamp without time zone | YES      | —
+backup_views_20260813               | 1    | table_name                     | name                      | YES      | —
+backup_views_20260813               | 2    | view_definition                | character varying         | YES      | —
+client_groups                       | 1    | id                             | integer                   | NO       | nextval('client_groups_id_seq'::regclass)
+client_groups                       | 2    | group_name                     | character varying(100)    | NO       | —
+client_groups                       | 3    | note                           | text                      | YES      | —
+client_groups                       | 4    | created_at                     | timestamp without time zone | YES      | now()
+client_year_active                  | 1    | id                             | bigint                    | NO       | —
+client_year_active                  | 2    | client_code                    | character varying(50)     | NO       | —
+client_year_active                  | 3    | sales_year                     | integer                   | NO       | —
+client_year_active                  | 4    | is_active                      | boolean                   | YES      | true
+client_year_active                  | 5    | created_at                     | timestamp without time zone | YES      | CURRENT_TIMESTAMP
+client_year_activity                | 1    | id                             | bigint                    | NO       | nextval('client_year_activity_id_seq'::regclass)
+client_year_activity                | 2    | client_code                    | character varying(50)     | NO       | —
+client_year_activity                | 3    | sales_year                     | integer                   | NO       | —
+client_year_activity                | 4    | is_active                      | boolean                   | YES      | false
+client_year_activity                | 5    | is_manual                      | boolean                   | YES      | false
+client_year_activity                | 6    | activation_reason              | character varying(100)    | YES      | —
+client_year_activity                | 7    | deactivation_reason            | character varying(100)    | YES      | —
+client_year_activity                | 8    | total_revenue                  | numeric                   | YES      | 0
+client_year_activity                | 9    | goods_revenue                  | numeric                   | YES      | 0
+client_year_activity                | 10   | total_docs                     | integer                   | YES      | 0
+client_year_activity                | 11   | abc_group                      | character varying(5)      | YES      | —
+client_year_activity                | 12   | created_at                     | timestamp without time zone | YES      | CURRENT_TIMESTAMP
+client_year_activity                | 13   | updated_at                     | timestamp without time zone | YES      | CURRENT_TIMESTAMP
+clients                             | 1    | code                           | character varying(50)     | NO       | —
+clients                             | 2    | name                           | character varying(255)    | NO       | —
+clients                             | 3    | client_type                    | character varying(50)     | YES      | —
+clients                             | 4    | current_status_id              | integer                   | YES      | —
+clients                             | 5    | status_history                 | jsonb                     | YES      | '[]'::jsonb
+clients                             | 6    | last_status_push_to_crm        | timestamp without time zone | YES      | —
+clients                             | 7    | first_purchase_date            | date                      | YES      | —
+clients                             | 8    | last_purchase_date             | date                      | YES      | —
+clients                             | 9    | activity_direction_id          | integer                   | YES      | —
+clients                             | 10   | direction_confidence           | numeric                   | YES      | —
+clients                             | 11   | is_direction_manual            | boolean                   | YES      | false
+clients                             | 12   | requires_survey                | boolean                   | YES      | false
+clients                             | 13   | survey_completed_at            | timestamp without time zone | YES      | —
+clients                             | 14   | survey_completed_by            | character varying(100)    | YES      | —
+clients                             | 15   | created_at                     | timestamp without time zone | YES      | CURRENT_TIMESTAMP
+clients                             | 16   | updated_at                     | timestamp without time zone | YES      | CURRENT_TIMESTAMP
+clients                             | 17   | legacy_unit_id                 | integer                   | YES      | —
+clients                             | 18   | okpo_code                      | character varying(20)     | YES      | —
+clients                             | 19   | okpo_s1c8                      | character varying(20)     | YES      | —
+clients                             | 20   | ipn                            | character varying(20)     | YES      | —
+clients                             | 21   | legal_entity_type              | character varying(50)     | YES      | —
+clients                             | 22   | full_unit_name                 | text                      | YES      | —
+clients                             | 23   | group_id                       | integer                   | YES      | —
+clients                             | 24   | active_years                   | ARRAY                     | YES      | '{}'::integer[]
+clients                             | 25   | is_active_current              | boolean                   | YES      | false
+clients                             | 26   | analysis_updated_at            | timestamp without time zone | YES      | —
+clients                             | 27   | edrpou                         | character varying(20)     | YES      | —
+clients                             | 28   | direction_id                   | integer                   | YES      | —
+clients_backup_20260904             | 1    | code                           | character varying(50)     | YES      | —
+clients_backup_20260904             | 2    | name                           | character varying(255)    | YES      | —
+clients_backup_20260904             | 3    | client_type                    | character varying(50)     | YES      | —
+clients_backup_20260904             | 4    | current_status_id              | integer                   | YES      | —
+clients_backup_20260904             | 5    | status_history                 | jsonb                     | YES      | —
+clients_backup_20260904             | 6    | last_status_push_to_crm        | timestamp without time zone | YES      | —
+clients_backup_20260904             | 7    | first_purchase_date            | date                      | YES      | —
+clients_backup_20260904             | 8    | last_purchase_date             | date                      | YES      | —
+clients_backup_20260904             | 9    | activity_direction_id          | integer                   | YES      | —
+clients_backup_20260904             | 10   | direction_confidence           | numeric                   | YES      | —
+clients_backup_20260904             | 11   | is_direction_manual            | boolean                   | YES      | —
+clients_backup_20260904             | 12   | requires_survey                | boolean                   | YES      | —
+clients_backup_20260904             | 13   | survey_completed_at            | timestamp without time zone | YES      | —
+clients_backup_20260904             | 14   | survey_completed_by            | character varying(100)    | YES      | —
+clients_backup_20260904             | 15   | created_at                     | timestamp without time zone | YES      | —
+clients_backup_20260904             | 16   | updated_at                     | timestamp without time zone | YES      | —
+clients_backup_20260904             | 17   | legacy_unit_id                 | integer                   | YES      | —
+clients_backup_20260904             | 18   | okpo_code                      | character varying(20)     | YES      | —
+clients_backup_20260904             | 19   | okpo_s1c8                      | character varying(20)     | YES      | —
+clients_backup_20260904             | 20   | ipn                            | character varying(20)     | YES      | —
+clients_backup_20260904             | 21   | legal_entity_type              | character varying(50)     | YES      | —
+clients_backup_20260904             | 22   | full_unit_name                 | text                      | YES      | —
+clients_backup_20260904             | 23   | group_id                       | integer                   | YES      | —
+clients_backup_20260904             | 24   | active_years                   | ARRAY                     | YES      | —
+clients_backup_20260904             | 25   | is_active_current              | boolean                   | YES      | —
+clients_backup_20260904             | 26   | analysis_updated_at            | timestamp without time zone | YES      | —
+clients_direction_bkp_20260917_v3   | 1    | code                           | character varying(50)     | YES      | —
+clients_direction_bkp_20260917_v3   | 2    | name                           | character varying(255)    | YES      | —
+clients_direction_bkp_20260917_v3   | 3    | edrpou                         | character varying(20)     | YES      | —
+clients_direction_bkp_20260917_v3   | 4    | activity_direction_id          | integer                   | YES      | —
+clients_direction_bkp_20260917_v3   | 5    | direction_id                   | integer                   | YES      | —
+clients_direction_bkp_20260917_v3   | 6    | direction_confidence           | numeric                   | YES      | —
+clients_status_backup_20260806      | 1    | code                           | character varying(50)     | YES      | —
+clients_status_backup_20260806      | 2    | current_status_id              | integer                   | YES      | —
+clients_status_backup_20260806      | 3    | status_history                 | jsonb                     | YES      | —
+clients_status_backup_20260806      | 4    | requires_survey                | boolean                   | YES      | —
+documents                           | 1    | id                             | bigint                    | NO       | nextval('documents_id_seq'::regclass)
+documents                           | 2    | client_code                    | character varying(50)     | NO       | —
+documents                           | 3    | invoice_date                   | date                      | NO       | —
+documents                           | 4    | total_amount                   | numeric                   | YES      | 0.00
+documents                           | 5    | created_at                     | timestamp without time zone | YES      | CURRENT_TIMESTAMP
+documents                           | 6    | doc_number                     | character varying(50)     | YES      | —
+historical_client_activity          | 1    | id                             | bigint                    | NO       | nextval('historical_client_activity_id_seq'::regclass)
+historical_client_activity          | 2    | client_code                    | character varying(50)     | NO       | —
+historical_client_activity          | 3    | sales_year                     | integer                   | NO       | —
+historical_client_activity          | 4    | group_id                       | integer                   | YES      | —
+historical_client_activity          | 5    | expense_invoices               | numeric                   | YES      | 0
+historical_client_activity          | 6    | sales_amount                   | numeric                   | YES      | 0
+historical_client_activity          | 7    | note                           | text                      | YES      | —
+manager_rejections_log              | 1    | id                             | bigint                    | NO       | nextval('manager_rejections_log_id_seq'::regclass)
+manager_rejections_log              | 2    | client_code                    | character varying(50)     | NO       | —
+manager_rejections_log              | 3    | product_code                   | character varying(50)     | NO       | —
+manager_rejections_log              | 4    | manager_login                  | character varying(100)    | YES      | —
+manager_rejections_log              | 5    | reject_reason                  | text                      | YES      | —
+manager_rejections_log              | 6    | document_id                    | bigint                    | YES      | —
+manager_rejections_log              | 7    | rejected_at                    | timestamp without time zone | YES      | CURRENT_TIMESTAMP
+product_aliases                     | 1    | id                             | integer                   | NO       | nextval('product_aliases_id_seq'::regclass)
+product_aliases                     | 2    | product_code                   | character varying(50)     | NO       | —
+product_aliases                     | 3    | alias_text                     | character varying(255)    | NO       | —
+product_aliases                     | 4    | created_at                     | timestamp without time zone | YES      | CURRENT_TIMESTAMP
+product_cross_sells                 | 1    | id                             | integer                   | NO       | nextval('product_cross_sells_id_seq'::regclass)
+product_cross_sells                 | 2    | main_product_code              | character varying(50)     | YES      | —
+product_cross_sells                 | 3    | related_product_code           | character varying(50)     | YES      | —
+product_cross_sells                 | 4    | relation_type                  | character varying(50)     | YES      | —
+product_scoring                     | 1    | id                             | bigint                    | NO       | nextval('product_scoring_id_seq'::regclass)
+product_scoring                     | 2    | client_code                    | character varying(50)     | NO       | —
+product_scoring                     | 3    | product_code                   | character varying(50)     | NO       | —
+product_scoring                     | 4    | base_score                     | integer                   | YES      | 10
+product_scoring                     | 5    | positive_reinforcement         | integer                   | YES      | 0
+product_scoring                     | 6    | negative_reinforcement         | integer                   | YES      | 0
+product_scoring                     | 7    | current_weight                 | integer                   | YES      | —
+product_scoring                     | 8    | is_blocked                     | boolean                   | YES      | false
+product_scoring                     | 9    | blocked_until                  | date                      | YES      | —
+product_scoring                     | 10   | segment_agro_weight            | integer                   | YES      | 0
+product_scoring                     | 11   | segment_build_weight           | integer                   | YES      | 0
+product_scoring                     | 12   | created_at                     | timestamp without time zone | YES      | CURRENT_TIMESTAMP
+product_scoring                     | 13   | updated_at                     | timestamp without time zone | YES      | CURRENT_TIMESTAMP
+product_similarities                | 1    | id                             | bigint                    | NO       | nextval('product_similarities_id_seq'::regclass)
+product_similarities                | 2    | source_product_code            | character varying(50)     | NO       | —
+product_similarities                | 3    | similar_product_code           | character varying(50)     | NO       | —
+product_similarities                | 4    | similarity_score               | numeric                   | YES      | 0
+product_similarities                | 5    | match_type                     | character varying(50)     | NO       | —
+product_similarities                | 6    | source_diameter                | numeric                   | YES      | —
+product_similarities                | 7    | source_wall                    | numeric                   | YES      | —
+product_similarities                | 8    | similar_diameter               | numeric                   | YES      | —
+product_similarities                | 9    | similar_wall                   | numeric                   | YES      | —
+production_lead_times               | 1    | id                             | integer                   | NO       | nextval('production_lead_times_id_seq'::regclass)
+production_lead_times               | 2    | product_code                   | character varying(50)     | NO       | —
+production_lead_times               | 3    | from_blank_days                | integer                   | YES      | —
+production_lead_times               | 4    | from_sheet_days                | integer                   | YES      | —
+production_lead_times               | 5    | transit_days                   | integer                   | YES      | —
+production_lead_times               | 6    | alternative_blank_code         | character varying(50)     | YES      | —
+production_lead_times               | 7    | created_at                     | timestamp without time zone | YES      | CURRENT_TIMESTAMP
+production_lead_times               | 8    | updated_at                     | timestamp without time zone | YES      | CURRENT_TIMESTAMP
+products                            | 1    | code                           | character varying(50)     | NO       | —
+products                            | 2    | name                           | character varying(255)    | NO       | —
+products                            | 3    | anchor_direction_id            | integer                   | YES      | —
+products                            | 4    | is_auto_tagged                 | boolean                   | YES      | false
+products                            | 5    | material_grade                 | character varying(50)     | YES      | —
+products                            | 6    | is_new_arrival                 | boolean                   | YES      | false
+products                            | 7    | in_stock_balance               | numeric                   | YES      | 0.00
+products                            | 8    | created_at                     | timestamp without time zone | YES      | CURRENT_TIMESTAMP
+products                            | 9    | updated_at                     | timestamp without time zone | YES      | CURRENT_TIMESTAMP
+products                            | 10   | diameter                       | numeric                   | YES      | —
+products                            | 11   | wall_thickness                 | numeric                   | YES      | —
+products                            | 12   | profile_width                  | numeric                   | YES      | —
+products                            | 13   | profile_height                 | numeric                   | YES      | —
+products                            | 14   | is_profile                     | boolean                   | YES      | false
+products                            | 15   | standard_name                  | character varying(100)    | YES      | —
+products                            | 16   | weight_per_meter               | numeric                   | YES      | —
+products                            | 17   | first_purchase_date            | date                      | YES      | —
+products                            | 18   | last_purchase_date             | date                      | YES      | —
+products                            | 19   | unit                           | character varying(20)     | YES      | 'т'::character varying
+products                            | 20   | is_service                     | boolean                   | YES      | false
+sales_lines                         | 1    | id                             | bigint                    | NO       | nextval('sales_lines_id_seq'::regclass)
+sales_lines                         | 2    | document_id                    | bigint                    | NO       | —
+sales_lines                         | 3    | product_code                   | character varying(50)     | NO       | —
+sales_lines                         | 4    | quantity                       | numeric                   | NO       | —
+sales_lines                         | 5    | amount                         | numeric                   | NO       | 0.00
+sales_lines                         | 6    | recorded_at                    | timestamp without time zone | YES      | CURRENT_TIMESTAMP
+status_change_log                   | 1    | id                             | bigint                    | NO       | nextval('status_change_log_id_seq'::regclass)
+status_change_log                   | 2    | client_code                    | character varying(50)     | NO       | —
+status_change_log                   | 3    | old_status_id                  | integer                   | YES      | —
+status_change_log                   | 4    | new_status_id                  | integer                   | YES      | —
+status_change_log                   | 5    | changed_by                     | character varying(50)     | NO       | —
+status_change_log                   | 6    | change_reason                  | text                      | YES      | —
+status_change_log                   | 7    | documents_count_current_year   | integer                   | YES      | —
+status_change_log                   | 8    | documents_count_prev_year      | integer                   | YES      | —
+status_change_log                   | 9    | changed_at                     | timestamp without time zone | YES      | CURRENT_TIMESTAMP
+status_change_log_backup_20260806   | 1    | id                             | bigint                    | YES      | —
+status_change_log_backup_20260806   | 2    | client_code                    | character varying(50)     | YES      | —
+status_change_log_backup_20260806   | 3    | old_status_id                  | integer                   | YES      | —
+status_change_log_backup_20260806   | 4    | new_status_id                  | integer                   | YES      | —
+status_change_log_backup_20260806   | 5    | changed_by                     | character varying(50)     | YES      | —
+status_change_log_backup_20260806   | 6    | change_reason                  | text                      | YES      | —
+status_change_log_backup_20260806   | 7    | documents_count_current_year   | integer                   | YES      | —
+status_change_log_backup_20260806   | 8    | documents_count_prev_year      | integer                   | YES      | —
+status_change_log_backup_20260806   | 9    | changed_at                     | timestamp without time zone | YES      | —
+status_rules                        | 1    | id                             | integer                   | NO       | nextval('status_rules_id_seq'::regclass)
+status_rules                        | 2    | status_name                    | character varying(50)     | NO       | —
+status_rules                        | 3    | min_current_year               | integer                   | YES      | —
+status_rules                        | 4    | max_current_year               | integer                   | YES      | —
+status_rules                        | 5    | min_prev_year                  | integer                   | YES      | —
+status_rules                        | 6    | max_prev_year                  | integer                   | YES      | —
+status_rules                        | 7    | min_days_since_last_purchase   | integer                   | YES      | —
+status_rules                        | 8    | min_days_between_purchases     | integer                   | YES      | —
+status_rules                        | 9    | priority                       | integer                   | NO       | —
+status_rules                        | 10   | description                    | text                      | YES      | —
+status_rules                        | 11   | created_at                     | timestamp without time zone | YES      | CURRENT_TIMESTAMP
+status_rules                        | 12   | updated_at                     | timestamp without time zone | YES      | CURRENT_TIMESTAMP
+status_rules_backup_20260806        | 1    | id                             | integer                   | YES      | —
+status_rules_backup_20260806        | 2    | status_name                    | character varying(50)     | YES      | —
+status_rules_backup_20260806        | 3    | min_current_year               | integer                   | YES      | —
+status_rules_backup_20260806        | 4    | max_current_year               | integer                   | YES      | —
+status_rules_backup_20260806        | 5    | min_prev_year                  | integer                   | YES      | —
+status_rules_backup_20260806        | 6    | max_prev_year                  | integer                   | YES      | —
+status_rules_backup_20260806        | 7    | min_days_since_last_purchase   | integer                   | YES      | —
+status_rules_backup_20260806        | 8    | min_days_between_purchases     | integer                   | YES      | —
+status_rules_backup_20260806        | 9    | priority                       | integer                   | YES      | —
+status_rules_backup_20260806        | 10   | description                    | text                      | YES      | —
+status_rules_backup_20260806        | 11   | created_at                     | timestamp without time zone | YES      | —
+status_rules_backup_20260806        | 12   | updated_at                     | timestamp without time zone | YES      | —
+status_rules_backup_20260904        | 1    | id                             | integer                   | YES      | —
+status_rules_backup_20260904        | 2    | status_name                    | character varying(50)     | YES      | —
+status_rules_backup_20260904        | 3    | min_current_year               | integer                   | YES      | —
+status_rules_backup_20260904        | 4    | max_current_year               | integer                   | YES      | —
+status_rules_backup_20260904        | 5    | min_prev_year                  | integer                   | YES      | —
+status_rules_backup_20260904        | 6    | max_prev_year                  | integer                   | YES      | —
+status_rules_backup_20260904        | 7    | min_days_since_last_purchase   | integer                   | YES      | —
+status_rules_backup_20260904        | 8    | min_days_between_purchases     | integer                   | YES      | —
+status_rules_backup_20260904        | 9    | priority                       | integer                   | YES      | —
+status_rules_backup_20260904        | 10   | description                    | text                      | YES      | —
+status_rules_backup_20260904        | 11   | created_at                     | timestamp without time zone | YES      | —
+status_rules_backup_20260904        | 12   | updated_at                     | timestamp without time zone | YES      | —
+temp_ushed_id                       | 1    | id                             | integer                   | YES      | —
+website_behavior_log                | 1    | id                             | bigint                    | NO       | nextval('website_behavior_log_id_seq'::regclass)
+website_behavior_log                | 2    | client_code                    | character varying(50)     | NO       | —
+website_behavior_log                | 3    | product_category               | character varying(100)    | YES      | —
+website_behavior_log                | 4    | product_code                   | character varying(50)     | YES      | —
+website_behavior_log                | 5    | action_type                    | character varying(50)     | YES      | —
+website_behavior_log                | 6    | timestamp                      | timestamp without time zone | YES      | CURRENT_TIMESTAMP

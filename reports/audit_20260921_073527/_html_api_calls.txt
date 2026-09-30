@@ -1,0 +1,163 @@
+=== abc_structure.html ===
+  /api/analytics/abc-segment-detail
+  /api/analytics/abc-structure
+
+=== advanced.html ===
+  /api/analytics/monthly-revenue
+  /api/analytics/product-categories
+  /api/analytics/segment-comparison
+  /api/analytics/yearly-clients-count
+  /api/funnel
+
+=== analytics.html ===
+  /api/analytics/abc-groups
+  /api/analytics/clients-yoy
+  /api/analytics/monthly-revenue
+  /api/analytics/pivot-formatted
+  /api/analytics/recurrent-clients
+  /api/analytics/segmentation-current-year
+  /api/analytics/segmentation-past-years
+  /api/analytics/yearly-clients-count
+  /api/analytics/yoy-comparison
+
+=== avg-check.html ===
+  /api/analytics/monthly-revenue
+  /api/analytics/segment-comparison
+  /api/analytics/yearly-clients-count
+
+=== c2-segmentation.html ===
+  /api/analytics/c2-segmentation-companies
+
+=== churned-segmentation.html ===
+  /api/analytics/churned-segmentation-companies
+
+=== client-avg-check-analytics.html ===
+  /api/analytics/client/avg-check
+
+=== client-detail.html ===
+  /api/clients/detail/
+  /api/clients/invoices/
+  /api/invoices/
+  /api/recommendations-by-size/
+
+=== client-invoices-analytics.html ===
+  /api/analytics/client/invoices
+
+=== client-invoices-month.html ===
+  /api/analytics/client/invoices-month
+  /api/invoices/
+
+=== client-last-purchase-analytics.html ===
+  /api/analytics/client/last-purchase
+
+=== client-month-analytics.html ===
+  /api/analytics/client/month-daily
+  /api/analytics/client/month-invoices
+  /api/analytics/client/month-products
+  /api/analytics/client/month-summary
+  /api/client/
+
+=== client-revenue-analytics.html ===
+  /api/analytics/client/revenue
+
+=== comparison.html ===
+  /api/analytics/segment-comparison
+
+=== consolidated-segmentation.html ===
+  /api/analytics/consolidated-segmentation-companies
+
+=== db_reference.html ===
+
+=== directions-analytics.html ===
+  /api/analytics/directions/companies
+  /api/analytics/directions/kpi
+  /api/analytics/directions/monthly
+  /api/analytics/directions/summary
+
+=== directions-avg-check-analytics.html ===
+  /api/analytics/directions/avg-check-analytics
+
+=== directions-clients-analytics.html ===
+  /api/analytics/directions/clients-analytics
+
+=== directions-invoices-analytics.html ===
+  /api/analytics/directions/invoices-analytics
+
+=== directions-leader-analytics.html ===
+  /api/analytics/directions/leader-analytics
+
+=== directions-revenue-analytics.html ===
+  /api/analytics/directions/revenue-analytics
+
+=== general-segmentation.html ===
+  /api/analytics/general-segmentation-companies
+
+=== inactive-clients-analytics.html ===
+  /api/analytics/inactive-clients-abc
+  /api/analytics/inactive-clients-distribution
+  /api/analytics/inactive-clients-list
+  /api/analytics/inactive-clients-overview
+
+=== index.html ===
+  /api/analytics/monthly-revenue
+  /api/analytics/yearly-clients-count
+  /api/clients
+  /api/clients/active
+  /api/clients/churn-risk
+  /api/clients/top-sales
+  /api/dashboard
+  /api/funnel
+  /api/recommendations/
+
+=== monthly.html ===
+  /api/analytics/abc-migration
+  /api/analytics/daily-revenue
+  /api/analytics/monthly-detail
+  /api/analytics/monthly-directions
+  /api/analytics/monthly-products
+  /api/analytics/monthly-top-clients
+  /api/analytics/zaletnye
+
+=== new-clients-analytics.html ===
+  /api/analytics/new-clients-abc
+  /api/analytics/new-clients-abc-compare
+  /api/analytics/new-clients-frequency
+  /api/analytics/new-clients-list
+  /api/analytics/new-clients-overview
+
+=== new-clients-segmentation.html ===
+  /api/analytics/new-clients-segmentation-companies
+
+=== plan.html ===
+
+=== product-analytics.html ===
+  /api/analytics/client-products-compare/
+  /api/analytics/client-products-recommendations/
+  /api/analytics/client-products/
+  /api/client-products-by-size/
+
+=== product-recommendations.html ===
+
+=== repeat-segmentation.html ===
+  /api/analytics/repeat-segmentation-companies
+
+=== returned-clients-analytics.html ===
+  /api/analytics/returned-clients-abc
+  /api/analytics/returned-clients-compare-new
+  /api/analytics/returned-clients-frequency
+  /api/analytics/returned-clients-list
+  /api/analytics/returned-clients-overview
+
+=== segment-detail.html ===
+  /api/analytics/segment-detail
+
+=== sleeping-segmentation.html ===
+  /api/analytics/sleeping-segmentation-companies
+
+=== top-sales-analytics.html ===
+  /api/analytics/top-sales/companies
+  /api/analytics/top-sales/company-detail
+  /api/analytics/top-sales/compare-yoy
+  /api/analytics/top-sales/core
+  /api/analytics/top-sales/kpi
+
