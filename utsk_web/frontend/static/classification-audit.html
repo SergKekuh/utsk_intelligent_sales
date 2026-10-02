@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Аудит класифікації</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        /* Bento-стиль: светлая тема, Inter, rounded 16px, мягкие тени */
+        body { font-family: 'Inter', sans-serif; background: #f8fafc; margin: 0; padding: 20px; color: #1e293b; }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .header h1 { margin: 0; font-size: 24px; }
+        .btn { padding: 8px 16px; border-radius: 12px; border: none; cursor: pointer; font-weight: 600; font-size: 13px; }
+        .btn-primary { background: #4f46e5; color: white; }
+        .btn-secondary { background: #e2e8f0; color: #334155; }
+        .btn-danger { background: #dc2626; color: white; }
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .kpi-card { background: white; border-radius: 16px; padding: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .kpi-label { font-size: 12px; color: #64748b; font-weight: 600; text-transform: uppercase; }
+        .kpi-value { font-size: 28px; font-weight: 700; font-family: 'JetBrains Mono', monospace; margin-top: 6px; }
+        .filters { background: white; border-radius: 16px; padding: 16px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; gap: 12px; flex-wrap: wrap; }
+        .filters input, .filters select { padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; }
+        .table-wrapper { background: white; border-radius: 16px; padding: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th { text-align: left; padding: 10px 8px; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #475569; }
+        td { padding: 10px 8px; border-bottom: 1px solid #f1f5f9; }
+        tr:hover { background: #f8fafc; }
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 8px; font-size: 11px; font-weight: 700; }
+        .badge-auto { background: #dbeafe; color: #1e40af; }
+        .badge-basket { background: #dcfce7; color: #166534; }
+        .badge-manual { background: #fef3c7; color: #92400e; }
+        .badge-revert { background: #fee2e2; color: #991b1b; }
+        .dir-arrow { font-family: 'JetBrains Mono', monospace; }
+        .loading, .empty { text-align: center; padding: 40px; color: #64748b; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>📋 Аудит класифікації</h1>
+        <div>
+            <a href="/analytics?token=utsk2026" class="btn btn-secondary">← Назад</a>
+            <button class="btn btn-primary" onclick="loadAll()">🔄 Оновити</button>
+        </div>
+    </div>
+
+    <!-- KPI -->
+    <div class="kpi-grid" id="kpiGrid">
+        <div class="kpi-card">
+            <div class="kpi-label">Всього записів</div>
+            <div class="kpi-value" id="kpiTotal">—</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">За сьогодні</div>
+            <div class="kpi-value" id="kpiToday">—</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Відкатів</div>
+            <div class="kpi-value" id="kpiReverts" style="color:#dc2626;">—</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Унікальних клієнтів</div>
+            <div class="kpi-value" id="kpiClients">—</div>
+        </div>
+    </div>
+
+    <!-- Фильтры -->
+    <div class="filters">
+        <input type="text" id="fClient" placeholder="Код клієнта..." style="width:180px;">
+        <select id="fReason">
+            <option value="">— Всі причини —</option>
+            <option value="auto_name">auto_name</option>
+            <option value="basket">basket</option>
+            <option value="manual">manual</option>
+            <option value="revert">revert</option>
+        </select>
+        <input type="date" id="fDateFrom">
+        <input type="date" id="fDateTo">
+        <button class="btn btn-primary" onclick="loadList()">🔍 Застосувати</button>
+        <button class="btn btn-secondary" onclick="resetFilters()">✖ Скинути</button>
+    </div>
+
+    <!-- Таблица -->
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Дата</th>
+                    <th>Клієнт</th>
+                    <th>Напрямок</th>
+                    <th>Confidence</th>
+                    <th>Джерело</th>
+                    <th>Причина</th>
+                    <th>Хто</th>
+                    <th>Дія</th>
+                </tr>
+            </thead>
+            <tbody id="auditBody">
+                <tr><td colspan="9" class="loading">Завантаження...</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <div style="text-align:center; margin-top:16px;">
+        <button class="btn btn-secondary" id="btnLoadMore" onclick="loadMore()" style="display:none;">Показати ще 100</button>
+    </div>
+</div>
+
+<script>
+const urlParams = new URLSearchParams(window.location.search);
+const TOKEN = urlParams.get('token') || 'utsk2026';
+const PAGE_SIZE = 100;
+
+let currentOffset = 0;
+let totalRows = 0;
+
+// Справочник отраслей
+const DIRECTIONS = {
+    1: '🌾 Сільське господарство',
+    2: '🏗️ Будівництво',
+    3: '🏭 Промисловість/Нафтогаз',
+    4: '🚰 ЖКГ',
+    5: '🛣️ Дорожнє будівництво',
+    6: '💼 Трейдер',
+    7: '👤 Кінцевий споживач',
+    8: '⚙️ Трейдер з виробництвом',
+    9: ' Універсальний',
+    10: '🔩 Металоконструкції',
+    11: '⚙️ Машинобудування',
+    12: '⚡ Енергетика',
+    13: '🚗 Автомобільна',
+    14: '🚚 Логістика',
+    15: '🏛️ Держструктури',
+    16: '❓ Не визначено'
+};
+
+function fmtDir(id) {
+    if (id === null || id === undefined) return '—';
+    const name = DIRECTIONS[id] || `ID ${id}`;
+    return `<span class="dir-arrow">${name}</span>`;
+}
+
+function fmtConf(c) {
+    if (c === null || c === undefined) return '—';
+    return Number(c).toFixed(2);
+}
+
+function fmtReason(r) {
+    const cls = {
+        'auto_name': 'badge-auto',
+        'basket': 'badge-basket',
+        'manual': 'badge-manual',
+        'revert': 'badge-revert'
+    }[r] || 'badge-auto';
+    return `<span class="badge ${cls}">${r || '—'}</span>`;
+}
+
+async function loadKPI() {
+    try {
+        const res = await fetch(`/api/analytics/classification-audit/kpi?token=${encodeURIComponent(TOKEN)}`);
+        if (!res.ok) return;
+        const json = await res.json();
+        const d = json.data || {};
+        document.getElementById('kpiTotal').textContent = d.total_rows ?? '—';
+        document.getElementById('kpiToday').textContent = d.today_rows ?? '—';
+        document.getElementById('kpiReverts').textContent = d.reverts ?? '—';
+        document.getElementById('kpiClients').textContent = d.uniq_clients ?? '—';
+    } catch (e) {
+        console.error('[KPI] error:', e);
+    }
+}
+
+async function loadList(append = false) {
+    const params = new URLSearchParams({
+        token: TOKEN,
+        limit: PAGE_SIZE,
+        offset: append ? currentOffset : 0
+    });
+    const cc = document.getElementById('fClient').value.trim();
+    if (cc) params.set('client_code', cc);
+    const cr = document.getElementById('fReason').value;
+    if (cr) params.set('change_reason', cr);
+    const df = document.getElementById('fDateFrom').value;
+    if (df) params.set('date_from', df);
+    const dt = document.getElementById('fDateTo').value;
+    if (dt) params.set('date_to', dt);
+
+    try {
+        const res = await fetch(`/api/analytics/classification-audit/list?${params.toString()}`);
+        if (!res.ok) {
+            console.error('[LIST] HTTP', res.status);
+            return;
+        }
+        const json = await res.json();
+        totalRows = json.total || 0;
+        const rows = json.data || [];
+
+        const tbody = document.getElementById('auditBody');
+        if (!append) tbody.innerHTML = '';
+
+        if (!append && rows.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="9" class="empty">Немає записів</td></tr>';
+            document.getElementById('btnLoadMore').style.display = 'none';
+            return;
+        }
+
+        rows.forEach(r => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${r.id}</td>
+                <td>${r.changed_at}</td>
+                <td><strong>${r.client_code}</strong><br><small>${r.client_name || ''}</small></td>
+                <td>${fmtDir(r.old_direction_id)} → ${fmtDir(r.new_direction_id)}</td>
+                <td>${fmtConf(r.old_confidence)} → ${fmtConf(r.new_confidence)}</td>
+                <td>${r.old_source || '—'} → ${r.new_source || '—'}</td>
+                <td>${fmtReason(r.change_reason)}</td>
+                <td>${r.changed_by || '—'}</td>
+                <td>
+                    ${r.change_reason !== 'revert' 
+                        ? `<button class="btn btn-danger" style="padding:4px 10px; font-size:11px;" onclick="revertAudit(${r.id}, '${r.client_code}')">↶ Відкат</button>` 
+                        : '<span style="color:#94a3b8; font-size:11px;">—</span>'}
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        currentOffset = (append ? currentOffset : 0) + rows.length;
+        document.getElementById('btnLoadMore').style.display = currentOffset < totalRows ? 'inline-block' : 'none';
+    } catch (e) {
+        console.error('[LIST] error:', e);
+    }
+}
+
+function loadMore() {
+    loadList(true);
+}
+
+async function revertAudit(auditId, clientCode) {
+    if (!confirm(`Відкатати зміну #${auditId} для клієнта ${clientCode}?`)) return;
+    try {
+        const res = await fetch(`/api/analytics/classification-audit/revert/${auditId}?token=${encodeURIComponent(TOKEN)}`, {
+            method: 'POST'
+        });
+        const json = await res.json();
+        if (!res.ok) {
+            alert(`Помилка: ${json.detail || res.status}`);
+            return;
+        }
+        alert(json.message || 'Відкат виконано');
+        loadAll();
+    } catch (e) {
+        console.error('[REVERT] error:', e);
+        alert('Помилка відкату: ' + e.message);
+    }
+}
+
+function resetFilters() {
+    document.getElementById('fClient').value = '';
+    document.getElementById('fReason').value = '';
+    document.getElementById('fDateFrom').value = '';
+    document.getElementById('fDateTo').value = '';
+    loadAll();
+}
+
+function loadAll() {
+    loadKPI();
+    loadList(false);
+}
+
+window.addEventListener('DOMContentLoaded', loadAll);
+</script>
+</body>
+</html>

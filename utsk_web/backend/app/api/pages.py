@@ -342,3 +342,22 @@ async def directions_leader_analytics_page(request: Request, token: str = Query(
             return HTMLResponse(content=f.read())
     raise HTTPException(status_code=404, detail="Страница аналитики отрасли-лидера не найдена")
 
+
+@router.get("/profile-pipes-analytics", response_class=HTMLResponse)
+async def profile_pipes_analytics_page(request: Request, token: str = Query(None)):
+    verify_token(token)
+    filepath = find_file("profile-pipes-analytics.html", get_search_dirs())
+    if filepath:
+        with open(filepath, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    raise HTTPException(status_code=404, detail="Страница не найдена")
+
+@router.get("/classification-audit", response_class=HTMLResponse)
+async def classification_audit_page(request: Request, token: str = Query(None)):
+    verify_token(token)
+    filepath = find_file("classification-audit.html", get_search_dirs())
+    if filepath:
+        with open(filepath, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    raise HTTPException(status_code=404, detail="Страница не найдена")
+

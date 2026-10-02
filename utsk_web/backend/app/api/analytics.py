@@ -1791,3 +1791,62 @@ def product_categories(token: str = Query(None), year: int = 2026, db: Session =
     except Exception as e:
         logger.error(f'Ошибка product_categories: {e}')
         raise HTTPException(status_code=500, detail=str(e))
+@router.get("/api/analytics/client-diversity")
+def get_client_diversity_api(
+    token: str = Query(None),
+    code: str = Query(...),
+    year: int = Query(2026),
+    db: Session = Depends(get_db),
+):
+    """
+    Возвращает количество уникальных типоразмеров труб у клиента за год
+    (Індекс Різоманіття).
+    """
+    verify_token(token)
+    try:
+        row = db.execute(
+            text("SELECT get_client_diversity_index(:code, :yr) AS cnt"),
+            {"code": code, "yr": year},
+        ).fetchone()
+        count = int(row.cnt) if row and row.cnt is not None else 0
+        return {"status": "ok", "code": code, "year": year, "count": count}
+    except Exception as e:
+        logger.error(f"Ошибка client-diversity code={code}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/api/analytics/company-assortment")
+def get_company_assortment_api(
+    token: str = Query(None),
+    db: Session = Depends(get_db),
+):
+    """
+    Возвращает общее число позиций в каталоге компании (products).
+    Используется для блока «Індекс Різоманіття» на карточке клиента.
+    Число одинаково для всех клиентов.
+    """
+    verify_token(token)
+    try:
+        row = db.execute(text("SELECT get_company_assortment_size() AS cnt")).fetchone()
+        count = int(row.cnt) if row and row.cnt is not None else 0
+        return {"status": "ok", "count": count}
+    except Exception as e:
+        logger.error(f"Ошибка company-assortment: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/api/analytics/company-profile-pipes")
+def get_company_profile_pipes_api(
+    token: str = Query(None),
+    db: Session = Depends(get_db),
+):
+    """
+    Возвращает количество профильных труб (квадратных + прямоугольных)
+    в каталоге компании. Используется для блока 2 на карточке клиента.
+    """
+    verify_token(token)
+    try:
+        row = db.execute(text("SELECT get_company_profile_pipes_count() AS cnt")).fetchone()
+        count = int(row.cnt) if row and row.cnt is not None else 0
+        return {"status": "ok", "count": count}
+    except Exception as e:
+        logger.error(f"Ошибка company-profile-pipes: {e}")
+        raise HTTPException(status_code=500, detail=str(e))

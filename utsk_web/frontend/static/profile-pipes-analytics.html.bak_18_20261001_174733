@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UTSK — Профільні труби клієнта</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --primary-light: #eef2ff;
+            --accent: #3b82f6;
+            --success: #10b981;
+            --success-light: #d1fae5;
+            --warning: #f59e0b;
+            --warning-light: #fef3c7;
+            --danger: #ef4444;
+            --danger-light: #fee2e2;
+            --info: #0ea5e9;
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --border: #e2e8f0;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --radius: 14px;
+            --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
+            line-height: 1.5;
+            padding: 24px;
+        }
+
+        .container {
+            max-width: 1480px;
+            margin: 0 auto;
+        }
+
+        /* Top Header */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--surface);
+            padding: 18px 24px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .header-title-group {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 16px;
+            background: #f1f5f9;
+            color: #334155;
+            text-decoration: none;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.15s ease;
+        }
+        .back-btn:hover {
+            background: #e2e8f0;
+            color: var(--text-main);
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .client-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            background: #e0e7ff;
+            color: var(--primary);
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .select-input {
+            padding: 8px 16px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            background: #ffffff;
+            color: var(--text-main);
+            outline: none;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 2px;
+        }
+
+        .tab-btn {
+            padding: 12px 20px;
+            background: transparent;
+            border: none;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-radius: 10px 10px 0 0;
+            position: relative;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-btn:hover {
+            color: var(--primary);
+            background: var(--surface);
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            background: var(--surface);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--primary);
+            border-radius: 3px 3px 0 0;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* KPI Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 1024px) {
+            .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        .kpi-card {
+            background: var(--surface);
+            padding: 20px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            border-top: 4px solid var(--primary);
+        }
+
+        .kpi-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+
+        .kpi-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .kpi-sub {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Filter bar */
+        .filter-bar {
+            background: var(--surface);
+            padding: 14px 20px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .search-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f1f5f9;
+            padding: 8px 16px;
+            border-radius: 10px;
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .search-input {
+            border: none;
+            background: transparent;
+            font-size: 14px;
+            outline: none;
+            width: 100%;
+            color: var(--text-main);
+        }
+
+        .filter-pills {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .pill-btn {
+            padding: 6px 14px;
+            background: #f1f5f9;
+            border: 1px solid transparent;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #475569;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .pill-btn:hover {
+            background: #e2e8f0;
+        }
+
+        .pill-btn.active {
+            background: var(--primary);
+            color: #ffffff;
+        }
+
+        /* Card container */
+        .card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 18px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-subtitle {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* Tables */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        .sizes-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: left;
+        }
+
+        .sizes-table th {
+            background: #f8fafc;
+            color: #475569;
+            font-weight: 600;
+            padding: 12px 16px;
+            border-bottom: 2px solid var(--border);
+            white-space: nowrap;
+        }
+
+        .sizes-table th.num, .sizes-table td.num {
+            text-align: right;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .sizes-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-main);
+        }
+
+        .sizes-table tr.size-row {
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .sizes-table tr.size-row:hover {
+            background: #f1f5f9;
+        }
+
+        .sizes-table tr.size-row.active {
+            background: #eef2ff;
+        }
+
+        .expand-icon {
+            transition: transform 0.2s;
+        }
+
+        .size-row.active .expand-icon {
+            transform: rotate(90deg);
+        }
+
+        /* Drilldown */
+        .drilldown-row td {
+            padding: 0 !important;
+            background: #f8fafc;
+        }
+
+        .drilldown-panel {
+            padding: 16px 24px;
+            border-left: 4px solid var(--primary);
+            background: #ffffff;
+            margin: 8px 16px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+        }
+
+        .drilldown-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .drilldown-title {
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--primary);
+        }
+
+        .drilldown-close {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .products-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        .products-table th {
+            background: #f1f5f9;
+            color: #475569;
+            padding: 8px 12px;
+            border-bottom: 1px solid #cbd5e1;
+        }
+
+        .products-table td {
+            padding: 8px 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .products-table th.num, .products-table td.num {
+            text-align: right;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Grid for YoY */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 1200px) {
+            .analytics-grid { grid-template-columns: 1fr; }
+        }
+
+        .chart-container {
+            position: relative;
+            padding: 16px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        .positive { color: #10b981; font-weight: 700; }
+        .negative { color: #ef4444; font-weight: 700; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- HEADER -->
+        <div class="header">
+            <div class="header-title-group">
+                <a href="/client-detail" class="back-btn" id="backBtn">
+                    <i class="fa-solid fa-arrow-left"></i> К клиенту
+                </a>
+                <h1>
+                    📐 Профільні труби: 
+                    <span id="clientName" style="color:var(--primary);">Загрузка...</span>
+                    <span class="client-badge" id="clientCodeBadge">код <b id="clientCode">—</b></span>
+                </h1>
+            </div>
+            <div class="controls">
+                <select id="year-select" class="select-input" onchange="onYearChange()">
+                    <option value="2026" selected>2026 год</option>
+                    <option value="2025">2025 год</option>
+                    <option value="2024">2024 год</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- TABS -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="openTab('tab-sizes', this)">
+                <i class="fa-solid fa-ruler-combined"></i> 📏 Розміри
+            </button>
+            <button class="tab-btn" onclick="openTab('tab-yoy', this)">
+                <i class="fa-solid fa-arrows-split-up-and-left"></i> 🔄 YoY (Порівняння 2026 vs 2025)
+            </button>
+            <button class="tab-btn" onclick="openTab('tab-monthly', this)">
+                <i class="fa-solid fa-calendar-days"></i> 📅 Динаміка по місяцях
+            </button>
+        </div>
+
+        <!-- TAB 1: SIZES -->
+        <div id="tab-sizes" class="tab-content active">
+            <!-- KPI GRID -->
+            <div class="kpi-grid">
+                <div class="kpi-card" style="border-top-color:#3b82f6">
+                    <div class="kpi-label"><i class="fa-solid fa-ruler"></i> 📐 Унікальних розмірів</div>
+                    <div class="kpi-value" id="kpiSizes">—</div>
+                    <div class="kpi-sub">Профільних типорозмірів</div>
+                </div>
+                <div class="kpi-card" style="border-top-color:#10b981">
+                    <div class="kpi-label"><i class="fa-solid fa-box"></i> 📦 Товарів</div>
+                    <div class="kpi-value" id="kpiProducts">—</div>
+                    <div class="kpi-sub">Номенклатурних позицій</div>
+                </div>
+                <div class="kpi-card" style="border-top-color:#f59e0b">
+                    <div class="kpi-label"><i class="fa-solid fa-file-invoice"></i> 🧾 Накладних</div>
+                    <div class="kpi-value" id="kpiInvoices">—</div>
+                    <div class="kpi-sub">За обраний рік</div>
+                </div>
+                <div class="kpi-card" style="border-top-color:#8b5cf6">
+                    <div class="kpi-label"><i class="fa-solid fa-sack-dollar"></i> 💰 Виручка</div>
+                    <div class="kpi-value" id="kpiRevenue" style="color:#047857;">—</div>
+                    <div class="kpi-sub">Загальний обсяг продажів</div>
+                </div>
+            </div>
+
+            <!-- FILTERS -->
+            <div class="filter-bar">
+                <div class="search-group">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="sizeSearch" class="search-input" placeholder="Пошук за розміром (наприклад, 70x70, 180)..." oninput="applyFilters()">
+                </div>
+                <div class="filter-pills">
+                    <button class="pill-btn active" data-type="all" onclick="setPipeFilter('all', this)">Всі</button>
+                    <button class="pill-btn" data-type="square" onclick="setPipeFilter('square', this)">Квадратні</button>
+                    <button class="pill-btn" data-type="rect" onclick="setPipeFilter('rect', this)">Прямокутні</button>
+                    <span id="filteredCountLabel" style="font-size:12px;color:var(--text-muted);margin-left:8px;"></span>
+                </div>
+            </div>
+
+            <!-- TABLE -->
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <h2 class="card-title">
+                            <i class="fa-solid fa-table-list" style="color:var(--accent);"></i> 
+                            Розміри профільних труб (<span id="totalSizesBadge">0</span>)
+                        </h2>
+                        <div class="card-subtitle">Клікніть на рядок для розкриття деталізації по товарах</div>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="sizes-table" id="sizesTable">
+                        <thead>
+                            <tr>
+                                <th style="width:36px; text-align:center;"></th>
+                                <th>Розмір</th>
+                                <th class="num">Накладних</th>
+                                <th class="num">Виручка (₴)</th>
+                                <th class="num">Частка %</th>
+                                <th class="num">Товарів</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sizesBody">
+                            <tr><td colspan="6" class="loading"><i class="fa-solid fa-spinner fa-spin"></i> Завантаження розмірів труб...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- DRILL-DOWN PANEL CONTAINER -->
+            <div id="drilldownPanelContainer" style="display:none;">
+                <div class="drilldown-panel" id="drilldownPanel">
+                    <div class="drilldown-header">
+                        <div class="drilldown-title" id="drilldownTitle">—</div>
+                        <button class="drilldown-close" onclick="closeDrilldown()" title="Закрити деталізацію">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                    <div id="drilldownContent"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: YOY -->
+        <div id="tab-yoy" class="tab-content">
+            <div class="analytics-grid">
+                <!-- Таблица размеров с YoY -->
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <h2 class="card-title">🔄 Порівняння розмірів (2026 vs 2025)</h2>
+                            <div class="card-subtitle">Клік по рядку — деталізація по товарах за поточний рік</div>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="sizes-table" id="yoySizesTable">
+                            <thead>
+                                <tr>
+                                    <th style="width:36px;text-align:center;"></th>
+                                    <th>Розмір</th>
+                                    <th class="num">2025 ₴</th>
+                                    <th class="num">2026 ₴</th>
+                                    <th class="num">Δ ₴</th>
+                                    <th class="num">Ріст %</th>
+                                </tr>
+                            </thead>
+                            <tbody id="yoySizesBody">
+                                <tr><td colspan="6" class="loading"><i class="fa-solid fa-spinner fa-spin"></i> Завантаження порівняння розмірів...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- График ТОП-10 размеров -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">ТОП-10 розмірів по виручці</h2>
+                    </div>
+                    <div class="chart-container" style="height:400px;">
+                        <canvas id="chartYoYSizes"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- YOY DRILLDOWN CONTAINER -->
+            <div id="yoyDrilldownPanelContainer" style="display:none;">
+                <div class="drilldown-panel" id="yoyDrilldownPanel">
+                    <div class="drilldown-header">
+                        <div class="drilldown-title" id="yoyDrilldownTitle">—</div>
+                        <button class="drilldown-close" onclick="closeYoYDrilldown()" title="Закрити деталізацію">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                    <div id="yoyDrilldownContent"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: MONTHLY -->
+        <div id="tab-monthly" class="tab-content">
+            <!-- 1. KPI -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">📅 Динаміка по місяцях</h2>
+                </div>
+                <div class="kpi-grid" style="padding: 0 20px 20px 20px;">
+                    <div class="kpi-card">
+                        <div class="kpi-label">💰 Виручка за рік</div>
+                        <div class="kpi-value" id="mKpiRevenue" style="color:#047857;">—</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">📊 Середній місяць</div>
+                        <div class="kpi-value" id="mKpiAvg">—</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">🏆 Найкращий місяць</div>
+                        <div class="kpi-value" id="mKpiBest" style="font-size:20px;">—</div>
+                        <div class="kpi-sub" id="mKpiBestMonth"></div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">📅 Активних місяців</div>
+                        <div class="kpi-value" id="mKpiActive">—</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. График Bar + Line -->
+            <div class="card" style="margin-top: 20px;">
+                <div class="card-header">
+                    <h2 class="card-title">📊 Порівняння 2025 / 2026</h2>
+                </div>
+                <div class="chart-container" style="position:relative; height:400px; padding:20px;">
+                    <canvas id="chartMonthly"></canvas>
+                </div>
+            </div>
+
+            <!-- 3. Таблица -->
+            <div class="card" style="margin-top: 20px;">
+                <div class="card-header">
+                    <h2 class="card-title">📋 Деталізація по місяцях</h2>
+                </div>
+                <div class="table-responsive">
+                    <table class="sizes-table">
+                        <thead>
+                            <tr>
+                                <th>Місяць</th>
+                                <th style="text-align:right;">Виручка 2026</th>
+                                <th style="text-align:right;">Виручка 2025</th>
+                                <th style="text-align:right;">Δ абс</th>
+                                <th style="text-align:right;">Δ %</th>
+                                <th style="text-align:right;">Накладних</th>
+                                <th style="text-align:right;">Сер. чек</th>
+                            </tr>
+                        </thead>
+                        <tbody id="monthlyTableBody">
+                            <tr><td colspan="7" class="loading">Завантаження...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 4. Инсайты -->
+            <div class="card" style="margin-top: 20px; background: #f0f9ff;">
+                <div class="card-header">
+                    <h2 class="card-title">💡 Ключові інсайти</h2>
+                </div>
+                <ul id="monthlyInsights" style="margin: 0; padding: 0 20px 20px 40px; line-height: 2;">
+                    <li>Завантаження...</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const TOKEN = urlParams.get('token') || 'utsk2026';
+        const CLIENT_CODE = urlParams.get('code') || urlParams.get('client_code') || '4501';
+        let YEAR = urlParams.get('year') || '2026';
+
+        let allSizes = [];
+        let currentFilter = 'all';
+        let currentSizeKey = null;
+        let currentYoYSizeKey = null;
+        let charts = {};
+
+        // ---- Formatters ----
+        function fmtMoney(n) {
+            if (n == null || isNaN(n)) return '—';
+            n = Number(n);
+            if (Math.abs(n) >= 1e6) return (n / 1e6).toFixed(2) + ' млн ₴';
+            if (Math.abs(n) >= 1e3) return (n / 1e3).toFixed(1) + ' тис ₴';
+            return Math.round(n).toLocaleString('uk-UA') + ' ₴';
+        }
+
+        function fmtFullMoney(n) {
+            if (n == null || isNaN(n)) return '—';
+            return Math.round(Number(n)).toLocaleString('uk-UA') + ' ₴';
+        }
+
+        function fmtNum(n, d = 0) {
+            if (n == null || isNaN(n)) return '0';
+            return Number(n).toLocaleString('uk-UA', { minimumFractionDigits: d, maximumFractionDigits: d });
+        }
+
+        function formatSizeDisplay(sizeKey) {
+            if (!sizeKey) return '—';
+            const clean = sizeKey.replace('prof_', '');
+            const parts = clean.split('x');
+            if (parts.length >= 2) {
+                const isSquare = (parts[0] === parts[1]);
+                const prefix = isSquare ? 'Квадрат ' : 'Прямокутник ';
+                return prefix + parts.join('×');
+            }
+            return sizeKey;
+        }
+
+        // ---- Tab switching ----
+        function openTab(tabId, btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            const target = document.getElementById(tabId);
+            if (target) target.classList.add('active');
+
+            if (tabId === 'tab-yoy') {
+                loadYoYBySizes();
+            } else if (tabId === 'tab-monthly') {
+                loadMonthly();
+            }
+        }
+
+        function onYearChange() {
+            YEAR = document.getElementById('year-select').value;
+            loadKPI();
+            loadSizes();
+            const activeTab = document.querySelector('.tab-btn.active');
+            if (activeTab && activeTab.getAttribute('onclick').includes('tab-yoy')) {
+                loadYoYBySizes();
+            } else if (activeTab && activeTab.getAttribute('onclick').includes('tab-monthly')) {
+                loadMonthly();
+            }
+        }
+
+        // ---- KPI ----
+        async function loadKPI() {
+            try {
+                const res = await fetch(`/api/analytics/profile-pipes/kpi?token=${encodeURIComponent(TOKEN)}&code=${encodeURIComponent(CLIENT_CODE)}&year=${YEAR}`);
+                if (!res.ok) return;
+                const json = await res.json();
+                
+                // Update client name and code
+                if (json.client_name) {
+                    document.getElementById('clientName').textContent = json.client_name;
+                }
+                document.getElementById('clientCode').textContent = CLIENT_CODE;
+                document.getElementById('backBtn').href = `/client-detail?token=${encodeURIComponent(TOKEN)}&code=${encodeURIComponent(CLIENT_CODE)}`;
+
+                const d = json.data || {};
+                document.getElementById('kpiSizes').textContent = fmtNum(d.uniq_sizes || 0);
+                document.getElementById('kpiProducts').textContent = fmtNum(d.uniq_products || 0);
+                document.getElementById('kpiInvoices').textContent = fmtNum(d.invoices || 0);
+                document.getElementById('kpiRevenue').textContent = fmtMoney(d.revenue || 0);
+            } catch (e) {
+                console.error('[KPI] error:', e);
+            }
+        }
+
+        // ---- SIZES (Tab 1) ----
+        async function loadSizes() {
+            const tbody = document.getElementById('sizesBody');
+            if (!tbody) return;
+            tbody.innerHTML = '<tr><td colspan="6" class="loading"><i class="fa-solid fa-spinner fa-spin"></i> Завантаження розмірів труб...</td></tr>';
+            closeDrilldown();
+
+            try {
+                const r = await fetch(`/api/analytics/profile-pipes/sizes?token=${encodeURIComponent(TOKEN)}&code=${encodeURIComponent(CLIENT_CODE)}&year=${YEAR}`);
+                if (!r.ok) throw new Error(`HTTP ${r.status}`);
+                const json = await r.json();
+
+                if (json.client_name && document.getElementById('clientName').textContent === 'Загрузка...') {
+                    document.getElementById('clientName').textContent = json.client_name;
+                }
+
+                allSizes = json.data || [];
+                if (document.getElementById('totalSizesBadge')) {
+                    document.getElementById('totalSizesBadge').textContent = allSizes.length;
+                }
+
+                if (allSizes.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="loading">Немає покупок профільних труб за обраний рік</td></tr>';
+                    return;
+                }
+
+                applyFilters();
+            } catch (e) {
+                console.error('[SIZES] error:', e);
+                tbody.innerHTML = `<tr><td colspan="6" class="loading" style="color:var(--danger);"><i class="fa-solid fa-triangle-exclamation"></i> Помилка завантаження: ${e.message}</td></tr>`;
+            }
+        }
+
+        function setPipeFilter(type, btn) {
+            currentFilter = type;
+            document.querySelectorAll('.filter-pills .pill-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const query = (document.getElementById('sizeSearch').value || '').trim().toLowerCase();
+            let filtered = allSizes.filter(s => {
+                const matchQuery = !query || (s.size_key && s.size_key.toLowerCase().includes(query));
+                let matchType = true;
+                if (currentFilter === 'square') {
+                    matchType = s.shape === 'square' || (s.prof_w && s.prof_h && s.prof_w === s.prof_h);
+                } else if (currentFilter === 'rect') {
+                    matchType = s.shape === 'rect' || (s.prof_w && s.prof_h && s.prof_w !== s.prof_h);
+                }
+                return matchQuery && matchType;
+            });
+
+            document.getElementById('filteredCountLabel').textContent = 
+                (filtered.length !== allSizes.length) ? `(знайдено ${filtered.length} з ${allSizes.length})` : '';
+
+            renderSizesTable(filtered);
+        }
+
+        function renderSizesTable(items) {
+            const tbody = document.getElementById('sizesBody');
+            if (items.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="loading">За вашим фільтром нічого не знайдено</td></tr>';
+                return;
+            }
+
+            const totalRev = allSizes.reduce((sum, x) => sum + (x.revenue || 0), 0) || 1;
+
+            tbody.innerHTML = items.map(x => {
+                const pct = ((x.revenue / totalRev) * 100).toFixed(1);
+                const isSquare = x.shape === 'square' || (x.prof_w && x.prof_h && x.prof_w === x.prof_h);
+                const shapeIcon = isSquare ? '🟩' : '🟦';
+                const safeKey = (x.size_key || '').replace(/'/g, "\\'");
+                const displayName = x.size_display || formatSizeDisplay(x.size_key);
+                const safeDisplay = displayName.replace(/'/g, "\\'");
+
+                return `
+                    <tr class="size-row" onclick="toggleDrilldown('${safeKey}', '${safeDisplay}')" data-size="${x.size_key}">
+                        <td style="text-align:center;color:var(--text-muted);">
+                            <i class="fa-solid fa-chevron-right expand-icon"></i>
+                        </td>
+                        <td>
+                            <div style="display:flex;align-items:center;gap:8px;">
+                                <span>${shapeIcon}</span>
+                                <b>${displayName}</b>
+                            </div>
+                        </td>
+                        <td class="num">${x.invoices || 0} накл.</td>
+                        <td class="num" style="font-weight:700;">${fmtFullMoney(x.revenue)}</td>
+                        <td class="num">${pct}%</td>
+                        <td class="num">${x.products_count || 0}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function toggleDrilldown(sizeKey, displayName) {
+            const targetRow = document.querySelector(`#sizesBody tr[data-size="${sizeKey}"]`);
+            if (currentSizeKey === sizeKey) {
+                closeDrilldown();
+                return;
+            }
+
+            closeDrilldown();
+            currentSizeKey = sizeKey;
+
+            if (targetRow) targetRow.classList.add('active');
+
+            const drillRow = document.createElement('tr');
+            drillRow.id = 'inlineDrilldownRow';
+            drillRow.className = 'drilldown-row';
+            drillRow.innerHTML = '<td colspan="6" id="inlineDrilldownCell"></td>';
+            if (targetRow) targetRow.after(drillRow);
+
+            const panel = document.getElementById('drilldownPanel');
+            document.getElementById('inlineDrilldownCell').appendChild(panel);
+            document.getElementById('drilldownPanelContainer').style.display = 'block';
+
+            document.getElementById('drilldownTitle').innerHTML = 
+                `<i class="fa-solid fa-boxes-stacked" style="color:var(--accent);"></i> Товари розміру: <b>${displayName}</b>`;
+
+            const contentEl = document.getElementById('drilldownContent');
+            contentEl.innerHTML = '<div class="loading"><i class="fa-solid fa-spinner fa-spin"></i> Завантаження товарів...</div>';
+
+            try {
+                const r = await fetch(`/api/analytics/profile-pipes/products-by-size?token=${encodeURIComponent(TOKEN)}&code=${encodeURIComponent(CLIENT_CODE)}&size_key=${encodeURIComponent(sizeKey)}&year=${YEAR}`);
+                if (!r.ok) throw new Error(`HTTP ${r.status}`);
+                const json = await r.json();
+                const data = json.data || [];
+
+                if (data.length === 0) {
+                    contentEl.innerHTML = '<div class="loading">Немає товарів для цього розміру</div>';
+                    return;
+                }
+
+                contentEl.innerHTML = `
+                    <table class="products-table">
+                        <thead>
+                            <tr>
+                                <th style="width:90px;">Код</th>
+                                <th>Найменування</th>
+                                <th class="num">Накладні</th>
+                                <th class="num">Кількість (т)</th>
+                                <th class="num">Виручка</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${data.map(p => `
+                                <tr>
+                                    <td><code style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#475569;">${p.product_code}</code></td>
+                                    <td><b>${p.product_name}</b></td>
+                                    <td class="num">${p.invoices} накл.</td>
+                                    <td class="num">${fmtNum(p.quantity, 3)}</td>
+                                    <td class="num" style="font-weight:700;">${fmtFullMoney(p.revenue)}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            } catch (err) {
+                contentEl.innerHTML = `<div class="loading" style="color:var(--danger);"><i class="fa-solid fa-triangle-exclamation"></i> Помилка: ${err.message}</div>`;
+            }
+        }
+
+        function closeDrilldown() {
+            if (!currentSizeKey) return;
+            const targetRow = document.querySelector(`#sizesBody tr[data-size="${currentSizeKey}"]`);
+            if (targetRow) targetRow.classList.remove('active');
+
+            const inlineRow = document.getElementById('inlineDrilldownRow');
+            if (inlineRow) {
+                const panel = document.getElementById('drilldownPanel');
+                document.getElementById('drilldownPanelContainer').appendChild(panel);
+                inlineRow.remove();
+            }
+            document.getElementById('drilldownPanelContainer').style.display = 'none';
+            currentSizeKey = null;
+        }
+
+        // ---- YOY (Tab 2) ----
+        async function loadYoYBySizes() {
+            const tbody = document.getElementById('yoySizesBody');
+            if (!tbody) return;
+            tbody.innerHTML = '<tr><td colspan="6" class="loading"><i class="fa-solid fa-spinner fa-spin"></i> Завантаження порівняння розмірів...</td></tr>';
+            closeYoYDrilldown();
+
+            try {
+                const res = await fetch(`/api/analytics/profile-pipes/sizes-yoy?token=${encodeURIComponent(TOKEN)}&code=${encodeURIComponent(CLIENT_CODE)}&year=${YEAR}`);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const json = await res.json();
+                const items = json.data || [];
+
+                if (items.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6" class="loading">Немає даних для порівняння за ${YEAR} / ${parseInt(YEAR) - 1}</td></tr>`;
+                    return;
+                }
+
+                renderYoYSizesTable(items);
+                renderYoYSizesChart(items);
+            } catch (e) {
+                console.error('[YOY] error:', e);
+                tbody.innerHTML = `<tr><td colspan="6" class="loading" style="color:var(--danger);"><i class="fa-solid fa-triangle-exclamation"></i> Помилка: ${e.message}</td></tr>`;
+            }
+        }
+
+        function renderYoYSizesTable(items) {
+            const tbody = document.getElementById('yoySizesBody');
+            tbody.innerHTML = items.map(x => {
+                const deltaClass = x.delta_abs > 0 ? 'positive' : x.delta_abs < 0 ? 'negative' : '';
+                const deltaText = x.delta_abs === 0 ? '—' : (x.delta_abs > 0 ? '+' : '') + fmtFullMoney(x.delta_abs);
+
+                let yoyText = '—';
+                let trendClass = '';
+                if (x.delta_pct != null) {
+                    const arrow = x.delta_pct >= 0 ? '↑' : '↓';
+                    yoyText = `${arrow} ${x.delta_pct.toFixed(0)}%`;
+                    trendClass = x.delta_pct >= 0 ? 'positive' : 'negative';
+                }
+
+                const safeKey = (x.size_key || '').replace(/'/g, "\\'");
+                const displayName = x.size_display || formatSizeDisplay(x.size_key);
+                const safeDisplay = displayName.replace(/'/g, "\\'");
+                const isSquare = x.size_key.includes('x') && x.size_key.split('x')[0] === x.size_key.split('x')[1];
+                const shapeIcon = isSquare ? '🟩' : '🟦';
+
+                return `
+                    <tr class="size-row" onclick="toggleYoYDrilldown('${safeKey}', '${safeDisplay}')" data-size="${x.size_key}">
+                        <td style="text-align:center;color:var(--text-muted);">
+                            <i class="fa-solid fa-chevron-right expand-icon"></i>
+                        </td>
+                        <td>
+                            <div style="display:flex;align-items:center;gap:8px;">
+                                <span>${shapeIcon}</span>
+                                <b>${displayName}</b>
+                            </div>
+                        </td>
+                        <td class="num" style="color:var(--text-muted);">${fmtFullMoney(x.revenue_prev)}</td>
+                        <td class="num" style="font-weight:700;">${fmtFullMoney(x.revenue_cur)}</td>
+                        <td class="num ${deltaClass}">${deltaText}</td>
+                        <td class="num ${trendClass}">${yoyText}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderYoYSizesChart(items) {
+            const ctx = document.getElementById('chartYoYSizes');
+            if (!ctx) return;
+            if (charts.yoySizes) charts.yoySizes.destroy();
+
+            const top10 = items.filter(x => x.revenue_cur > 0 || x.revenue_prev > 0).slice(0, 10);
+            if (top10.length === 0) return;
+
+            const yr = parseInt(YEAR);
+            charts.yoySizes = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: top10.map(x => x.size_key.replace('prof_', '').replace(/x/g, '×')),
+                    datasets: [
+                        {
+                            label: `${yr - 1} рік`,
+                            data: top10.map(x => x.revenue_prev),
+                            backgroundColor: '#cbd5e1',
+                            borderRadius: 4,
+                        },
+                        {
+                            label: `${yr} рік`,
+                            data: top10.map(x => x.revenue_cur),
+                            backgroundColor: '#4f46e5',
+                            borderRadius: 4,
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { callback: v => (v >= 1e6 ? (v/1e6).toFixed(1) + 'M' : (v/1e3).toFixed(0) + 'K') }
+                        }
+                    }
+                }
+            });
+        }
+
+        async function toggleYoYDrilldown(sizeKey, displayName) {
+            const targetRow = document.querySelector(`#yoySizesBody tr[data-size="${sizeKey}"]`);
+            if (currentYoYSizeKey === sizeKey) {
+                closeYoYDrilldown();
+                return;
+            }
+
+            closeYoYDrilldown();
+            currentYoYSizeKey = sizeKey;
+
+            if (targetRow) targetRow.classList.add('active');
+
+            const drillRow = document.createElement('tr');
+            drillRow.id = 'yoyInlineDrilldownRow';
+            drillRow.className = 'drilldown-row';
+            drillRow.innerHTML = '<td colspan="6" id="yoyInlineDrilldownCell"></td>';
+            if (targetRow) targetRow.after(drillRow);
+
+            const panel = document.getElementById('yoyDrilldownPanel');
+            document.getElementById('yoyInlineDrilldownCell').appendChild(panel);
+            document.getElementById('yoyDrilldownPanelContainer').style.display = 'block';
+
+            document.getElementById('yoyDrilldownTitle').innerHTML = 
+                `<i class="fa-solid fa-boxes-stacked" style="color:var(--accent);"></i> Товари розміру: <b>${displayName}</b> (за ${YEAR} рік)`;
+
+            const contentEl = document.getElementById('yoyDrilldownContent');
+            contentEl.innerHTML = '<div class="loading"><i class="fa-solid fa-spinner fa-spin"></i> Завантаження товарів...</div>';
+
+            try {
+                const r = await fetch(`/api/analytics/profile-pipes/products-by-size?token=${encodeURIComponent(TOKEN)}&code=${encodeURIComponent(CLIENT_CODE)}&size_key=${encodeURIComponent(sizeKey)}&year=${YEAR}`);
+                if (!r.ok) throw new Error(`HTTP ${r.status}`);
+                const json = await r.json();
+                const data = json.data || [];
+
+                if (data.length === 0) {
+                    contentEl.innerHTML = '<div class="loading">Немає товарів для цього розміру</div>';
+                    return;
+                }
+
+                contentEl.innerHTML = `
+                    <table class="products-table">
+                        <thead>
+                            <tr>
+                                <th style="width:90px;">Код</th>
+                                <th>Найменування</th>
+                                <th class="num">Накладні</th>
+                                <th class="num">Кількість (т)</th>
+                                <th class="num">Виручка</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${data.map(p => `
+                                <tr>
+                                    <td><code style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#475569;">${p.product_code}</code></td>
+                                    <td><b>${p.product_name}</b></td>
+                                    <td class="num">${p.invoices} накл.</td>
+                                    <td class="num">${fmtNum(p.quantity, 3)}</td>
+                                    <td class="num" style="font-weight:700;">${fmtFullMoney(p.revenue)}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            } catch (err) {
+                contentEl.innerHTML = `<div class="loading" style="color:var(--danger);"><i class="fa-solid fa-triangle-exclamation"></i> Помилка: ${err.message}</div>`;
+            }
+        }
+
+        function closeYoYDrilldown() {
+            if (!currentYoYSizeKey) return;
+            const targetRow = document.querySelector(`#yoySizesBody tr[data-size="${currentYoYSizeKey}"]`);
+            if (targetRow) targetRow.classList.remove('active');
+
+            const inlineRow = document.getElementById('yoyInlineDrilldownRow');
+            if (inlineRow) {
+                const panel = document.getElementById('yoyDrilldownPanel');
+                document.getElementById('yoyDrilldownPanelContainer').appendChild(panel);
+                inlineRow.remove();
+            }
+            document.getElementById('yoyDrilldownPanelContainer').style.display = 'none';
+            currentYoYSizeKey = null;
+        }
+
+        // ============================================================
+        // ВКЛАДКА "ДИНАМІКА ПО МІСЯЦЯХ" (Промт 17, 2026-10-01)
+        // KPI + Bar/Line график + таблица + инсайты.
+        // ============================================================
+
+        async function loadMonthly() {
+            try {
+                const [resData, resKpi] = await Promise.all([
+                    fetch(`/api/analytics/profile-pipes/monthly-v2?token=${encodeURIComponent(TOKEN)}&code=${encodeURIComponent(CLIENT_CODE)}&year=${YEAR}`),
+                    fetch(`/api/analytics/profile-pipes/monthly-kpi?token=${encodeURIComponent(TOKEN)}&code=${encodeURIComponent(CLIENT_CODE)}&year=${YEAR}`),
+                ]);
+                if (!resData.ok) throw new Error(`HTTP ${resData.status}`);
+                const jsonData = await resData.json();
+                const rows = jsonData.data || [];
+
+                let kpi = {};
+                if (resKpi.ok) {
+                    const jsonKpi = await resKpi.json();
+                    kpi = jsonKpi.data || {};
+                }
+
+                renderMonthlyKPI(kpi);
+                renderMonthlyChart(rows);
+                renderMonthlyTable(rows);
+                renderMonthlyInsights(rows, kpi);
+            } catch (e) {
+                console.error('[MONTHLY] error:', e);
+            }
+        }
+
+        function renderMonthlyKPI(kpi) {
+            const set = (id, val) => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = val;
+            };
+            set('mKpiRevenue', fmtMoney(kpi.total_revenue || 0));
+            set('mKpiAvg', fmtMoney(kpi.avg_monthly || 0));
+            set('mKpiBest', kpi.best_month_name || '—');
+            set('mKpiBestMonth', kpi.best_month_revenue ? fmtMoney(kpi.best_month_revenue) : '');
+            set('mKpiActive', (kpi.active_months || 0) + ' / 12');
+        }
+
+        function renderMonthlyChart(rows) {
+            const canvas = document.getElementById('chartMonthly');
+            if (!canvas) return;
+            if (charts.monthly) charts.monthly.destroy();
+
+            charts.monthly = new Chart(canvas, {
+                data: {
+                    labels: rows.map(r => r.month_name),
+                    datasets: [
+                        {
+                            type: 'bar',
+                            label: '2025',
+                            data: rows.map(r => Number(r.revenue_prev) || 0),
+                            backgroundColor: '#cbd5e1',
+                            borderRadius: 6,
+                            yAxisID: 'y',
+                            order: 2
+                        },
+                        {
+                            type: 'bar',
+                            label: '2026',
+                            data: rows.map(r => Number(r.revenue_cur) || 0),
+                            backgroundColor: '#4f46e5',
+                            borderRadius: 6,
+                            yAxisID: 'y',
+                            order: 1
+                        },
+                        {
+                            type: 'line',
+                            label: 'Накладні (шт)',
+                            data: rows.map(r => Number(r.invoices_cur) || 0),
+                            borderColor: '#f59e0b',
+                            backgroundColor: 'transparent',
+                            borderWidth: 2,
+                            tension: 0.3,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#f59e0b',
+                            yAxisID: 'y1',
+                            order: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            position: 'left',
+                            title: { display: true, text: 'Виручка, ₴' },
+                            ticks: {
+                                callback: v => (v >= 1e6 ? (v/1e6).toFixed(1) + 'M' : (v/1e3).toFixed(0) + 'K')
+                            }
+                        },
+                        y1: {
+                            beginAtZero: true,
+                            position: 'right',
+                            grid: { drawOnChartArea: false },
+                            title: { display: true, text: 'Накладні, шт' }
+                        }
+                    },
+                    plugins: {
+                        legend: { position: 'top' },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => {
+                                    if (ctx.dataset.yAxisID === 'y1') return `Накладних: ${ctx.raw}`;
+                                    return `${ctx.dataset.label}: ${fmtFullMoney(ctx.raw)}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderMonthlyTable(rows) {
+            const tbody = document.getElementById('monthlyTableBody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            rows.forEach(r => {
+                const delta = Number(r.delta_abs) || 0;
+                const pct = r.delta_pct;
+                const color = delta > 0 ? '#047857' : (delta < 0 ? '#dc2626' : '#64748b');
+                const arrow = delta > 0 ? '↑' : (delta < 0 ? '↓' : '→');
+                const pctStr = (pct === null || pct === undefined) ? '—' : (Number(pct).toFixed(1) + '%');
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${r.month_name}</strong></td>
+                    <td style="text-align:right; font-family:'JetBrains Mono';">${fmtFullMoney(r.revenue_cur)}</td>
+                    <td style="text-align:right; font-family:'JetBrains Mono'; color:#64748b;">${r.revenue_prev > 0 ? fmtFullMoney(r.revenue_prev) : '—'}</td>
+                    <td style="text-align:right; font-family:'JetBrains Mono'; color:${color};">${delta !== 0 ? arrow + ' ' + fmtFullMoney(Math.abs(delta)) : '—'}</td>
+                    <td style="text-align:right; font-family:'JetBrains Mono'; color:${color};">${pctStr}</td>
+                    <td style="text-align:right; font-family:'JetBrains Mono';">${r.invoices_cur}</td>
+                    <td style="text-align:right; font-family:'JetBrains Mono';">${r.avg_check > 0 ? fmtFullMoney(r.avg_check) : '—'}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderMonthlyInsights(rows, kpi) {
+            const ul = document.getElementById('monthlyInsights');
+            if (!ul) return;
+            const insights = [];
+
+            if (kpi.best_month_name) {
+                insights.push(`🏆 <strong>Найкращий місяць:</strong> ${kpi.best_month_name} (${fmtMoney(kpi.best_month_revenue)})`);
+            }
+            if (kpi.worst_month_name && kpi.worst_month_name !== kpi.best_month_name) {
+                insights.push(`📉 <strong>Найгірший місяць:</strong> ${kpi.worst_month_name} (${fmtMoney(kpi.worst_month_revenue)})`);
+            }
+            if (kpi.active_months) {
+                insights.push(`📅 <strong>Активність:</strong> продажі у ${kpi.active_months} з 12 місяців`);
+            }
+
+            // Кварталы
+            const q = [0, 0, 0, 0];
+            rows.forEach(r => {
+                const qIdx = Math.floor((r.month_num - 1) / 3);
+                q[qIdx] += Number(r.revenue_cur) || 0;
+            });
+            const maxQ = Math.max(...q);
+            if (maxQ > 0) {
+                const bestQ = q.indexOf(maxQ) + 1;
+                insights.push(`📊 <strong>Найсильніший квартал:</strong> Q${bestQ} (${fmtMoney(maxQ)})`);
+            }
+
+            if (kpi.avg_check) {
+                insights.push(`💵 <strong>Середній чек:</strong> ${fmtFullMoney(kpi.avg_check)}`);
+            }
+
+            ul.innerHTML = insights.map(i => `<li>${i}</li>`).join('') || '<li>Немає даних</li>';
+        }
+
+        // ---- INIT ----
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('year-select').value = YEAR;
+            document.getElementById('clientCode').textContent = CLIENT_CODE;
+            document.getElementById('backBtn').href = `/client-detail?token=${encodeURIComponent(TOKEN)}&code=${encodeURIComponent(CLIENT_CODE)}`;
+
+            loadKPI();
+            loadSizes();
+        });
+    </script>
+</body>
+</html>

@@ -541,6 +541,33 @@
             </a>
         </div>
 
+        <!-- ====== ІНДЕКСИ КЛІЄНТА (Промт 11A, 2026-10-01) ====== -->
+        <!-- Два кликабельных блока: Різоманіття → product-analytics, UTSK → product-recommendations (заглушка). -->
+        <!-- Без чисел: формулы индексов пока не определены. -->
+        <div class="kpi-grid" style="grid-template-columns: repeat(2, 1fr); margin-top: 20px; margin-bottom: 20px;">
+            <a href="#" id="kpi-link-diversity" class="kpi-card-link">
+                <div class="kpi-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span class="kpi-label">📊 Індекс Різоманіття</span>
+                        <span style="font-size:11px; background:#e0e7ff; color:#4f46e5; padding:2px 8px; border-radius:12px; font-weight:700;">Перейти ➔</span>
+                    </div>
+                    <div class="kpi-value" id="kpi-diversity-value" style="color:#4f46e5;">—</div>
+                    <div class="kpi-sub">Аналіз товарного різноманіття клієнта</div>
+                </div>
+            </a>
+            <a href="#" id="kpi-link-utsk" class="kpi-card-link">
+                <div class="kpi-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span class="kpi-label">📐 Профільні труби</span>
+                        <span style="font-size:11px; background:#fef3c7; color:#d97706; padding:2px 8px; border-radius:12px; font-weight:700;">Деталі ➔</span>
+                    </div>
+                    <div class="kpi-value" id="kpi-profile-pipes-value" style="color:#d97706;">—</div>
+                    <div class="kpi-sub">475 профільних труб</div>
+                </div>
+            </a>
+        </div>
+        <!-- ====== /ІНДЕКСИ КЛІЄНТА ====== -->
+
         <!-- Main Content Grid -->
         <div class="main-grid">
             <!-- Chart Block -->
@@ -697,6 +724,66 @@
         if (kpiAvgLink) kpiAvgLink.href = `/client-avg-check-analytics?token=${TOKEN}&code=${CLIENT_CODE}`;
         const kpiLastLink = document.getElementById('kpi-link-last-purchase');
         if (kpiLastLink) kpiLastLink.href = `/client-last-purchase-analytics?token=${TOKEN}&code=${CLIENT_CODE}`;
+
+        // ====== ІНДЕКСИ КЛІЄНТА (Промт 11A) ======
+        var linkDiversity = document.getElementById('kpi-link-diversity');
+        if (linkDiversity) {
+            linkDiversity.href = `/product-analytics?token=${TOKEN}&code=${CLIENT_CODE}`;
+        }
+        var linkUtsk = document.getElementById('kpi-link-utsk');
+        if (linkUtsk) {
+            linkUtsk.href = `/profile-pipes-analytics?token=${TOKEN}&code=${CLIENT_CODE}`;
+        }
+
+        // ====== ІНДЕКС РІЗОМАНІТТЯ: каталог компании (Промт 11E) ======
+        // Число одинаково для всех клиентов — это общее число позиций каталога компании.
+        (async function loadCompanyAssortment() {
+            var elVal = document.getElementById('kpi-diversity-value');
+            if (!elVal) return;
+            try {
+                var res = await fetch(`/api/analytics/company-assortment?token=${TOKEN}`);
+                if (!res.ok) {
+                    console.error('[ASSORTMENT] HTTP', res.status, await res.text());
+                    elVal.textContent = '—';
+                    return;
+                }
+                var json = await res.json();
+                var count = Number(json.count) || 0;
+                elVal.textContent = count;
+                var subEl = elVal.nextElementSibling;
+                if (subEl && subEl.classList.contains('kpi-sub')) {
+                    subEl.textContent = count + ' позицій у каталозі';
+                }
+            } catch (e) {
+                console.error('[ASSORTMENT] error:', e);
+                elVal.textContent = '—';
+            }
+        })();
+
+        // ====== БЛОК 2: ПРОФІЛЬНІ ТРУБИ (Промт 11F) ======
+        // Число одинаково для всех клиентов — количество профильных труб в каталоге.
+        (async function loadProfilePipes() {
+            var elVal = document.getElementById('kpi-profile-pipes-value');
+            if (!elVal) return;
+            try {
+                var res = await fetch(`/api/analytics/company-profile-pipes?token=${TOKEN}`);
+                if (!res.ok) {
+                    console.error('[PROFILE] HTTP', res.status, await res.text());
+                    elVal.textContent = '—';
+                    return;
+                }
+                var json = await res.json();
+                var count = Number(json.count) || 0;
+                elVal.textContent = count;
+                var subEl = elVal.nextElementSibling;
+                if (subEl && subEl.classList.contains('kpi-sub')) {
+                    subEl.textContent = count + ' профільних труб';
+                }
+            } catch (e) {
+                console.error('[PROFILE] error:', e);
+                elVal.textContent = '—';
+            }
+        })();
 
         function formatNum(n) { return (n == null) ? '—' : Number(n).toLocaleString('ru-RU'); }
         function formatCur(n) { return (n == null) ? '—' : '₴ ' + formatNum(Math.round(n)); }
