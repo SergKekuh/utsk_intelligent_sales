@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UTSK Intelligent Sales — Аналитика Отраслей и Направлений</title>
+    <title>UTSK Intelligent Sales — Аналітика Галузей та Напрямків</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
@@ -513,17 +513,17 @@
             <span>⚡ UTSK Intelligent Sales</span>
         </a>
         <div class="header-badge">
-            <span>🏗️ Аналитика Отраслей и Направлений</span>
+            <span>🏗️ Аналітика Галузей та Напрямків</span>
         </div>
 
         <div class="header-controls">
             <select id="year-select" class="select-year" onchange="onYearChange()">
-                <option value="2026" selected>2026 год</option>
-                <option value="2025">2025 год</option>
-                <option value="2024">2024 год</option>
+                <option value="2026" selected>2026 рік</option>
+                <option value="2025">2025 рік</option>
+                <option value="2024">2024 рік</option>
             </select>
-            <a href="/analytics?token=utsk2026" class="btn-nav">📊 Аналитика</a>
-            <a href="/top-sales-analytics?token=utsk2026" class="btn-nav">🏆 ТОП-продаж</a>
+            <a href="/analytics?token=utsk2026" class="btn-nav">📊 Аналітика</a>
+            <a href="/top-sales-analytics?token=utsk2026" class="btn-nav">🏆 ТОП-продажів</a>
             <a href="/?token=utsk2026" class="btn-nav">🏠 Дашборд</a>
         </div>
     </header>
@@ -534,48 +534,48 @@
         <section class="kpi-grid">
             <a href="/directions-revenue-analytics?token=utsk2026&year=2026" id="kpi-link-revenue" class="kpi-card green kpi-link">
                 <div class="kpi-title">
-                    <span>💰 Выручка от товаров</span>
+                    <span>💰 Продажі товарів</span>
                     <i class="fa-solid fa-arrow-up-right-from-square kpi-arrow"></i>
                 </div>
                 <div class="kpi-val" id="kpi-revenue">—</div>
-                <div class="kpi-sub" id="kpi-revenue-sub">Объем реализации трубного проката</div>
-                <div class="kpi-hint">Детальная аналитика выручки →</div>
+                <div class="kpi-sub" id="kpi-revenue-sub">Обсяг реалізації трубного прокату</div>
+                <div class="kpi-hint">Детальна аналітика продажів →</div>
             </a>
             <a href="/directions-clients-analytics?token=utsk2026&year=2026" id="kpi-link-clients" class="kpi-card purple kpi-link">
                 <div class="kpi-title">
-                    <span>👥 Активных клиентов</span>
+                    <span>👥 Активних клієнтів</span>
                     <i class="fa-solid fa-arrow-up-right-from-square kpi-arrow"></i>
                 </div>
                 <div class="kpi-val" id="kpi-clients">—</div>
-                <div class="kpi-sub" id="kpi-clients-sub">Покупали в выбранном году</div>
-                <div class="kpi-hint">Детализация клиентов и статусов →</div>
+                <div class="kpi-sub" id="kpi-clients-sub">Купували в обраному році</div>
+                <div class="kpi-hint">Деталізація клієнтів та статусів →</div>
             </a>
             <a href="/directions-invoices-analytics?token=utsk2026&year=2026" id="kpi-link-invoices" class="kpi-card amber kpi-link">
                 <div class="kpi-title">
-                    <span>📑 Накладных / Отгрузок</span>
+                    <span>📑 Накладних / Відвантажень</span>
                     <i class="fa-solid fa-arrow-up-right-from-square kpi-arrow"></i>
                 </div>
                 <div class="kpi-val" id="kpi-invoices">—</div>
-                <div class="kpi-sub" id="kpi-invoices-sub">Всего документов реализации</div>
-                <div class="kpi-hint">Анализ отгрузок и дней недели →</div>
+                <div class="kpi-sub" id="kpi-invoices-sub">Всього документів реалізації</div>
+                <div class="kpi-hint">Аналіз відвантажень та днів тижня →</div>
             </a>
             <a href="/directions-avg-check-analytics?token=utsk2026&year=2026" id="kpi-link-avg-ticket" class="kpi-card indigo kpi-link">
                 <div class="kpi-title">
-                    <span>🏷️ Средний чек</span>
+                    <span>🏷️ Середній чек</span>
                     <i class="fa-solid fa-arrow-up-right-from-square kpi-arrow"></i>
                 </div>
                 <div class="kpi-val" id="kpi-avg-ticket">—</div>
-                <div class="kpi-sub">Выручка / количество накладных</div>
-                <div class="kpi-hint">Сравнение чеков и медианы →</div>
+                <div class="kpi-sub">Продажі / кількість накладних</div>
+                <div class="kpi-hint">Порівняння чеків та медіани →</div>
             </a>
             <a href="/directions-leader-analytics?token=utsk2026&year=2026" id="kpi-link-top-dir" class="kpi-card kpi-link">
                 <div class="kpi-title">
-                    <span>🏆 Отрасль-лидер</span>
+                    <span>🏆 Галузь-лідер</span>
                     <i class="fa-solid fa-arrow-up-right-from-square kpi-arrow"></i>
                 </div>
                 <div class="kpi-val" id="kpi-top-dir" style="font-size: 19px;">—</div>
-                <div class="kpi-sub" id="kpi-top-dir-sub">Доля в общей выручке</div>
-                <div class="kpi-hint">Анализ концентрации и лидеров →</div>
+                <div class="kpi-sub" id="kpi-top-dir-sub">Частка в загальних продажах</div>
+                <div class="kpi-hint">Аналіз концентрації та лідерів →</div>
             </a>
         </section>
 
@@ -584,7 +584,7 @@
             <!-- Chart 1: Revenue Structure Doughnut -->
             <div class="chart-box">
                 <div class="chart-header">
-                    <h3 class="chart-title">🍩 Структура выручки по отраслям</h3>
+                    <h3 class="chart-title">🍩 Структура продажів за галузями</h3>
                     <span id="chart-pie-subtitle" style="font-size:12px;color:var(--text-muted);">2026</span>
                 </div>
                 <div class="chart-container">
@@ -595,8 +595,8 @@
             <!-- Chart 2: Monthly Dynamics Stacked -->
             <div class="chart-box">
                 <div class="chart-header">
-                    <h3 class="chart-title">📈 Помесячная динамика отраслей</h3>
-                    <span style="font-size:12px;color:var(--text-muted);">Выручка по месяцам (млн ₴)</span>
+                    <h3 class="chart-title">📈 Помісячна динаміка галузей</h3>
+                    <span style="font-size:12px;color:var(--text-muted);">Продажі за місяцями (млн ₴)</span>
                 </div>
                 <div class="chart-container">
                     <canvas id="chartMonthlyDynamics"></canvas>
@@ -608,12 +608,12 @@
         <section class="section-card">
             <div class="section-header">
                 <div>
-                    <h2 class="section-title">🏗️ Сводная матрица отраслей и направлений деятельности</h2>
-                    <p class="section-desc">Нажмите на любую строку отрасли для детализации и просмотра списка компаний</p>
+                    <h2 class="section-title">🏗️ Зведена матриця галузей та напрямків діяльності</h2>
+                    <p class="section-desc">Натисніть на будь-який рядок галузі для деталізації та перегляду списку компаній</p>
                 </div>
                 <div>
                     <button class="btn-filter" onclick="resetDirectionSelection()">
-                        <span>Сбросить выбор (Все отрасли)</span>
+                        <span>Скинути вибір (Всі галузі)</span>
                     </button>
                 </div>
             </div>
@@ -622,22 +622,22 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>Отрасль деятельности</th>
-                            <th class="text-right">Покупателей</th>
-                            <th class="text-right">В базе всего</th>
-                            <th class="text-right">Накладных</th>
-                            <th class="text-right">Выручка от товаров</th>
-                            <th class="text-right">Средний чек</th>
-                            <th>Доля в выручке</th>
-                            <th>Доля в клиентах</th>
-                            <th class="text-center">Действие</th>
+                            <th>Галузь діяльності</th>
+                            <th class="text-right">Покупців</th>
+                            <th class="text-right">У базі всього</th>
+                            <th class="text-right">Накладних</th>
+                            <th class="text-right">Продажі товарів</th>
+                            <th class="text-right">Середній чек</th>
+                            <th>Частка в продажах</th>
+                            <th>Частка в клієнтах</th>
+                            <th class="text-center">Дія</th>
                         </tr>
                     </thead>
                     <tbody id="directions-table-body">
                         <tr>
                             <td colspan="9" class="state-container">
                                 <div class="spinner"></div>
-                                <div style="margin-top:8px;">Загрузка данных отраслей...</div>
+                                <div style="margin-top:8px;">Завантаження даних галузей...</div>
                             </td>
                         </tr>
                     </tbody>
@@ -667,19 +667,19 @@
         if (!val || isNaN(val)) return '0 ₴';
         const v = parseFloat(val);
         if (Math.abs(v) >= 1000000) {
-            return (v / 1000000).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' млн ₴';
+            return (v / 1000000).toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' млн ₴';
         }
-        return Math.round(v).toLocaleString('ru-RU') + ' ₴';
+        return Math.round(v).toLocaleString('uk-UA') + ' ₴';
     }
 
     function fmtCur(val) {
         if (!val || isNaN(val)) return '0 ₴';
-        return Math.round(parseFloat(val)).toLocaleString('ru-RU') + ' ₴';
+        return Math.round(parseFloat(val)).toLocaleString('uk-UA') + ' ₴';
     }
 
     function fmtNum(val) {
         if (!val || isNaN(val)) return '0';
-        return parseInt(val).toLocaleString('ru-RU');
+        return parseInt(val).toLocaleString('uk-UA');
     }
 
     function fmtPct(val) {
@@ -751,7 +751,7 @@
             }
         } catch (e) {
             console.error('Ошибка загрузки Summary:', e);
-            document.getElementById('directions-table-body').innerHTML = `<tr><td colspan="9" class="state-container">⚠️ Ошибка загрузки: ${e.message}</td></tr>`;
+            document.getElementById('directions-table-body').innerHTML = `<tr><td colspan="9" class="state-container">⚠️ Помилка завантаження: ${e.message}</td></tr>`;
         }
     }
 
@@ -759,7 +759,7 @@
     function renderSummaryTable(data) {
         const tbody = document.getElementById('directions-table-body');
         if (!data || data.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="9" class="state-container">Нет данных за выбранный год</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="9" class="state-container">Немає даних за обраний рік</td></tr>';
             return;
         }
 
@@ -769,7 +769,7 @@
                 <tr class="clickable-row"
                     onclick="location.href='${href}'"
                     style="cursor:pointer;"
-                    title="Открыть детальную аналитику: ${r.name}">
+                    title="Відкрити детальну аналітику: ${r.name}">
                     <td>
                         <div style="display:flex;align-items:center;gap:10px;">
                             <span style="font-size:20px;">${r.icon}</span>
@@ -877,7 +877,7 @@
         if (monthlyChartInstance) monthlyChartInstance.destroy();
 
         // 12 months
-        const monthNames = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'];
+        const monthNames = ['Січ', 'Лют', 'Бер', 'Кві', 'Тра', 'Чер', 'Лип', 'Сер', 'Вер', 'Жов', 'Лис', 'Гру'];
         
         // Group by direction
         const dirMap = {};

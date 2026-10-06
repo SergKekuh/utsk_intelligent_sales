@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UTSK Intelligent Sales — Детальная аналитика направления</title>
+    <title>UTSK Intelligent Sales — Детальна аналітика напрямку</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -250,29 +250,85 @@
         .btn-filter:hover { background: var(--border-subtle); }
 
         /* ─── SIZE MATRIX ─── */
-        .size-matrix-wrap { overflow-x: auto; }
+        .matrix-type-toggle {
+            display: inline-flex;
+            gap: 8px;
+            padding: 4px;
+            background: #f1f5f9;
+            border-radius: 10px;
+            margin-bottom: 16px;
+        }
+        .matrix-toggle-btn {
+            padding: 8px 16px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .matrix-toggle-btn:hover { color: #1e293b; }
+        .matrix-toggle-btn.active {
+            background: #fff;
+            color: #1e293b;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .size-matrix-wrap {
+            overflow-x: auto;
+            overflow-y: auto;
+            max-height: 70vh;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: #fff;
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 #f1f5f9;
+        }
+        .size-matrix-wrap::-webkit-scrollbar { width: 8px; height: 8px; }
+        .size-matrix-wrap::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+        .size-matrix-wrap::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .size-matrix-wrap::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
         .size-matrix {
             border-collapse: collapse;
-            min-width: 400px;
+            min-width: 100%;
         }
         .size-matrix th, .size-matrix td {
             padding: 8px 12px;
             border: 1px solid var(--border);
             text-align: right;
             font-size: 12.5px;
+            white-space: nowrap;
         }
         .size-matrix th { background: #f8fafc; font-weight: 700; text-align: center; }
+        .matrix-row-label { font-weight: 700; text-align: left !important; background: #f8fafc; }
+        .matrix-total-col { font-weight: 700; background: #f0f9ff; }
+        .matrix-footer td { font-weight: 700; background: #f8fafc; }
+        .matrix-footer td.grand-total { background: #e0f2fe; color: #0369a1; }
         .size-cell {
             cursor: pointer;
-            transition: background .12s;
+            transition: background .12s, transform .1s;
         }
         .size-cell:hover { background: var(--brand-soft); }
+        .size-cell.empty { background: #fafafa; color: #cbd5e1; text-align: center; cursor: default; }
         .size-cell-heat-0 { background: #fff; }
         .size-cell-heat-1 { background: #e0f2fe; }
         .size-cell-heat-2 { background: #bae6fd; }
         .size-cell-heat-3 { background: #7dd3fc; }
         .size-cell-heat-4 { background: #38bdf8; color: #fff; }
         .size-cell-heat-5 { background: #0284c7; color: #fff; }
+
+        .matrix-counter {
+            margin-top: 12px;
+            padding: 10px 16px;
+            background: #f8fafc;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #64748b;
+            border: 1px solid var(--border);
+        }
 
         /* ====== Стили для YoY-таблицы с drill-down ====== */
         .sizes-table tbody tr.size-row.active {
@@ -537,14 +593,14 @@
     <div class="page-header">
         <div class="header-left">
             <a id="back-link" class="back-btn" href="/directions-analytics">
-                ← Назад к направлениям
+                ← Назад до напрямків
             </a>
             <div>
                 <div style="display:flex;align-items:center;gap:10px;">
                     <span class="dir-icon" id="dir-icon">⏳</span>
                     <div>
-                        <div class="dir-title" id="dir-title">Загрузка...</div>
-                        <div class="dir-subtitle" id="dir-subtitle">Детальная аналитика направления</div>
+                        <div class="dir-title" id="dir-title">Завантаження...</div>
+                        <div class="dir-subtitle" id="dir-subtitle">Детальна аналітика напрямку</div>
                     </div>
                 </div>
             </div>
@@ -561,38 +617,38 @@
     <!-- KPI CARDS -->
     <div class="kpi-grid">
         <div class="kpi-card">
-            <div class="kpi-label">Клиенты</div>
+            <div class="kpi-label">Клієнти</div>
             <div class="kpi-value" id="kpi-clients">—</div>
-            <div class="kpi-sub">активных покупателей</div>
+            <div class="kpi-sub">активних покупців</div>
         </div>
         <div class="kpi-card">
-            <div class="kpi-label">Накладные</div>
+            <div class="kpi-label">Накладні</div>
             <div class="kpi-value" id="kpi-invoices">—</div>
-            <div class="kpi-sub">документов за год</div>
+            <div class="kpi-sub">документів за рік</div>
         </div>
         <div class="kpi-card">
-            <div class="kpi-label">Выручка (товары)</div>
+            <div class="kpi-label">Продажі (товари)</div>
             <div class="kpi-value" id="kpi-revenue">—</div>
-            <div class="kpi-sub" id="kpi-share">доля в общей выручке</div>
+            <div class="kpi-sub" id="kpi-share">частка в загальних продажах</div>
         </div>
         <div class="kpi-card">
-            <div class="kpi-label">Средний чек</div>
+            <div class="kpi-label">Середній чек</div>
             <div class="kpi-value" id="kpi-avg-ticket">—</div>
-            <div class="kpi-sub">на одну накладную</div>
+            <div class="kpi-sub">на одну накладну</div>
         </div>
         <div class="kpi-card">
-            <div class="kpi-label">YoY к прошлому году</div>
+            <div class="kpi-label">YoY до минулого року</div>
             <div class="kpi-value" id="kpi-yoy">—</div>
-            <div class="kpi-sub" id="kpi-prev-rev">Прошлый год: —</div>
+            <div class="kpi-sub" id="kpi-prev-rev">Минулий рік: —</div>
         </div>
     </div>
 
     <!-- TABS -->
     <div class="tab-bar">
-        <button class="tab-btn active" onclick="switchTab('tab-companies')">🏢 Компании</button>
-        <button class="tab-btn" onclick="switchTab('tab-products')">📦 Продукты по размерам</button>
-        <button class="tab-btn" onclick="switchTab('tab-clients-yoy')">📊 Клиенты YoY</button>
-        <button class="tab-btn" onclick="switchTab('tab-sizes-yoy')">📐 Размеры YoY</button>
+        <button class="tab-btn active" onclick="switchTab('tab-companies')">🏢 Компанії</button>
+        <button class="tab-btn" onclick="switchTab('tab-products')">📦 Продукти за розмірами</button>
+        <button class="tab-btn" onclick="switchTab('tab-clients-yoy')">📊 Клієнти YoY</button>
+        <button class="tab-btn" onclick="switchTab('tab-sizes-yoy')">📐 Розміри YoY</button>
     </div>
 
     <!-- ═══════════════════════════════════════ -->
@@ -603,8 +659,8 @@
         <div class="section-card">
             <div class="section-header">
                 <div>
-                    <div class="section-title">🏆 Топ-10 клиентов направления</div>
-                    <div class="section-desc">Крупнейшие покупатели по выручке за выбранный год</div>
+                    <div class="section-title">🏆 Топ-10 клієнтів напрямку</div>
+                    <div class="section-desc">Найбільші покупці за продажами за обраний рік</div>
                 </div>
             </div>
             <div class="table-responsive">
@@ -612,19 +668,19 @@
                     <thead>
                         <tr>
                             <th style="width:32px;">#</th>
-                            <th>Клиент</th>
+                            <th>Клієнт</th>
                             <th>ЄДРПОУ</th>
                             <th>Статус</th>
                             <th class="text-center">ABC</th>
-                            <th class="text-right">Накладных</th>
-                            <th class="text-right">Выручка ₴</th>
-                            <th class="text-right">Ср. чек ₴</th>
-                            <th class="text-right">Доля %</th>
-                            <th>Визуально</th>
+                            <th class="text-right">Накладних</th>
+                            <th class="text-right">Продажі ₴</th>
+                            <th class="text-right">Сер. чек ₴</th>
+                            <th class="text-right">Частка %</th>
+                            <th>Візуально</th>
                         </tr>
                     </thead>
                     <tbody id="top-clients-body">
-                        <tr><td colspan="10" class="state-container"><div class="spinner"></div><div style="margin-top:8px;">Загрузка...</div></td></tr>
+                        <tr><td colspan="10" class="state-container"><div class="spinner"></div><div style="margin-top:8px;">Завантаження...</div></td></tr>
                     </tbody>
                 </table>
             </div>
@@ -634,22 +690,22 @@
         <div class="section-card">
             <div class="section-header">
                 <div>
-                    <div class="section-title">📋 Все клиенты направления</div>
-                    <div class="section-desc" id="clients-count-info">Список с фильтрацией</div>
+                    <div class="section-title">📋 Всі клієнти напрямку</div>
+                    <div class="section-desc" id="clients-count-info">Список з фільтрацією</div>
                 </div>
-                <button class="btn-filter" onclick="exportClientsCSV()">📥 Экспорт CSV</button>
+                <button class="btn-filter" onclick="exportClientsCSV()">📥 Експорт CSV</button>
             </div>
             <div class="filter-bar">
                 <input type="text" id="client-search" class="search-input"
-                       placeholder="Поиск по названию, коду, ЄДРПОУ..." oninput="debounceClientSearch()">
+                       placeholder="Пошук за назвою, кодом, ЄДРПОУ..." oninput="debounceClientSearch()">
                 <select id="abc-filter" class="filter-select" onchange="onClientFilterChange()">
-                    <option value="ALL">Все группы ABC</option>
-                    <option value="A1">A1 (Крупнейшие)</option>
-                    <option value="A2">A2 (Очень крупные)</option>
-                    <option value="B1">B1 (Крупные)</option>
-                    <option value="B2">B2 (Средние)</option>
-                    <option value="C1">C1 (Малые)</option>
-                    <option value="C2">C2 (Разовые/Мелкие)</option>
+                    <option value="ALL">Всі групи ABC</option>
+                    <option value="A1">A1 (Найбільші)</option>
+                    <option value="A2">A2 (Дуже великі)</option>
+                    <option value="B1">B1 (Великі)</option>
+                    <option value="B2">B2 (Середні)</option>
+                    <option value="C1">C1 (Малі)</option>
+                    <option value="C2">C2 (Разові/Дрібні)</option>
                 </select>
                 <div style="margin-left:auto;font-size:12.5px;color:var(--text-muted);" id="clients-badge">—</div>
             </div>
@@ -659,20 +715,20 @@
                         <tr>
                             <th style="width:32px;">#</th>
                             <th>Код</th>
-                            <th>Компания</th>
+                            <th>Компанія</th>
                             <th>ЄДРПОУ</th>
-                            <th>ИПН</th>
+                            <th>ІПН</th>
                             <th>Статус</th>
                             <th class="text-center">ABC</th>
                             <th class="text-right">Накл.</th>
-                            <th class="text-right">Выручка ₴</th>
-                            <th class="text-right">Ср. чек ₴</th>
-                            <th>Последняя отгрузка</th>
-                            <th class="text-center">Карточка</th>
+                            <th class="text-right">Продажі ₴</th>
+                            <th class="text-right">Сер. чек ₴</th>
+                            <th>Останнє відвантаження</th>
+                            <th class="text-center">Картка</th>
                         </tr>
                     </thead>
                     <tbody id="clients-list-body">
-                        <tr><td colspan="12" class="state-container"><div class="spinner"></div><div style="margin-top:8px;">Загрузка списка...</div></td></tr>
+                        <tr><td colspan="12" class="state-container"><div class="spinner"></div><div style="margin-top:8px;">Завантаження списку...</div></td></tr>
                     </tbody>
                 </table>
             </div>
@@ -693,13 +749,18 @@
         <div class="section-card">
             <div class="section-header">
                 <div>
-                    <div class="section-title">📦 Матрица продаж по размерам</div>
-                    <div class="section-desc">Кликните на ячейку для просмотра детализации</div>
+                    <div class="section-title">📦 Матриця продажів за розмірами</div>
+                    <div class="section-desc">Клікніть на клітинку для перегляду деталізації</div>
                 </div>
             </div>
-            <div class="size-matrix-wrap" id="size-matrix-container">
-                <div class="state-container"><div class="spinner"></div><div style="margin-top:8px;">Загрузка матрицы...</div></div>
+            <div class="matrix-type-toggle">
+                <button class="matrix-toggle-btn active" id="btn-matrix-round" onclick="switchMatrixType('round', this)">🟢 Круглі</button>
+                <button class="matrix-toggle-btn" id="btn-matrix-prof" onclick="switchMatrixType('prof', this)">🟦 Профільні</button>
             </div>
+            <div class="size-matrix-wrap" id="size-matrix-container">
+                <div class="state-container"><div class="spinner"></div><div style="margin-top:8px;">Завантаження матриці...</div></div>
+            </div>
+            <div id="matrix-counter-container"></div>
         </div>
     </div>
 
@@ -710,8 +771,8 @@
         <div class="section-card">
             <div class="section-header">
                 <div>
-                    <div class="section-title" id="clients-yoy-title">📊 Клиенты: год к году</div>
-                    <div class="section-desc">Сравнение выручки каждого клиента с прошлым годом</div>
+                    <div class="section-title" id="clients-yoy-title">📊 Клієнти: рік до року</div>
+                    <div class="section-desc">Порівняння продажів кожного клієнта з минулим роком</div>
                 </div>
             </div>
             <div class="table-responsive">
@@ -719,19 +780,19 @@
                     <thead>
                         <tr>
                             <th style="width:32px;">#</th>
-                            <th>Клиент</th>
+                            <th>Клієнт</th>
                             <th>Статус</th>
-                            <th class="text-right">Текущий год ₴</th>
-                            <th class="text-right">Прошлый год ₴</th>
+                            <th class="text-right">Поточний рік ₴</th>
+                            <th class="text-right">Минулий рік ₴</th>
                             <th class="text-right">YoY %</th>
-                            <th class="text-right">Накл. (тек)</th>
-                            <th class="text-right">Накл. (пред)</th>
+                            <th class="text-right">Накл. (пот)</th>
+                            <th class="text-right">Накл. (мин)</th>
                             <th class="text-center">Тренд</th>
-                            <th class="text-center">Карточка</th>
+                            <th class="text-center">Картка</th>
                         </tr>
                     </thead>
                     <tbody id="clients-yoy-body">
-                        <tr><td colspan="10" class="state-container"><div class="spinner"></div><div style="margin-top:8px;">Загрузка...</div></td></tr>
+                        <tr><td colspan="10" class="state-container"><div class="spinner"></div><div style="margin-top:8px;">Завантаження...</div></td></tr>
                     </tbody>
                 </table>
             </div>
@@ -749,7 +810,7 @@
         <div class="section-card">
             <div class="section-header">
                 <div>
-                    <div class="section-title">📊 ТОП-10 размеров (2024 / 2025 / 2026)</div>
+                    <div class="section-title">📊 ТОП-10 розмірів (2024 / 2025 / 2026)</div>
                 </div>
             </div>
             <div class="chart-container" style="height:380px;">
@@ -762,13 +823,13 @@
             <div class="section-header">
                 <div>
                     <div class="section-title">
-                        📏 Все размеры — сравнение по годам
+                        📏 Всі розміри — порівняння за роками
                     </div>
                     <div class="section-desc">
-                        Кликните на строку для детализации по ГОСТам и сталям.
+                        Клікніть на рядок для деталізації за ГОСТами та сталями.
                         <br>
                         <span style="color:var(--accent);">
-                            Сортировка: от наиболее покупаемых (по выручке 2026) к менее.
+                            Сортування: від найбільш купованих (за продажами 2026) до менш купованих.
                         </span>
                     </div>
                 </div>
@@ -778,19 +839,19 @@
                     <thead>
                         <tr>
                             <th style="width:36px;text-align:center;"></th>
-                            <th>Размер</th>
+                            <th>Розмір</th>
                             <th class="num text-right">2024 ₴</th>
                             <th class="num text-right">2025 ₴</th>
                             <th class="num text-right">2026 ₴</th>
-                            <th class="num text-right">Δ к 2025</th>
-                            <th class="num text-right">Рост %</th>
+                            <th class="num text-right">Δ до 2025</th>
+                            <th class="num text-right">Зростання %</th>
                             <th>Тренд</th>
                         </tr>
                     </thead>
                     <tbody id="sizesYoYBody">
                         <tr>
                             <td colspan="8" class="state-container">
-                                <div class="spinner"></div><div style="margin-top:8px;">Загрузка сравнения размеров...</div>
+                                <div class="spinner"></div><div style="margin-top:8px;">Завантаження порівняння розмірів...</div>
                             </td>
                         </tr>
                     </tbody>
@@ -805,7 +866,7 @@
 <div class="modal-overlay" id="drilldown-modal">
     <div class="modal-box">
         <button class="modal-close" onclick="closeModal()">✕</button>
-        <div class="modal-title" id="modal-title">Детализация по размеру</div>
+        <div class="modal-title" id="modal-title">Деталізація за розміром</div>
         <div id="modal-body">
             <div class="state-container"><div class="spinner"></div></div>
         </div>
@@ -867,20 +928,20 @@
         if (!val || isNaN(val)) return '0 ₴';
         const v = parseFloat(val);
         if (Math.abs(v) >= 1000000)
-            return (v / 1000000).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' млн ₴';
-        return Math.round(v).toLocaleString('ru-RU') + ' ₴';
+            return (v / 1000000).toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' млн ₴';
+        return Math.round(v).toLocaleString('uk-UA') + ' ₴';
     }
     function fmtCur(val) {
         if (!val || isNaN(val)) return '0 ₴';
-        return Math.round(parseFloat(val)).toLocaleString('ru-RU') + ' ₴';
+        return Math.round(parseFloat(val)).toLocaleString('uk-UA') + ' ₴';
     }
     function fmtNum(val) {
         if (!val || isNaN(val)) return '0';
-        return parseInt(val).toLocaleString('ru-RU');
+        return parseInt(val).toLocaleString('uk-UA');
     }
     function fmtQty(val) {
         if (!val || isNaN(val)) return '0';
-        return parseFloat(val).toLocaleString('ru-RU', { maximumFractionDigits: 2 });
+        return parseFloat(val).toLocaleString('uk-UA', { maximumFractionDigits: 2 });
     }
     function fmtPct(val) {
         if (val === null || val === undefined || isNaN(val)) return '—';
@@ -936,20 +997,20 @@
             };
             
             setText('dir-icon', d.direction_icon || '🌐');
-            setText('dir-title', d.direction_name || 'Направление');
-            setText('dir-subtitle', `Детальная аналитика · ${currentYear} год`);
+            setText('dir-title', d.direction_name || 'Напрямок');
+            setText('dir-subtitle', `Детальна аналітика · ${currentYear} рік`);
             setText('kpi-clients', fmtNum(d.clients_count));
             setText('kpi-invoices', fmtNum(d.invoices_count));
             setText('kpi-revenue', fmtM(d.goods_revenue));
-            setText('kpi-share', `${parseFloat(d.revenue_share_pct || 0).toFixed(1)}% от общей выручки`);
+            setText('kpi-share', `${parseFloat(d.revenue_share_pct || 0).toFixed(1)}% від загальних продажів`);
             setText('kpi-avg-ticket', fmtCur(d.avg_ticket));
             
             const yoy = parseFloat(d.yoy_pct || 0);
             setHtml('kpi-yoy', `<span class="kpi-yoy ${yoyClass(yoy)}">${fmtPct(yoy)}</span>`);
-            setText('kpi-prev-rev', `Прошлый год: ${fmtM(d.prev_year_revenue)}`);
+            setText('kpi-prev-rev', `Минулий рік: ${fmtM(d.prev_year_revenue)}`);
             
-            setText('clients-yoy-title', `📊 Клиенты: ${currentYear} vs ${currentYear - 1}`);
-            setText('sizes-yoy-title', `📐 Размеры: ${currentYear} vs ${currentYear - 1}`);
+            setText('clients-yoy-title', `📊 Клієнти: ${currentYear} vs ${currentYear - 1}`);
+            setText('sizes-yoy-title', `📐 Розміри: ${currentYear} vs ${currentYear - 1}`);
             
             document.title = `UTSK — ${d.direction_name} — ${currentYear}`;
         } catch (e) {
@@ -995,17 +1056,17 @@
                         </tr>`;
                 }).join('');
             } else {
-                tbody.innerHTML = `<tr><td colspan="10" class="state-container">Нет данных</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="10" class="state-container">Немає даних</td></tr>`;
             }
         } catch (e) {
-            tbody.innerHTML = `<tr><td colspan="10" class="state-container">⚠️ Ошибка: ${e.message}</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="10" class="state-container">⚠️ Помилка: ${e.message}</td></tr>`;
         }
     }
 
     // ─── CLIENTS LIST ───
     async function loadClientsList() {
         const tbody = document.getElementById('clients-list-body');
-        tbody.innerHTML = `<tr><td colspan="12" class="state-container"><div class="spinner"></div><div style="margin-top:8px;">Загрузка...</div></td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="12" class="state-container"><div class="spinner"></div><div style="margin-top:8px;">Завантаження...</div></td></tr>`;
         const search = (document.getElementById('client-search').value || '').trim();
         const abc = document.getElementById('abc-filter').value;
         const offset = clientsPage * PAGE_SIZE;
@@ -1020,18 +1081,18 @@
                 clientsTotalCount = json.total_count || 0;
                 renderClientsList(clientsData, offset);
             } else {
-                tbody.innerHTML = `<tr><td colspan="12" class="state-container">⚠️ Ошибка</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="12" class="state-container">⚠️ Помилка</td></tr>`;
             }
         } catch (e) {
-            tbody.innerHTML = `<tr><td colspan="12" class="state-container">⚠️ Ошибка: ${e.message}</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="12" class="state-container">⚠️ Помилка: ${e.message}</td></tr>`;
         }
     }
 
     function renderClientsList(data, offset) {
         const tbody = document.getElementById('clients-list-body');
         if (!data || data.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="12" class="state-container">Клиенты не найдены</td></tr>`;
-            document.getElementById('clients-badge').textContent = 'Найдено: 0';
+            tbody.innerHTML = `<tr><td colspan="12" class="state-container">Клієнти не знайдені</td></tr>`;
+            document.getElementById('clients-badge').textContent = 'Знайдено: 0';
             return;
         }
         tbody.innerHTML = data.map((c, i) => {
@@ -1056,14 +1117,14 @@
                     <td class="text-center">
                         <a href="/client-detail?token=${TOKEN}&code=${c.client_code}" target="_blank"
                            class="btn-filter" style="padding:3px 8px;font-size:11.5px;text-decoration:none;">
-                            Карточка ↗
+                            Картка ↗
                         </a>
                     </td>
                 </tr>`;
         }).join('');
-        document.getElementById('clients-badge').textContent = `Показано: ${data.length} из ${clientsTotalCount}`;
+        document.getElementById('clients-badge').textContent = `Показано: ${data.length} з ${clientsTotalCount}`;
         updateClientsPagination();
-        document.getElementById('clients-count-info').textContent = `Всего клиентов: ${clientsTotalCount}`;
+        document.getElementById('clients-count-info').textContent = `Всього клієнтів: ${clientsTotalCount}`;
     }
 
     function updateClientsPagination() {
@@ -1071,7 +1132,7 @@
         const start = clientsTotalCount > 0 ? (clientsPage * PAGE_SIZE + 1) : 0;
         const end = Math.min((clientsPage + 1) * PAGE_SIZE, clientsTotalCount);
         document.getElementById('clients-pagination-info').textContent =
-            `Показано ${start}–${end} из ${clientsTotalCount} (стр. ${clientsPage + 1} из ${totalPages})`;
+            `Показано ${start}–${end} з ${clientsTotalCount} (стор. ${clientsPage + 1} з ${totalPages})`;
         document.getElementById('btn-prev').disabled = clientsPage === 0;
         document.getElementById('btn-next').disabled = (clientsPage + 1) >= totalPages;
     }
@@ -1096,8 +1157,8 @@
     }
 
     function exportClientsCSV() {
-        if (!clientsData || clientsData.length === 0) { alert('Нет данных'); return; }
-        const headers = ['Код', 'Компания', 'ЄДРПОУ', 'ИПН', 'Статус', 'ABC', 'Накладных', 'Выручка_грн', 'Ср_чек_грн', 'Последняя_отгрузка'];
+        if (!clientsData || clientsData.length === 0) { alert('Немає даних'); return; }
+        const headers = ['Код', 'Компанія', 'ЄДРПОУ', 'ІПН', 'Статус', 'ABC', 'Накладних', 'Продажі_грн', 'Сер_чек_грн', 'Останнє_відвантаження'];
         const rows = [headers.join(';')];
         clientsData.forEach(c => rows.push([
             c.client_code,
@@ -1119,124 +1180,266 @@
     }
 
     // ─── SIZE MATRIX ───
+    let currentMatrixType = 'round'; // 'round' | 'prof'
+
+    function switchMatrixType(type, btn) {
+        currentMatrixType = type;
+        document.querySelectorAll('.matrix-toggle-btn').forEach(b => b.classList.remove('active'));
+        if (btn) {
+            btn.classList.add('active');
+        } else {
+            const el = document.getElementById(type === 'prof' ? 'btn-matrix-prof' : 'btn-matrix-round');
+            if (el) el.classList.add('active');
+        }
+        renderSizeMatrix(sizeMatrixData);
+    }
+    window.switchMatrixType = switchMatrixType;
+
     async function loadSizeMatrix() {
         const container = document.getElementById('size-matrix-container');
-        container.innerHTML = `<div class="state-container"><div class="spinner"></div><div style="margin-top:8px;">Загрузка матрицы...</div></div>`;
+        container.innerHTML = `<div class="state-container"><div class="spinner"></div><div style="margin-top:8px;">Завантаження матриці...</div></div>`;
+        const counterEl = document.getElementById('matrix-counter-container');
+        if (counterEl) counterEl.innerHTML = '';
         try {
-            const res = await fetch(`/api/analytics/direction/products-by-size?token=${TOKEN}&direction_id=${DIRECTION_ID}&year=${currentYear}`);
+            const res = await fetch(`/api/analytics/directions/products-by-size?token=${TOKEN}&direction_id=${DIRECTION_ID}&year=${currentYear}`);
             const json = await res.json();
-            if (json.status === 'ok' && json.data.length > 0) {
+            if (json.status === 'ok' && json.data && json.data.length > 0) {
                 sizeMatrixData = json.data;
                 renderSizeMatrix(json.data);
             } else {
-                container.innerHTML = `<div class="state-container">Нет данных по размерам за ${currentYear} год</div>`;
+                container.innerHTML = `<div class="state-container">Немає даних за розмірами за ${currentYear} год</div>`;
+                if (counterEl) counterEl.innerHTML = '';
             }
         } catch (e) {
-            container.innerHTML = `<div class="state-container">⚠️ Ошибка: ${e.message}</div>`;
+            container.innerHTML = `<div class="state-container">⚠️ Помилка: ${e.message}</div>`;
+            if (counterEl) counterEl.innerHTML = '';
         }
     }
 
     function renderSizeMatrix(data) {
-        // Группируем по диаметру и стенке
-        const diameters = [...new Set(data.map(d => d.diameter))].sort((a, b) => a - b);
-        const walls = [...new Set(data.map(d => d.wall))].filter(Boolean).sort((a, b) => a - b);
+        sizeMatrixData = data || [];
+        const container = document.getElementById('size-matrix-container');
+        const counterEl = document.getElementById('matrix-counter-container');
+        if (!container) return;
 
-        // Ищем максимум выручки для тепловой карты
-        const maxRev = Math.max(...data.map(d => parseFloat(d.total_revenue) || 0)) || 1;
+        const isProf = currentMatrixType === 'prof';
+        const filtered = sizeMatrixData.filter(x => isProf ? !!x.is_prof : !x.is_prof);
 
-        const lookup = {};
-        data.forEach(d => {
-            const key = `${d.diameter}_${d.wall}`;
-            lookup[key] = d;
+        if (filtered.length === 0) {
+            container.innerHTML = `<div style="padding:40px;text-align:center;color:var(--text-muted);">
+                Немає даних для ${isProf ? 'профільних' : 'круглих'} труб за ${currentYear} рік
+            </div>`;
+            if (counterEl) counterEl.innerHTML = '';
+            return;
+        }
+
+        // Ключи строк и колонок
+        let rows, cols, getRowKey, getColKey;
+
+        if (isProf) {
+            // Профильные: A×B × S
+            rows = [...new Set(filtered.map(x => `${x.prof_w || 0}×${x.prof_h || 0}`))]
+                .sort((a, b) => {
+                    const [a1, a2] = a.split('×').map(Number);
+                    const [b1, b2] = b.split('×').map(Number);
+                    const maxA = Math.max(a1, a2);
+                    const maxB = Math.max(b1, b2);
+                    if (maxA !== maxB) return maxA - maxB;
+                    const minA = Math.min(a1, a2);
+                    const minB = Math.min(b1, b2);
+                    if (minA !== minB) return minA - minB;
+                    return a1 - b1;
+                });
+            cols = [...new Set(filtered.map(x => x.wall))].filter(w => w != null).sort((a, b) => a - b);
+            getRowKey = x => `${x.prof_w || 0}×${x.prof_h || 0}`;
+            getColKey = x => x.wall;
+        } else {
+            // Круглые: Ø × t
+            rows = [...new Set(filtered.map(x => x.diameter))].filter(d => d != null).sort((a, b) => a - b);
+            cols = [...new Set(filtered.map(x => x.wall))].filter(w => w != null).sort((a, b) => a - b);
+            getRowKey = x => x.diameter;
+            getColKey = x => x.wall;
+        }
+
+        // Индексация данных
+        const cellMap = {};
+        filtered.forEach(x => {
+            const r = getRowKey(x);
+            const c = getColKey(x);
+            if (!cellMap[r]) cellMap[r] = {};
+            if (!cellMap[r][c]) cellMap[r][c] = { revenue: 0, quantity: 0, invoices: 0, clients: 0 };
+            cellMap[r][c].revenue += parseFloat(x.total_revenue) || 0;
+            cellMap[r][c].quantity += parseFloat(x.total_quantity) || 0;
+            cellMap[r][c].invoices += parseInt(x.invoices_count) || 0;
+            cellMap[r][c].clients = Math.max(cellMap[r][c].clients, parseInt(x.clients_count) || 0);
         });
 
-        // Таблица: строки = диаметры, колонки = стенки
+        // Максимум выручки для heatmap
+        let maxRev = 0;
+        Object.values(cellMap).forEach(row => {
+            Object.values(row).forEach(cell => {
+                if (cell.revenue > maxRev) maxRev = cell.revenue;
+            });
+        });
+        if (maxRev === 0) maxRev = 1;
+
+        // HTML таблицы
+        const rowLabel = isProf ? 'Перетин A×B (мм)' : 'Ø (мм)';
+        const colLabel = 't (мм)';
+
         let html = `<table class="size-matrix">`;
-        html += `<thead><tr><th>Ø (мм)</th>`;
-        walls.forEach(w => { html += `<th>t=${w || '?'}</th>`; });
-        html += `<th>ИТОГО</th></tr></thead><tbody>`;
+        html += `<thead><tr><th style="min-width:140px;">${rowLabel} \\ ${colLabel}</th>`;
+        cols.forEach(c => { html += `<th>t=${c}</th>`; });
+        html += `<th class="matrix-total-col">РАЗОМ</th></tr></thead><tbody>`;
 
-        diameters.forEach(d => {
-            const rowItems = walls.map(w => lookup[`${d}_${w}`]);
-            const rowTotal = rowItems.reduce((sum, it) => sum + (it ? parseFloat(it.total_revenue) : 0), 0);
-            if (rowTotal === 0) return; // пропускаем пустые строки
+        let activeCells = 0;
 
-            html += `<tr><td style="font-weight:700;text-align:left;">${d}</td>`;
-            walls.forEach(w => {
-                const it = lookup[`${d}_${w}`];
-                if (!it) {
-                    html += `<td style="background:#fafafa;color:#ccc;">—</td>`;
+        rows.forEach(r => {
+            let rowTotal = 0;
+            let rowQty = 0;
+            let rowCellsHtml = '';
+
+            cols.forEach(c => {
+                const cell = (cellMap[r] || {})[c];
+                if (cell && cell.revenue > 0) {
+                    activeCells++;
+                    rowTotal += cell.revenue;
+                    rowQty += cell.quantity;
+                    const heat = Math.min(5, Math.ceil((cell.revenue / maxRev) * 5));
+                    const sizeKey = isProf
+                        ? `prof_${String(r).replace('×', 'x')}x${c}`
+                        : `round_${r}x${c}`;
+                    const displayLabel = isProf ? `${r} × ${c} мм` : `Ø${r} × t${c} мм`;
+
+                    rowCellsHtml += `<td class="size-cell size-cell-heat-${heat}"
+                        onclick="openSizeDrilldown('${sizeKey}', '${displayLabel}')"
+                        title="${displayLabel}: ${fmtCur(cell.revenue)} · ${fmtQty(cell.quantity)} т · ${cell.clients} кл">
+                        <div style="font-weight:700;font-size:12px;">${fmtM(cell.revenue)}</div>
+                        <div style="font-size:10px;opacity:.85;">${fmtQty(cell.quantity)} т</div>
+                    </td>`;
                 } else {
-                    const rev = parseFloat(it.total_revenue) || 0;
-                    const heat = Math.min(5, Math.floor(rev * 5 / maxRev));
-                    html += `<td class="size-cell size-cell-heat-${heat}"
-                                 onclick="openSizeDrilldown(${d}, ${w || 'null'})"
-                                 title="${d}×${w || '?'}: ${fmtCur(rev)} · ${fmtQty(it.total_quantity)} т · ${it.clients_count} кл">
-                                 <div style="font-weight:700;font-size:12px;">${fmtM(rev)}</div>
-                                 <div style="font-size:10px;opacity:.8;">${fmtQty(it.total_quantity)} т</div>
-                             </td>`;
+                    rowCellsHtml += `<td class="size-cell empty">—</td>`;
                 }
             });
-            html += `<td style="font-weight:700;background:#f0f9ff;">${fmtM(rowTotal)}</td>`;
-            html += `</tr>`;
+
+            if (rowTotal > 0) {
+                html += `<tr>`;
+                html += `<td class="matrix-row-label">${r}</td>`;
+                html += rowCellsHtml;
+                html += `<td class="matrix-total-col">
+                    <div style="font-size:12px;">${fmtM(rowTotal)}</div>
+                    <div style="font-size:10px;opacity:.8;">${fmtQty(rowQty)} т</div>
+                </td>`;
+                html += `</tr>`;
+            }
         });
 
-        html += `</tbody></table>`;
-        html += `<p style="font-size:12px;color:var(--text-muted);margin-top:10px;">
-            * Тёмные ячейки — наибольшая выручка. Кликните для просмотра клиентов по размеру.</p>`;
+        // Колонка ИТОГО по столбцам (Footer)
+        html += `</tbody><tfoot><tr class="matrix-footer"><td class="matrix-row-label">РАЗОМ</td>`;
+        let grandTotal = 0;
+        let grandQty = 0;
+        cols.forEach(c => {
+            let colTotal = 0;
+            let colQty = 0;
+            rows.forEach(r => {
+                const cell = (cellMap[r] || {})[c];
+                if (cell) {
+                    colTotal += cell.revenue;
+                    colQty += cell.quantity;
+                }
+            });
+            grandTotal += colTotal;
+            grandQty += colQty;
+            html += `<td class="matrix-total-col">
+                <div style="font-size:12px;">${colTotal > 0 ? fmtM(colTotal) : '—'}</div>
+                ${colQty > 0 ? `<div style="font-size:10px;opacity:.8;">${fmtQty(colQty)} т</div>` : ''}
+            </td>`;
+        });
+        html += `<td class="matrix-total-col grand-total">
+            <div style="font-size:12.5px;font-weight:800;">${fmtM(grandTotal)}</div>
+            <div style="font-size:10px;opacity:.85;">${fmtQty(grandQty)} т</div>
+        </td></tr></tfoot></table>`;
 
-        document.getElementById('size-matrix-container').innerHTML = html;
+        container.innerHTML = html;
+
+        if (counterEl) {
+            counterEl.innerHTML = `<div class="matrix-counter">
+                📊 Унікальних ${isProf ? 'перетинів' : 'діаметрів'}: <b>${rows.length}</b> &nbsp;•&nbsp; 
+                товщин: <b>${cols.length}</b> &nbsp;•&nbsp; 
+                активних осередків продажу: <b>${activeCells}</b>
+            </div>`;
+        }
     }
+    window.renderSizeMatrix = renderSizeMatrix;
 
     // ─── SIZE DRILL-DOWN MODAL ───
-    async function openSizeDrilldown(diameter, wall) {
+    async function openSizeDrilldown(arg1, arg2) {
         const modal = document.getElementById('drilldown-modal');
         const title = document.getElementById('modal-title');
         const body = document.getElementById('modal-body');
-        title.textContent = `Детализация: Ø${diameter}${wall ? ` × t${wall}` : ''} мм — ${currentYear} год`;
+
+        let sizeKey, displayTitle;
+        if (typeof arg1 === 'string' && (arg1.startsWith('round_') || arg1.startsWith('prof_'))) {
+            sizeKey = arg1;
+            displayTitle = arg2 || sizeKey;
+        } else {
+            const diameter = arg1;
+            const wall = arg2;
+            sizeKey = wall ? `round_${diameter}x${wall}` : `round_${diameter}`;
+            displayTitle = `Ø${diameter}${wall ? ` × t${wall}` : ''} мм`;
+        }
+
+        title.textContent = `Деталізація: ${displayTitle} — ${currentYear} рік`;
         body.innerHTML = `<div class="state-container"><div class="spinner"></div></div>`;
         modal.classList.add('open');
 
         try {
-            const sizeKey = wall ? `round_${diameter}x${wall}` : `round_${diameter}`;
             let url = `/api/analytics/directions/size-drilldown?token=${TOKEN}&direction_id=${DIRECTION_ID}&year=${currentYear}&size_key=${sizeKey}`;
             const res = await fetch(url);
             const json = await res.json();
             if (json.status === 'ok' && json.data.length > 0) {
+                const totalQty = json.data.reduce((s, r) => s + (parseFloat(r.quantity) || 0), 0);
+                const totalRev = json.data.reduce((s, r) => s + (parseFloat(r.revenue) || 0), 0);
                 body.innerHTML = `
-                    <div class="table-responsive">
-                        <table>
+                    <div style="margin-bottom:12px;font-size:13px;color:var(--text-muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+                        <span>Позицій: <b style="color:var(--text-main);">${json.data.length}</b></span>
+                        <span>Обсяг: <b style="color:var(--text-main);">${fmtQty(totalQty)} т</b></span>
+                        <span>Продажі: <b style="color:var(--brand);">${fmtCur(totalRev)}</b></span>
+                    </div>
+                    <div class="table-responsive" style="max-height:60vh;overflow-y:auto;">
+                        <table style="width:100%;font-size:12.5px;">
                             <thead>
                                 <tr>
-                                    <th>#</th>
-                                    <th>Клиент</th>
-                                    <th>Продукт</th>
-                                    <th class="text-right">Кол-во</th>
-                                    <th class="text-right">Сумма ₴</th>
-                                    <th>Дата</th>
+                                    <th style="width:30px;">#</th>
+                                    <th style="width:70px;">Код</th>
+                                    <th>Номенклатура</th>
+                                    <th class="text-right">Клієнтів</th>
+                                    <th class="text-right">К-сть (т)</th>
+                                    <th class="text-right">Сума ₴</th>
+                                    <th style="text-align:center;">Остання покупка</th>
+                                    <th class="text-right">Залишок</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 ${json.data.map((r, i) => `
                                     <tr>
                                         <td style="color:var(--text-muted);font-size:12px;">${i+1}</td>
-                                        <td>
-                                            <a href="/client-detail?token=${TOKEN}&code=${r.client_code}"
-                                               class="client-link" target="_blank" style="font-size:12px;">${r.client_name}</a>
-                                        </td>
-                                        <td style="font-size:11.5px;color:var(--text-muted);">${r.product_name}</td>
-                                        <td class="text-right">${fmtQty(r.quantity)}</td>
-                                        <td class="text-right" style="font-weight:700;">${fmtCur(r.revenue)}</td>
-                                        <td style="font-size:12px;color:var(--text-muted);">${r.invoice_date || '—'}</td>
+                                        <td style="font-family:monospace;font-size:11.5px;color:var(--text-muted);">${r.product_code || '—'}</td>
+                                        <td style="font-size:12px;font-weight:500;">${r.product_name}</td>
+                                        <td class="text-right">${r.clients_count || '—'}</td>
+                                        <td class="text-right" style="font-weight:600;">${fmtQty(r.quantity)}</td>
+                                        <td class="text-right" style="font-weight:700;color:var(--text-main);">${fmtCur(r.revenue)}</td>
+                                        <td style="text-align:center;font-size:12px;color:var(--text-muted);">${r.last_purchase_date || '—'}</td>
+                                        <td class="text-right" style="font-size:12px;color:var(--text-muted);">${fmtQty(r.stock_balance)}</td>
                                     </tr>`).join('')}
                             </tbody>
                         </table>
                     </div>`;
             } else {
-                body.innerHTML = `<div class="state-container">Нет данных</div>`;
+                body.innerHTML = `<div class="state-container">Немає даних для цього розміру</div>`;
             }
         } catch (e) {
-            body.innerHTML = `<div class="state-container">⚠️ Ошибка: ${e.message}</div>`;
+            body.innerHTML = `<div class="state-container">⚠️ Помилка: ${e.message}</div>`;
         }
     }
 
@@ -1250,14 +1453,14 @@
     // ─── CLIENTS YoY ───
     async function loadClientsYoY() {
         const tbody = document.getElementById('clients-yoy-body');
-        tbody.innerHTML = `<tr><td colspan="10" class="state-container"><div class="spinner"></div><div style="margin-top:8px;">Загрузка...</div></td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="10" class="state-container"><div class="spinner"></div><div style="margin-top:8px;">Завантаження...</div></td></tr>`;
         try {
             const res = await fetch(`/api/analytics/direction/clients-yoy?token=${TOKEN}&direction_id=${DIRECTION_ID}&year=${currentYear}`);
             const json = await res.json();
             if (json.status === 'ok' && json.data.length > 0) {
                 tbody.innerHTML = json.data.map((r, i) => {
                     const yoy = parseFloat(r.yoy_pct);
-                    const trendMap = { 'up': '▲ Рост', 'down': '▼ Падение', 'flat': '→ Стабильно', 'new': '⭐ Новый' };
+                    const trendMap = { 'up': '▲ Зростання', 'down': '▼ Падіння', 'flat': '→ Стабільно', 'new': '⭐ Новий' };
                     const trendCls = { 'up': 'trend-up', 'down': 'trend-down', 'flat': 'trend-flat', 'new': 'trend-new' };
                     const trend = r.trend || 'flat';
                     return `
@@ -1287,10 +1490,10 @@
                         </tr>`;
                 }).join('');
             } else {
-                tbody.innerHTML = `<tr><td colspan="10" class="state-container">Нет данных</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="10" class="state-container">Немає даних</td></tr>`;
             }
         } catch (e) {
-            tbody.innerHTML = `<tr><td colspan="10" class="state-container">⚠️ Ошибка: ${e.message}</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="10" class="state-container">⚠️ Помилка: ${e.message}</td></tr>`;
         }
     }
 
@@ -1298,7 +1501,7 @@
     // ─── FORMATTERS ───
     function fmtFullMoney(n) {
         if (n == null) return '—';
-        return Number(n).toLocaleString('ru-RU', { maximumFractionDigits: 0 }) + ' ₴';
+        return Number(n).toLocaleString('uk-UA', { maximumFractionDigits: 0 }) + ' ₴';
     }
 
     function stockClass(v) {
@@ -1314,7 +1517,7 @@
     async function loadSizesYoY() {
         const tbody = document.getElementById('sizesYoYBody');
         if (!tbody) return;
-        tbody.innerHTML = `<tr><td colspan="8" class="state-container"><div class="spinner"></div><div style="margin-top:8px;">Загрузка сравнения размеров...</div></td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" class="state-container"><div class="spinner"></div><div style="margin-top:8px;">Завантаження порівняння розмірів...</div></td></tr>`;
         try {
             const res = await fetch(`/api/analytics/directions/sizes-yoy?token=${TOKEN}&direction_id=${DIRECTION_ID}&year=${currentYear}`);
             const json = await res.json();
@@ -1322,10 +1525,10 @@
                 renderSizesYoY(json.data);
                 renderSizesYoYChart(json.data);
             } else {
-                tbody.innerHTML = `<tr><td colspan="8" class="state-container">Нет данных для сравнения</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" class="state-container">Немає даних для порівняння</td></tr>`;
             }
         } catch (e) {
-            tbody.innerHTML = `<tr><td colspan="8" class="state-container">⚠️ Ошибка: ${e.message}</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="8" class="state-container">⚠️ Помилка: ${e.message}</td></tr>`;
         }
     }
 
@@ -1465,7 +1668,7 @@
                     <div class="drilldown-header">
                         <div class="drilldown-title" id="yoyDrilldownTitle">
                             <i class="fa-solid fa-box-open" style="color:var(--accent);"></i>
-                            Все товары размера: <b>${displayName}</b>
+                            Всі товари розміру: <b>${displayName}</b>
                         </div>
                         <button class="drilldown-close" onclick="event.stopPropagation(); closeYoYDrilldown();">
                             ✕
@@ -1474,7 +1677,7 @@
                     <div id="yoyDrilldownContent">
                         <div class="state-container">
                             <div class="spinner"></div>
-                            <div style="margin-top:8px;">Загрузка позиций (ГОСТ / ДСТУ / Марка стали)...</div>
+                            <div style="margin-top:8px;">Завантаження позицій (ГОСТ / ДСТУ / Марка сталі)...</div>
                         </div>
                     </div>
                 </div>
@@ -1501,7 +1704,7 @@
             const data = json.data || [];
 
             if (data.length === 0) {
-                document.getElementById('yoyDrilldownContent').innerHTML = `<div class="state-container">Нет товаров данного размера</div>`;
+                document.getElementById('yoyDrilldownContent').innerHTML = `<div class="state-container">Немає товарів цього розміру</div>`;
                 return;
             }
 
@@ -1512,11 +1715,11 @@
                 <div style="margin-bottom:12px;font-size:13px;color:var(--text-muted);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;">
                     <span>
                         <span class="purchased-badge"></span>
-                        Куплено компаниями направления: <b>${purchased.length}</b>
+                        Куплено компаніями напрямку: <b>${purchased.length}</b>
                     </span>
                     <span>
                         <span class="available-badge"></span>
-                        Доступно на складе: <b>${notPurchased.length}</b>
+                        Доступно на складі: <b>${notPurchased.length}</b>
                     </span>
                 </div>
             `;
@@ -1524,18 +1727,18 @@
             if (purchased.length > 0) {
                 html += `
                     <div class="drilldown-section-title">
-                        ✅ Куплено компаниями направления в ${currentYear}
+                        ✅ Куплено компаніями напрямку в ${currentYear}
                     </div>
                     <table class="products-table">
                         <thead>
                             <tr>
                                 <th style="width:80px;">Код</th>
-                                <th>Наименование (ГОСТ / ДСТУ / Марка стали)</th>
-                                <th class="num text-right">Раз</th>
-                                <th class="num text-right">Клиентов</th>
-                                <th class="num text-right">Выручка</th>
-                                <th class="num text-right">Остаток</th>
-                                <th>Последняя</th>
+                                <th>Найменування (ГОСТ / ДСТУ / Марка сталі)</th>
+                                <th class="num text-right">Разів</th>
+                                <th class="num text-right">Клієнтів</th>
+                                <th class="num text-right">Продажі</th>
+                                <th class="num text-right">Залишок</th>
+                                <th>Остання</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -1543,7 +1746,7 @@
                                 <tr class="purchased">
                                     <td><code style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#475569;">${p.product_code}</code></td>
                                     <td><b>${p.product_name}</b></td>
-                                    <td class="num text-right">${p.purchase_count} раз</td>
+                                    <td class="num text-right">${p.purchase_count} разів</td>
                                     <td class="num text-right">${p.clients_count || 0}</td>
                                     <td class="num text-right" style="font-weight:700;">${fmtFullMoney(p.revenue)}</td>
                                     <td class="num text-right">
@@ -1560,14 +1763,14 @@
             if (notPurchased.length > 0) {
                 html += `
                     <div class="drilldown-section-title" style="margin-top:16px;">
-                        📦 Доступно на складе (можно предложить)
+                        📦 Доступно на складі (можна запропонувати)
                     </div>
                     <table class="products-table">
                         <thead>
                             <tr>
                                 <th style="width:80px;">Код</th>
-                                <th>Наименование (ГОСТ / ДСТУ / Марка стали)</th>
-                                <th class="num text-right">Остаток на складе</th>
+                                <th>Найменування (ГОСТ / ДСТУ / Марка сталі)</th>
+                                <th class="num text-right">Залишок на складі</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -1588,7 +1791,7 @@
             document.getElementById('yoyDrilldownContent').innerHTML = html;
         } catch (e) {
             console.error('toggleYoYDrilldown error:', e);
-            document.getElementById('yoyDrilldownContent').innerHTML = `<div class="state-container" style="color:var(--bad);">⚠️ Ошибка загрузки: ${e.message}</div>`;
+            document.getElementById('yoyDrilldownContent').innerHTML = `<div class="state-container" style="color:var(--bad);">⚠️ Помилка завантаження: ${e.message}</div>`;
         }
     }
 

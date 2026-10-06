@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <title>Справочник по базе данных UTSK v7.1</title>
+    <title>UTSK — Довідник з архітектури бази даних v7.1</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -373,47 +373,47 @@
 <body>
 <div class="container">
 
-<a href="/?token=utsk2026" class="back-link">← Назад к дашборду</a>
+<a href="/?token=utsk2026" class="back-link">← Назад до дашборду</a>
 
-<h1>📚 Справочник по архитектуре базы данных UTSK</h1>
+<h1>📚 Довідник з архітектури бази даних UTSK</h1>
 <p style="font-size: 19px; color: var(--text-muted); margin-top: -5px;">
-    <strong>Версия:</strong> 7.1 (bd_intelligent_sales) | 
-    <strong>Дата актуализации:</strong> 27.04.2026 | 
-    <strong>Товаров:</strong> 3,190 | 
-    <strong>Клиентов:</strong> 556 | 
-    <strong>Связей похожих труб:</strong> 124,140
+    <strong>Версія:</strong> 7.1 (bd_intelligent_sales) | 
+    <strong>Дата актуалізації:</strong> 27.04.2026 | 
+    <strong>Товарів:</strong> 3,190 | 
+    <strong>Клієнтів:</strong> 556 | 
+    <strong>Зв'язків схожих труб:</strong> 124,140
 </p>
 
 <div class="stats-box">
-    <h3>📊 Общая статистика</h3>
+    <h3>📊 Загальна статистика</h3>
     <table>
         <tr>
-            <td><strong>Всего таблиц:</strong></td><td>14</td>
-            <td><strong>Всего представлений (Views):</strong></td><td>2</td>
+            <td><strong>Всього таблиць:</strong></td><td>14</td>
+            <td><strong>Всього представлень (Views):</strong></td><td>2</td>
         </tr>
         <tr>
-            <td><strong>Всего функций:</strong></td><td>7</td>
-            <td><strong>Всего триггеров:</strong></td><td>7</td>
+            <td><strong>Всього функцій:</strong></td><td>7</td>
+            <td><strong>Всього тригерів:</strong></td><td>7</td>
         </tr>
         <tr>
-            <td><strong>Всего индексов:</strong></td><td>16</td>
-            <td><strong>Связей FOREIGN KEY:</strong></td><td>21</td>
+            <td><strong>Всього індексів:</strong></td><td>16</td>
+            <td><strong>Зв'язків FOREIGN KEY:</strong></td><td>21</td>
         </tr>
     </table>
 </div>
 
 <div class="section-toc">
-    <a href="#block1">🗂 БЛОК 1: СПРАВОЧНИКИ</a>
+    <a href="#block1">🗂 БЛОК 1: ДОВІДНИКИ</a>
     <a href="#tbl1"> 1. activity_directions</a>
     <a href="#tbl2"> 2. status_rules</a>
-    <a href="#block2">🏢 БЛОК 2: ОСНОВНЫЕ СУЩНОСТИ</a>
+    <a href="#block2">🏢 БЛОК 2: ОСНОВНІ СУТНОСТІ</a>
     <a href="#tbl3"> 3. products</a>
     <a href="#tbl4"> 4. product_aliases</a>
     <a href="#tbl5"> 5. clients</a>
-    <a href="#block3">🛒 БЛОК 3: ТРАНЗАКЦИИ</a>
+    <a href="#block3">🛒 БЛОК 3: ТРАНЗАКЦІЇ</a>
     <a href="#tbl6"> 6. documents</a>
     <a href="#tbl7"> 7. sales_lines</a>
-    <a href="#block4">🧠 БЛОК 4: ML, АНАЛИТИКА</a>
+    <a href="#block4">🧠 БЛОК 4: ML, АНАЛІТИКА</a>
     <a href="#tbl8"> 8. product_cross_sells</a>
     <a href="#tbl9"> 9. product_scoring</a>
     <a href="#tbl10"> 10. website_behavior_log</a>
@@ -421,15 +421,15 @@
     <a href="#tbl12"> 12. production_lead_times</a>
     <a href="#tbl13"> 13. ab_tests</a>
     <a href="#tbl14"> 14. status_change_log</a>
-    <a href="#block5">🔮 БЛОК 5: ПРЕДСТАВЛЕНИЯ</a>
+    <a href="#block5">🔮 БЛОК 5: ПРЕДСТАВЛЕННЯ</a>
     <a href="#view15"> 15. v_smart_recommendations</a>
     <a href="#view16"> 16. v_manager_dashboard</a>
-    <a href="#er">📊 ER-ДИАГРАММА</a>
+    <a href="#er">📊 ER-ДІАГРАМА</a>
 </div>
 <!-- ====================================================================== -->
-<!-- БЛОК 1: СПРАВОЧНИКИ                                                    -->
+<!-- БЛОК 1: ДОВІДНИКИ                                                      -->
 <!-- ====================================================================== -->
-<h2 id="block1">🗂 БЛОК 1: СПРАВОЧНИКИ (Словари системы)</h2>
+<h2 id="block1">🗂 БЛОК 1: ДОВІДНИКИ (Словники системи)</h2>
 
 <p><strong>💡 Описание:</strong> Это фундамент всей системы. Основные понятия — «клиент», «товар», «отрасль». Две таблицы этого блока — основа для всех остальных данных. Они отвечают на вопросы: <em>«К какой отрасли относится клиент?»</em> и <em>«Насколько активно он покупает?»</em>.</p>
 
@@ -443,7 +443,7 @@
 </div>
 
 <table>
-    <tr><th>Параметр</th><th>Тип данных</th><th>Ограничения</th><th>Пример</th><th>Описание</th></tr>
+    <tr><th>Параметр</th><th>Тип даних</th><th>Обмеження</th><th>Приклад</th><th>Опис</th></tr>
     <tr><td><code>id</code></td><td>SERIAL</td><td><span class="badge badge-pk">PRIMARY KEY</span></td><td>3</td><td>Уникальный номер направления (как артикул товара)</td></tr>
     <tr><td><code>name</code></td><td>VARCHAR(100)</td><td><span class="badge badge-required">NOT NULL</span> UNIQUE</td><td>'Строительство'</td><td>Название отрасли — понятно менеджеру и системе</td></tr>
     <tr><td><code>description</code></td><td>TEXT</td><td>NULL</td><td>'Профильная труба, лист, арматура, балка'</td><td>Краткое описание — какие товары обычно нужны этой отрасли</td></tr>
@@ -456,7 +456,7 @@
     <strong>📌 ВАЖНО:</strong> Количество направлений отраслей клиентов - как могут увеличиваться так и уменьшаться. 
 </div>
 <table>
-    <tr><th>№</th><th>Направление</th><th>Кому подходит</th><th>Типичные товары</th></tr>
+    <tr><th>№</th><th>Напрямок</th><th>Кому підходить</th><th>Типові товари</th></tr>
     <tr><td>1</td><td>Сельское хозяйство</td><td>Фермеры, агрокомпании</td><td>Трубы для полива, дренажные системы</td></tr>
     <tr><td>2</td><td>Строительство</td><td>Застройщики, подрядчики</td><td>Профильная труба, арматура, балка</td></tr>
     <tr><td>3</td><td>Промышленность/Нефтегаз</td><td>Заводы, нефтебазы</td><td>Магистральные трубы, толстостенные</td></tr>
@@ -487,7 +487,7 @@
 </div>
 
 <table>
-    <tr><th>Параметр</th><th>Тип данных</th><th>Ограничения</th><th>Пример</th><th>Описание</th></tr>
+    <tr><th>Параметр</th><th>Тип даних</th><th>Обмеження</th><th>Приклад</th><th>Опис</th></tr>
     <tr><td><code>id</code></td><td>SERIAL</td><td><span class="badge badge-pk">PRIMARY KEY</span></td><td>5</td><td>Номер правила (как статья в бухгалтерском справочнике)</td></tr>
     <tr><td><code>status_name</code></td><td>VARCHAR(50)</td><td><span class="badge badge-required">NOT NULL</span> UNIQUE</td><td>'Ежемесячные'</td><td>Название статуса — понятно менеджеру: «Этот клиент покупает каждый месяц»</td></tr>
     <tr><td><code>min_current_year</code></td><td>INT</td><td>NULL</td><td>11</td><td>Сколько минимум накладных должно быть в этом году для этого статуса</td></tr>
@@ -505,7 +505,7 @@
     <strong>📌 ВАЖНО:</strong> Количество видов статусов клиентов - как могут увеличиваться так и уменьшаться. 
 </div>
 <table>
-    <tr><th>Приоритет</th><th>Статус</th><th>Как определяется</th><th>Что делать менеджеру</th></tr>
+    <tr><th>Пріоритет</th><th>Статус</th><th>Як визначається</th><th>Що робити менеджеру</th></tr>
     <tr><td>10</td><td>👋 Ушедшие</td><td>Нет покупок в текущем и прошлом году</td><td>Попробовать вернуть спецпредложением</td></tr>
     <tr><td>20</td><td>😴 Спящие</td><td>Нет покупок в текущем году, но были в прошлом</td><td>Срочно позвонить — пока не стали Ушедшими</td></tr>
     <tr><td>25</td><td>🔄 Вернувшиеся</td><td>Покупали в позапрошлом году, пропустили прошлый, вернулись в текущем</td><td>Узнать причину паузы, предложить спец-условия</td></tr>
@@ -532,9 +532,9 @@
     <strong>💼 Ценность для компании:</strong> Из всех клиентов компании система автоматически распределяет статусы. Раньше менеджер тратил время на ручную оценку каждого клиента — теперь это делает система. Менеджер сразу видит, с кем работает и какую стратегию продаж выбрать, не тратя времени на анализ.
 </div>
 <!-- ====================================================================== -->
-<!-- БЛОК 2: ОСНОВНЫЕ СУЩНОСТИ                                              -->
+<!-- БЛОК 2: ОСНОВНІ СУТНОСТІ                                               -->
 <!-- ====================================================================== -->
-<h2 id="block2">🏢 БЛОК 2: ОСНОВНЫЕ СУЩНОСТИ (Данные из 1С)</h2>
+<h2 id="block2">🏢 БЛОК 2: ОСНОВНІ СУТНОСТІ (Дані з 1С)</h2>
 
 <p><strong>💡 Описание:</strong> Это центральные таблицы системы — три кита, на которых держится вся аналитика. Здесь хранятся <strong>товары</strong> (что продаём), <strong>клиенты</strong> (кому продаём) и <strong>синонимы названий</strong> (помощь в поиске). Данные автоматически загружаются из учётной системы 1С.</p>
 
@@ -548,7 +548,7 @@
 </div>
 
 <table>
-    <tr><th>Параметр</th><th>Тип данных</th><th>Ограничения</th><th>Пример</th><th>Описание</th></tr>
+    <tr><th>Параметр</th><th>Тип даних</th><th>Обмеження</th><th>Приклад</th><th>Опис</th></tr>
     <tr><td><code>code</code></td><td>VARCHAR(50)</td><td><span class="badge badge-pk">PRIMARY KEY</span></td><td>'000014144'</td><td>Уникальный код товара из 1С (как артикул)</td></tr>
     <tr><td><code>name</code></td><td>VARCHAR(255)</td><td><span class="badge badge-required">NOT NULL</span></td><td>'GB/T 8162:2018 76х10 ст20'</td><td>Полное эталонное название — стандарт, размер, марка стали</td></tr>
     <tr><td><code>anchor_direction_id</code></td><td>INT</td><td><span class="badge badge-fk">FK (activity_directions)</span></td><td>2</td><td>К какой отрасли относится товар (Строительство, Агро...)</td></tr>
@@ -587,7 +587,7 @@
 </div>
 
 <table>
-    <tr><th>Параметр</th><th>Тип данных</th><th>Ограничения</th><th>Пример</th><th>Описание</th></tr>
+    <tr><th>Параметр</th><th>Тип даних</th><th>Обмеження</th><th>Приклад</th><th>Опис</th></tr>
     <tr><td><code>id</code></td><td>SERIAL</td><td><span class="badge badge-pk">PRIMARY KEY</span></td><td>145</td><td>Уникальный номер записи</td></tr>
     <tr><td><code>product_code</code></td><td>VARCHAR(50)</td><td><span class="badge badge-fk">FK (products) ON DELETE CASCADE</span></td><td>'000014144'</td><td>Код эталонного товара — связь с основной таблицей</td></tr>
     <tr><td><code>alias_text</code></td><td>VARCHAR(255)</td><td><span class="badge badge-required">NOT NULL</span> UNIQUE</td><td>'Тр. 76х10 ст20'</td><td>«Грязное» название из 1С — как записано в документах</td></tr>
@@ -608,7 +608,7 @@
 </div>
 
 <table>
-    <tr><th>Параметр</th><th>Тип данных</th><th>Ограничения</th><th>Пример</th><th>Описание</th></tr>
+    <tr><th>Параметр</th><th>Тип даних</th><th>Обмеження</th><th>Приклад</th><th>Опис</th></tr>
     <tr><td><code>code</code></td><td>VARCHAR(50)</td><td><span class="badge badge-pk">PRIMARY KEY</span></td><td>'36'</td><td>Уникальный код клиента из 1С (как номер паспорта)</td></tr>
     <tr><td><code>name</code></td><td>VARCHAR(255)</td><td><span class="badge badge-required">NOT NULL</span></td><td>'АВ Металл групп ООО'</td><td>Полное название компании</td></tr>
     <tr><td><code>client_type</code></td><td>VARCHAR(50)</td><td>NULL</td><td>'Трейдер'</td><td>Тип клиента: Трейдер, Конечный потребитель, Производитель</td></tr>
@@ -651,9 +651,9 @@
     <strong>💼 Ценность для компании:</strong> Это самая важная таблица в системе. 556 клиентов — и по каждому есть полное досье: кто они, что покупают, насколько активны, какая отрасль. Менеджер тратит 2 секунды на получение информации, которая раньше требовала 15 минут ручного поиска в 1С и Excel.
 </div>
 <!-- ====================================================================== -->
-<!-- БЛОК 3: ТРАНЗАКЦИИ                                                     -->
+<!-- БЛОК 3: ТРАНЗАКЦІЇ                                                     -->
 <!-- ====================================================================== -->
-<h2 id="block3">🛒 БЛОК 3: ТРАНЗАКЦИИ (История покупок)</h2>
+<h2 id="block3">🛒 БЛОК 3: ТРАНЗАКЦІЇ (Історія покупок)</h2>
 
 <p><strong>💡 Описание:</strong> Это блок, где хранится вся история продаж — <strong>что, кому, когда и на какую сумму</strong> было продано. Две таблицы работают в паре: одна хранит заголовки накладных (дата, клиент, общая сумма), вторая — расшифровку каждой позиции (какой товар, сколько тонн, цена). На основе этих данных система считает статусы клиентов и строит рекомендации.</p>
 
@@ -667,7 +667,7 @@
 </div>
 
 <table>
-    <tr><th>Параметр</th><th>Тип данных</th><th>Ограничения</th><th>Пример</th><th>Описание</th></tr>
+    <tr><th>Параметр</th><th>Тип даних</th><th>Обмеження</th><th>Приклад</th><th>Опис</th></tr>
     <tr><td><code>id</code></td><td>BIGINT</td><td><span class="badge badge-pk">PRIMARY KEY</span></td><td>2640</td><td>Уникальный номер документа из 1С</td></tr>
     <tr><td><code>client_code</code></td><td>VARCHAR(50)</td><td><span class="badge badge-fk">FK (clients) ON DELETE CASCADE</span></td><td>'36'</td><td>Какому клиенту выставлена накладная</td></tr>
     <tr><td><code>invoice_date</code></td><td>DATE</td><td><span class="badge badge-required">NOT NULL</span></td><td>2026-04-12</td><td>Дата отгрузки — главный параметр для расчёта давности покупок</td></tr>
@@ -691,7 +691,7 @@
 </div>
 
 <table>
-    <tr><th>Параметр</th><th>Тип данных</th><th>Ограничения</th><th>Пример</th><th>Описание</th></tr>
+    <tr><th>Параметр</th><th>Тип даних</th><th>Обмеження</th><th>Приклад</th><th>Опис</th></tr>
     <tr><td><code>id</code></td><td>BIGSERIAL</td><td><span class="badge badge-pk">PRIMARY KEY</span></td><td>15432</td><td>Уникальный номер строки</td></tr>
     <tr><td><code>document_id</code></td><td>BIGINT</td><td><span class="badge badge-fk">FK (documents) ON DELETE CASCADE</span></td><td>2640</td><td>К какой накладной относится эта строка</td></tr>
     <tr><td><code>product_code</code></td><td>VARCHAR(50)</td><td><span class="badge badge-fk">FK (products) ON DELETE RESTRICT</span></td><td>'000014144'</td><td>Какой товар купили (нельзя удалить товар, если он есть в продажах)</td></tr>
@@ -707,9 +707,9 @@
 </div>
 
 <!-- ====================================================================== -->
-<!-- БЛОК 4: ML, АНАЛИТИКА И ЦИФРОВОЙ СЛЕД                                  -->
+<!-- БЛОК 4: ML, АНАЛІТИКА ТА ЦИФРОВИЙ СЛІД                                 -->
 <!-- ====================================================================== -->
-<h2 id="block4">🧠 БЛОК 4: ML, АНАЛИТИКА И ЦИФРОВОЙ СЛЕД</h2>
+<h2 id="block4">🧠 БЛОК 4: ML, АНАЛІТИКА ТА ЦИФРОВИЙ СЛІД</h2>
 
 <p><strong>💡 Описание:</strong> Это «мозг» системы — таблицы, которые делают её умной. Здесь хранятся правила кросс-продаж (что с чем покупают), история обучения на реакциях менеджеров (какие рекомендации сработали, а какие нет), цифровые следы клиентов на сайте и журнал отказов. Эти данные позволяют системе с каждым днём предлагать всё более точные рекомендации.</p>
 
@@ -723,7 +723,7 @@
 </div>
 
 <table>
-    <tr><th>Параметр</th><th>Тип данных</th><th>Ограничения</th><th>Пример</th><th>Описание</th></tr>
+    <tr><th>Параметр</th><th>Тип даних</th><th>Обмеження</th><th>Приклад</th><th>Опис</th></tr>
     <tr><td><code>id</code></td><td>SERIAL</td><td><span class="badge badge-pk">PRIMARY KEY</span></td><td>12</td><td>Уникальный номер связи</td></tr>
     <tr><td><code>main_product_code</code></td><td>VARCHAR(50)</td><td><span class="badge badge-fk">FK (products) ON DELETE CASCADE</span></td><td>'000014144'</td><td>Основной товар — то, что клиент уже покупает</td></tr>
     <tr><td><code>related_product_code</code></td><td>VARCHAR(50)</td><td><span class="badge badge-fk">FK (products) ON DELETE CASCADE</span></td><td>'000010035'</td><td>Сопутствующий товар — то, что можно предложить вдобавок</td></tr>
@@ -744,7 +744,7 @@
 </div>
 
 <table>
-    <tr><th>Параметр</th><th>Тип данных</th><th>Ограничения</th><th>Пример</th><th>Описание</th></tr>
+    <tr><th>Параметр</th><th>Тип даних</th><th>Обмеження</th><th>Приклад</th><th>Опис</th></tr>
     <tr><td><code>id</code></td><td>BIGSERIAL</td><td><span class="badge badge-pk">PRIMARY KEY</span></td><td>3421</td><td>Уникальный номер записи</td></tr>
     <tr><td><code>client_code</code></td><td>VARCHAR(50)</td><td><span class="badge badge-fk">FK (clients) ON DELETE CASCADE</span></td><td>'36'</td><td>Для какого клиента собирается статистика</td></tr>
     <tr><td><code>product_code</code></td><td>VARCHAR(50)</td><td><span class="badge badge-fk">FK (products) ON DELETE CASCADE</span></td><td>'000014144'</td><td>По какому товару собирается статистика</td></tr>
@@ -778,7 +778,7 @@
 <p><strong>🎯 Для чего нужна эта таблица:</strong> Это <strong>журнал интересов</strong> клиента на сайте. Система записывает, какие страницы и товары клиент просматривал, что искал, что добавлял в корзину. Менеджер видит: «Клиент вчера 20 минут изучал категорию „Фланцы"» — и может предложить их ещё до того, как клиент сам о них спросит.</p>
 
 <table>
-    <tr><th>Параметр</th><th>Тип данных</th><th>Ограничения</th><th>Пример</th><th>Описание</th></tr>
+    <tr><th>Параметр</th><th>Тип даних</th><th>Обмеження</th><th>Приклад</th><th>Опис</th></tr>
     <tr><td><code>id</code></td><td>BIGSERIAL</td><td><span class="badge badge-pk">PRIMARY KEY</span></td><td>12543</td><td>Уникальный номер записи</td></tr>
     <tr><td><code>client_code</code></td><td>VARCHAR(50)</td><td><span class="badge badge-fk">FK (clients) ON DELETE CASCADE</span></td><td>'36'</td><td>Какой клиент проявил интерес</td></tr>
     <tr><td><code>product_category</code></td><td>VARCHAR(100)</td><td>NULL</td><td>'Профильная труба'</td><td>Категория, которую клиент просматривал</td></tr>
@@ -801,7 +801,7 @@
 </div>
 
 <table>
-    <tr><th>Параметр</th><th>Тип данных</th><th>Ограничения</th><th>Пример</th><th>Описание</th></tr>
+    <tr><th>Параметр</th><th>Тип даних</th><th>Обмеження</th><th>Приклад</th><th>Опис</th></tr>
     <tr><td><code>id</code></td><td>BIGSERIAL</td><td><span class="badge badge-pk">PRIMARY KEY</span></td><td>543</td><td>Уникальный номер записи</td></tr>
     <tr><td><code>client_code</code></td><td>VARCHAR(50)</td><td><span class="badge badge-fk">FK (clients) ON DELETE CASCADE</span></td><td>'36'</td><td>По какому клиенту был отказ</td></tr>
     <tr><td><code>product_code</code></td><td>VARCHAR(50)</td><td><span class="badge badge-fk">FK (products) ON DELETE CASCADE</span></td><td>'000014144'</td><td>Какой товар отвергли</td></tr>
@@ -825,7 +825,7 @@
 </div>
 
 <table>
-    <tr><th>Параметр</th><th>Тип данных</th><th>Ограничения</th><th>Пример</th><th>Описание</th></tr>
+    <tr><th>Параметр</th><th>Тип даних</th><th>Обмеження</th><th>Приклад</th><th>Опис</th></tr>
     <tr><td><code>id</code></td><td>SERIAL</td><td><span class="badge badge-pk">PRIMARY KEY</span></td><td>87</td><td>Уникальный номер записи</td></tr>
     <tr><td><code>product_code</code></td><td>VARCHAR(50)</td><td><span class="badge badge-fk">FK (products) ON DELETE CASCADE</span></td><td>'000014144'</td><td>Код товара</td></tr>
     <tr><td><code>from_blank_days</code></td><td>INT</td><td>NULL</td><td>3</td><td>Дней на переделку из круглой трубы в профильную</td></tr>
@@ -854,7 +854,7 @@
 </div>
 
 <table>
-    <tr><th>Параметр</th><th>Тип данных</th><th>Ограничения</th><th>Пример</th><th>Описание</th></tr>
+    <tr><th>Параметр</th><th>Тип даних</th><th>Обмеження</th><th>Приклад</th><th>Опис</th></tr>
     <tr><td><code>id</code></td><td>SERIAL</td><td><span class="badge badge-pk">PRIMARY KEY</span></td><td>5</td><td>Уникальный номер теста</td></tr>
     <tr><td><code>test_name</code></td><td>VARCHAR(100)</td><td>NOT NULL</td><td>'guest_banner_q2_2026'</td><td>Название теста — чтобы понимать, что тестируем</td></tr>
     <tr><td><code>variant</code></td><td>CHAR(1)</td><td>CHECK IN ('A','B','C')</td><td>'B'</td><td>Вариант теста: А, Б или В</td></tr>
@@ -883,7 +883,7 @@
 </div>
 
 <table>
-    <tr><th>Параметр</th><th>Тип данных</th><th>Ограничения</th><th>Пример</th><th>Описание</th></tr>
+    <tr><th>Параметр</th><th>Тип даних</th><th>Обмеження</th><th>Приклад</th><th>Опис</th></tr>
     <tr><td><code>id</code></td><td>BIGSERIAL</td><td><span class="badge badge-pk">PRIMARY KEY</span></td><td>2341</td><td>Уникальный номер записи</td></tr>
     <tr><td><code>client_code</code></td><td>VARCHAR(50)</td><td><span class="badge badge-fk">FK (clients) ON DELETE CASCADE</span></td><td>'36'</td><td>По какому клиенту изменение</td></tr>
     <tr><td><code>old_status_id</code></td><td>INT</td><td><span class="badge badge-fk">FK (status_rules)</span></td><td>1</td><td>Какой статус был до изменения</td></tr>
@@ -917,9 +917,9 @@ ORDER BY scl.changed_at DESC;</code>
     <strong>💼 Ценность для компании:</strong> Блок ML и Аналитики — это то, что отличает систему от простой базы данных. Самообучение, цифровые следы, кросс-продажи и аудит статусов превращают программу из пассивного хранилища в активного помощника менеджера. Каждый день система становится умнее и точнее в своих рекомендациях.
 </div>
 <!-- ====================================================================== -->
-<!-- БЛОК 5: ВИРТУАЛЬНЫЕ ОБЪЕКТЫ (VIEWS)                                      -->
+<!-- БЛОК 5: ВІРТУАЛЬНІ ОБ'ЄКТИ (VIEWS)                                      -->
 <!-- ====================================================================== -->
-<h2 id="block5">🔮 БЛОК 5: ВИРТУАЛЬНЫЕ ОБЪЕКТЫ (VIEWS)</h2>
+<h2 id="block5">🔮 БЛОК 5: ВІРТУАЛЬНІ ОБ'ЄКТИ (VIEWS)</h2>
 
 <p><strong>💡 Описание:</strong> Это не физические таблицы с данными, а <strong>готовые запросы</strong>, которые собирают информацию из нескольких таблиц одновременно. Они как «умные отчёты», которые всегда показывают актуальные данные на лету — без необходимости каждый раз писать сложный SQL-запрос. Два представления в системе решают две главные задачи: <strong>рекомендации для клиента</strong> и <strong>рабочий стол менеджера</strong>.</p>
 
@@ -939,7 +939,7 @@ ORDER BY scl.changed_at DESC;</code>
 
 <h4>📥 Источники данных и приоритеты:</h4>
 <table>
-    <tr><th>Приоритет</th><th>Источник</th><th>Таблицы</th><th>Метка в КП</th><th>Логика</th></tr>
+    <tr><th>Пріоритет</th><th>Джерело</th><th>Таблиці</th><th>Мітка в КП</th><th>Логіка</th></tr>
     <tr><td>1</td><td>🔄 История покупок</td><td>sales_lines, documents</td><td>«Часто покупаете»</td><td>Товары, которые клиент покупал 2+ раза — проверенные позиции</td></tr>
     <tr><td>2</td><td>🆕 Новинки по направлению</td><td>products, clients</td><td>«Новинка в вашем сегменте»</td><td>Новые товары из отрасли клиента — расширение ассортимента</td></tr>
     <tr><td>3</td><td>🔗 Сопутствующие товары</td><td>product_cross_sells</td><td>«С этим обычно берут»</td><td>Жёсткие кросс-ссылки: труба → заглушка, профиль → крепёж</td></tr>
@@ -986,7 +986,7 @@ ORDER BY scl.changed_at DESC;</code>
 
 <h4>📥 Источники данных:</h4>
 <table>
-    <tr><th>Таблица</th><th>Какие данные берутся</th><th>Назначение</th></tr>
+    <tr><th>Таблиця</th><th>Які дані беруться</th><th>Призначення</th></tr>
     <tr><td>clients</td><td>code, name, client_type, даты покупок, опросы</td><td>Основная информация о клиенте</td></tr>
     <tr><td>status_rules</td><td>status_name, priority</td><td>Текущий статус и его важность</td></tr>
     <tr><td>activity_directions</td><td>name (direction)</td><td>К какой отрасли отнесён клиент</td></tr>
@@ -995,7 +995,7 @@ ORDER BY scl.changed_at DESC;</code>
 
 <h4>📋 Что видит менеджер (поля представления):</h4>
 <table>
-    <tr><th>Поле</th><th>Пример</th><th>Что означает</th></tr>
+    <tr><th>Поле</th><th>Приклад</th><th>Що означає</th></tr>
     <tr><td><code>code</code></td><td>'36'</td><td>Код клиента — уникальный идентификатор</td></tr>
     <tr><td><code>name</code></td><td>'АВ Металл групп ООО'</td><td>Полное название компании</td></tr>
     <tr><td><code>client_type</code></td><td>'Трейдер'</td><td>Тип клиента: Трейдер, Конечный потребитель, Производитель</td></tr>
@@ -1038,15 +1038,15 @@ ORDER BY requires_survey DESC, days_since_last DESC;</code>
 <!-- ====================================================================== -->
 
 <!-- ====================================================================== -->
-<!-- НОВЫЕ ФУНКЦИИ И ЛОГИ (СЕССИЯ 2026-10)                                  -->
+<!-- НОВІ ФУНКЦІЇ ТА ЛОГИ (СЕСІЯ 2026-10)                                   -->
 <!-- ====================================================================== -->
-<h2 id="block6">🚀 БЛОК 6: НОВЫЕ ФУНКЦИИ, API И ТРИГГЕРЫ (Октябрь 2026)</h2>
+<h2 id="block6">🚀 БЛОК 6: НОВІ ФУНКЦІЇ, API ТА ТРИГЕРИ (Жовтень 2026)</h2>
 
 <h3 id="tbl17">17. classification_audit_log — История изменения классификации</h3>
 <p><strong>🎯 Для чего нужна эта таблица:</strong> Ведет полный лог изменений направления деятельности клиента (группы). Фиксирует, кто, когда и на что изменил классификацию, а также уверенность (confidence) и источник (source). Позволяет в любой момент откатить неверное изменение.</p>
 
 <table>
-    <tr><th>Параметр</th><th>Тип данных</th><th>Ограничения</th><th>Пример</th><th>Описание</th></tr>
+    <tr><th>Параметр</th><th>Тип даних</th><th>Обмеження</th><th>Приклад</th><th>Опис</th></tr>
     <tr><td><code>id</code></td><td>BIGSERIAL</td><td><span class="badge badge-pk">PRIMARY KEY</span></td><td>1</td><td>Уникальный номер записи</td></tr>
     <tr><td><code>client_code</code></td><td>VARCHAR(50)</td><td>NOT NULL</td><td>'4501'</td><td>Код клиента</td></tr>
     <tr><td><code>client_name</code></td><td>VARCHAR(500)</td><td>NULL</td><td>'ТОВ Будпром'</td><td>Название клиента</td></tr>
@@ -1069,14 +1069,14 @@ ORDER BY requires_survey DESC, days_since_last DESC;</code>
 
 <h3 id="sql_funcs">🛠️ Новые и обновлённые SQL-функции</h3>
 <table>
-    <tr><th>Название функции</th><th>Назначение</th></tr>
+    <tr><th>Назва функції</th><th>Призначення</th></tr>
     <tr><td><code>get_client_diversity_index(code, year)</code></td><td>Уникальные типоразмеры труб у клиента (например, 168 для 4501)</td></tr>
     <tr><td><code>get_company_assortment_size()</code></td><td>Всего уникальных товаров и услуг в каталоге компании (4450)</td></tr>
     <tr><td><code>get_company_profile_pipes_count()</code></td><td>Общее число профильных труб в каталоге компании (475)</td></tr>
     <tr><td><code>get_profile_pipes_kpi(code, year)</code></td><td>KPI (размеры, накладные, выручка) по профильным трубам клиента</td></tr>
     <tr><td><code>get_profile_pipes_sizes(code, year)</code></td><td>Агрегированная статистика по размерам профильных труб клиента</td></tr>
     <tr><td><code>get_profile_pipes_products_by_size(code, size_key, year)</code></td><td>Drill-down: товары внутри выбранного размера профильной трубы</td></tr>
-    <tr><td><code>get_profile_pipes_sizes_yoy(code, year)</code></td><td>Сравнение выручки по размерам профильных труб (Текущий год vs Прошлый)</td></tr>
+    <tr><td><code>get_profile_pipes_sizes_yoy(code, year)</code></td><td>Сравнение выручки по размерам профильных труб (Текущий год vs Прошлый, с полем <code>size_display</code> для симметрии с <code>sizes</code>)</td></tr>
     <tr><td><code>get_profile_pipes_monthly(code, year)</code></td><td>Помесячная динамика выручки профильных труб клиента</td></tr>
     <tr><td><code>revert_classification_change(audit_id)</code></td><td>Откатывает изменение классификации по ID лога, ставя <code>is_direction_manual = TRUE</code></td></tr>
     <tr style="background:#f8fafc;"><td colspan="2"><strong>Обновлённые функции (расширена сигнатура):</strong></td></tr>
@@ -1084,6 +1084,7 @@ ORDER BY requires_survey DESC, days_since_last DESC;</code>
     <tr><td><code>get_segmentation_past_years()</code></td><td>Добавлены метрики <code>dubl_count</code>, <code>center_count</code>, <code>cand_count</code></td></tr>
     <tr><td><code>get_segment_detail(...)</code></td><td>Поддержка новых сегментов: <code>c2_dubl_center</code>, <code>churn_dubl_center</code>, <code>sleep_dubl_center</code></td></tr>
     <tr><td><code>get_client_invoices(...)</code></td><td>Добавлено поле <code>doc_id</code> для правильной уникальности накладных</td></tr>
+    <tr><td><code>get_direction_products_by_size(direction_id, year)</code></td><td>Матрица продаж: <b>круглые</b> (Ø × t) и <b>профильные</b> (A×B × t). Возвращает <code>prof_w, prof_h</code> (миграция 55). Устранена коллизия <code>GREATEST</code>.</td></tr>
 </table>
 
 <h3 id="api_endpoints">🌐 Новые API-эндпоинты</h3>
@@ -1096,18 +1097,31 @@ ORDER BY requires_survey DESC, days_since_last DESC;</code>
     <li><code>GET /api/analytics/profile-pipes/products-by-size</code> — Drill-down по товарам</li>
     <li><code>GET /api/analytics/profile-pipes/sizes-yoy</code> — Порівняння YoY</li>
     <li><code>GET /api/analytics/profile-pipes/monthly</code> — Динаміка по місяцях</li>
+    <li><code>GET /api/analytics/directions/products-by-size</code> — Alias для <code>/direction/products-by-size</code> (мн. число)</li>
+    <li><code>GET /api/analytics/classification-audit/list</code> — Лог аудита классификаций</li>
+    <li><code>GET /api/analytics/classification-audit/kpi</code> — KPI аудита</li>
+    <li><code>POST /api/analytics/classification-audit/revert/{audit_id}</code> — Откат классификации</li>
 </ul>
 
 <h3 id="pages">📄 Новые страницы UI</h3>
 <ul>
     <li><strong><code>profile-pipes-analytics.html</code></strong> — Аналитика профильных труб клиента. Доступна с карточки клиента (Блок 2).</li>
+    <li><strong><code>classification-audit.html</code></strong> — Журнал ручных и автоматических переклассификаций с кнопкой отката (Revert).</li>
+</ul>
+
+<h3 id="migrations">📦 Миграции схемы (52–55)</h3>
+<ul>
+    <li><strong>52</strong> — <code>profile_pipes_size_display</code>: таблица логов классификации <code>classification_audit_log</code>, триггер <code>trg_clients_classification_audit</code> и функция <code>revert_classification_change</code>.</li>
+    <li><strong>53</strong> — <code>sizes_yoy_display</code>: добавлено поле <code>size_display</code> в <code>get_profile_pipes_sizes_yoy</code> для симметрии с <code>sizes</code>.</li>
+    <li><strong>54</strong> — <code>backfill_direction_source</code>: восстановление <code>direction_source</code> для 1496 клиентов после бага миграции 41 (<code>IS DISTINCT FROM</code>) и патч функций классификации.</li>
+    <li><strong>55</strong> — <code>direction_products_by_size_prof</code>: поддержка профильных труб в матрице продаж направления (<code>prof_w, prof_h</code>), устранение коллизии <code>GREATEST</code>.</li>
 </ul>
 
 <hr style="margin: 40px 0; border: 1px solid var(--border-light);">
 
-<!-- ER-ДИАГРАММА СВЯЗЕЙ                                                    -->
+<!-- ER-ДІАГРАМА ЗВ'ЯЗКІВ                                                    -->
 <!-- ====================================================================== -->
-<h2 id="er">📊 СВОДНАЯ СХЕМА СВЯЗЕЙ БАЗЫ ДАННЫХ (ER-ДИАГРАММА)</h2>
+<h2 id="er">📊 ЗВЕДЕНА СХЕМА ЗВ'ЯЗКІВ БАЗИ ДАНИХ (ER-ДІАГРАМА)</h2>
 
 <p><strong>💡 Описание:</strong> На схеме показаны все 14 таблиц и 21 связь между ними. Каждый цветной блок — отдельная таблица. Стрелки показывают направление связи FOREIGN KEY (от дочерней таблицы к родительской). Это как карта метро: видно, какие таблицы с какими связаны и как данные передаются от справочников к транзакциям и аналитике.</p>
 
@@ -1629,7 +1643,7 @@ ORDER BY requires_survey DESC, days_since_last DESC;</code>
 <h3 style="margin-top: 50px;">🔗 ПОЛНЫЙ СПИСОК ВСЕХ СВЯЗЕЙ FOREIGN KEY</h3>
 
 <table>
-    <tr><th style="width: 5%;">№</th><th style="width: 25%;">Дочерняя таблица</th><th style="width: 20%;">Поле (FK)</th><th style="width: 25%;">Родительская таблица</th><th style="width: 25%;">ON DELETE</th></tr>
+    <tr><th style="width: 5%;">№</th><th style="width: 25%;">Дочірня таблиця</th><th style="width: 20%;">Поле (FK)</th><th style="width: 25%;">Батьківська таблиця</th><th style="width: 25%;">ON DELETE</th></tr>
     
     <tr><td>1</td><td><code>products</code></td><td><code>anchor_direction_id</code></td><td><code>activity_directions</code></td><td>SET NULL</td></tr>
     <tr><td>2</td><td><code>clients</code></td><td><code>activity_direction_id</code></td><td><code>activity_directions</code></td><td>SET NULL</td></tr>

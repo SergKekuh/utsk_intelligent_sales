@@ -126,6 +126,7 @@ def profile_pipes_sizes_yoy_api(
         ).fetchall()
         items = [{
             "size_key": r.size_key,
+            "size_display": r.size_display,
             "revenue_cur": float(r.revenue_cur or 0),
             "revenue_prev": float(r.revenue_prev or 0),
             "delta_abs": float(r.delta_abs or 0),

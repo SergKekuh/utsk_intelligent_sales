@@ -361,6 +361,7 @@ def get_direction_clients(
 
 
 @router.get("/api/analytics/direction/products-by-size")
+@router.get("/api/analytics/directions/products-by-size")
 def get_direction_products_by_size(
     token: str = Query(None),
     direction_id: int = Query(...),

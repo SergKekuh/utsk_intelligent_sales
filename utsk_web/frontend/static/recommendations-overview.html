@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UTSK — Рекомендації для клієнта</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --brand: #4f46e5;
+            --brand-light: #eef2ff;
+            --accent: #0ea5e9;
+            --good: #10b981;
+            --warn: #f59e0b;
+            --danger: #ef4444;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --bg: #f8fafc;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
+            padding: 24px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .top-header {
+            background: #fff;
+            border-radius: 16px;
+            padding: 20px 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.15s;
+        }
+        .back-btn:hover { background: #f1f5f9; }
+        .header-title-area { flex: 1; min-width: 280px; }
+        .header-title-area h1 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .client-meta { color: var(--text-muted); font-size: 13px; }
+        
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .kpi-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 18px 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border-left: 4px solid var(--brand);
+        }
+        .kpi-card:nth-child(1) { border-left-color: var(--brand); }
+        .kpi-card:nth-child(2) { border-left-color: var(--good); }
+        .kpi-card:nth-child(3) { border-left-color: var(--warn); }
+        .kpi-card:nth-child(4) { border-left-color: var(--accent); }
+        .kpi-card:nth-child(5) { border-left-color: #a855f7; }
+        .kpi-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-bottom: 8px;
+        }
+        .kpi-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+        .kpi-sub {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 6px;
+            background: #fff;
+            border-radius: 12px;
+            padding: 6px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            overflow-x: auto;
+        }
+        .tab-btn {
+            padding: 10px 16px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.15s;
+            font-family: inherit;
+        }
+        .tab-btn:hover { background: #f1f5f9; }
+        .tab-btn.active {
+            background: var(--brand);
+            color: #fff;
+        }
+        
+        .tab-content {
+            display: none;
+            background: #fff;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .tab-content.active { display: block; }
+        
+        .card-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        table { width: 100%; border-collapse: collapse; }
+        th {
+            text-align: left;
+            padding: 12px 14px;
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 700;
+            text-transform: uppercase;
+            border-bottom: 2px solid var(--border);
+            background: #f8fafc;
+        }
+        td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+        tr:hover td { background: #f8fafc; }
+        .num { text-align: right; font-family: 'JetBrains Mono', monospace; }
+        .text-good { color: var(--good); font-weight: 600; }
+        .text-danger { color: var(--danger); font-weight: 600; }
+        
+        .chart-container {
+            position: relative;
+            height: 360px;
+            margin-top: 16px;
+        }
+        
+        .abc-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            min-width: 24px;
+            text-align: center;
+        }
+        .abc-A { background: #dcfce7; color: #166534; }
+        .abc-B { background: #fef3c7; color: #854d0e; }
+        .abc-C { background: #fee2e2; color: #991b1b; }
+        
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+        .overview-item-card {
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            background: #fff;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .overview-item-card:hover {
+            border-color: var(--brand);
+            box-shadow: 0 6px 16px rgba(79, 70, 229, 0.12);
+            transform: translateY(-2px);
+        }
+        .overview-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+        .overview-item-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+        .overview-item-meta {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+        .overview-item-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            padding: 12px;
+            background: #f8fafc;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+        .overview-item-stat-label {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+        .overview-item-stat-val {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+        .overview-item-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .detail-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: var(--brand-light);
+            color: var(--brand);
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 12px;
+            transition: background 0.15s;
+        }
+        .detail-btn:hover {
+            background: #e0e7ff;
+        }
+        
+        .crosssell-card {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 10px;
+            background: #fff;
+            transition: border-color 0.15s;
+        }
+        .crosssell-card:hover {
+            border-color: var(--accent);
+        }
+        .crosssell-sizes {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .crosssell-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: #f1f5f9;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .crosssell-plus {
+            font-size: 16px;
+            color: var(--brand);
+            font-weight: 700;
+        }
+        .crosssell-stats {
+            text-align: right;
+        }
+        .crosssell-stats b {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 15px;
+            color: var(--brand);
+        }
+        
+        .loading, .no-data {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    
+    <header class="top-header">
+        <div class="header-title-area">
+            <a href="#" id="back-link" class="back-btn"><i class="fa-solid fa-arrow-left"></i> До клієнта</a>
+            <div style="margin-top: 12px;">
+                <h1>💡 Рекомендації для клієнта — <span id="year-title">2026</span></h1>
+                <div class="client-meta" id="client-meta">⏳ Завантаження...</div>
+            </div>
+        </div>
+    </header>
+    
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-label">📊 Топ-розмірів</div>
+            <div class="kpi-value" id="kpi-count">—</div>
+            <div class="kpi-sub">У рекомендаціях</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">💰 Сумарні продажі</div>
+            <div class="kpi-value" id="kpi-revenue">—</div>
+            <div class="kpi-sub" id="kpi-share">—</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">📦 Накладних</div>
+            <div class="kpi-value" id="kpi-invoices">—</div>
+            <div class="kpi-sub">За топ-розмірами</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">💵 Середній чек</div>
+            <div class="kpi-value" id="kpi-avg">—</div>
+            <div class="kpi-sub">За топ-розмірами</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">🏆 Топ-розмір</div>
+            <div class="kpi-value" id="kpi-top-size" style="font-size:16px;">—</div>
+            <div class="kpi-sub" id="kpi-top-revenue">—</div>
+        </div>
+    </div>
+    
+    <div class="tabs">
+        <button class="tab-btn active" onclick="openTab('tab-overview', this)"><i class="fa-solid fa-chart-pie"></i> Огляд</button>
+        <button class="tab-btn" onclick="openTab('tab-monthly', this)"><i class="fa-solid fa-calendar-days"></i> Динаміка</button>
+        <button class="tab-btn" onclick="openTab('tab-abc', this)"><i class="fa-solid fa-trophy"></i> ABC-аналіз</button>
+        <button class="tab-btn" onclick="openTab('tab-compare', this)"><i class="fa-solid fa-chart-column"></i> Порівняння</button>
+        <button class="tab-btn" onclick="openTab('tab-crosssell', this)"><i class="fa-solid fa-lightbulb"></i> Крос-сел</button>
+    </div>
+    
+    <!-- 1. Огляд -->
+    <div id="tab-overview" class="tab-content active">
+        <h2 class="card-title"><i class="fa-solid fa-list-check" style="color:var(--brand);"></i> Топ-розміри з переходом до деталізації</h2>
+        <div id="overview-content">
+            <div class="loading">⏳ Завантаження рекомендацій...</div>
+        </div>
+    </div>
+    
+    <!-- 2. Динаміка -->
+    <div id="tab-monthly" class="tab-content">
+        <h2 class="card-title"><i class="fa-solid fa-chart-column" style="color:var(--good);"></i> Помісячна динаміка топ-розмірів (2026 vs 2025)</h2>
+        <div class="chart-container">
+            <canvas id="monthly-chart"></canvas>
+        </div>
+    </div>
+    
+    <!-- 3. ABC -->
+    <div id="tab-abc" class="tab-content">
+        <h2 class="card-title"><i class="fa-solid fa-trophy" style="color:var(--warn);"></i> ABC-аналіз топ-розмірів за правилом Парето</h2>
+        <div class="chart-container" style="height: 300px; margin-bottom: 24px;">
+            <canvas id="abc-chart"></canvas>
+        </div>
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 50px;">#</th>
+                        <th>Розмір</th>
+                        <th class="num">Продажі (₴)</th>
+                        <th class="num">Частка %</th>
+                        <th class="num">Накопич. %</th>
+                        <th style="text-align: center; width: 70px;">Клас</th>
+                    </tr>
+                </thead>
+                <tbody id="abc-table-body">
+                    <tr><td colspan="6" class="loading">⏳ Завантаження...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- 4. Порівняння -->
+    <div id="tab-compare" class="tab-content">
+        <h2 class="card-title"><i class="fa-solid fa-scale-balanced" style="color:var(--accent);"></i> Порівняння продажів (2026 vs 2025)</h2>
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Розмір</th>
+                        <th class="num">Продажі 2026 (₴)</th>
+                        <th class="num">Продажі 2025 (₴)</th>
+                        <th class="num">Δ абс. (₴)</th>
+                        <th class="num">Δ %</th>
+                    </tr>
+                </thead>
+                <tbody id="compare-table-body">
+                    <tr><td colspan="5" class="loading">⏳ Завантаження...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- 5. Крос-сел -->
+    <div id="tab-crosssell" class="tab-content">
+        <h2 class="card-title"><i class="fa-solid fa-lightbulb" style="color:#a855f7;"></i> Матриця Cross-sell (які розміри купують разом)</h2>
+        <div id="crosssell-content">
+            <div class="loading">⏳ Завантаження...</div>
+        </div>
+    </div>
+    
+    <script>
+        // ═══════════════════════════════════════════════════
+        // КОНФІГУРАЦІЯ
+        // ═══════════════════════════════════════════════════
+        const urlParams = new URLSearchParams(window.location.search);
+        const TOKEN = urlParams.get('token') || 'utsk2026';
+        const CLIENT_CODE = urlParams.get('code');
+        const YEAR = parseInt(urlParams.get('year')) || 2026;
+        
+        if (!CLIENT_CODE) {
+            document.body.innerHTML = '<div class="no-data">❌ Не вказано code клієнта</div>';
+        }
+        
+        // ═══════════════════════════════════════════════════
+        // УТИЛІТИ
+        // ═══════════════════════════════════════════════════
+        function $(id) { return document.getElementById(id); }
+        function setText(id, value) { const el = $(id); if (el) el.textContent = value; }
+        
+        function fmtMoney(n) {
+            if (n == null || isNaN(n)) return '—';
+            n = Number(n);
+            if (Math.abs(n) >= 1e6) return (n / 1e6).toFixed(2) + ' млн ₴';
+            if (Math.abs(n) >= 1e3) return (n / 1e3).toFixed(1) + ' тис ₴';
+            return Math.round(n).toLocaleString('uk-UA') + ' ₴';
+        }
+        function fmtFullMoney(n) {
+            if (n == null) return '—';
+            return Number(n).toLocaleString('uk-UA', { maximumFractionDigits: 0 }) + ' ₴';
+        }
+        function fmtNum(n, d = 0) {
+            if (n == null) return '—';
+            return Number(n).toLocaleString('uk-UA', { minimumFractionDigits: d, maximumFractionDigits: d });
+        }
+        function fmtPct(n) { return n == null ? '—' : Number(n).toFixed(2) + '%'; }
+        
+        // ═══════════════════════════════════════════════════
+        // ЗАВАНТАЖЕННЯ ДАНИХ
+        // ═══════════════════════════════════════════════════
+        async function loadKPI() {
+            try {
+                const res = await fetch(`/api/analytics/recommendations-overview/kpi?token=${encodeURIComponent(TOKEN)}&code=${encodeURIComponent(CLIENT_CODE)}&year=${YEAR}`);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const json = await res.json();
+                const d = json.data;
+                if (!d) return;
+                
+                setText('year-title', YEAR);
+                setText('client-meta', `Клієнт: ${d.client_name} | Код: ${CLIENT_CODE}`);
+                $('back-link').href = `/client-detail?token=${TOKEN}&code=${CLIENT_CODE}`;
+                document.title = `UTSK — Рекомендації для ${d.client_name}`;
+                
+                setText('kpi-count', d.top_sizes_count);
+                setText('kpi-revenue', fmtMoney(d.total_revenue));
+                setText('kpi-share', `${fmtPct(d.share_of_client_pct)} від загальних`);
+                setText('kpi-invoices', fmtNum(d.total_invoices));
+                setText('kpi-avg', fmtMoney(d.avg_check));
+                setText('kpi-top-size', d.top_size_display || '—');
+                setText('kpi-top-revenue', fmtMoney(d.top_size_revenue));
+            } catch (e) {
+                console.error('[KPI]', e);
+            }
+        }
+        
+        async function loadOverview() {
+            try {
+                const res = await fetch(`/api/recommendations-by-size/${encodeURIComponent(CLIENT_CODE)}?token=${encodeURIComponent(TOKEN)}&limit=5`);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const json = await res.json();
+                const items = json.items || [];
+                
+                if (items.length === 0) {
+                    $('overview-content').innerHTML = '<div class="no-data">📭 Немає даних для рекомендацій</div>';
+                    return;
+                }
+                
+                $('overview-content').innerHTML = `
+                    <div class="overview-grid">
+                        ${items.map((r, i) => `
+                            <div class="overview-item-card">
+                                <div>
+                                    <div class="overview-item-header">
+                                        <div>
+                                            <div class="overview-item-name">${r.display_name}</div>
+                                            <div class="overview-item-meta">${r.pipe_type_ua || 'Труба'} | ${r.size_display}</div>
+                                        </div>
+                                        <span style="background:#eef2ff;color:#4f46e5;font-weight:700;font-size:11px;padding:3px 8px;border-radius:6px;">
+                                            #${i + 1}
+                                        </span>
+                                    </div>
+                                    <div class="overview-item-stats">
+                                        <div>
+                                            <div class="overview-item-stat-label">Виручка 2026</div>
+                                            <div class="overview-item-stat-val">${fmtMoney(r.revenue)}</div>
+                                        </div>
+                                        <div>
+                                            <div class="overview-item-stat-label">Частка клієнта</div>
+                                            <div class="overview-item-stat-val">${fmtPct(r.pct)}</div>
+                                        </div>
+                                        <div>
+                                            <div class="overview-item-stat-label">Покупок</div>
+                                            <div class="overview-item-stat-val">${r.count} накл.</div>
+                                        </div>
+                                        <div>
+                                            <div class="overview-item-stat-label">Залишок на складі</div>
+                                            <div class="overview-item-stat-val" style="color:var(--good);">${fmtNum(r.stock, 1)} т</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="overview-item-footer">
+                                    <small style="color:var(--text-muted);">${r.reason || 'Часто купуєте'}</small>
+                                    <a href="/product-recommendation-detail?token=${TOKEN}&code=${CLIENT_CODE}&size_key=${encodeURIComponent(r.size_key)}&year=${YEAR}"
+                                       class="detail-btn">
+                                        Аналіз розміру <i class="fa-solid fa-arrow-right"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } catch (e) {
+                console.error('[Overview]', e);
+                $('overview-content').innerHTML = `<div class="no-data">⚠️ Помилка завантаження: ${e.message}</div>`;
+            }
+        }
+        
+        async function loadMonthly() {
+            try {
+                const res = await fetch(`/api/analytics/recommendations-overview/monthly?token=${encodeURIComponent(TOKEN)}&code=${encodeURIComponent(CLIENT_CODE)}&year=${YEAR}`);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const json = await res.json();
+                const items = json.data || [];
+                if (items.length === 0) return;
+                
+                const bySize = {};
+                items.forEach(i => {
+                    if (!bySize[i.size_key]) bySize[i.size_key] = { name: i.display_name, months: [] };
+                    bySize[i.size_key].months.push(i);
+                });
+                
+                const datasets = [];
+                const colors = ['#4f46e5', '#10b981', '#f59e0b', '#0ea5e9', '#8b5cf6'];
+                let idx = 0;
+                for (const [key, val] of Object.entries(bySize)) {
+                    datasets.push({
+                        label: val.name,
+                        data: val.months.map(m => m.revenue_cur),
+                        backgroundColor: colors[idx % colors.length],
+                        borderRadius: 4,
+                    });
+                    idx++;
+                }
+                
+                const ctx = $('monthly-chart').getContext('2d');
+                if (window._monthlyChart) window._monthlyChart.destroy();
+                window._monthlyChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: items.slice(0, 12).map(m => m.month_name),
+                        datasets: datasets,
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'top' },
+                            tooltip: {
+                                callbacks: {
+                                    label: c => `${c.dataset.label}: ${fmtFullMoney(c.raw)}`,
+                                },
+                            },
+                        },
+                        scales: {
+                            x: { stacked: true },
+                            y: { stacked: true, beginAtZero: true, ticks: { callback: v => fmtMoney(v) } },
+                        },
+                    },
+                });
+            } catch (e) {
+                console.error('[Monthly]', e);
+            }
+        }
+        
+        async function loadABC() {
+            try {
+                const res = await fetch(`/api/analytics/recommendations-overview/abc?token=${encodeURIComponent(TOKEN)}&code=${encodeURIComponent(CLIENT_CODE)}&year=${YEAR}`);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const json = await res.json();
+                const items = json.data || [];
+                if (items.length === 0) {
+                    $('abc-table-body').innerHTML = '<tr><td colspan="6" class="no-data">📭 Немає даних</td></tr>';
+                    return;
+                }
+                
+                $('abc-table-body').innerHTML = items.map(r => `
+                    <tr>
+                        <td><b>${r.rank}</b></td>
+                        <td><b>${r.display_name}</b></td>
+                        <td class="num">${fmtFullMoney(r.revenue)}</td>
+                        <td class="num">${fmtPct(r.share_pct)}</td>
+                        <td class="num">${fmtPct(r.cumulative_pct)}</td>
+                        <td style="text-align: center;"><span class="abc-badge abc-${r.abc_class}">${r.abc_class}</span></td>
+                    </tr>
+                `).join('');
+                
+                const ctx = $('abc-chart').getContext('2d');
+                if (window._abcChart) window._abcChart.destroy();
+                window._abcChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: items.map(r => r.display_name),
+                        datasets: [
+                            {
+                                type: 'line',
+                                label: 'Накопичувальна частка %',
+                                data: items.map(r => r.cumulative_pct),
+                                borderColor: '#ef4444',
+                                backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                                tension: 0.3,
+                                fill: false,
+                                yAxisID: 'y1',
+                                pointRadius: 5,
+                                pointBackgroundColor: '#ef4444',
+                            },
+                            {
+                                type: 'bar',
+                                label: 'Виручка (₴)',
+                                data: items.map(r => r.revenue),
+                                backgroundColor: '#4f46e5',
+                                borderRadius: 6,
+                                yAxisID: 'y',
+                            },
+                        ],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'top' },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        if (context.dataset.yAxisID === 'y1') {
+                                            return `${context.dataset.label}: ${context.raw}%`;
+                                        }
+                                        return `${context.dataset.label}: ${fmtFullMoney(context.raw)}`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                position: 'left',
+                                ticks: { callback: v => fmtMoney(v) },
+                            },
+                            y1: {
+                                beginAtZero: true,
+                                max: 100,
+                                position: 'right',
+                                grid: { drawOnChartArea: false },
+                                ticks: { callback: v => v + '%' },
+                            },
+                        },
+                    },
+                });
+            } catch (e) {
+                console.error('[ABC]', e);
+            }
+        }
+        
+        async function loadCompare() {
+            try {
+                const res = await fetch(`/api/analytics/recommendations-overview/monthly?token=${encodeURIComponent(TOKEN)}&code=${encodeURIComponent(CLIENT_CODE)}&year=${YEAR}`);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const json = await res.json();
+                const items = json.data || [];
+                
+                const bySize = {};
+                items.forEach(i => {
+                    if (!bySize[i.size_key]) bySize[i.size_key] = { name: i.display_name, cur: 0, prev: 0 };
+                    bySize[i.size_key].cur += i.revenue_cur;
+                    bySize[i.size_key].prev += i.revenue_prev;
+                });
+                
+                const rows = Object.entries(bySize).map(([key, v]) => ({
+                    name: v.name,
+                    cur: v.cur,
+                    prev: v.prev,
+                    delta: v.cur - v.prev,
+                    deltaPct: v.prev > 0 ? ((v.cur - v.prev) / v.prev * 100) : null,
+                })).sort((a, b) => b.cur - a.cur);
+                
+                if (rows.length === 0) {
+                    $('compare-table-body').innerHTML = '<tr><td colspan="5" class="no-data">📭 Немає даних для порівняння</td></tr>';
+                    return;
+                }
+                
+                $('compare-table-body').innerHTML = rows.map(r => `
+                    <tr>
+                        <td><b>${r.name}</b></td>
+                        <td class="num">${fmtFullMoney(r.cur)}</td>
+                        <td class="num">${fmtFullMoney(r.prev)}</td>
+                        <td class="num ${r.delta > 0 ? 'text-good' : (r.delta < 0 ? 'text-danger' : '')}">${r.delta > 0 ? '+' : ''}${fmtFullMoney(r.delta)}</td>
+                        <td class="num ${r.deltaPct > 0 ? 'text-good' : (r.deltaPct < 0 ? 'text-danger' : '')}">${r.deltaPct != null ? (r.deltaPct > 0 ? '+' : '') + fmtPct(r.deltaPct) : '—'}</td>
+                    </tr>
+                `).join('');
+            } catch (e) {
+                console.error('[Compare]', e);
+                $('compare-table-body').innerHTML = `<tr><td colspan="5" class="no-data">⚠️ Помилка: ${e.message}</td></tr>`;
+            }
+        }
+        
+        async function loadCrosssell() {
+            try {
+                const res = await fetch(`/api/analytics/recommendations-overview/crosssell?token=${encodeURIComponent(TOKEN)}&code=${encodeURIComponent(CLIENT_CODE)}&year=${YEAR}`);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const json = await res.json();
+                const items = json.data || [];
+                
+                if (items.length === 0) {
+                    $('crosssell-content').innerHTML = `
+                        <div class="no-data">
+                            <i class="fa-solid fa-circle-info" style="font-size:24px;color:var(--brand);margin-bottom:8px;display:block;"></i>
+                            <b>Немає перетинів розмірів у спільних накладних</b>
+                            <div style="margin-top:6px;font-size:12px;color:var(--text-muted);">
+                                Клієнт купує рекомендовані розміри окремими партіями або накладними.
+                            </div>
+                        </div>`;
+                    return;
+                }
+                
+                $('crosssell-content').innerHTML = items.map(c => `
+                    <div class="crosssell-card">
+                        <div class="crosssell-sizes">
+                            <span class="crosssell-pill"><i class="fa-solid fa-cube" style="color:var(--brand);"></i> ${c.display_name_a}</span>
+                            <span class="crosssell-plus">+</span>
+                            <span class="crosssell-pill"><i class="fa-solid fa-cube" style="color:var(--accent);"></i> ${c.display_name_b}</span>
+                        </div>
+                        <div class="crosssell-stats">
+                            <b>${c.affinity_pct}%</b>
+                            <small style="display:block;color:var(--text-muted);">${c.same_invoice_count} спільних накладних</small>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                console.error('[Crosssell]', e);
+            }
+        }
+        
+        function openTab(tabId, btn) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            $(tabId).classList.add('active');
+            if (btn) btn.classList.add('active');
+        }
+        window.openTab = openTab;
+        
+        async function loadAll() {
+            try { await loadKPI(); } catch(e) { console.error('KPI:', e); }
+            try { await loadOverview(); } catch(e) { console.error('Overview:', e); }
+            try { await loadMonthly(); } catch(e) { console.error('Monthly:', e); }
+            try { await loadABC(); } catch(e) { console.error('ABC:', e); }
+            try { await loadCompare(); } catch(e) { console.error('Compare:', e); }
+            try { await loadCrosssell(); } catch(e) { console.error('Crosssell:', e); }
+        }
+        
+        loadAll();
+    </script>
+</body>
+</html>

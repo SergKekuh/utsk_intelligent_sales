@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>💰 UTSK — Анализ выручки клиента</title>
+    <title>💰 UTSK — Аналіз продажів клієнта</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -254,9 +254,9 @@
         <!-- Top Header -->
         <header class="top-header">
             <div class="header-left">
-                <a href="#" id="btn-client-detail" class="btn-back">← В карточку клиента</a>
+                <a href="#" id="btn-client-detail" class="btn-back">← До картки клієнта</a>
                 <div class="client-title">
-                    <h1 id="client-name">💰 Анализ выручки клиента</h1>
+                    <h1 id="client-name">💰 Аналіз продажів клієнта</h1>
                     <div class="client-meta">
                         <span>Код: <strong id="client-code">—</strong></span>
                         <span>•</span>
@@ -278,24 +278,24 @@
         <!-- KPI Cards Grid -->
         <section class="kpi-grid">
             <div class="kpi-card" style="border-top-color: #4f46e5;">
-                <span class="kpi-title">💰 Выручка за текущий год</span>
+                <span class="kpi-title">💰 Продажі за поточний рік</span>
                 <span class="kpi-value" id="kpi-rev-curr" style="color:#4f46e5;">—</span>
-                <span class="kpi-subtext">Товарная без услуг</span>
+                <span class="kpi-subtext">Товарні без послуг</span>
             </div>
             <div class="kpi-card" style="border-top-color: #64748b;">
-                <span class="kpi-title">📅 Выручка за прошлый год</span>
+                <span class="kpi-title">📅 Продажі за минулий рік</span>
                 <span class="kpi-value" id="kpi-rev-prev">—</span>
-                <span class="kpi-subtext">Сравнение YoY</span>
+                <span class="kpi-subtext">Порівняння YoY</span>
             </div>
             <div class="kpi-card" style="border-top-color: #10b981;">
-                <span class="kpi-title">📈 Динамика выручки YoY</span>
+                <span class="kpi-title">📈 Динаміка продажів YoY</span>
                 <span class="kpi-value" id="kpi-growth">—</span>
-                <span class="kpi-subtext">Рост к прошлому году</span>
+                <span class="kpi-subtext">Зростання до минулого року</span>
             </div>
             <div class="kpi-card" style="border-top-color: #06b6d4;">
-                <span class="kpi-title">📊 Среднемесячная выручка</span>
+                <span class="kpi-title">📊 Середньомісячні продажі</span>
                 <span class="kpi-value" id="kpi-avg-monthly">—</span>
-                <span class="kpi-subtext">За 12 месяцев</span>
+                <span class="kpi-subtext">За 12 місяців</span>
             </div>
         </section>
 
@@ -303,8 +303,8 @@
         <div class="grid-2">
             <div class="panel-card">
                 <div class="panel-title">
-                    <span>📊 Помесячная выручка (2026 vs 2025)</span>
-                    <span style="font-size:12px;color:var(--text-muted);">Сравнение помесячно</span>
+                    <span>📊 Помісячні продажі (2026 vs 2025)</span>
+                    <span style="font-size:12px;color:var(--text-muted);">Порівняння помісячно</span>
                 </div>
                 <div class="chart-container">
                     <canvas id="chart-monthly-bar"></canvas>
@@ -313,8 +313,8 @@
 
             <div class="panel-card">
                 <div class="panel-title">
-                    <span>📈 Накопительная выручка (Cumulative Trend)</span>
-                    <span style="font-size:12px;color:var(--text-muted);">Сумма с начала года</span>
+                    <span>📈 Накопичувальні продажі (Cumulative Trend)</span>
+                    <span style="font-size:12px;color:var(--text-muted);">Сума з початку року</span>
                 </div>
                 <div class="chart-container">
                     <canvas id="chart-cumulative-line"></canvas>
@@ -325,23 +325,23 @@
         <!-- Table Panel -->
         <div class="panel-card" style="margin-bottom:24px;">
             <div class="panel-title">
-                <span>📋 Помесячный детализированный отчёт по выручке</span>
-                <span id="client-share-badge" class="badge badge-neutral">Доля в продажах компании: —</span>
+                <span>📋 Помісячний деталізований звіт з продажів</span>
+                <span id="client-share-badge" class="badge badge-neutral">Частка у продажах компанії: —</span>
             </div>
             <div class="table-responsive">
                 <table class="custom-table">
                     <thead>
                         <tr>
-                            <th>Месяц</th>
-                            <th style="text-align:right;">Выручка 2026 (₴)</th>
-                            <th style="text-align:right;">Выручка 2025 (₴)</th>
-                            <th style="text-align:center;">Рост YoY %</th>
-                            <th style="text-align:right;">Накопительно 2026 (₴)</th>
-                            <th style="text-align:right;">Накопительно 2025 (₴)</th>
+                            <th>Місяць</th>
+                            <th style="text-align:right;">Продажі 2026 (₴)</th>
+                            <th style="text-align:right;">Продажі 2025 (₴)</th>
+                            <th style="text-align:center;">Зростання YoY %</th>
+                            <th style="text-align:right;">Накопичувально 2026 (₴)</th>
+                            <th style="text-align:right;">Накопичувально 2025 (₴)</th>
                         </tr>
                     </thead>
                     <tbody id="revenue-table-body">
-                        <tr><td colspan="6" style="text-align:center;">⏳ Загрузка данных...</td></tr>
+                        <tr><td colspan="6" style="text-align:center;">⏳ Завантаження даних...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -384,11 +384,11 @@
 
                 // Client Info
                 const info = data.client_info;
-                document.getElementById('client-name').textContent = `💰 Анализ выручки: ${info.name}`;
+                document.getElementById('client-name').textContent = `💰 Аналіз продажів: ${info.name}`;
                 document.getElementById('client-code').textContent = info.code;
                 document.getElementById('client-status').textContent = info.status_name;
                 document.getElementById('client-abc').textContent = info.abc_group;
-                document.getElementById('client-share-badge').textContent = `Доля в общей выручке компании: ${info.client_share_pct}%`;
+                document.getElementById('client-share-badge').textContent = `Частка у загальних продажах компанії: ${info.client_share_pct}%`;
 
                 // KPI Cards
                 const kpi = data.kpi;
@@ -436,7 +436,7 @@
                     tr.className = 'month-row';
                     tr.style.cursor = 'pointer';
                     tr.style.transition = 'background 0.15s';
-                    tr.title = `Открыть детальный анализ за ${m.month_name} ${year}`;
+                    tr.title = `Відкрити детальний аналіз за ${m.month_name} ${year}`;
                     tr.onclick = () => { window.location.href = monthUrl; };
 
                     tr.innerHTML = `
@@ -467,8 +467,8 @@
                 renderChart('chart-cumulative-line', 'line', {
                     labels: monthsLabels,
                     datasets: [
-                        { label: `Накопительно ${year}`, data: cumCurrs, borderColor: '#4f46e5', backgroundColor: 'rgba(79,70,229,0.1)', fill: true, tension: 0.3 },
-                        { label: `Накопительно ${year - 1}`, data: cumPrevs, borderColor: '#94a3b8', borderDash: [4, 4], fill: false, tension: 0.3 }
+                        { label: `Накопичувально ${year}`, data: cumCurrs, borderColor: '#4f46e5', backgroundColor: 'rgba(79,70,229,0.1)', fill: true, tension: 0.3 },
+                        { label: `Накопичувально ${year - 1}`, data: cumPrevs, borderColor: '#94a3b8', borderDash: [4, 4], fill: false, tension: 0.3 }
                     ]
                 });
 

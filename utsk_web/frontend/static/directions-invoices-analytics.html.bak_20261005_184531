@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📑 UTSK — Аналитика накладных по отраслям</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --bg-main: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --border-light: #f1f5f9;
+            --brand: #0284c7;
+            --brand-light: #e0f2fe;
+            --accent: #8b5cf6;
+            --good: #10b981;
+            --warn: #f59e0b;
+            --danger: #ef4444;
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+            --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.05);
+            --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-main);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 24px;
+            line-height: 1.5;
+        }
+
+        .container { max-width: 1600px; margin: 0 auto; }
+
+        .page-header {
+            background: var(--bg-card);
+            padding: 20px 24px;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .header-title-area { display: flex; align-items: center; gap: 14px; }
+        .header-icon {
+            width: 48px; height: 48px; border-radius: 12px;
+            background: #fffbeb; color: var(--warn);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px;
+        }
+        .header-title h1 { font-size: 22px; font-weight: 800; color: var(--text-main); }
+        .header-title p { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+
+        .header-controls { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .select-year {
+            padding: 9px 16px; border: 1px solid var(--border);
+            border-radius: var(--radius-md); background: var(--bg-card);
+            font-weight: 600; font-size: 14px; cursor: pointer; color: var(--text-main);
+        }
+        .btn-nav {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 9px 16px; border-radius: var(--radius-md);
+            font-size: 13px; font-weight: 600; text-decoration: none;
+            background: #f1f5f9; color: var(--text-main); border: 1px solid var(--border);
+            transition: all 0.15s;
+        }
+        .btn-nav:hover { background: var(--brand-light); color: var(--brand); border-color: #bae6fd; }
+        .btn-nav.primary { background: var(--warn); color: white; border-color: var(--warn); }
+        .btn-nav.primary:hover { background: #d97706; }
+
+        /* KPI Grid */
+        .kpi-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px; margin-bottom: 24px;
+        }
+        .kpi-card {
+            background: var(--bg-card); border-radius: var(--radius-lg);
+            padding: 20px; border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm); position: relative; overflow: hidden;
+        }
+        .kpi-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+            background: var(--warn);
+        }
+        .kpi-card.amber::before { background: var(--warn); }
+        .kpi-card.green::before { background: var(--good); }
+        .kpi-card.blue::before { background: var(--brand); }
+        .kpi-card.purple::before { background: var(--accent); }
+        .kpi-card.indigo::before { background: #6366f1; }
+
+        .kpi-label {
+            font-size: 12px; font-weight: 700; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.5px;
+            margin-bottom: 8px; display: flex; align-items: center; gap: 8px;
+        }
+        .kpi-value {
+            font-family: 'JetBrains Mono', monospace; font-size: 26px; font-weight: 800;
+            color: var(--text-main); line-height: 1.2;
+        }
+        .kpi-sub { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
+
+        /* Charts Row */
+        .grid-2 {
+            display: grid; grid-template-columns: 1.2fr 1fr; gap: 20px; margin-bottom: 24px;
+        }
+        @media (max-width: 1024px) { .grid-2 { grid-template-columns: 1fr; } }
+
+        .card {
+            background: var(--bg-card); border-radius: var(--radius-lg);
+            border: 1px solid var(--border); padding: 22px;
+            box-shadow: var(--shadow-sm);
+        }
+        .card-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 16px;
+        }
+        .card-title {
+            font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 10px;
+        }
+        .chart-box { position: relative; height: 340px; }
+
+        /* Tables */
+        .table-responsive { overflow-x: auto; margin-top: 8px; }
+        .data-table {
+            width: 100%; border-collapse: collapse; font-size: 13.5px;
+        }
+        .data-table th {
+            text-align: left; padding: 12px 14px;
+            background: #f8fafc; color: var(--text-muted);
+            font-weight: 700; font-size: 11.5px; text-transform: uppercase;
+            letter-spacing: 0.5px; border-bottom: 2px solid var(--border);
+            white-space: nowrap;
+        }
+        .data-table td {
+            padding: 12px 14px; border-bottom: 1px solid var(--border-light);
+            vertical-align: middle;
+        }
+        .data-table tr:hover td { background: #f8fafc; }
+        .num { font-family: 'JetBrains Mono', monospace; text-align: right; }
+        .progress-bar-bg {
+            background: #e2e8f0; height: 6px; border-radius: 3px; overflow: hidden; margin-top: 4px;
+        }
+        .progress-bar-fill {
+            height: 100%; background: var(--warn); border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="page-header">
+            <div class="header-title-area">
+                <div class="header-icon">📑</div>
+                <div class="header-title">
+                    <h1>Аналитика накладных и отгрузок по отраслям</h1>
+                    <p>Интенсивность документооборота, распределение по дням недели и анализ накладных</p>
+                </div>
+            </div>
+            <div class="header-controls">
+                <select id="yearSelect" class="select-year" onchange="onYearChange()">
+                    <option value="2026">2026 год</option>
+                    <option value="2025">2025 год</option>
+                    <option value="2024">2024 год</option>
+                </select>
+                <a href="#" id="backToDirectionsBtn" class="btn-nav primary">← К направлениям</a>
+                <a href="/?token=utsk2026" class="btn-nav">🏠 Дашборд</a>
+            </div>
+        </header>
+
+        <!-- KPI Cards -->
+        <section class="kpi-grid">
+            <div class="kpi-card amber">
+                <div class="kpi-label"><i class="fa-solid fa-file-invoice"></i> Накладных / Отгрузок</div>
+                <div class="kpi-value" id="kpi-total-inv">—</div>
+                <div class="kpi-sub" id="kpi-total-inv-sub">Всего документов за год</div>
+            </div>
+            <div class="kpi-card green">
+                <div class="kpi-label"><i class="fa-solid fa-money-bill-wave"></i> Сумма по отгрузкам</div>
+                <div class="kpi-value" id="kpi-total-amt">—</div>
+                <div class="kpi-sub">Товарная реализация</div>
+            </div>
+            <div class="kpi-card indigo">
+                <div class="kpi-label"><i class="fa-solid fa-calculator"></i> Средняя накладная</div>
+                <div class="kpi-value" id="kpi-avg-inv">—</div>
+                <div class="kpi-sub">Сумма / количество документов</div>
+            </div>
+            <div class="kpi-card blue">
+                <div class="kpi-label"><i class="fa-solid fa-repeat"></i> Накладных на клиента</div>
+                <div class="kpi-value" id="kpi-inv-per-client">—</div>
+                <div class="kpi-sub">Интенсивность повторных заказов</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label"><i class="fa-solid fa-calendar-check"></i> Пиковый день</div>
+                <div class="kpi-value" id="kpi-peak-day" style="font-size:20px;">—</div>
+                <div class="kpi-sub" id="kpi-peak-day-sub">Максимум отгрузок в неделю</div>
+            </div>
+        </section>
+
+        <!-- Charts Row -->
+        <section class="grid-2">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fa-solid fa-chart-column" style="color:var(--warn)"></i> Документооборот по отраслям</h3>
+                    <span id="chartInvoicesTag" style="font-size:12px;color:var(--text-muted);">2026 год</span>
+                </div>
+                <div class="chart-box">
+                    <canvas id="chartInvoicesBar"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fa-solid fa-calendar-week" style="color:var(--brand)"></i> Распределение отгрузок по дням недели</h3>
+                    <span style="font-size:12px;color:var(--text-muted);">Всего за год</span>
+                </div>
+                <div class="chart-box">
+                    <canvas id="chartDowBar"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Table 1: Direction Invoices Breakdown -->
+        <section class="card" style="margin-bottom: 24px;">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fa-solid fa-list-check" style="color:var(--good)"></i> Отгрузки по отраслям</h3>
+                <span id="tableDirsSub" style="font-size:13px;color:var(--text-muted);">14 отраслей</span>
+            </div>
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 40px;">#</th>
+                            <th>Отрасль</th>
+                            <th class="num">Накладных</th>
+                            <th style="width: 140px;">Доля накладных</th>
+                            <th class="num">Клиентов</th>
+                            <th class="num">Сумма реализации</th>
+                            <th class="num">Ср. чек накладной</th>
+                            <th class="num">Мин. чек</th>
+                            <th class="num">Макс. чек</th>
+                            <th class="num">Накладных / кл.</th>
+                        </tr>
+                    </thead>
+                    <tbody id="invoicesTbody">
+                        <tr><td colspan="10" style="text-align:center;padding:24px;color:var(--text-muted);">Загрузка аналитики...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Table 2: Top Invoices of Year -->
+        <section class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fa-solid fa-receipt" style="color:var(--accent)"></i> ТОП-10 крупнейших накладных года</h3>
+                <span style="font-size:13px;color:var(--text-muted);">Рекордные отгрузки</span>
+            </div>
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 40px;">#</th>
+                            <th>Номер накладной</th>
+                            <th>Дата отгрузки</th>
+                            <th>Код клиента</th>
+                            <th>Клиент</th>
+                            <th>Отрасль</th>
+                            <th class="num">Сумма накладной</th>
+                        </tr>
+                    </thead>
+                    <tbody id="topInvoicesTbody">
+                        <tr><td colspan="7" style="text-align:center;padding:20px;color:var(--text-muted);">Загрузка...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const TOKEN = urlParams.get('token') || 'utsk2026';
+        let currentYear = parseInt(urlParams.get('year')) || 2026;
+
+        let invoicesBarChart = null;
+        let dowBarChart = null;
+
+        function fmtM(val) {
+            if (!val || isNaN(val)) return '0 ₴';
+            const v = parseFloat(val);
+            if (Math.abs(v) >= 1000000) {
+                return (v / 1000000).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' млн ₴';
+            }
+            return Math.round(v).toLocaleString('ru-RU') + ' ₴';
+        }
+
+        function fmtNum(val) {
+            if (!val || isNaN(val)) return '0';
+            return parseInt(val).toLocaleString('ru-RU');
+        }
+
+        function fmtPct(val) {
+            if (!val || isNaN(val)) return '0.0%';
+            return parseFloat(val).toFixed(1) + '%';
+        }
+
+        function onYearChange() {
+            currentYear = parseInt(document.getElementById('yearSelect').value);
+            window.location.href = `/directions-invoices-analytics?token=${TOKEN}&year=${currentYear}`;
+        }
+
+        async function loadInvoicesAnalytics() {
+            try {
+                document.getElementById('backToDirectionsBtn').href = `/directions-analytics?token=${TOKEN}&year=${currentYear}`;
+                document.getElementById('yearSelect').value = currentYear;
+                document.getElementById('chartInvoicesTag').textContent = `${currentYear} год`;
+
+                const res = await fetch(`/api/analytics/directions/invoices-analytics?token=${TOKEN}&year=${currentYear}`);
+                const json = await res.json();
+                if (json.status !== 'ok' || !json.data) {
+                    throw new Error('Не удалось загрузить данные');
+                }
+                renderDashboard(json.data);
+            } catch (err) {
+                console.error(err);
+                document.getElementById('invoicesTbody').innerHTML = `<tr><td colspan="10" style="text-align:center;color:var(--danger);padding:20px;">⚠️ Ошибка: ${err.message}</td></tr>`;
+            }
+        }
+
+        function renderDashboard(data) {
+            const dirs = data.directions || [];
+            const totalInv = data.total_invoices || 0;
+            const totalClients = data.total_clients || 1;
+            const totalAmt = data.total_amount || 0;
+            const avgInv = data.avg_invoice || (totalInv > 0 ? totalAmt / totalInv : 0);
+            const invPerClient = totalClients > 0 ? (totalInv / totalClients).toFixed(2) : '0';
+
+            const dows = data.day_of_week || [];
+            const peakDow = [...dows].sort((a, b) => b.invoices_count - a.invoices_count)[0] || {};
+
+            // KPI
+            document.getElementById('kpi-total-inv').textContent = fmtNum(totalInv);
+            document.getElementById('kpi-total-amt').textContent = fmtM(totalAmt);
+            document.getElementById('kpi-avg-inv').textContent = fmtM(avgInv);
+            document.getElementById('kpi-inv-per-client').textContent = `${invPerClient} док.`;
+            document.getElementById('kpi-peak-day').textContent = peakDow.dow_name || '—';
+            document.getElementById('kpi-peak-day-sub').textContent = `${fmtNum(peakDow.invoices_count)} накладных (${fmtM(peakDow.amount)})`;
+            document.getElementById('tableDirsSub').textContent = `${dirs.length} активных отраслей`;
+
+            // Charts
+            renderInvoicesBar(dirs);
+            renderDowBar(dows);
+
+            // Tables
+            renderInvoicesTable(dirs);
+            renderTopInvoicesTable(data.top_invoices || []);
+        }
+
+        function renderInvoicesBar(dirs) {
+            const ctx = document.getElementById('chartInvoicesBar').getContext('2d');
+            if (invoicesBarChart) invoicesBarChart.destroy();
+
+            const sorted = [...dirs].sort((a, b) => b.invoices_count - a.invoices_count).slice(0, 8);
+
+            invoicesBarChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: sorted.map(d => `${d.icon} ${d.direction_name}`),
+                    datasets: [{
+                        label: 'Количество накладных',
+                        data: sorted.map(d => d.invoices_count),
+                        backgroundColor: sorted.map(d => d.color),
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => ` Накладных: ${fmtNum(ctx.raw)} (${fmtPct(dirs[ctx.dataIndex] ? dirs[ctx.dataIndex].share_pct : 0)})`
+                            }
+                        }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        function renderDowBar(dows) {
+            const ctx = document.getElementById('chartDowBar').getContext('2d');
+            if (dowBarChart) dowBarChart.destroy();
+
+            const shortNames = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+            const labels = dows.map(d => shortNames[(d.dow - 1) % 7] || d.dow_name);
+            const counts = dows.map(d => d.invoices_count);
+            const colors = dows.map(d => d.dow <= 5 ? '#0284c7' : '#94a3b8');
+
+            dowBarChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Накладных',
+                        data: counts,
+                        backgroundColor: colors,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                title: ctx => dows[ctx[0].dataIndex].dow_name,
+                                label: ctx => ` Накладных: ${fmtNum(ctx.raw)} (${fmtM(dows[ctx.dataIndex].amount)})`
+                            }
+                        }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        function renderInvoicesTable(dirs) {
+            const tbody = document.getElementById('invoicesTbody');
+            if (!dirs || dirs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:24px;">Нет данных</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = dirs.map((d, idx) => `
+                <tr>
+                    <td style="color:var(--text-muted);font-weight:600;">${idx + 1}</td>
+                    <td>
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <span style="font-size:18px;">${d.icon}</span>
+                            <strong>${d.direction_name}</strong>
+                        </div>
+                    </td>
+                    <td class="num" style="font-weight:800;color:var(--warn);">${fmtNum(d.invoices_count)}</td>
+                    <td>
+                        <div style="display:flex;align-items:center;gap:8px;">
+                            <span style="font-size:12px;font-weight:600;min-width:38px;">${fmtPct(d.share_pct)}</span>
+                            <div class="progress-bar-bg" style="flex:1;">
+                                <div class="progress-bar-fill" style="width:${Math.min(100, d.share_pct)}%;background:${d.color};"></div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="num">${fmtNum(d.clients_count)}</td>
+                    <td class="num" style="font-weight:700;">${fmtM(d.total_amount)}</td>
+                    <td class="num" style="font-weight:600;color:var(--brand);">${fmtM(d.avg_invoice)}</td>
+                    <td class="num" style="color:var(--text-muted);font-size:12px;">${fmtM(d.min_invoice)}</td>
+                    <td class="num" style="color:var(--good);font-weight:600;">${fmtM(d.max_invoice)}</td>
+                    <td class="num" style="font-weight:700;">${d.invoices_per_client}</td>
+                </tr>
+            `).join('');
+        }
+
+        function renderTopInvoicesTable(invoices) {
+            const tbody = document.getElementById('topInvoicesTbody');
+            if (!invoices || invoices.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:20px;">Нет документов</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = invoices.map((inv, idx) => `
+                <tr>
+                    <td style="color:var(--text-muted);font-weight:600;">${idx + 1}</td>
+                    <td style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--brand);font-weight:700;">
+                        ${inv.doc_number || inv.doc_id}
+                    </td>
+                    <td style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-muted);">${inv.invoice_date}</td>
+                    <td style="font-family:'JetBrains Mono',monospace;font-size:12px;">
+                        <a href="/client-detail?token=${TOKEN}&code=${inv.client_code}" style="color:inherit;text-decoration:none;">${inv.client_code}</a>
+                    </td>
+                    <td style="font-weight:600;">
+                        <a href="/client-detail?token=${TOKEN}&code=${inv.client_code}" style="color:inherit;text-decoration:none;">${inv.client_name}</a>
+                    </td>
+                    <td><span style="font-size:12px;background:#f1f5f9;padding:3px 8px;border-radius:6px;">${inv.direction_name}</span></td>
+                    <td class="num" style="font-weight:700;color:var(--good);">${fmtM(inv.amount)}</td>
+                </tr>
+            `).join('');
+        }
+
+        window.addEventListener('DOMContentLoaded', loadInvoicesAnalytics);
+    </script>
+</body>
+</html>

@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UTSK — Детализация клиента</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-app: #f8fafc;
+            --bg-surface: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --primary: #047857;
+            --primary-light: #ecfdf5;
+            --accent: #0284c7;
+            --radius-lg: 16px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-app);
+            color: var(--text-main);
+            line-height: 1.5;
+            padding: 24px;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        /* Top Header */
+        .top-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-surface);
+            padding: 20px 24px;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 24px;
+        }
+
+        .header-title-area {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #f1f5f9;
+            color: var(--text-main);
+            text-decoration: none;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            border: 1px solid var(--border);
+        }
+
+        .back-btn:hover {
+            background: #e2e8f0;
+            transform: translateX(-2px);
+        }
+
+        .client-info h1 {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .client-info .client-meta {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* KPI Card Links */
+        .kpi-card-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            cursor: pointer;
+        }
+
+        .kpi-card-link:hover .kpi-card {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(79, 70, 229, 0.15);
+            border-color: #4f46e5;
+        }
+
+        /* KPI Cards Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .kpi-card {
+            background: var(--bg-surface);
+            padding: 20px 24px;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .kpi-value {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--text-main);
+            line-height: 1.2;
+        }
+
+        .kpi-sub {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 6px;
+        }
+
+        /* Status Pills */
+        .status-pill {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .status-pill.green { background: #dcfce7; color: #166534; }
+        .status-pill.blue { background: #e0f2fe; color: #075985; }
+        .status-pill.orange { background: #ffedd5; color: #9a3412; }
+
+        /* Content Grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card-block {
+            background: var(--bg-surface);
+            padding: 24px;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .block-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .block-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 320px;
+            width: 100%;
+        }
+
+        /* Filter Bar */
+        .filter-bar {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            padding: 14px 18px;
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .filter-bar select,
+        .filter-bar input {
+            padding: 8px 14px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+            background: #fff;
+            color: var(--text-main);
+            cursor: pointer;
+        }
+
+        .filter-bar label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .btn-filter {
+            padding: 8px 16px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .btn-filter:hover {
+            background: #0369a1;
+        }
+
+        /* Table */
+        .table-scroll {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px 16px;
+            background: #f8fafc;
+            color: var(--text-muted);
+            font-weight: 600;
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f1f5f9;
+            color: var(--text-main);
+        }
+
+        tr:hover td {
+            background: #f8fafc;
+        }
+
+        /* ====== БЛОК РЕКОМЕНДАЦИЙ — КЛИКАБЕЛЬНЫЙ ЦЕЛИКОМ ====== */
+        .rec-block-clickable {
+            display: block;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+        .rec-block-clickable:hover {
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.15);
+            transform: translateY(-2px);
+            border-color: #bfdbfe;
+        }
+        .rec-block-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .rec-block-clickable .rec-item {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Карточка рекомендации */
+        .rec-item {
+            display: block;
+            padding: 14px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            background: #fff;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.15s;
+        }
+        .rec-item:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.08);
+            transform: translateY(-1px);
+        }
+        .rec-item:last-child {
+            margin-bottom: 0;
+        }
+        .rec-top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 4px;
+            gap: 12px;
+        }
+        .rec-top-row b {
+            font-size: 14px;
+            font-weight: 600;
+            color: #0f172a;
+        }
+        .rec-top-stats {
+            display: flex;
+            gap: 12px;
+            font-size: 13px;
+            font-family: 'JetBrains Mono', monospace;
+            color: #475569;
+            white-space: nowrap;
+        }
+        .rec-bottom-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            font-size: 12px;
+            gap: 12px;
+        }
+        .rec-bottom-row small {
+            color: #10b981;
+            font-weight: 500;
+        }
+        .rec-stock {
+            color: #f59e0b;
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .btn-detail {
+            padding: 6px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: #fff;
+            color: #6366f1;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-family: 'Inter', sans-serif;
+        }
+        .btn-detail:hover {
+            background: #eef2ff;
+            border-color: #6366f1;
+        }
+
+        /* Modal Overlay & Card */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .modal-content {
+            background: var(--bg-surface, #fff);
+            border-radius: 16px;
+            width: min(900px, 95vw);
+            max-height: 85vh;
+            overflow: hidden;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            animation: slideUp 0.3s ease;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border, #e2e8f0);
+            background: #f8fafc;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .modal-subtitle {
+            font-size: 13px;
+            color: var(--text-muted, #64748b);
+            margin: 4px 0 0;
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border: 1px solid var(--border, #e2e8f0);
+            border-radius: 8px;
+            background: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted, #64748b);
+            transition: all 0.15s;
+        }
+        .modal-close:hover {
+            background: #fee2e2;
+            color: #ef4444;
+            border-color: #fecaca;
+        }
+
+        .modal-body {
+            padding: 20px 24px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Classification Widget */
+        .classification-widget {
+            background: var(--bg-surface, #fff);
+            border: 1px solid var(--border, #e2e8f0);
+            border-radius: var(--radius-lg, 12px);
+            padding: 16px 20px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.05));
+        }
+        .cw-header {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: var(--text-muted, #64748b);
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: 0.5px;
+        }
+        .cw-direction { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; font-size: 18px; font-weight: 700; color: var(--text-main, #0f172a); }
+        .cw-icon { font-size: 22px; }
+        .cw-row { display: flex; align-items: center; gap: 10px; margin-top: 8px; font-size: 14px; }
+        .cw-label { color: var(--text-muted, #64748b); min-width: 100px; font-weight: 500; }
+        .cw-badge { padding: 3px 10px; border-radius: 8px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
+        .cw-badge-manual { background: #dcfce7; color: #166534; }
+        .cw-progress { flex: 1; max-width: 250px; height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; }
+        .cw-progress-bar { height: 100%; transition: width 0.3s; }
+        .cw-confidence-value { font-weight: 700; font-size: 13px; min-width: 45px; text-align: left; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Top Header -->
+        <div class="top-header">
+            <div class="header-title-area">
+                <a href="/" id="back-link" class="back-btn">← На дашборд</a>
+                <div class="client-info">
+                    <h1 id="client-name">⏳ Загрузка клиента...</h1>
+                    <div class="client-meta" id="client-meta">Код: —</div>
+                </div>
+            </div>
+            <div id="status-badges">
+                <!-- Status Pills -->
+            </div>
+        </div>
+
+        <!-- ====== ВИДЖЕТ КЛАСИФІКАЦІЇ ====== -->
+        <div id="classification-widget" class="classification-widget" style="display:none;">
+            <div class="cw-header">
+                <i class="fa-solid fa-tags" style="color:#4f46e5;"></i>
+                <span>Класифікація</span>
+            </div>
+            <div class="cw-body">
+                <div class="cw-direction">
+                    <span class="cw-icon" id="cw-direction-icon">❓</span>
+                    <span class="cw-name" id="cw-direction-name">—</span>
+                </div>
+                <div class="cw-row">
+                    <span class="cw-label">Джерело:</span>
+                    <span class="cw-badge" id="cw-source-badge">—</span>
+                </div>
+                <div class="cw-row">
+                    <span class="cw-label">Впевненість:</span>
+                    <div class="cw-progress">
+                        <div class="cw-progress-bar" id="cw-confidence-bar" style="width:0%"></div>
+                    </div>
+                    <span class="cw-confidence-value" id="cw-confidence-value">—</span>
+                </div>
+                <div class="cw-row" id="cw-manual-row" style="display:none;">
+                    <span class="cw-badge cw-badge-manual">✋ Вручну встановлено</span>
+                </div>
+            </div>
+        </div>
+        <!-- ====== /ВИДЖЕТ КЛАСИФІКАЦІЇ ====== -->
+
+        <!-- KPI Grid -->
+        <div class="kpi-grid">
+            <a href="#" id="kpi-link-revenue" class="kpi-card-link">
+                <div class="kpi-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span class="kpi-label" id="kpi-revenue-lbl">💰 Выручка 2026</span>
+                        <span style="font-size:11px; background:#e0e7ff; color:#4f46e5; padding:2px 8px; border-radius:12px; font-weight:700;">Анализ ➔</span>
+                    </div>
+                    <div class="kpi-value" id="kpi-revenue" style="color:#047857;">—</div>
+                    <div class="kpi-sub">Товарная без услуг</div>
+                </div>
+            </a>
+            <a href="#" id="kpi-link-invoices" class="kpi-card-link">
+                <div class="kpi-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span class="kpi-label">📄 Всего накладных</span>
+                        <span style="font-size:11px; background:#e0e7ff; color:#4f46e5; padding:2px 8px; border-radius:12px; font-weight:700;">Анализ ➔</span>
+                    </div>
+                    <div class="kpi-value" id="kpi-invoices">—</div>
+                    <div class="kpi-sub" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:4px;">
+                        <span id="kpi-invoices-year">За 2026 год</span>
+                        <span class="kpi-extra" id="kpi-total-positions" style="font-size:12px; color:#4f46e5; font-weight:700; background:#eef2ff; padding:1px 6px; border-radius:6px;">📦 Позицій: —</span>
+                    </div>
+                </div>
+            </a>
+            <a href="#" id="kpi-link-avg-check" class="kpi-card-link">
+                <div class="kpi-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span class="kpi-label">🛒 Средний чек</span>
+                        <span style="font-size:11px; background:#e0e7ff; color:#4f46e5; padding:2px 8px; border-radius:12px; font-weight:700;">Анализ ➔</span>
+                    </div>
+                    <div class="kpi-value" id="kpi-avg-check">—</div>
+                    <div class="kpi-sub">На одну накладную</div>
+                </div>
+            </a>
+            <a href="#" id="kpi-link-last-purchase" class="kpi-card-link">
+                <div class="kpi-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span class="kpi-label">🕒 Последняя покупка</span>
+                        <span style="font-size:11px; background:#e0e7ff; color:#4f46e5; padding:2px 8px; border-radius:12px; font-weight:700;">Анализ ➔</span>
+                    </div>
+                    <div class="kpi-value" id="kpi-last-date" style="font-size:20px;">—</div>
+                    <div class="kpi-sub" id="kpi-status-sub">Текущий статус: —</div>
+                </div>
+            </a>
+        </div>
+
+        <!-- ====== ІНДЕКСИ КЛІЄНТА (Промт 11A, 2026-10-01) ====== -->
+        <!-- Два кликабельных блока: Різоманіття → product-analytics, UTSK → product-recommendations (заглушка). -->
+        <!-- Без чисел: формулы индексов пока не определены. -->
+        <div class="kpi-grid" style="grid-template-columns: repeat(2, 1fr); margin-top: 20px; margin-bottom: 20px;">
+            <a href="#" id="kpi-link-diversity" class="kpi-card-link">
+                <div class="kpi-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span class="kpi-label">📊 Індекс Різоманіття</span>
+                        <span style="font-size:11px; background:#e0e7ff; color:#4f46e5; padding:2px 8px; border-radius:12px; font-weight:700;">Перейти ➔</span>
+                    </div>
+                    <div class="kpi-value" id="kpi-diversity-value" style="color:#4f46e5;">—</div>
+                    <div class="kpi-sub">Аналіз товарного різноманіття клієнта</div>
+                </div>
+            </a>
+            <a href="#" id="kpi-link-utsk" class="kpi-card-link">
+                <div class="kpi-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span class="kpi-label">📐 Профільні труби</span>
+                        <span style="font-size:11px; background:#fef3c7; color:#d97706; padding:2px 8px; border-radius:12px; font-weight:700;">Деталі ➔</span>
+                    </div>
+                    <div class="kpi-value" id="kpi-profile-pipes-value" style="color:#d97706;">—</div>
+                    <div class="kpi-sub">475 профільних труб</div>
+                </div>
+            </a>
+        </div>
+        <!-- ====== /ІНДЕКСИ КЛІЄНТА ====== -->
+
+        <!-- Main Content Grid -->
+        <div class="main-grid">
+            <!-- Chart Block -->
+            <div class="card-block">
+                <div class="block-header">
+                    <h2 class="block-title">📊 Динамика продаж по месяцам (2026 vs 2025)</h2>
+                </div>
+                <div class="chart-container">
+                    <canvas id="monthlyChart"></canvas>
+                </div>
+            </div>
+
+            <!-- ============================================================
+                 БЛОК РЕКОМЕНДАЦИЙ — кликабельный целиком
+                 Клик по блоку → /product-analytics?code=4501
+                 Клик по карточке → /product-analytics?code=4501&size=...
+                 ============================================================ -->
+            <div class="card-block rec-block-clickable" 
+                 id="rec-block"
+                 onclick="if(event.target.closest('.rec-item')) return; location.href=this.dataset.href;"
+                 data-href="/product-analytics?token=utsk2026&code=4501"
+                 style="cursor:pointer;">
+                <h3 class="rec-block-title">
+                    💡 Рекомендации для клиента — <span id="rec-year">2026</span>
+                </h3>
+                <div class="rec-list" id="rec-list">
+                    <div style="padding:20px;text-align:center;color:#94a3b8;">Загрузка…</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Invoices Table Block -->
+        <div class="card-block">
+            <div class="block-header">
+                <h2 class="block-title">🧾 Накладные клиента</h2>
+            </div>
+
+            <!-- Filter Bar -->
+            <div class="filter-bar">
+                <label>Год:</label>
+                <select id="invoice-year">
+                    <option value="2026" selected>2026</option>
+                    <option value="2025">2025</option>
+                    <option value="2024">2024</option>
+                </select>
+
+                <label>Месяц:</label>
+                <select id="invoice-month">
+                    <option value="all" selected>Все месяцы</option>
+                    <option value="1">Январь</option>
+                    <option value="2">Февраль</option>
+                    <option value="3">Март</option>
+                    <option value="4">Апрель</option>
+                    <option value="5">Май</option>
+                    <option value="6">Июнь</option>
+                    <option value="7">Июль</option>
+                    <option value="8">Август</option>
+                    <option value="9">Сентябрь</option>
+                    <option value="10">Октябрь</option>
+                    <option value="11">Ноябрь</option>
+                    <option value="12">Декабрь</option>
+                </select>
+
+                <label>С:</label>
+                <input type="date" id="date-from">
+                
+                <label>По:</label>
+                <input type="date" id="date-to">
+
+                <button class="btn-filter" onclick="loadInvoices()">🔄 Применить</button>
+            </div>
+
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Дата</th>
+                            <th>Номер</th>
+                            <th style="text-align:right;">Сумма</th>
+                            <th style="text-align:center;">Позиций</th>
+                            <th style="text-align:center;">Действие</th>
+                        </tr>
+                    </thead>
+                    <tbody id="invoices-table-body">
+                        <tr><td colspan="6" class="empty-state">⏳ Загрузка накладных...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно детализации накладной -->
+    <div id="invoice-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h3 class="modal-title">📋 Накладная <span id="modal-invoice-number">Н-12345</span></h3>
+                    <p class="modal-subtitle">
+                        Дата: <span id="modal-invoice-date">—</span> | 
+                        Сумма: <span id="modal-invoice-total" style="color:#047857;font-weight:700;">—</span>
+                    </p>
+                </div>
+                <button onclick="closeModal()" class="modal-close">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="table-scroll" style="max-height:400px;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Код товара</th>
+                                <th>Наименование</th>
+                                <th style="text-align:right;">Кол-во</th>
+                                <th style="text-align:right;">Вес (кг)</th>
+                                <th style="text-align:right;">Цена/ед</th>
+                                <th style="text-align:right;">Стоимость</th>
+                            </tr>
+                        </thead>
+                        <tbody id="modal-invoice-items">
+                            <tr><td colspan="7" style="text-align:center;">⏳ Загрузка...</td></tr>
+                        </tbody>
+                        <tfoot id="modal-invoice-footer" style="display:none;">
+                            <tr style="background:#f8fafc;font-weight:700;border-top:2px solid var(--border);">
+                                <td colspan="3" style="text-align:right;">📊 Итого:</td>
+                                <td style="text-align:right;" id="modal-total-quantity">—</td>
+                                <td style="text-align:right;" id="modal-total-weight">—</td>
+                                <td style="text-align:right;">—</td>
+                                <td style="text-align:right;color:#047857;font-size:15px;" id="modal-total-sum">—</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const TOKEN = urlParams.get('token') || 'utsk2026';
+        const CLIENT_CODE = urlParams.get('code') || '';
+        let currentYear = urlParams.get('year') || '2026';
+
+        // Настройка ссылки назад
+        const backLink = document.getElementById('back-link');
+        if (backLink) backLink.href = `/?token=${TOKEN}`;
+
+        // Настройка ссылок KPI-карточек
+        const kpiRevLink = document.getElementById('kpi-link-revenue');
+        if (kpiRevLink) kpiRevLink.href = `/client-revenue-analytics?token=${TOKEN}&code=${CLIENT_CODE}`;
+        const kpiInvLink = document.getElementById('kpi-link-invoices');
+        if (kpiInvLink) kpiInvLink.href = `/client-invoices-analytics?token=${TOKEN}&code=${CLIENT_CODE}`;
+        const kpiAvgLink = document.getElementById('kpi-link-avg-check');
+        if (kpiAvgLink) kpiAvgLink.href = `/client-avg-check-analytics?token=${TOKEN}&code=${CLIENT_CODE}`;
+        const kpiLastLink = document.getElementById('kpi-link-last-purchase');
+        if (kpiLastLink) kpiLastLink.href = `/client-last-purchase-analytics?token=${TOKEN}&code=${CLIENT_CODE}`;
+
+        // ====== ІНДЕКСИ КЛІЄНТА (Промт 11A) ======
+        var linkDiversity = document.getElementById('kpi-link-diversity');
+        if (linkDiversity) {
+            linkDiversity.href = `/product-analytics?token=${TOKEN}&code=${CLIENT_CODE}`;
+        }
+        var linkUtsk = document.getElementById('kpi-link-utsk');
+        if (linkUtsk) {
+            linkUtsk.href = `/profile-pipes-analytics?token=${TOKEN}&code=${CLIENT_CODE}`;
+        }
+
+        // ====== ІНДЕКС РІЗОМАНІТТЯ: каталог компании (Промт 11E) ======
+        // Число одинаково для всех клиентов — это общее число позиций каталога компании.
+        (async function loadCompanyAssortment() {
+            var elVal = document.getElementById('kpi-diversity-value');
+            if (!elVal) return;
+            try {
+                var res = await fetch(`/api/analytics/company-assortment?token=${TOKEN}`);
+                if (!res.ok) {
+                    console.error('[ASSORTMENT] HTTP', res.status, await res.text());
+                    elVal.textContent = '—';
+                    return;
+                }
+                var json = await res.json();
+                var count = Number(json.count) || 0;
+                elVal.textContent = count;
+                var subEl = elVal.nextElementSibling;
+                if (subEl && subEl.classList.contains('kpi-sub')) {
+                    subEl.textContent = count + ' позицій у каталозі';
+                }
+            } catch (e) {
+                console.error('[ASSORTMENT] error:', e);
+                elVal.textContent = '—';
+            }
+        })();
+
+        // ====== БЛОК 2: ПРОФІЛЬНІ ТРУБИ (Промт 11F) ======
+        // Число одинаково для всех клиентов — количество профильных труб в каталоге.
+        (async function loadProfilePipes() {
+            var elVal = document.getElementById('kpi-profile-pipes-value');
+            if (!elVal) return;
+            try {
+                var res = await fetch(`/api/analytics/company-profile-pipes?token=${TOKEN}`);
+                if (!res.ok) {
+                    console.error('[PROFILE] HTTP', res.status, await res.text());
+                    elVal.textContent = '—';
+                    return;
+                }
+                var json = await res.json();
+                var count = Number(json.count) || 0;
+                elVal.textContent = count;
+                var subEl = elVal.nextElementSibling;
+                if (subEl && subEl.classList.contains('kpi-sub')) {
+                    subEl.textContent = count + ' профільних труб';
+                }
+            } catch (e) {
+                console.error('[PROFILE] error:', e);
+                elVal.textContent = '—';
+            }
+        })();
+
+        function formatNum(n) { return (n == null) ? '—' : Number(n).toLocaleString('ru-RU'); }
+        function formatCur(n) { return (n == null) ? '—' : '₴ ' + formatNum(Math.round(n)); }
+        
+        function trimProductCode(name) {
+            if (!name) return '—';
+            const parts = name.trim().split(/\s+/);
+            if (parts.length <= 1) return name;
+            const lastWord = parts[parts.length - 1];
+            if (/^\d+$/.test(lastWord) || (lastWord.length > 4 && /^[A-Za-z0-9]+$/.test(lastWord))) {
+                parts.pop();
+            }
+            return parts.join(' ') || name;
+        }
+
+        function renderClassificationWidget(c) {
+            const widget = document.getElementById('classification-widget');
+            if (!widget) return;
+
+            const dirId = c.direction_id;
+            const source = c.direction_source || 'unknown';
+            const conf = c.direction_confidence != null ? Number(c.direction_confidence) : null;
+            const isManual = !!c.is_direction_manual;
+
+            widget.style.display = 'block';
+
+            // Название и иконка отрасли
+            document.getElementById('cw-direction-name').textContent = c.direction || '—';
+            const ICONS = {
+                1:'🌾', 2:'🏗️', 3:'🏭', 4:'🚰', 5:'🛣️', 6:'💼', 7:'👤', 8:'⚙️',
+                9:'🏢', 10:'🔩', 11:'⚙️', 12:'⚡', 13:'🚗', 14:'🚚', 15:'🏛️', 16:'❓'
+            };
+            document.getElementById('cw-direction-icon').textContent = ICONS[dirId] || '❓';
+
+            // Источник
+            const SOURCE_MAP = {
+                'manual':       { label: '✅ Вручну',         bg: '#dcfce7', fg: '#166534' },
+                'auto_name':    { label: '🔤 Авто (назва)',   bg: '#dbeafe', fg: '#1e40af' },
+                'basket':       { label: '🛒 Авто (кошик)',   bg: '#cffafe', fg: '#155e75' },
+                'edrpou_match': { label: '🔑 ЄДРПОУ',         bg: '#ede9fe', fg: '#5b21b6' },
+                'revert':       { label: '↩️ Відкат',         bg: '#fed7aa', fg: '#9a3412' },
+                'unknown':      { label: '❓ Не визначено',   bg: '#f1f5f9', fg: '#475569' }
+            };
+            const s = SOURCE_MAP[source] || SOURCE_MAP['unknown'];
+            const badge = document.getElementById('cw-source-badge');
+            badge.textContent = s.label;
+            badge.style.background = s.bg;
+            badge.style.color = s.fg;
+
+            // Уверенность
+            if (conf != null) {
+                const pct = Math.round(conf * 100);
+                const bar = document.getElementById('cw-confidence-bar');
+                bar.style.width = pct + '%';
+                bar.style.background =
+                    conf >= 0.85 ? '#22c55e' :
+                    conf >= 0.65 ? '#3b82f6' :
+                    conf >= 0.50 ? '#f59e0b' :
+                                   '#ef4444';
+                document.getElementById('cw-confidence-value').textContent = pct + '%';
+            } else {
+                document.getElementById('cw-confidence-bar').style.width = '0%';
+                document.getElementById('cw-confidence-value').textContent = '—';
+            }
+
+            // Ручная пометка
+            document.getElementById('cw-manual-row').style.display = isManual ? 'flex' : 'none';
+        }
+
+        let monthlyChartInstance = null;
+
+        async function loadClientDetail(yr) {
+            if (!CLIENT_CODE) return;
+            const y = yr || currentYear;
+            try {
+                // 1. Загрузка основных данных клиента
+                const res = await fetch(`/api/clients/detail/${CLIENT_CODE}?token=${TOKEN}&year=${y}`);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+                
+                if (data.status !== 'ok' || !data.client) throw new Error('Invalid payload');
+                
+                const c = data.client;
+
+                // Заполнение заглавной информации
+                document.getElementById('client-name').textContent = c.name;
+                document.title = `UTSK — ${c.name}`;
+                
+                let metaParts = [`Код клиента: ${c.code}`];
+                if (c.edrpou && c.edrpou !== '—') metaParts.push(`ЄДРПОУ: ${c.edrpou}`);
+                if (c.ipn && c.ipn !== '—') metaParts.push(`ИПН: ${c.ipn}`);
+                if (c.direction && c.direction !== '—') metaParts.push(`Отрасль: ${c.direction}`);
+                document.getElementById('client-meta').textContent = metaParts.join('  •  ');
+                renderClassificationWidget(c);
+                
+                // Статусы
+                const statusBadges = document.getElementById('status-badges');
+                let cls26 = c.status && (c.status.includes('Спящ') || c.status.includes('Ушедш')) ? 'orange' : 'green';
+                let cls25 = c.status_2025 && (c.status_2025.includes('Спящ') || c.status_2025.includes('Ушедш')) ? 'orange' : 'blue';
+                statusBadges.innerHTML = `
+                    <span class="status-pill ${cls25}" style="margin-right:6px;">2025: ${c.status_2025 || '—'}</span>
+                    <span class="status-pill ${cls26}">2026: ${c.status || '—'}</span>
+                `;
+
+                // KPI Карточки
+                const revLbl = document.getElementById('kpi-revenue-lbl');
+                if (revLbl) revLbl.textContent = `💰 Выручка ${y}`;
+                document.getElementById('kpi-revenue').textContent = formatCur(c.total_revenue);
+                document.getElementById('kpi-invoices').textContent = formatNum(c.total_invoices);
+                const invYearEl = document.getElementById('kpi-invoices-year');
+                if (invYearEl) invYearEl.textContent = `За ${y} год`;
+                const posEl = document.getElementById('kpi-total-positions');
+                if (posEl) posEl.textContent = `📦 Позицій: ${formatNum(c.total_positions || 0)}`;
+                document.getElementById('kpi-avg-check').textContent = formatCur(c.avg_check);
+                document.getElementById('kpi-last-date').textContent = c.last_purchase_date || '—';
+                document.getElementById('kpi-status-sub').textContent = `Текущий статус: ${c.status || '—'}`;
+
+                // График помесячной динамики
+                renderChart(c.monthly_data || []);
+
+            } catch (err) {
+                console.error('Client detail error:', err);
+                document.getElementById('client-name').textContent = '⚠️ Ошибка загрузки данных клиента';
+            }
+        }
+
+        async function initPage() {
+            if (!CLIENT_CODE) {
+                document.getElementById('client-name').textContent = '⚠️ Код клиента не указан';
+                return;
+            }
+
+            const invYearSelect = document.getElementById('invoice-year');
+            if (invYearSelect && currentYear) {
+                invYearSelect.value = currentYear;
+            }
+
+            await loadClientDetail(currentYear);
+
+            // Загрузка накладных с фильтрами по умолчанию
+            loadInvoices();
+
+            // 2. Загрузка рекомендаций ML
+            loadRecommendations();
+        }
+
+        function renderChart(monthlyData) {
+            const ctx = document.getElementById('monthlyChart').getContext('2d');
+            const monthNames = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'];
+            
+            const data2026 = new Array(12).fill(0);
+            const data2025 = new Array(12).fill(0);
+
+            monthlyData.forEach(m => {
+                const idx = m.month - 1;
+                if (idx >= 0 && idx < 12) {
+                    data2026[idx] = m.revenue_current || 0;
+                    data2025[idx] = m.revenue_previous || 0;
+                }
+            });
+
+            if (monthlyChartInstance) monthlyChartInstance.destroy();
+
+            monthlyChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: monthNames,
+                    datasets: [
+                        {
+                            label: 'Продажи 2026 (₴)',
+                            data: data2026,
+                            backgroundColor: '#047857',
+                            borderRadius: 6,
+                        },
+                        {
+                            label: 'Продажи 2025 (₴)',
+                            data: data2025,
+                            backgroundColor: '#cbd5e1',
+                            borderRadius: 6,
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ₴ ' + formatNum(context.parsed.y);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    if (value >= 1e6) return (value / 1e6).toFixed(1) + 'M';
+                                    if (value >= 1e3) return (value / 1e3).toFixed(0) + 'K';
+                                    return value;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        async function loadInvoices() {
+            const tb = document.getElementById('invoices-table-body');
+            tb.innerHTML = '<tr><td colspan="6" class="empty-state">⏳ Загрузка...</td></tr>';
+
+            const year = document.getElementById('invoice-year')?.value || '2026';
+            const month = document.getElementById('invoice-month')?.value || 'all';
+            const dateFrom = document.getElementById('date-from')?.value || '';
+            const dateTo = document.getElementById('date-to')?.value || '';
+
+            let url = `/api/clients/invoices/${CLIENT_CODE}?token=${TOKEN}&limit=500`;
+            if (year) url += `&year=${year}`;
+            if (month && month !== 'all') url += `&month=${month}`;
+            if (dateFrom) url += `&date_from=${dateFrom}`;
+            if (dateTo) url += `&date_to=${dateTo}`;
+
+            try {
+                const res = await fetch(url);
+                if (!res.ok) throw new Error(res.status);
+                const data = await res.json();
+
+                renderInvoicesTable(data.invoices || [], data.total_sum || 0, data.total_count || 0, data.total_positions || 0);
+            } catch (err) {
+                console.error('Error loading invoices:', err);
+                tb.innerHTML = '<tr><td colspan="6" class="empty-state" style="color:#ef4444;">⚠️ Ошибка загрузки накладных</td></tr>';
+            }
+        }
+
+        function renderInvoicesTable(invoices, totalSum, totalCount, totalPositions) {
+            const tb = document.getElementById('invoices-table-body');
+            tb.innerHTML = '';
+
+            if (!invoices.length) {
+                tb.innerHTML = '<tr><td colspan="6" class="empty-state">📭 Накладные за выбранный период не найдены</td></tr>';
+                return;
+            }
+
+            invoices.forEach((inv, i) => {
+                tb.innerHTML += `<tr>
+                    <td style="color:var(--text-muted);">${i + 1}</td>
+                    <td><b>${inv.date || '—'}</b></td>
+                    <td style="font-family:monospace;font-weight:600;">${inv.number || '—'}</td>
+                    <td style="text-align:right;font-weight:700;color:#047857;">₴ ${formatNum(Math.round(inv.total || 0))}</td>
+                    <td style="text-align:center;font-weight:600;color:#475569;">${inv.positions || 0} поз.</td>
+                    <td style="text-align:center;">
+                        <button onclick="showInvoiceDetail(${inv.doc_id}, '${inv.number}')" class="btn-detail">📄 Открыть ➔</button>
+                    </td>
+                </tr>`;
+            });
+
+            // Итоговая строка
+            tb.innerHTML += `<tr style="background:#f8fafc;font-weight:700;border-top:2px solid var(--border);">
+                <td colspan="3" style="text-align:right;">📊 Итого за период: ${formatNum(totalCount)} накладных</td>
+                <td style="text-align:right;color:#047857;font-size:15px;">₴ ${formatNum(Math.round(totalSum))}</td>
+                <td style="text-align:center;color:var(--text-main);">${formatNum(totalPositions)} поз.</td>
+                <td></td>
+            </tr>`;
+        }
+
+        // Открыть модальное окно с деталями накладной
+        async function showInvoiceDetail(docId, invoiceNumber) {
+            const modal = document.getElementById('invoice-modal');
+            const itemsBody = document.getElementById('modal-invoice-items');
+            const footer = document.getElementById('modal-invoice-footer');
+            
+            modal.style.display = 'flex';
+            document.getElementById('modal-invoice-number').textContent = invoiceNumber;
+            document.getElementById('modal-invoice-date').textContent = '—';
+            document.getElementById('modal-invoice-total').textContent = '—';
+            itemsBody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:20px;">⏳ Загрузка товаров...</td></tr>';
+            footer.style.display = 'none';
+            
+            try {
+                const resp = await fetch(`/api/invoices/${docId}/items?token=${TOKEN}`);
+    if (!resp.ok) {
+        const errText = await resp.text();
+        console.error(`[Invoice] HTTP ${resp.status}: ${errText.substring(0, 200)}`);
+        return;
+    }
+                const data = await resp.json();
+                
+                document.getElementById('modal-invoice-date').textContent = data.date || '—';
+                document.getElementById('modal-invoice-total').textContent = formatCur(data.total || 0);
+                
+                if (!data.items || !data.items.length) {
+                    itemsBody.innerHTML = '<tr><td colspan="7" style="text-align:center;">📭 Содержимое накладной не найдено</td></tr>';
+                    return;
+                }
+                
+                let totalQuantity = 0;
+                let totalWeight = 0;
+                let totalSum = 0;
+                
+                itemsBody.innerHTML = data.items.map((item, i) => {
+                    totalQuantity += (item.quantity || 0);
+                    totalWeight += (item.weight_kg || 0);
+                    totalSum += (item.total || 0);
+                    return `<tr>
+                        <td style="color:var(--text-muted);">${i + 1}</td>
+                        <td style="font-family:monospace;font-weight:600;">${item.code || '—'}</td>
+                        <td><b>${trimProductCode(item.name) || '—'}</b></td>
+                        <td style="text-align:right;">${formatNum(item.quantity || 0)}</td>
+                        <td style="text-align:right;">${formatNum(Math.round(item.weight_kg || 0))} кг</td>
+                        <td style="text-align:right;">₴ ${formatNum(Math.round(item.price || 0))}</td>
+                        <td style="text-align:right;font-weight:700;color:#047857;">₴ ${formatNum(Math.round(item.total || 0))}</td>
+                    </tr>`;
+                }).join('');
+                
+                // Итоговая строка
+                document.getElementById('modal-total-quantity').textContent = formatNum(Math.round(totalQuantity)) + ' шт.';
+                document.getElementById('modal-total-weight').textContent = formatNum(Math.round(totalWeight)) + ' кг';
+                document.getElementById('modal-total-sum').textContent = '₴ ' + formatNum(Math.round(totalSum));
+                footer.style.display = '';
+                
+            } catch (e) {
+                console.error('Invoice items error:', e);
+                itemsBody.innerHTML = '<tr><td colspan="7" style="color:#ef4444;text-align:center;">⚠️ Ошибка загрузки детализации накладной</td></tr>';
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('invoice-modal').style.display = 'none';
+        }
+
+        async function loadRecommendations() {
+            const year = new Date().getFullYear();
+            document.getElementById('rec-year').textContent = year;
+            
+            // Обновляем data-href блока (на случай смены клиента)
+            const blockEl = document.getElementById('rec-block');
+            if (blockEl) {
+                const href = `/product-analytics?token=${TOKEN}&code=${CLIENT_CODE}`;
+                blockEl.dataset.href = href;
+                blockEl.setAttribute('onclick',
+                    `if(event.target.closest('.rec-item')) return; location.href='${href}';`
+                );
+            }
+            
+            const container = document.getElementById('rec-list');
+            container.innerHTML = '<div style="padding:20px;text-align:center;color:#94a3b8;">Загрузка…</div>';
+            
+            try {
+                const res = await fetch(
+                    `/api/recommendations-by-size/${CLIENT_CODE}?token=${TOKEN}&limit=5`
+                );
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+                
+                if (!data.items || data.items.length === 0) {
+                    container.innerHTML = `
+                        <div style="padding:20px;text-align:center;color:#94a3b8;">
+                            Нет данных для рекомендаций
+                        </div>`;
+                    return;
+                }
+                
+                container.innerHTML = data.items.map(r => `
+                    <a href="/product-analytics?token=${TOKEN}&code=${CLIENT_CODE}&size=${encodeURIComponent(r.size_key)}"
+                       class="rec-item">
+                        <div class="rec-top-row">
+                            <b>${r.display_name}</b>
+                            <div class="rec-top-stats">
+                                <span>${r.count} ${pluralizeRaz(r.count)}</span>
+                                <span>${r.pct}%</span>
+                            </div>
+                        </div>
+                        <div class="rec-bottom-row">
+                            <small>${r.reason}</small>
+                            <span class="rec-stock">Остаток: ${formatStock(r.stock)} т</span>
+                        </div>
+                    </a>
+                `).join('');
+            } catch (e) {
+                console.error('loadRecommendations error:', e);
+                container.innerHTML = `
+                    <div style="padding:20px;text-align:center;color:#ef4444;">
+                        Ошибка загрузки: ${e.message}
+                    </div>`;
+            }
+        }
+
+        // Склонение "раз/раза/раз"
+        function pluralizeRaz(n) {
+            n = Number(n);
+            const mod10 = n % 10;
+            const mod100 = n % 100;
+            if (mod10 === 1 && mod100 !== 11) return 'раз';
+            if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return 'раза';
+            return 'раз';
+        }
+
+        // Формат остатка
+        function formatStock(n) {
+            if (n == null) return '0';
+            return Number(n).toLocaleString('uk-UA', { maximumFractionDigits: 1 });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initPage();
+
+            // Автообновление при изменении года или месяца
+            document.getElementById('invoice-year')?.addEventListener('change', function() {
+                currentYear = this.value;
+                loadClientDetail(currentYear);
+                loadInvoices();
+            });
+            document.getElementById('invoice-month')?.addEventListener('change', loadInvoices);
+
+            // Закрытие по клику на оверлей
+            const modal = document.getElementById('invoice-modal');
+            if (modal) {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) closeModal();
+                });
+            }
+
+            // Закрытие по Escape
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') closeModal();
+            });
+        });
+    </script>
+</body>
+</html>

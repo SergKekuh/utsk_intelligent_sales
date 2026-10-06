@@ -484,7 +484,7 @@
         <!-- TABS -->
         <div class="tabs">
             <button class="tab-btn active" onclick="openTab('tab-sizes', this)">
-                <i class="fa-solid fa-ruler-combined"></i> 📏 Розміри
+                <i class="fa-solid fa-ruler-combined"></i> 📊 Асортимент
             </button>
             <button class="tab-btn" onclick="openTab('tab-yoy', this)">
                 <i class="fa-solid fa-arrows-split-up-and-left"></i> 🔄 YoY (Порівняння 2026 vs 2025)
@@ -514,7 +514,7 @@
                     <div class="kpi-sub">За обраний рік</div>
                 </div>
                 <div class="kpi-card" style="border-top-color:#8b5cf6">
-                    <div class="kpi-label"><i class="fa-solid fa-sack-dollar"></i> 💰 Виручка</div>
+                    <div class="kpi-label"><i class="fa-solid fa-sack-dollar"></i> 💰 Продажі</div>
                     <div class="kpi-value" id="kpiRevenue" style="color:#047857;">—</div>
                     <div class="kpi-sub">Загальний обсяг продажів</div>
                 </div>
@@ -540,7 +540,7 @@
                     <div>
                         <h2 class="card-title">
                             <i class="fa-solid fa-table-list" style="color:var(--accent);"></i> 
-                            Розміри профільних труб (<span id="totalSizesBadge">0</span>)
+                            Асортимент профільних труб (<span id="totalSizesBadge">0</span>)
                         </h2>
                         <div class="card-subtitle">Клікніть на рядок для розкриття деталізації по товарах</div>
                     </div>
@@ -552,7 +552,7 @@
                                 <th style="width:36px; text-align:center;"></th>
                                 <th>Розмір</th>
                                 <th class="num">Накладних</th>
-                                <th class="num">Виручка (₴)</th>
+                                <th class="num">Продажі (₴)</th>
                                 <th class="num">Частка %</th>
                                 <th class="num">Товарів</th>
                             </tr>
@@ -611,7 +611,7 @@
                 <!-- График ТОП-10 размеров -->
                 <div class="card">
                     <div class="card-header">
-                        <h2 class="card-title">ТОП-10 розмірів по виручці</h2>
+                        <h2 class="card-title">ТОП-10 розмірів за продажами</h2>
                     </div>
                     <div class="chart-container" style="height:400px;">
                         <canvas id="chartYoYSizes"></canvas>
@@ -642,7 +642,7 @@
                 </div>
                 <div class="kpi-grid" style="padding: 0 20px 20px 20px;">
                     <div class="kpi-card">
-                        <div class="kpi-label">💰 Виручка за рік</div>
+                        <div class="kpi-label">💰 Продажі за рік</div>
                         <div class="kpi-value" id="mKpiRevenue" style="color:#047857;">—</div>
                     </div>
                     <div class="kpi-card">
@@ -681,8 +681,8 @@
                         <thead>
                             <tr>
                                 <th>Місяць</th>
-                                <th style="text-align:right;">Виручка 2026</th>
-                                <th style="text-align:right;">Виручка 2025</th>
+                                <th style="text-align:right;">Продажі 2026</th>
+                                <th style="text-align:right;">Продажі 2025</th>
                                 <th style="text-align:right;">Δ абс</th>
                                 <th style="text-align:right;">Δ %</th>
                                 <th style="text-align:right;">Накладних</th>
@@ -845,7 +845,7 @@
         function applyFilters() {
             const query = (document.getElementById('sizeSearch').value || '').trim().toLowerCase();
             let filtered = allSizes.filter(s => {
-                const matchQuery = !query || (s.size_key && s.size_key.toLowerCase().includes(query));
+                const matchQuery = !query || (s.size_key && s.size_key.toLowerCase().includes(query)) || (s.size_display && s.size_display.toLowerCase().includes(query));
                 let matchType = true;
                 if (currentFilter === 'square') {
                     matchType = s.shape === 'square' || (s.prof_w && s.prof_h && s.prof_w === s.prof_h);
@@ -945,7 +945,7 @@
                                 <th>Найменування</th>
                                 <th class="num">Накладні</th>
                                 <th class="num">Кількість (т)</th>
-                                <th class="num">Виручка</th>
+                                <th class="num">Продажі</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -1059,7 +1059,7 @@
             charts.yoySizes = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: top10.map(x => x.size_key.replace('prof_', '').replace(/x/g, '×')),
+                    labels: top10.map(x => x.size_display || formatSizeDisplay(x.size_key)),
                     datasets: [
                         {
                             label: `${yr - 1} рік`,
@@ -1135,7 +1135,7 @@
                                 <th>Найменування</th>
                                 <th class="num">Накладні</th>
                                 <th class="num">Кількість (т)</th>
-                                <th class="num">Виручка</th>
+                                <th class="num">Продажі</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -1263,7 +1263,7 @@
                         y: {
                             beginAtZero: true,
                             position: 'left',
-                            title: { display: true, text: 'Виручка, ₴' },
+                            title: { display: true, text: 'Продажі, ₴' },
                             ticks: {
                                 callback: v => (v >= 1e6 ? (v/1e6).toFixed(1) + 'M' : (v/1e3).toFixed(0) + 'K')
                             }

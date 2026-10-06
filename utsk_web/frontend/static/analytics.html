@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UTSK — Аналитика по клиентам</title>
+    <title>UTSK — Аналітика за клієнтами</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -1777,8 +1777,8 @@
     <!-- ====== HEADER ====== -->
     <div class="page-header">
         <div>
-            <h1>👥 Аналитика по клиентам</h1>
-            <div class="subtitle">Динамика продаж, сравнение периодов, ABC-сегментация</div>
+            <h1>👥 Аналітика за клієнтами</h1>
+            <div class="subtitle">Динаміка продажів, порівняння періодів, ABC-сегментація</div>
         </div>
         <div style="display: flex; align-items: center; gap: 15px;">
             <div class="scale-controls">
@@ -1793,7 +1793,7 @@
     <!-- ====== ПАНЕЛЬ ПАРАМЕТРОВ ====== -->
     <div class="params-panel" id="params-panel">
         <div style="display: flex; align-items: center; gap: 8px;">
-            <span class="param-label">Год:</span>
+            <span class="param-label">Рік:</span>
             <select id="param-year" onchange="refreshAllAnalytics()">
                 <option value="2026" selected>2026</option>
                 <option value="2025">2025</option>
@@ -1804,19 +1804,19 @@
         <span class="param-divider"></span>
 
         <div style="display: flex; align-items: center; gap: 8px;">
-            <span class="param-label">Коэффициент ABC:</span>
+            <span class="param-label">Коефіцієнт ABC:</span>
             <input type="number" id="param-multiplier" value="2.9" step="0.1" min="0.1" max="10" onchange="refreshAllAnalytics()">
         </div>
 
         <span class="param-divider"></span>
 
         <div style="display: flex; align-items: center; gap: 8px;">
-            <span class="param-label">Граница (₴):</span>
+            <span class="param-label">Межа (₴):</span>
             <input type="number" id="param-limit-price" value="146000" step="1000" min="0" onchange="refreshAllAnalytics()">
         </div>
 
         <button class="btn-update" onclick="refreshAllAnalytics()">
-            🔄 Обновить всю аналитику
+            🔄 Оновити всю аналітику
         </button>
     </div>
 
@@ -1824,27 +1824,27 @@
     <div class="kpi-row" id="kpi-row">
         <div class="kpi-card kpi-blue">
             <div class="kpi-icon">👥</div>
-            <div class="kpi-label">Всего клиентов в <span id="kpi-total-year">2026</span></div>
+            <div class="kpi-label">Всього клієнтів у <span id="kpi-total-year">2026</span></div>
             <div class="kpi-value" id="kpi-total">—</div>
-            <div class="kpi-sub" id="kpi-total-sub">Участвуют в аналитике</div>
+            <div class="kpi-sub" id="kpi-total-sub">Беруть участь в аналітиці</div>
         </div>
         <div class="kpi-card kpi-green">
             <div class="kpi-icon">📦</div>
-            <div class="kpi-label">Накладных за период</div>
+            <div class="kpi-label">Накладних за період</div>
             <div class="kpi-value" id="kpi-invoices">—</div>
             <div class="kpi-sub" id="kpi-year-label">2026</div>
         </div>
         <div class="kpi-card kpi-amber">
             <div class="kpi-icon">💰</div>
-            <div class="kpi-label">Товарная выручка</div>
+            <div class="kpi-label">Товарні продажі</div>
             <div class="kpi-value" id="kpi-revenue">—</div>
-            <div class="kpi-sub" id="kpi-avg-ticket">Средний чек: —</div>
+            <div class="kpi-sub" id="kpi-avg-ticket">Середній чек: —</div>
         </div>
         <div class="kpi-card kpi-purple">
             <div class="kpi-icon">📈</div>
-            <div class="kpi-label">Рост к предыдущему году</div>
+            <div class="kpi-label">Зростання до попереднього року</div>
             <div class="kpi-value" id="kpi-growth">—</div>
-            <div class="kpi-sub">Честный YoY</div>
+            <div class="kpi-sub">Чесний YoY</div>
         </div>
     </div>
 
@@ -1867,7 +1867,7 @@
                 
                 <!-- 3-я: YoY -->
                 <button class="tab-btn" data-tab="tab-yoy" id="tab-btn-yoy" onclick="switchTab('tab-yoy')">
-                    📈 YoY сравнение <span id="tab-yoy-year1">2026</span>/<span id="tab-yoy-year2">2025</span>
+                    📈 YoY порівняння <span id="tab-yoy-year1">2026</span>/<span id="tab-yoy-year2">2025</span>
                 </button>
             </div>
 
@@ -1880,17 +1880,17 @@
             <div class="tabs-group tabs-right">
                 <!-- 4-я: АВС сегментация (переименована из ABC-пирамида) -->
                 <button class="tab-btn" data-tab="tab-abc" id="tab-btn-abc" onclick="switchTab('tab-abc')">
-                    📊 АВС сегментация
+                    📊 АВС сегментація
                 </button>
 
                 <!-- 5-я: Повторные покупки -->
                 <button class="tab-btn" data-tab="tab-recurrent" id="tab-btn-recurrent" onclick="switchTab('tab-recurrent')">
-                    🔄 Повторные покупки
+                    🔄 Повторні покупки
                 </button>
 
                 <!-- 6-я: YoY-анализ клиентов -->
                 <button class="tab-btn" data-tab="tab-clients-yoy" id="tab-btn-clients-yoy" onclick="switchTab('tab-clients-yoy')">
-                    👥 YoY-анализ клиентов
+                    👥 YoY-аналіз клієнтів
                 </button>
             </div>
         </div>
@@ -2193,12 +2193,12 @@
             <!-- Блок 1: ОБЪЕДИНЁННЫЙ PIVOT + СВОДНЫЙ ABC -->
             <div class="chart-card">
                 <div class="card-header">
-                    <h2 class="card-title">🏗️ ABC-сегментация: структурный анализ и сводка</h2>
+                    <h2 class="card-title">🏗️ ABC-сегментація: структурний аналіз і зведення</h2>
                 </div>
 
                 <!-- PIVOT-отчёт -->
                 <div id="pivot-formatted-container">
-                    <div style="color:#94a3b8;text-align:center;padding:40px;">⏳ Загрузка PIVOT-отчёта...</div>
+                    <div style="color:#94a3b8;text-align:center;padding:40px;">⏳ Завантаження PIVOT-звіту...</div>
                 </div>
 
                 <div
@@ -2211,7 +2211,7 @@
             <!-- Блок 2: Итоговый ABC -->
             <div class="chart-card" style="margin-top: 20px;">
                 <div class="card-header">
-                    <h2 class="card-title">🏁 Итоговый ABC-анализ</h2>
+                    <h2 class="card-title">🏁 Підсумковий ABC-аналіз</h2>
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
                     <div style="background:#fafbfc;border-radius:12px;padding:20px;border:1px solid var(--border)">
@@ -2257,20 +2257,20 @@
                     <div style="display:flex;gap:4px;background:#f1f5f9;padding:3px;border-radius:8px;">
                         <button id="yoy-btn-revenue" class="yoy-metric-btn active" onclick="switchYoYMetric('revenue')"
                             style="padding:6px 14px;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;background:#fff;color:#1e293b;box-shadow:0 1px 2px rgba(0,0,0,0.05);">💰
-                            Выручка</button>
+                            Продажі</button>
                         <button id="yoy-btn-invoices" class="yoy-metric-btn" onclick="switchYoYMetric('invoices')"
                             style="padding:6px 14px;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;background:transparent;color:#64748b;">📦
-                            Накладные</button>
+                            Накладні</button>
                         <button id="yoy-btn-clients" class="yoy-metric-btn" onclick="switchYoYMetric('clients')"
                             style="padding:6px 14px;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;background:transparent;color:#64748b;">👥
-                            Компании</button>
+                            Компанії</button>
                     </div>
                 </div>
             </div>
 
             <!-- График -->
             <div class="chart-card" style="margin-bottom:16px;">
-                <h2 class="card-title" id="yoy-chart-title">📈 Сравнительная сезонность (Выручка)</h2>
+                <h2 class="card-title" id="yoy-chart-title">📈 Порівняльна сезонність (Продажі)</h2>
                 <div class="bar-chart" id="chart-yoy-comparison" style="height:260px;"></div>
                 <div style="display:flex;gap:16px;font-size:11px;margin-top:8px;color:var(--muted);">
                     <span>🟦 <span id="yoy-legend-year1">2026</span></span>
@@ -2282,15 +2282,15 @@
             <div class="chart-card" style="margin-bottom:16px;">
                 <div
                     style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
-                    <h2 class="card-title" style="margin:0;">📋 Детализированная матрица продаж</h2>
+                    <h2 class="card-title" style="margin:0;">📋 Деталізована матриця продажів</h2>
                     <div style="display:flex;gap:4px;background:#f1f5f9;padding:3px;border-radius:8px;">
                         <button id="btn-tab-invoices" onclick="switchYoYTableMode('invoices')"
                             style="padding:8px 16px;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;background:#fff;color:#1e293b;box-shadow:0 1px 2px rgba(0,0,0,0.05);">
-                            📦 По накладным
+                            📦 За накладними
                         </button>
                         <button id="btn-tab-clients" onclick="switchYoYTableMode('clients')"
                             style="padding:8px 16px;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;background:transparent;color:#64748b;">
-                            👥 По компаниям
+                            👥 За компаніями
                         </button>
                     </div>
                 </div>
@@ -2301,20 +2301,20 @@
                         <thead>
                             <tr>
                                 <th rowspan="2" style="width:40px;text-align:center;">№</th>
-                                <th rowspan="2" style="min-width:100px;text-align:left;">Месяц</th>
-                                <th colspan="2" class="col-current">Текущий год (<span
+                                <th rowspan="2" style="min-width:100px;text-align:left;">Місяць</th>
+                                <th colspan="2" class="col-current">Поточний рік (<span
                                         id="yoy-th-year1-rev">2026</span>)</th>
-                                <th colspan="2" class="col-prev">Прошлый год (<span id="yoy-th-year2-rev">2025</span>)
+                                <th colspan="2" class="col-prev">Минулий рік (<span id="yoy-th-year2-rev">2025</span>)
                                 </th>
-                                <th colspan="2" class="col-delta">Динамика (YoY)</th>
+                                <th colspan="2" class="col-delta">Динаміка (YoY)</th>
                             </tr>
                             <tr>
-                                <th class="right" id="th-metric-26-h">Накладные</th>
-                                <th class="right">Выручка</th>
-                                <th class="right" id="th-metric-25-h">Накладные</th>
-                                <th class="right">Выручка</th>
-                                <th class="right" id="th-metric-diff-h">Δ Накладные</th>
-                                <th class="right">Δ Выручка</th>
+                                <th class="right" id="th-metric-26-h">Накладні</th>
+                                <th class="right">Продажі</th>
+                                <th class="right" id="th-metric-25-h">Накладні</th>
+                                <th class="right">Продажі</th>
+                                <th class="right" id="th-metric-diff-h">Δ Накладні</th>
+                                <th class="right">Δ Продажі</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -2324,7 +2324,7 @@
 
                 <!-- Структура активности клиентов -->
                 <div class="chart-card" style="margin-top:48px;">
-                    <h2 class="card-title">👥 Структура активности клиентов (YTD)</h2>
+                    <h2 class="card-title">👥 Структура активності клієнтів (YTD)</h2>
                     <p style="font-size:12px;color:var(--muted);margin-bottom:16px;" id="yoy-segments-note"></p>
                     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;"
                         id="yoy-segments"></div>
@@ -2339,7 +2339,7 @@
             <div class="tab-content" id="tab-abc">
                 <div class="chart-card" style="margin-bottom:20px;">
                     <div class="card-header">
-                        <h2 class="card-title">🔺 ABC-пирамида клиентов</h2>
+                        <h2 class="card-title">🔺 ABC-піраміда клієнтів</h2>
                     </div>
                     <div class="abc-pyramid-grid">
                         <div class="abc-bar-container" id="abc-bars">
@@ -2349,9 +2349,9 @@
                             <table class="table-mini">
                                 <thead>
                                     <tr>
-                                        <th>Группа</th>
-                                        <th class="right">Выручка</th>
-                                        <th class="right">Компаний</th>
+                                        <th>Група</th>
+                                        <th class="right">Продажі</th>
+                                        <th class="right">Компаній</th>
                                     </tr>
                                 </thead>
                                 <tbody id="table-abc">
@@ -2367,20 +2367,20 @@
                 <!-- МАТРИЦА ABC СРАВНЕНИЕ -->
                 <div class="chart-card">
                     <div class="card-header">
-                        <h2 class="card-title">📊 Сравнительная матрица ABC</h2>
+                        <h2 class="card-title">📊 Порівняльна матриця ABC</h2>
                         <span style="font-size:12px;color:var(--muted);" id="abc-matrix-years">2026 / 2025</span>
                     </div>
                     <div style="overflow-x:auto;">
                         <table class="pivot-formatted-table" id="table-abc-matrix">
                             <thead>
                                 <tr>
-                                    <th>Группа</th>
-                                    <th class="right">Компаний <span id="abc-mx-year1">2026</span></th>
-                                    <th class="right">Компаний <span id="abc-mx-year2">2025</span></th>
+                                    <th>Група</th>
+                                    <th class="right">Компаній <span id="abc-mx-year1">2026</span></th>
+                                    <th class="right">Компаній <span id="abc-mx-year2">2025</span></th>
                                     <th class="right">Δ</th>
-                                    <th class="right">Выручка <span id="abc-mx-rev-year1">2026</span></th>
-                                    <th class="right">Выручка <span id="abc-mx-rev-year2">2025</span></th>
-                                    <th class="right">Δ Выручка</th>
+                                    <th class="right">Продажі <span id="abc-mx-rev-year1">2026</span></th>
+                                    <th class="right">Продажі <span id="abc-mx-rev-year2">2025</span></th>
+                                    <th class="right">Δ Продажі</th>
                                     <th class="right">Δ %</th>
                                 </tr>
                             </thead>
@@ -2400,34 +2400,34 @@
                 <div class="kpi-row" style="margin-bottom:20px;" id="rec-kpi-row">
                     <div class="kpi-card kpi-blue">
                         <div class="kpi-icon">🔄</div>
-                        <div class="kpi-label">Повторных клиентов</div>
+                        <div class="kpi-label">Повторних клієнтів</div>
                         <div class="kpi-value" id="rec-kpi-total">—</div>
-                        <div class="kpi-sub">2-3 накладных за год</div>
+                        <div class="kpi-sub">2-3 накладних за рік</div>
                     </div>
                     <div class="kpi-card kpi-green">
                         <div class="kpi-icon">💰</div>
-                        <div class="kpi-label">Суммарная выручка</div>
+                        <div class="kpi-label">Сумарні продажі</div>
                         <div class="kpi-value" id="rec-kpi-revenue">—</div>
-                        <div class="kpi-sub" id="rec-kpi-rev-sub">от повторных</div>
+                        <div class="kpi-sub" id="rec-kpi-rev-sub">від повторних</div>
                     </div>
                     <div class="kpi-card kpi-amber">
                         <div class="kpi-icon">📦</div>
-                        <div class="kpi-label">Ближе к разовым</div>
+                        <div class="kpi-label">Ближче до разових</div>
                         <div class="kpi-value" id="rec-kpi-g1">—</div>
-                        <div class="kpi-sub">малый интервал ≤7 дней</div>
+                        <div class="kpi-sub">малий інтервал ≤7 днів</div>
                     </div>
                     <div class="kpi-card kpi-purple">
                         <div class="kpi-icon">🌟</div>
-                        <div class="kpi-label">Ближе к постоянным</div>
+                        <div class="kpi-label">Ближче до постійних</div>
                         <div class="kpi-value" id="rec-kpi-g3">—</div>
-                        <div class="kpi-sub">3 накладных, долгий цикл</div>
+                        <div class="kpi-sub">3 накладних, довгий цикл</div>
                     </div>
                 </div>
 
                 <!-- Диаграмма по группам -->
                 <div class="chart-card" style="margin-bottom:20px;">
                     <div class="card-header">
-                        <h2 class="card-title">🔄 Распределение повторных клиентов по паттерну</h2>
+                        <h2 class="card-title">🔄 Розподіл повторних клієнтів за паттерном</h2>
                         <span style="font-size:12px;color:var(--muted);" id="rec-year-label">2026</span>
                     </div>
                     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;" id="rec-pattern-cards">
@@ -2438,9 +2438,9 @@
                 <!-- Таблица клиентов -->
                 <div class="chart-card">
                     <div class="card-header">
-                        <h2 class="card-title">📋 Детальный список повторных клиентов</h2>
+                        <h2 class="card-title">📋 Детальний список повторних клієнтів</h2>
                         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-                            <input type="text" id="rec-search" placeholder="🔍 Поиск по названию..."
+                            <input type="text" id="rec-search" placeholder="🔍 Пошук за назвою..."
                                 style="padding:6px 12px;border-radius:8px;border:1px solid var(--border);font-size:13px;width:200px;"
                                 oninput="filterRecurrentTable()">
                             <select id="rec-filter-group" onchange="filterRecurrentTable()"
@@ -2456,10 +2456,10 @@
                             </select>
                             <select id="rec-filter-pattern" onchange="filterRecurrentTable()"
                                 style="padding:6px 10px;border-radius:8px;border:1px solid var(--border);font-size:13px;">
-                                <option value="">Все паттерны</option>
-                                <option value="g1">Ближе к разовым</option>
-                                <option value="g2">Повторные (Центр)</option>
-                                <option value="g3">Ближе к постоянным</option>
+                                <option value="">Всі паттерни</option>
+                                <option value="g1">Ближче до разових</option>
+                                <option value="g2">Повторні (Центр)</option>
+                                <option value="g3">Ближче до постійних</option>
                             </select>
                         </div>
                     </div>
@@ -2468,13 +2468,13 @@
                             <thead>
                                 <tr>
                                     <th>#</th>
-                                    <th>Клиент</th>
+                                    <th>Клієнт</th>
                                     <th class="center">ABC</th>
-                                    <th class="right">Выручка</th>
-                                    <th class="center">Накладных</th>
-                                    <th class="center">Дней между</th>
+                                    <th class="right">Продажі</th>
+                                    <th class="center">Накладних</th>
+                                    <th class="center">Днів між</th>
                                     <th class="center">Паттерн</th>
-                                    <th>Рекомендация</th>
+                                    <th>Рекомендація</th>
                                 </tr>
                             </thead>
                             <tbody id="tbody-recurrent">
@@ -2494,47 +2494,47 @@
                 <div class="kpi-row" style="margin-bottom:20px;">
                     <div class="kpi-card kpi-blue">
                         <div class="kpi-icon">🆕</div>
-                        <div class="kpi-label">Новые клиенты</div>
+                        <div class="kpi-label">Нові клієнти</div>
                         <div class="kpi-value" id="cyoy-kpi-new">—</div>
-                        <div class="kpi-sub">не было в прошлом году</div>
+                        <div class="kpi-sub">не було у минулому році</div>
                     </div>
                     <div class="kpi-card kpi-green">
                         <div class="kpi-icon">📈</div>
-                        <div class="kpi-label">Выросли</div>
+                        <div class="kpi-label">Зросли</div>
                         <div class="kpi-value" id="cyoy-kpi-grew">—</div>
-                        <div class="kpi-sub">выручка выше прошлого года</div>
+                        <div class="kpi-sub">продажі вищі за минулий рік</div>
                     </div>
                     <div class="kpi-card kpi-amber">
                         <div class="kpi-icon">📉</div>
-                        <div class="kpi-label">Просели</div>
+                        <div class="kpi-label">Просіли</div>
                         <div class="kpi-value" id="cyoy-kpi-fell">—</div>
-                        <div class="kpi-sub">выручка ниже прошлого года</div>
+                        <div class="kpi-sub">продажі нижчі за минулий рік</div>
                     </div>
                     <div class="kpi-card kpi-purple">
                         <div class="kpi-icon">😶</div>
-                        <div class="kpi-label">Потеряны</div>
+                        <div class="kpi-label">Втрачені</div>
                         <div class="kpi-value" id="cyoy-kpi-lost">—</div>
-                        <div class="kpi-sub">не покупали в текущем году</div>
+                        <div class="kpi-sub">не купували в поточному році</div>
                     </div>
                 </div>
 
                 <!-- ABC-статистика по группам -->
                 <div class="chart-card" style="margin-bottom:20px;">
                     <div class="card-header">
-                        <h2 class="card-title">📊 ABC-группы: сравнение <span id="cyoy-title-year">2026</span> / <span
+                        <h2 class="card-title">📊 ABC-групи: порівняння <span id="cyoy-title-year">2026</span> / <span
                                 id="cyoy-title-year-prev">2025</span></h2>
                     </div>
                     <div style="overflow-x:auto;">
                         <table class="pivot-formatted-table" id="table-cyoy-groups">
                             <thead>
                                 <tr>
-                                    <th>Группа</th>
-                                    <th class="right">Клиентов <span id="cyoy-th-curr">2026</span></th>
-                                    <th class="right">Клиентов <span id="cyoy-th-prev">2025</span></th>
-                                    <th class="right">Δ клиентов</th>
-                                    <th class="right">Выручка <span id="cyoy-th-rev-curr">2026</span></th>
-                                    <th class="right">Выручка <span id="cyoy-th-rev-prev">2025</span></th>
-                                    <th class="right">Δ Выручка</th>
+                                    <th>Група</th>
+                                    <th class="right">Клієнтів <span id="cyoy-th-curr">2026</span></th>
+                                    <th class="right">Клієнтів <span id="cyoy-th-prev">2025</span></th>
+                                    <th class="right">Δ клієнтів</th>
+                                    <th class="right">Продажі <span id="cyoy-th-rev-curr">2026</span></th>
+                                    <th class="right">Продажі <span id="cyoy-th-rev-prev">2025</span></th>
+                                    <th class="right">Δ Продажі</th>
                                     <th class="right">Δ %</th>
                                 </tr>
                             </thead>
@@ -2550,18 +2550,18 @@
                 <!-- Таблица клиентов с изменением -->
                 <div class="chart-card">
                     <div class="card-header">
-                        <h2 class="card-title">👥 Детальная таблица клиентов (Топ-500)</h2>
+                        <h2 class="card-title">👥 Детальна таблиця клієнтів (Топ-500)</h2>
                         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-                            <input type="text" id="cyoy-search" placeholder="🔍 Поиск клиента..."
+                            <input type="text" id="cyoy-search" placeholder="🔍 Пошук клієнта..."
                                 style="padding:6px 12px;border-radius:8px;border:1px solid var(--border);font-size:13px;width:200px;"
                                 oninput="filterClientsYoYTable()">
                             <select id="cyoy-filter" onchange="filterClientsYoYTable()"
                                 style="padding:6px 10px;border-radius:8px;border:1px solid var(--border);font-size:13px;">
-                                <option value="">Все</option>
-                                <option value="new">🆕 Новые</option>
-                                <option value="grew">📈 Выросли</option>
-                                <option value="fell">📉 Просели</option>
-                                <option value="lost">😶 Потеряны</option>
+                                <option value="">Всі</option>
+                                <option value="new">🆕 Нові</option>
+                                <option value="grew">📈 Зросли</option>
+                                <option value="fell">📉 Просіли</option>
+                                <option value="lost">😶 Втрачені</option>
                             </select>
                         </div>
                     </div>
@@ -2570,11 +2570,11 @@
                             <thead>
                                 <tr>
                                     <th>#</th>
-                                    <th>Клиент</th>
+                                    <th>Клієнт</th>
                                     <th class="center">ABC <span id="cyoy-col-curr">2026</span></th>
                                     <th class="center">ABC <span id="cyoy-col-prev">2025</span></th>
-                                    <th class="right">Выручка <span id="cyoy-col-rev-curr">2026</span></th>
-                                    <th class="right">Выручка <span id="cyoy-col-rev-prev">2025</span></th>
+                                    <th class="right">Продажі <span id="cyoy-col-rev-curr">2026</span></th>
+                                    <th class="right">Продажі <span id="cyoy-col-rev-prev">2025</span></th>
                                     <th class="right">Δ %</th>
                                     <th class="center">Накл. <span id="cyoy-col-inv-curr">2026</span></th>
                                     <th class="center">Накл. <span id="cyoy-col-inv-prev">2025</span></th>
@@ -2665,7 +2665,7 @@
                         var avgTicket = totalInvoices > 0 ? Math.round(totalGoods / totalInvoices) : 0;
                         document.getElementById('kpi-revenue').textContent = fmtM(totalGoods);
                         document.getElementById('kpi-invoices').textContent = fmtN(totalInvoices);
-                        document.getElementById('kpi-avg-ticket').textContent = 'Средний чек: ' + fmtM(avgTicket);
+                        document.getElementById('kpi-avg-ticket').textContent = 'Середній чек: ' + fmtM(avgTicket);
 
                         renderMonthlyTable(data);
                         renderMonthlyChart(data, chart);
@@ -2761,8 +2761,8 @@
                     });
                     var btn = document.getElementById('yoy-btn-' + metric);
                     if (btn) { btn.style.background = '#fff'; btn.style.color = '#1e293b'; btn.style.boxShadow = '0 1px 2px rgba(0,0,0,0.05)'; }
-                    var titles = { revenue: 'Выручка', invoices: 'Накладные', clients: 'Компании' };
-                    document.getElementById('yoy-chart-title').textContent = '📈 Сравнительная сезонность (' + titles[metric] + ')';
+                    var titles = { revenue: 'Продажі', invoices: 'Накладні', clients: 'Компанії' };
+                    document.getElementById('yoy-chart-title').textContent = '📈 Порівняльна сезонність (' + titles[metric] + ')';
                     if (yoyDataCache) renderYoYChart(yoyDataCache, invData1Cache, invData2Cache);
                 }
 
@@ -3028,13 +3028,13 @@
                     var container = document.getElementById('pivot-formatted-container');
                     var summaryContainer = document.getElementById('summary-container');
                     if (!container) return;
-                    container.innerHTML = '<div style="color:#94a3b8;text-align:center;padding:40px;">⏳ Загрузка объединённого отчёта...</div>';
+                    container.innerHTML = '<div style="color:#94a3b8;text-align:center;padding:40px;">⏳ Завантаження об’єднаного звіту...</div>';
 
                     try {
                         var resp = await fetch('/api/analytics/pivot-formatted?token=' + TOKEN + '&year=' + year + '&multiplier=' + multiplier + '&limit_price=' + limitPrice);
                         var json = await resp.json();
                         if (json.status !== 'ok' || !json.below || !json.above) {
-                            container.innerHTML = '<div style="text-align:center;padding:40px;">⚠️ Нет данных</div>';
+                            container.innerHTML = '<div style="text-align:center;padding:40px;">⚠️ Немає даних</div>';
                             return;
                         }
 
@@ -3141,37 +3141,37 @@
                                 '<span style="font-size:18px;writing-mode:horizontal-tb;line-height:1;">' + emoji + '</span>' +
                                 '<span style="writing-mode:vertical-rl;transform:rotate(180deg);font-size:10px;font-weight:800;white-space:nowrap;">' + label + '</span>' +
                                 '</div></td>';
-                            html += '<td>Кол-во компаний</td>';
+                            html += '<td>К-сть компаній</td>';
                             colsAll.forEach(function (c) {
                                 var val = (cols.indexOf(c) >= 0) ? (dataComp[c] || 0) : null;
                                 html += '<td>' + (val !== null ? fmtN(Math.round(val)) : '—') + '</td>';
                             });
                             var pctC = totalCompAll > 0 ? ((dataComp['out_total'] || 0) / totalCompAll * 100).toFixed(2) : '0';
-                            html += '<td style="font-size:11px;color:#64748b;">' + pctC + '% — Общее количество фирм</td></tr>';
+                            html += '<td style="font-size:11px;color:#64748b;">' + pctC + '% — Загальна кількість фірм</td></tr>';
 
-                            html += '<tr class="row-invoices"><td>Кол-во накладных</td>';
+                            html += '<tr class="row-invoices"><td>К-сть накладних</td>';
                             colsAll.forEach(function (c) {
                                 var val = (cols.indexOf(c) >= 0) ? (dataInv[c] || 0) : null;
                                 html += '<td>' + (val !== null ? fmtN(Math.round(val)) : '—') + '</td>';
                             });
-                            html += '<td style="font-size:11px;color:#64748b;">Сумма расходных накладных</td></tr>';
+                            html += '<td style="font-size:11px;color:#64748b;">Сума видаткових накладних</td></tr>';
 
-                            html += '<tr class="row-sales"><td>Сумма продаж</td>';
+                            html += '<tr class="row-sales"><td>Сума продажів</td>';
                             colsAll.forEach(function (c) {
                                 var val = (cols.indexOf(c) >= 0) ? (dataSales[c] || 0) : null;
                                 html += '<td>' + (val !== null ? fmtM(val) : '—') + '</td>';
                             });
                             var pctS = gts > 0 ? ((dataSales['out_total'] || 0) / gts * 100).toFixed(2) : '0';
-                            html += '<td style="font-size:11px;color:#64748b;">' + pctS + '% — Сумма продаж</td></tr>';
+                            html += '<td style="font-size:11px;color:#64748b;">' + pctS + '% — Сума продажів</td></tr>';
 
-                            html += '<tr class="row-ticket"><td>Средний чек</td>';
+                            html += '<tr class="row-ticket"><td>Середній чек</td>';
                             colsAll.forEach(function (c) {
                                 var val = (cols.indexOf(c) >= 0) ? (dataAvg[c] || 0) : null;
                                 html += '<td>' + (val !== null ? fmtM(val) : '—') + '</td>';
                             });
-                            html += '<td style="font-size:11px;color:#64748b;">Средняя цена за одну накладную</td></tr>';
+                            html += '<td style="font-size:11px;color:#64748b;">Середня ціна за одну накладну</td></tr>';
 
-                            html += '<tr class="row-pct"><td>% от продаж</td>';
+                            html += '<tr class="row-pct"><td>% від продажів</td>';
                             colsAll.forEach(function (c) {
                                 var val = (cols.indexOf(c) >= 0) ? (dataPct[c] || 0) : null;
                                 html += '<td>' + (val !== null ? val.toFixed(2) + '%' : '—') + '</td>';
@@ -3189,7 +3189,7 @@
                         var kpiAvgTicket = kpiTotalInvoices > 0 ? Math.round(kpiTotalGoods / kpiTotalInvoices) : 0;
                         document.getElementById('kpi-revenue').textContent = fmtM(kpiTotalGoods);
                         document.getElementById('kpi-invoices').textContent = fmtN(kpiTotalInvoices);
-                        document.getElementById('kpi-avg-ticket').textContent = 'Средний чек: ' + fmtM(kpiAvgTicket);
+                        document.getElementById('kpi-avg-ticket').textContent = 'Середній чек: ' + fmtM(kpiAvgTicket);
 
                         // ====== ВАЖНЫЕ ======
                         var impTotalComp = (impComp['out_1'] || 0) + (impComp['out_2_3'] || 0) + (impComp['out_4_plus'] || 0);
@@ -3204,43 +3204,43 @@
                             '<span style="font-size:18px;writing-mode:horizontal-tb;line-height:1;">⭐</span>' +
                             '<span style="writing-mode:vertical-rl;transform:rotate(180deg);font-size:10px;font-weight:800;white-space:nowrap;">VIP</span>' +
                             '</div></td>';
-                        html += '<td>Кол-во компаний</td>';
+                        html += '<td>К-сть компаній</td>';
                         html += '<td>' + fmtN(Math.round(impComp['out_1'] || 0)) + '</td>';
                         html += '<td>' + fmtN(Math.round(impComp['out_2_3'] || 0)) + '</td>';
                         html += '<td colspan="4" style="text-align:center;">' + fmtN(Math.round(impComp['out_4_plus'] || 0)) + '</td>';
                         html += '<td>' + fmtN(Math.round(impTotalComp)) + '</td>';
-                        html += '<td style="font-size:11px;color:#64748b;">' + pctImpComp + '% — Общее количество фирм</td></tr>';
+                        html += '<td style="font-size:11px;color:#64748b;">' + pctImpComp + '% — Загальна кількість фірм</td></tr>';
 
-                        html += '<tr class="row-invoices"><td>Кол-во накладных</td>';
+                        html += '<tr class="row-invoices"><td>К-сть накладних</td>';
                         html += '<td>' + fmtN(Math.round(impInv['out_1'] || 0)) + '</td>';
                         html += '<td>' + fmtN(Math.round(impInv['out_2_3'] || 0)) + '</td>';
                         html += '<td colspan="4" style="text-align:center;">' + fmtN(Math.round(impInv['out_4_plus'] || 0)) + '</td>';
                         html += '<td>' + fmtN(Math.round(impTotalInv)) + '</td>';
-                        html += '<td style="font-size:11px;color:#64748b;">Сумма расходных накладных</td></tr>';
+                        html += '<td style="font-size:11px;color:#64748b;">Сума видаткових накладних</td></tr>';
 
-                        html += '<tr class="row-sales"><td>Сумма продаж</td>';
+                        html += '<tr class="row-sales"><td>Сума продажів</td>';
                         html += '<td>' + fmtM(impSales['out_1'] || 0) + '</td>';
                         html += '<td>' + fmtM(impSales['out_2_3'] || 0) + '</td>';
                         html += '<td colspan="4" style="text-align:center;">' + fmtM(impSales['out_4_plus'] || 0) + '</td>';
                         html += '<td>' + fmtM(impTotalSales) + '</td>';
-                        html += '<td style="font-size:11px;color:#64748b;">' + pctImpSales + '% — Сумма продаж</td></tr>';
+                        html += '<td style="font-size:11px;color:#64748b;">' + pctImpSales + '% — Сума продажів</td></tr>';
 
                         var impAvg1 = (impInv['out_1'] || 0) > 0 ? (impSales['out_1'] || 0) / (impInv['out_1'] || 0) : 0;
                         var impAvg2 = (impInv['out_2_3'] || 0) > 0 ? (impSales['out_2_3'] || 0) / (impInv['out_2_3'] || 0) : 0;
                         var impAvg4plus = (impInv['out_4_plus'] || 0) > 0 ? (impSales['out_4_plus'] || 0) / (impInv['out_4_plus'] || 0) : 0;
                         var impAvgTotal = impTotalInv > 0 ? impTotalSales / impTotalInv : 0;
-                        html += '<tr class="row-ticket"><td>Средний чек</td>';
+                        html += '<tr class="row-ticket"><td>Середній чек</td>';
                         html += '<td>' + fmtM(impAvg1) + '</td>';
                         html += '<td>' + fmtM(impAvg2) + '</td>';
                         html += '<td colspan="4" style="text-align:center;">' + fmtM(impAvg4plus) + '</td>';
                         html += '<td>' + fmtM(impAvgTotal) + '</td>';
-                        html += '<td style="font-size:11px;color:#64748b;">Средняя цена за одну накладную</td></tr>';
+                        html += '<td style="font-size:11px;color:#64748b;">Середня ціна за одну накладну</td></tr>';
 
                         var pct1 = gts > 0 ? ((impSales['out_1'] || 0) / gts * 100) : 0;
                         var pct2 = gts > 0 ? ((impSales['out_2_3'] || 0) / gts * 100) : 0;
                         var pct4plus = gts > 0 ? ((impSales['out_4_plus'] || 0) / gts * 100) : 0;
                         var pctTotal = gts > 0 ? (impTotalSales / gts * 100) : 0;
-                        html += '<tr class="row-pct"><td>% от продаж</td>';
+                        html += '<tr class="row-pct"><td>% від продажів</td>';
                         html += '<td>' + pct1.toFixed(2) + '%</td>';
                         html += '<td>' + pct2.toFixed(2) + '%</td>';
                         html += '<td colspan="4" style="text-align:center;">' + pct4plus.toFixed(2) + '%</td>';
@@ -3270,7 +3270,7 @@
                             var elTot = document.getElementById('kpi-total');
                             if (elTot) elTot.textContent = fmtN(jsonClients.active_clients || 0);
                             var elTotSub = document.getElementById('kpi-total-sub');
-                            if (elTotSub) elTotSub.textContent = 'Участвуют в аналитике';
+                            if (elTotSub) elTotSub.textContent = 'Беруть участь в аналітиці';
                         }
                     } catch (e) { console.error('loadGlobalKPI clients error:', e); }
 
@@ -3289,7 +3289,7 @@
                             var elInv = document.getElementById('kpi-invoices');
                             if (elInv) elInv.textContent = fmtN(totalInvoices);
                             var elAvg = document.getElementById('kpi-avg-ticket');
-                            if (elAvg) elAvg.textContent = 'Средний чек: ' + fmtM(avgTicket);
+                            if (elAvg) elAvg.textContent = 'Середній чек: ' + fmtM(avgTicket);
                         }
                     } catch (e) { console.error('loadGlobalKPI revenue error:', e); }
 
@@ -3391,7 +3391,7 @@
                         var pzc = totalC > 0 ? (zc / totalC * 100) : 0, prc = totalC > 0 ? (rc / totalC * 100) : 0, ppc = totalC > 0 ? (pc / totalC * 100) : 0, ppoc = totalC > 0 ? (poc / totalC * 100) : 0;
                         var pzs = totalS > 0 ? (zs / totalS * 100) : 0, prs = totalS > 0 ? (rs / totalS * 100) : 0, pps = totalS > 0 ? (ps / totalS * 100) : 0, ppos = totalS > 0 ? (pos / totalS * 100) : 0;
 
-                        var html = '<table class="final-table"><thead><tr><th>ИТОГО ABC</th><th class="col-zalet">🔴 Залётные</th><th class="col-razov">🟠 Разовые основные</th><th class="col-povtor">🔵 Повторно основные</th><th class="col-post">🟢 Постоянные</th><th class="col-total">📊 Всего</th></tr></thead><tbody>';
+                        var html = '<table class="final-table"><thead><tr><th>РАЗОМ ABC</th><th class="col-zalet">🔴 Зальотні</th><th class="col-razov">🟠 Разові основні</th><th class="col-povtor">🔵 Повторно основні</th><th class="col-post">🟢 Постійні</th><th class="col-total">📊 Всього</th></tr></thead><tbody>';
                         html += '<tr class="row-companies"><td><strong>Количество фирм</strong></td><td class="col-zalet">' + fmtN(zc) + '</td><td class="col-razov">' + fmtN(rc) + '</td><td class="col-povtor">' + fmtN(pc) + '</td><td class="col-post">' + fmtN(poc) + '</td><td class="col-total"><strong>' + fmtN(totalC) + '</strong></td></tr>';
                         html += '<tr class="row-pct-companies"><td>Процентное отношение</td><td class="col-zalet">' + pzc.toFixed(2) + '%</td><td class="col-razov">' + prc.toFixed(2) + '%</td><td class="col-povtor">' + ppc.toFixed(2) + '%</td><td class="col-post">' + ppoc.toFixed(2) + '%</td><td class="col-total"><strong>100%</strong></td></tr>';
                         html += '<tr class="row-sales"><td><strong>Продажи по группам</strong></td><td class="col-zalet">' + fmtM(zs) + '</td><td class="col-razov">' + fmtM(rs) + '</td><td class="col-povtor">' + fmtM(ps) + '</td><td class="col-post">' + fmtM(pos) + '</td><td class="col-total"><strong>' + fmtM(totalS) + '</strong></td></tr>';
@@ -3428,13 +3428,13 @@
                     var multiplier = parseFloat(p.multiplier);
                     var el = document.getElementById('rec-year-label'); if (el) el.textContent = year;
                     var tbody = document.getElementById('tbody-recurrent');
-                    if (tbody) tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:30px;">⏳ Загрузка данных...</td></tr>';
+                    if (tbody) tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:30px;">⏳ Завантаження даних...</td></tr>';
 
                     try {
                         var resp = await fetch('/api/analytics/recurrent-clients?token=' + TOKEN + '&year=' + year + '&multiplier=' + multiplier);
                         var json = await resp.json();
                         if (json.status !== 'ok' || !json.data || !json.data.length) {
-                            if (tbody) tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:30px;">⚠️ Нет данных за ' + year + '</td></tr>';
+                            if (tbody) tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:30px;">⚠️ Немає даних за ' + year + '</td></tr>';
                             return;
                         }
                         recurrentData = json.data;
@@ -3531,7 +3531,7 @@
                     ['cyoy-title-year-prev', 'cyoy-th-prev', 'cyoy-th-rev-prev', 'cyoy-col-prev', 'cyoy-col-rev-prev', 'cyoy-col-inv-prev'].forEach(id => { var e = document.getElementById(id); if (e) e.textContent = yearPrev; });
 
                     var tbody = document.getElementById('tbody-cyoy-clients');
-                    if (tbody) tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:30px;">⏳ Загрузка данных...</td></tr>';
+                    if (tbody) tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:30px;">⏳ Завантаження даних...</td></tr>';
                     var tbodyG = document.getElementById('tbody-cyoy-groups');
                     if (tbodyG) tbodyG.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:20px;">⏳ Загрузка...</td></tr>';
 
@@ -3539,7 +3539,7 @@
                         var resp = await fetch('/api/analytics/clients-yoy?token=' + TOKEN + '&year=' + year + '&multiplier=' + multiplier);
                         var json = await resp.json();
                         if (json.status !== 'ok' || !json.data) {
-                            if (tbody) tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:30px;">⚠️ Нет данных</td></tr>';
+                            if (tbody) tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:30px;">⚠️ Немає даних</td></tr>';
                             return;
                         }
                         clientsYoYData = json.data;

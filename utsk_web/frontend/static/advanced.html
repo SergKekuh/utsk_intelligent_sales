@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UTSK Intelligent Sales — Расширенная Аналитика</title>
+    <title>UTSK Intelligent Sales — Розширена Аналітика</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
@@ -192,20 +192,20 @@
         <!-- Header -->
         <div class="header">
             <span class="header-logo"> UTSK Analytics</span>
-            <span class="header-badge">Intelligent Sales v7.5</span>
+            <span class="header-badge">Intelligent Sales v9.0</span>
             <div class="header-actions">
                 <a href="/?token=utsk2026" style="text-decoration:none;color:var(--text-main, #0f172a);font-weight:700;font-size:13px;display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:10px;background:#fff;border:1px solid var(--border, #e2e8f0);transition:all .15s;white-space:nowrap;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='#fff'">← На дашборд</a>
-                <a href="/comparison?token=utsk2026" class="btn">📈 Сравнение</a>
-                <button class="btn btn-accent" onclick="refreshData()">🔄 Обновить</button>
+                <a href="/comparison?token=utsk2026" class="btn">📈 Порівняння</a>
+                <button class="btn btn-accent" onclick="refreshData()">🔄 Оновити</button>
             </div>
         </div>
 
         <!-- Tabs -->
         <div class="tabs-nav" id="tabsNav">
-            <button class="tab-btn active" data-tab="dashboard">📊 Главный Дашборд</button>
-            <button class="tab-btn" data-tab="yoy">📅 Сравнение YoY</button>
-            <button class="tab-btn" data-tab="segmentation">👥 Сегментация</button>
-            <button class="tab-btn" data-tab="products">📦 Продукция</button>
+            <button class="tab-btn active" data-tab="dashboard">📊 Головний Дашборд</button>
+            <button class="tab-btn" data-tab="yoy">📅 Порівняння YoY</button>
+            <button class="tab-btn" data-tab="segmentation">👥 Сегментація</button>
+            <button class="tab-btn" data-tab="products">📦 Продукція</button>
         </div>
 
         <!-- Content -->
@@ -213,15 +213,15 @@
             <!-- ====== ВКЛАДКА 1: ГЛАВНЫЙ ДАШБОРД ====== -->
             <div class="tab-content active" id="tab-dashboard">
                 <div class="kpi-grid" id="kpiGrid">
-                    <div class="kpi-card" onclick="window.location.href='/comparison?token=' + TOKEN" style="cursor:pointer;"><span class="kpi-label">💰 Выручка 2026</span><span class="kpi-value" id="kpi-revenue">—</span><span class="kpi-sub" id="kpi-revenue-sub">Загрузка...</span></div>
-                    <div class="kpi-card"><span class="kpi-label">👥 Активных клиентов</span><span class="kpi-value" id="kpi-clients">—</span><span class="kpi-sub" id="kpi-clients-sub">Загрузка...</span></div>
-                    <div class="kpi-card"><span class="kpi-label">📦 Накладных</span><span class="kpi-value" id="kpi-invoices">—</span><span class="kpi-sub" id="kpi-invoices-sub">Загрузка...</span></div>
-                    <div class="kpi-card"><span class="kpi-label">🛒 Средний чек</span><span class="kpi-value" id="kpi-avg">—</span><span class="kpi-sub" id="kpi-avg-sub">Загрузка...</span></div>
+                    <div class="kpi-card" onclick="window.location.href='/comparison?token=' + TOKEN" style="cursor:pointer;"><span class="kpi-label">💰 Продажі 2026</span><span class="kpi-value" id="kpi-revenue">—</span><span class="kpi-sub" id="kpi-revenue-sub">Завантаження...</span></div>
+                    <div class="kpi-card"><span class="kpi-label">👥 Активних клієнтів</span><span class="kpi-value" id="kpi-clients">—</span><span class="kpi-sub" id="kpi-clients-sub">Завантаження...</span></div>
+                    <div class="kpi-card"><span class="kpi-label">📦 Накладних</span><span class="kpi-value" id="kpi-invoices">—</span><span class="kpi-sub" id="kpi-invoices-sub">Завантаження...</span></div>
+                    <div class="kpi-card"><span class="kpi-label">🛒 Середній чек</span><span class="kpi-value" id="kpi-avg">—</span><span class="kpi-sub" id="kpi-avg-sub">Завантаження...</span></div>
                 </div>
 
                 <div class="grid-2-1">
                     <div class="panel">
-                        <div class="panel-head"><h2 class="panel-title">📈 Динамика выручки по месяцам</h2></div>
+                        <div class="panel-head"><h2 class="panel-title">📈 Динаміка продажів по місяцях</h2></div>
                         <div class="panel-body"><div style="height:300px"><canvas id="chartTrend"></canvas></div></div>
                     </div>
                     <div class="panel">
@@ -237,13 +237,13 @@
             <div class="tab-content" id="tab-yoy">
                 <div class="panel" style="margin-bottom:20px">
                     <div class="panel-head">
-                        <h2 class="panel-title">📊 Сравнение выручки по месяцам (2026 vs 2025)</h2>
-                        <span class="badge info">Товарная выручка</span>
+                        <h2 class="panel-title">📊 Порівняння продажів по місяцях (2026 vs 2025)</h2>
+                        <span class="badge info">Товарні продажі</span>
                     </div>
                     <div class="panel-body"><div style="height:340px"><canvas id="chartYoY"></canvas></div></div>
                 </div>
                 <div class="panel">
-                    <div class="panel-head"><h2 class="panel-title">📋 Детальная матрица сравнения</h2></div>
+                    <div class="panel-head"><h2 class="panel-title">📋 Детальна матриця порівняння</h2></div>
                     <div class="table-wrap" id="yoyTableContainer">
                         <div class="loading">⏳ Загрузка...</div>
                     </div>
@@ -254,16 +254,16 @@
             <div class="tab-content" id="tab-segmentation">
                 <div class="grid-2">
                     <div class="panel">
-                        <div class="panel-head"><h2 class="panel-title">🎯 ABC-Сегментация (2026)</h2></div>
+                        <div class="panel-head"><h2 class="panel-title">🎯 ABC-Сегментація (2026)</h2></div>
                         <div class="panel-body"><div style="height:300px"><canvas id="chartABC"></canvas></div></div>
                     </div>
                     <div class="panel">
-                        <div class="panel-head"><h2 class="panel-title">📊 Распределение по частоте</h2></div>
+                        <div class="panel-head"><h2 class="panel-title">📊 Розподіл за частотою</h2></div>
                         <div class="panel-body"><div style="height:300px"><canvas id="chartRFM"></canvas></div></div>
                     </div>
                 </div>
                 <div class="panel">
-                    <div class="panel-head"><h2 class="panel-title">👥 Статусы клиентов (Топ-20)</h2></div>
+                    <div class="panel-head"><h2 class="panel-title">👥 Статуси клієнтів (Топ-20)</h2></div>
                     <div class="table-wrap" id="segTableContainer">
                         <div class="loading">⏳ Загрузка...</div>
                     </div>
@@ -274,16 +274,16 @@
             <div class="tab-content" id="tab-products">
                 <div class="grid-2">
                     <div class="panel">
-                        <div class="panel-head"><h2 class="panel-title">📦 Топ продуктов по выручке</h2></div>
+                        <div class="panel-head"><h2 class="panel-title">📦 Топ товарів за продажами</h2></div>
                         <div class="panel-body"><div style="height:300px"><canvas id="chartProducts"></canvas></div></div>
                     </div>
                     <div class="panel">
-                        <div class="panel-head"><h2 class="panel-title">🏗️ Топ продуктов по тоннажу</h2></div>
+                        <div class="panel-head"><h2 class="panel-title">🏗️ Топ товарів за тоннажем</h2></div>
                         <div class="panel-body"><div style="height:300px"><canvas id="chartTon"></canvas></div></div>
                     </div>
                 </div>
                 <div class="panel">
-                    <div class="panel-head"><h2 class="panel-title">📋 Детализация по продуктам</h2></div>
+                    <div class="panel-head"><h2 class="panel-title">📋 Деталізація за товарами</h2></div>
                     <div class="table-wrap" id="prodTableContainer">
                         <div class="loading">⏳ Загрузка...</div>
                     </div>
@@ -343,13 +343,13 @@
                     const totalClients = clientsData.status === 'ok' ? clientsData.active_clients : 0;
 
                     $('kpi-revenue').textContent = moneyM(totalRev);
-                    $('kpi-revenue-sub').innerHTML = '<span class="badge info">2026</span> Товарная выручка';
+                    $('kpi-revenue-sub').innerHTML = '<span class="badge info">2026</span> Товарні продажі';
                     $('kpi-clients').textContent = num(totalClients);
-                    $('kpi-clients-sub').innerHTML = '<span class="badge info">client_year_active</span> Активных в аналитике';
+                    $('kpi-clients-sub').innerHTML = '<span class="badge info">client_year_active</span> Активних в аналітиці';
                     $('kpi-invoices').textContent = num(totalInv);
-                    $('kpi-invoices-sub').textContent = 'Расходных накладных';
+                    $('kpi-invoices-sub').textContent = 'Видаткових накладних';
                     $('kpi-avg').textContent = moneyK(totalInv > 0 ? totalRev / totalInv : 0);
-                    $('kpi-avg-sub').textContent = 'Без услуг';
+                    $('kpi-avg-sub').textContent = 'Без послуг';
 
                     // График динамики
                     renderTrendChart(kpiData.data);
@@ -374,7 +374,7 @@
                 data: {
                     labels,
                     datasets: [{
-                        label: 'Выручка 2026 (млн ₴)',
+                        label: 'Продажі 2026 (млн ₴)',
                         data: values,
                         borderColor: '#0ea5e9',
                         backgroundColor: 'rgba(14,165,233,0.08)',
@@ -402,7 +402,7 @@
         function renderFunnel(data) {
             const funnelData = Array.isArray(data) ? data : (data && data.funnel ? data.funnel : []);
             if (!funnelData || !funnelData.length) {
-                $('funnelContainer').innerHTML = '<div class="loading">📭 Нет данных</div>';
+                $('funnelContainer').innerHTML = '<div class="loading">📭 Немає даних</div>';
                 return;
             }
 
@@ -425,7 +425,7 @@
                     ${items}
                 </div>
                 <div style="text-align:center;margin-top:12px;font-size:12px;color:var(--text-muted);">
-                    Всего: <b>${num(total)}</b> клиентов • Выручка: <b>${moneyM(funnelData.reduce((s,f)=>s+(f.revenue||0),0))}</b>
+                    Всього: <b>${num(total)}</b> клієнтів • Продажі: <b>${moneyM(funnelData.reduce((s,f)=>s+(f.revenue||0),0))}</b>
                 </div>`;
         }
 
@@ -507,10 +507,10 @@
             const totalRevDelta = totalRev25 ? ((totalRev26 - totalRev25) / totalRev25 * 100) : 0;
 
             $('yoyTableContainer').innerHTML = `<table>
-                <thead><tr><th>Месяц</th><th>Накл. 2026</th><th>Выручка 2026</th><th>Накл. 2025</th><th>Выручка 2025</th><th>Δ Накл.</th><th>Δ Выручка</th></tr></thead>
+                <thead><tr><th>Місяць</th><th>Накл. 2026</th><th>Продажі 2026</th><th>Накл. 2025</th><th>Продажі 2025</th><th>Δ Накл.</th><th>Δ Продажі</th></tr></thead>
                 <tbody>${rows}
                 <tr style="background:#f1f5f9;font-weight:800;">
-                    <td>ИТОГО</td><td>${num(totalInv26)}</td><td>${moneyM(totalRev26)}</td>
+                    <td>РАЗОМ</td><td>${num(totalInv26)}</td><td>${moneyM(totalRev26)}</td>
                     <td>${num(totalInv25)}</td><td>${moneyM(totalRev25)}</td>
                     <td><span class="badge ${totalInvDelta>=0?'good':'bad'}">${totalInvDelta>=0?'+':''}${pf.format(totalInvDelta)}%</span></td>
                     <td><span class="badge ${totalRevDelta>=0?'good':'bad'}">${totalRevDelta>=0?'+':''}${pf.format(totalRevDelta)}%</span></td>
@@ -535,7 +535,7 @@
             const alt = data.alt?.['2026'];
             if (!alt) return;
             const keys = ['random', 'one_time_main', 'repeat_main', 'regular'];
-            const labels = ['Залётные', 'Разовые осн.', 'Повторные осн.', 'Постоянные'];
+            const labels = ['Зальотні', 'Разові осн.', 'Повторні осн.', 'Постійні'];
             const values = keys.map(k => (alt.groups[k]?.companies || 0));
             const bgColors = ['#ef4444', '#f59e0b', '#3b82f6', '#10b981'];
 
@@ -561,13 +561,13 @@
             if (charts.rfm) charts.rfm.destroy();
             charts.rfm = new Chart($('chartRFM'), {
                 type: 'bar',
-                data: { labels, datasets: [{ label: 'Клиентов', data: values, backgroundColor: bgColors, borderRadius: 8 }] },
+                data: { labels, datasets: [{ label: 'Клієнтів', data: values, backgroundColor: bgColors, borderRadius: 8 }] },
                 options: {
                     responsive: true, maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
                     scales: {
                         y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
-                        x: { grid: { display: false }, title: { display: true, text: 'Накладных в год' } }
+                        x: { grid: { display: false }, title: { display: true, text: 'Накладних на рік' } }
                     }
                 }
             });
@@ -575,9 +575,9 @@
 
         function renderSegTable(data) {
             const rfm = data.rfm?.['2026'];
-            if (!rfm) { $('segTableContainer').innerHTML = '<div class="loading">📭 Нет данных</div>'; return; }
+            if (!rfm) { $('segTableContainer').innerHTML = '<div class="loading">📭 Немає даних</div>'; return; }
             const order = ['one', 'repeat', 'quarter', 'month', 'week', 'day'];
-            const names = ['Разовые (1)', 'Повторные (2-3)', 'Квартал (4-10)', 'Месяц (11-40)', 'Неделя (41-170)', 'День (>170)'];
+            const names = ['Разові (1)', 'Повторні (2-3)', 'Квартал (4-10)', 'Місяць (11-40)', 'Тиждень (41-170)', 'День (>170)'];
             const total = rfm.total_companies || 1;
 
             const rows = order.map((k, i) => {
@@ -592,10 +592,10 @@
             }).join('');
 
             $('segTableContainer').innerHTML = `<table>
-                <thead><tr><th>Группа</th><th>Компаний</th><th>Накладных</th><th>Продажи</th><th>Средний чек</th></tr></thead>
+                <thead><tr><th>Група</th><th>Компаній</th><th>Накладних</th><th>Продажі</th><th>Середній чек</th></tr></thead>
                 <tbody>${rows}
                 <tr style="background:#f1f5f9;font-weight:800;">
-                    <td>ИТОГО</td><td>${num(rfm.total_companies)}</td><td>${num(rfm.total_invoices)}</td><td>${moneyM(rfm.total_sales)}</td><td>${moneyK(rfm.total_companies ? rfm.total_sales/rfm.total_companies : 0)}</td>
+                    <td>РАЗОМ</td><td>${num(rfm.total_companies)}</td><td>${num(rfm.total_invoices)}</td><td>${moneyM(rfm.total_sales)}</td><td>${moneyK(rfm.total_companies ? rfm.total_sales/rfm.total_companies : 0)}</td>
                 </tr></tbody></table>`;
         }
 
@@ -621,7 +621,7 @@
                 data: {
                     labels: products.map(p => `${p.icon} ${p.name}`),
                     datasets: [{
-                        label: 'Выручка (млн ₴)',
+                        label: 'Продажі (млн ₴)',
                         data: products.map(p => p.revenue / 1_000_000),
                         backgroundColor: products.map(p => p.color || '#0ea5e9'),
                         borderRadius: 8
@@ -681,10 +681,10 @@
             const totalTon = products.reduce((s, p) => s + p.ton, 0);
 
             $('prodTableContainer').innerHTML = `<table>
-                <thead><tr><th>#</th><th>Категория</th><th>Выручка</th><th>Тоннаж</th><th>Цена/т</th></tr></thead>
+                <thead><tr><th>#</th><th>Категорія</th><th>Продажі</th><th>Тоннаж</th><th>Ціна/т</th></tr></thead>
                 <tbody>${rows}
                 <tr style="background:#f1f5f9;font-weight:800;">
-                    <td colspan="2">ИТОГО</td><td>${moneyM(totalRev)}</td><td>${num(totalTon)} т</td><td>${totalTon > 0 ? moneyK(totalRev / totalTon) + '/т' : '—'}</td>
+                    <td colspan="2">РАЗОМ</td><td>${moneyM(totalRev)}</td><td>${num(totalTon)} т</td><td>${totalTon > 0 ? moneyK(totalRev / totalTon) + '/т' : '—'}</td>
                 </tr></tbody></table>`;
         }
 

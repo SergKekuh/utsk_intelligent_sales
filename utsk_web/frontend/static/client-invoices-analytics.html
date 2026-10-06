@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>📄 UTSK — Анализ накладных клиента</title>
+    <title>📄 UTSK — Аналіз накладних клієнта</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -264,9 +264,9 @@
         <!-- Top Header -->
         <header class="top-header">
             <div class="header-left">
-                <a href="#" id="btn-client-detail" class="btn-back">← В карточку клиента</a>
+                <a href="#" id="btn-client-detail" class="btn-back">← До картки клієнта</a>
                 <div class="client-title">
-                    <h1 id="client-name">📄 Анализ накладных клиента</h1>
+                    <h1 id="client-name">📄 Аналіз накладних клієнта</h1>
                     <div class="client-meta">
                         <span>Код: <strong id="client-code">—</strong></span>
                         <span>•</span>
@@ -287,7 +287,7 @@
         <!-- KPI Cards Grid -->
         <section class="kpi-grid">
             <div class="kpi-card" style="border-top-color: #4f46e5;">
-                <span class="kpi-title" id="kpi-curr-lbl">📄 Всего накладных 2026</span>
+                <span class="kpi-title" id="kpi-curr-lbl">📄 Всього накладних 2026</span>
                 <span class="kpi-value" id="kpi-inv-curr" style="color:#4f46e5;">—</span>
                 <div class="kpi-subtext" style="display:flex; flex-direction:column; gap:3px; margin-top:4px;">
                     <span id="kpi-pos-curr-sub" style="font-weight:600; color:#475569;">📦 Позицій: —</span>
@@ -295,7 +295,7 @@
                 </div>
             </div>
             <div class="kpi-card" style="border-top-color: #64748b;">
-                <span class="kpi-title" id="kpi-prev-lbl">📅 Накладных за 2025 год</span>
+                <span class="kpi-title" id="kpi-prev-lbl">📅 Накладних за 2025 рік</span>
                 <span class="kpi-value" id="kpi-inv-prev">—</span>
                 <div class="kpi-subtext" style="display:flex; flex-direction:column; gap:3px; margin-top:4px;">
                     <span id="kpi-pos-prev-sub" style="font-weight:500; color:#64748b;">Сравнение YoY</span>
@@ -307,7 +307,7 @@
                 <span class="kpi-subtext">Динамика в %</span>
             </div>
             <div class="kpi-card" style="border-top-color: #06b6d4;">
-                <span class="kpi-title">📊 Среднемесячно накладных</span>
+                <span class="kpi-title">📊 Середньомісячно накладних</span>
                 <span class="kpi-value" id="kpi-avg-monthly">—</span>
                 <span class="kpi-subtext">Заказов в месяц</span>
             </div>
@@ -316,22 +316,22 @@
         <!-- Main Grid -->
         <div class="grid-2">
             <div class="panel-card">
-                <div class="panel-title">📊 График количества накладных по месяцам</div>
+                <div class="panel-title">📊 Графік кількості накладних по місяцях</div>
                 <div class="chart-container">
                     <canvas id="chart-invoices-bar"></canvas>
                 </div>
             </div>
 
             <div class="panel-card">
-                <div class="panel-title">🧩 Сезонность и паттерны отгрузок</div>
+                <div class="panel-title">🧩 Сезонність та патерни відвантажень</div>
                 <div style="display:flex;flex-direction:column;gap:14px;">
                     <div style="background:#f8fafc;padding:16px;border-radius:12px;border:1px solid var(--border);">
-                        <div style="font-size:12px;color:var(--text-muted);font-weight:700;text-transform:uppercase;">🔥 Пиковый месяц</div>
+                        <div style="font-size:12px;color:var(--text-muted);font-weight:700;text-transform:uppercase;">🔥 Піковий місяць</div>
                         <div style="font-size:22px;font-weight:800;color:#4f46e5;margin-top:4px;" id="pat-peak-month">—</div>
-                        <div style="font-size:12px;color:var(--text-muted);margin-top:2px;" id="pat-peak-count">0 накладных</div>
+                        <div style="font-size:12px;color:var(--text-muted);margin-top:2px;" id="pat-peak-count">0 накладних</div>
                     </div>
                     <div style="background:#f8fafc;padding:16px;border-radius:12px;border:1px solid var(--border);">
-                        <div style="font-size:12px;color:var(--text-muted);font-weight:700;text-transform:uppercase;">📅 Активных месяцев</div>
+                        <div style="font-size:12px;color:var(--text-muted);font-weight:700;text-transform:uppercase;">📅 Активних місяців</div>
                         <div style="font-size:22px;font-weight:800;color:#10b981;margin-top:4px;" id="pat-active-months">—</div>
                         <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">из 12 месяцев года</div>
                     </div>
@@ -345,21 +345,21 @@
 
         <!-- Table Panel -->
         <div class="panel-card">
-            <div class="panel-title">📋 Помесячный отчёт накладных с кликабельным детализированным просмотром</div>
+            <div class="panel-title">📋 Помісячний звіт накладних з клікабельним деталізованим переглядом</div>
             <div class="table-responsive">
                 <table class="custom-table">
                     <thead>
                         <tr>
-                            <th>Месяц</th>
-                            <th style="text-align:center;">Накладных <span id="th-year-curr">2026</span></th>
+                            <th>Місяць</th>
+                            <th style="text-align:center;">Накладних <span id="th-year-curr">2026</span></th>
                             <th style="text-align:center;">Позицій</th>
-                            <th style="text-align:center;">Накладных <span id="th-year-prev">2025</span></th>
-                            <th style="text-align:center;">Рост YoY %</th>
-                            <th style="text-align:right;">Действие</th>
+                            <th style="text-align:center;">Накладних <span id="th-year-prev">2025</span></th>
+                            <th style="text-align:center;">Зростання YoY %</th>
+                            <th style="text-align:right;">Дія</th>
                         </tr>
                     </thead>
                     <tbody id="invoices-table-body">
-                        <tr><td colspan="6" style="text-align:center;">⏳ Загрузка...</td></tr>
+                        <tr><td colspan="6" style="text-align:center;">⏳ Завантаження...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -441,12 +441,12 @@
 
                 const pat = data.patterns;
                 document.getElementById('pat-peak-month').textContent = pat.peak_month_name;
-                document.getElementById('pat-peak-count').textContent = `${pat.peak_inv_count} накладных в пиковый месяц`;
+                document.getElementById('pat-peak-count').textContent = `${pat.peak_inv_count} накладних у піковий місяць`;
                 document.getElementById('pat-active-months').textContent = `${pat.active_months_count} / 12`;
                 
                 document.getElementById('pat-note').textContent = pat.active_months_count >= 6 
-                    ? `Клиент регулярно совершает отгрузки (${pat.active_months_count} активных месяцев). Отличная ритмичность.`
-                    : `Отгрузки носят эпизодический характер (${pat.active_months_count} активных месяцев). Требуется работа менеджера.`;
+                    ? `Клієнт регулярно здійснює відвантаження (${pat.active_months_count} активних місяців). Відмінна ритмічність.`
+                    : `Відвантаження мають епізодичний характер (${pat.active_months_count} активних місяців). Потрібна робота менеджера.`;
 
                 // Monthly Table
                 const tbody = document.getElementById('invoices-table-body');
@@ -485,7 +485,7 @@
                         <td style="text-align:center;color:var(--text-muted);">${m.inv_prev}</td>
                         <td style="text-align:center;"><span class="badge ${growthClass}">${growthStr}</span></td>
                         <td style="text-align:right;">
-                            <a href="${monthUrl}" class="month-btn">📄 Накладные (${m.inv_curr}) ➔</a>
+                            <a href="${monthUrl}" class="month-btn">📄 Накладні (${m.inv_curr}) ➔</a>
                         </td>
                     `;
                     tbody.appendChild(tr);
@@ -500,7 +500,7 @@
 
                     tbody.innerHTML += `
                         <tr style="background:#f8fafc;font-weight:800;border-top:2px solid var(--border);">
-                            <td>📊 Итого за год:</td>
+                            <td>📊 Разом за рік:</td>
                             <td style="text-align:center;color:#4f46e5;">${totalInvCurr} <span style="color:#64748b;font-size:11px;font-weight:500;">(${posVal} поз.)</span></td>
                             <td style="text-align:center;color:#0f172a;">${posVal} <span style="color:#7c3aed;font-size:11px;font-weight:600;">(${uniqVal} ун.)</span></td>
                             <td style="text-align:center;color:var(--text-muted);">${totalInvPrev}</td>
@@ -518,8 +518,8 @@
                     data: {
                         labels: monthLabels,
                         datasets: [
-                            { label: `Накладные ${year}`, data: currCounts, backgroundColor: '#4f46e5', borderRadius: 4 },
-                            { label: `Накладные ${year - 1}`, data: prevCounts, backgroundColor: '#94a3b8', borderRadius: 4 }
+                            { label: `Накладні ${year}`, data: currCounts, backgroundColor: '#4f46e5', borderRadius: 4 },
+                            { label: `Накладні ${year - 1}`, data: prevCounts, backgroundColor: '#94a3b8', borderRadius: 4 }
                         ]
                     },
                     options: {

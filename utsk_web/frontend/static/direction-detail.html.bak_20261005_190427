@@ -1,0 +1,1814 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UTSK Intelligent Sales — Детальная аналитика направления</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-app: #f8fafc;
+            --bg-surface: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --border-subtle: #f1f5f9;
+            --brand: #0ea5e9;
+            --brand-soft: #e0f2fe;
+            --brand-dark: #0284c7;
+            --good: #10b981;
+            --good-soft: #d1fae5;
+            --warn: #f59e0b;
+            --warn-soft: #fef3c7;
+            --bad: #ef4444;
+            --bad-soft: #fee2e2;
+            --accent: #6366f1;
+            --accent-soft: #e0e7ff;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -2px rgba(0,0,0,0.03);
+            --radius-sm: 8px;
+            --radius: 14px;
+            --radius-lg: 20px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+
+        body {
+            background: #f1f5f9;
+            min-height: 100vh;
+            color: var(--text-main);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .page-wrap {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px 20px 60px;
+        }
+
+        /* ─── PAGE HEADER ─── */
+        .page-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+        }
+        .header-left { display: flex; align-items: center; gap: 16px; }
+        .back-btn {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 8px 16px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-main);
+            font-size: 13px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: background .15s;
+            cursor: pointer;
+        }
+        .back-btn:hover { background: var(--border-subtle); }
+        .dir-icon { font-size: 36px; }
+        .dir-title { font-size: 24px; font-weight: 800; color: var(--text-main); }
+        .dir-subtitle { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+        .header-controls { display: flex; align-items: center; gap: 10px; }
+        .year-select {
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--bg-surface);
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--text-main);
+            cursor: pointer;
+        }
+
+        /* ─── KPI CARDS ─── */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+        .kpi-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px 18px;
+            box-shadow: var(--shadow-sm);
+            transition: box-shadow .15s;
+        }
+        .kpi-card:hover { box-shadow: var(--shadow); }
+        .kpi-label { font-size: 11.5px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 8px; }
+        .kpi-value { font-size: 22px; font-weight: 800; color: var(--text-main); }
+        .kpi-sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+        .kpi-yoy { font-size: 12px; font-weight: 600; padding: 2px 6px; border-radius: 6px; display: inline-block; margin-top: 4px; }
+        .yoy-pos { background: var(--good-soft); color: var(--good); }
+        .yoy-neg { background: var(--bad-soft); color: var(--bad); }
+        .yoy-flat { background: var(--border-subtle); color: var(--text-muted); }
+
+        /* ─── TABS ─── */
+        .tab-bar {
+            display: flex;
+            gap: 4px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 6px;
+            margin-bottom: 24px;
+            overflow-x: auto;
+        }
+        .tab-btn {
+            padding: 9px 18px;
+            border-radius: 10px;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--text-muted);
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: all .15s;
+            white-space: nowrap;
+        }
+        .tab-btn:hover { background: var(--border-subtle); color: var(--text-main); }
+        .tab-btn.active { background: var(--brand); color: #fff; }
+
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* ─── SECTION CARD ─── */
+        .section-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+        }
+        .section-title { font-size: 17px; font-weight: 700; color: var(--text-main); }
+        .section-desc { font-size: 13px; color: var(--text-muted); margin-top: 3px; }
+
+        /* ─── TABLE ─── */
+        .table-responsive { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th {
+            background: #f8fafc;
+            padding: 10px 12px;
+            font-size: 11.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            color: var(--text-muted);
+            border-bottom: 2px solid var(--border);
+            text-align: left;
+            white-space: nowrap;
+        }
+        td {
+            padding: 11px 12px;
+            border-bottom: 1px solid var(--border-subtle);
+            font-size: 13.5px;
+            vertical-align: middle;
+        }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #f8fafc; }
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+
+        /* ─── BADGES ─── */
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 11.5px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .badge-abc { font-size: 11.5px; font-weight: 700; padding: 3px 8px; border-radius: 8px; }
+        .abc-A1 { background: #fef3c7; color: #92400e; }
+        .abc-A2 { background: #fed7aa; color: #9a3412; }
+        .abc-B1 { background: #d1fae5; color: #065f46; }
+        .abc-B2 { background: #cffafe; color: #155e75; }
+        .abc-C1 { background: #e0e7ff; color: #3730a3; }
+        .abc-C2 { background: #f1f5f9; color: #475569; }
+
+        /* ─── TREND ─── */
+        .trend-up { color: var(--good); font-weight: 700; }
+        .trend-down { color: var(--bad); font-weight: 700; }
+        .trend-flat { color: var(--text-muted); }
+        .trend-new { color: var(--accent); font-weight: 600; }
+
+        /* ─── FILTER BAR ─── */
+        .filter-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .search-input {
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 13.5px;
+            color: var(--text-main);
+            background: var(--bg-surface);
+            min-width: 240px;
+        }
+        .search-input:focus { outline: none; border-color: var(--brand); }
+        .filter-select {
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 13.5px;
+            color: var(--text-main);
+            background: var(--bg-surface);
+            cursor: pointer;
+        }
+        .btn-filter {
+            padding: 8px 14px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--bg-surface);
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: background .15s;
+        }
+        .btn-filter:hover { background: var(--border-subtle); }
+
+        /* ─── SIZE MATRIX ─── */
+        .matrix-type-toggle {
+            display: inline-flex;
+            gap: 8px;
+            padding: 4px;
+            background: #f1f5f9;
+            border-radius: 10px;
+            margin-bottom: 16px;
+        }
+        .matrix-toggle-btn {
+            padding: 8px 16px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .matrix-toggle-btn:hover { color: #1e293b; }
+        .matrix-toggle-btn.active {
+            background: #fff;
+            color: #1e293b;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .size-matrix-wrap {
+            overflow-x: auto;
+            overflow-y: auto;
+            max-height: 70vh;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: #fff;
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 #f1f5f9;
+        }
+        .size-matrix-wrap::-webkit-scrollbar { width: 8px; height: 8px; }
+        .size-matrix-wrap::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+        .size-matrix-wrap::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .size-matrix-wrap::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        .size-matrix {
+            border-collapse: collapse;
+            min-width: 100%;
+        }
+        .size-matrix th, .size-matrix td {
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            text-align: right;
+            font-size: 12.5px;
+            white-space: nowrap;
+        }
+        .size-matrix th { background: #f8fafc; font-weight: 700; text-align: center; }
+        .matrix-row-label { font-weight: 700; text-align: left !important; background: #f8fafc; }
+        .matrix-total-col { font-weight: 700; background: #f0f9ff; }
+        .matrix-footer td { font-weight: 700; background: #f8fafc; }
+        .matrix-footer td.grand-total { background: #e0f2fe; color: #0369a1; }
+        .size-cell {
+            cursor: pointer;
+            transition: background .12s, transform .1s;
+        }
+        .size-cell:hover { background: var(--brand-soft); }
+        .size-cell.empty { background: #fafafa; color: #cbd5e1; text-align: center; cursor: default; }
+        .size-cell-heat-0 { background: #fff; }
+        .size-cell-heat-1 { background: #e0f2fe; }
+        .size-cell-heat-2 { background: #bae6fd; }
+        .size-cell-heat-3 { background: #7dd3fc; }
+        .size-cell-heat-4 { background: #38bdf8; color: #fff; }
+        .size-cell-heat-5 { background: #0284c7; color: #fff; }
+
+        .matrix-counter {
+            margin-top: 12px;
+            padding: 10px 16px;
+            background: #f8fafc;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #64748b;
+            border: 1px solid var(--border);
+        }
+
+        /* ====== Стили для YoY-таблицы с drill-down ====== */
+        .sizes-table tbody tr.size-row.active {
+            background: #dbeafe !important;
+            border-left: 4px solid #0ea5e9;
+        }
+        .sizes-table tbody tr.size-row.active .expand-icon {
+            transform: rotate(90deg);
+        }
+        .sizes-table tbody tr.size-row {
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .sizes-table tbody tr.size-row:hover {
+            background: #eff6ff;
+        }
+        .sizes-table .expand-cell {
+            text-align: center;
+            color: var(--accent, #0ea5e9);
+        }
+        .sizes-table .expand-icon {
+            transition: transform 0.2s ease;
+            display: inline-block;
+        }
+        .sizes-table .positive {
+            color: #10b981;
+            font-weight: 600;
+        }
+        .sizes-table .negative {
+            color: #ef4444;
+            font-weight: 600;
+        }
+        .drilldown-row td {
+            padding: 0 !important;
+            border-bottom: 2px solid #93c5fd;
+            background: #f8fafc;
+        }
+        .drilldown-panel {
+            background: #f8fafc;
+            border-left: 4px solid var(--accent, #0ea5e9);
+            padding: 18px 24px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.04);
+            animation: fadeIn 0.2s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-3px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .drilldown-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border, #e2e8f0);
+        }
+        .drilldown-title {
+            font-size: 15px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .drilldown-close {
+            background: none;
+            border: none;
+            color: var(--text-muted, #64748b);
+            font-size: 16px;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 6px;
+            transition: all 0.15s;
+        }
+        .drilldown-close:hover {
+            background: #e2e8f0;
+            color: var(--text-main, #0f172a);
+        }
+        .products-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            background: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border, #e2e8f0);
+            margin-top: 8px;
+        }
+        .products-table th {
+            text-align: left;
+            padding: 10px 12px;
+            background: #f1f5f9;
+            color: var(--text-muted, #64748b);
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border, #e2e8f0);
+        }
+        .products-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+        }
+        .products-table tr:last-child td {
+            border-bottom: none;
+        }
+        .products-table tr.purchased {
+            background: #f0fdf4;
+        }
+        .products-table tr.purchased:hover {
+            background: #dcfce7;
+        }
+        .products-table tr.not-purchased {
+            background: #ffffff;
+        }
+        .products-table tr.not-purchased:hover {
+            background: #f8fafc;
+        }
+        .purchased-badge {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25);
+            margin-right: 4px;
+        }
+        .available-badge {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #f59e0b;
+            box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.25);
+            margin-right: 4px;
+        }
+        .drilldown-section-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-main, #0f172a);
+            margin: 14px 0 8px;
+            padding: 7px 12px;
+            background: #f1f5f9;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .stock-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .stock-ok { background: #d1fae5; color: #065f46; }
+        .stock-low { background: #fed7aa; color: #92400e; }
+        .stock-zero { background: #fee2e2; color: #991b1b; }
+
+        /* ─── PAGINATION ─── */
+        .pagination-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 14px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .pagination-info { font-size: 12.5px; color: var(--text-muted); }
+
+        /* ─── MODAL ─── */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal-box {
+            background: var(--bg-surface);
+            border-radius: var(--radius-lg);
+            padding: 28px;
+            max-width: 820px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+        }
+        .modal-title { font-size: 17px; font-weight: 700; margin-bottom: 18px; }
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 18px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: var(--text-muted);
+            cursor: pointer;
+            line-height: 1;
+        }
+        .modal-close:hover { color: var(--text-main); }
+
+        /* ─── STATE ─── */
+        .state-container {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+        }
+        .spinner {
+            display: inline-block;
+            width: 28px; height: 28px;
+            border: 3px solid var(--border);
+            border-top-color: var(--brand);
+            border-radius: 50%;
+            animation: spin .7s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ─── CLIENT LINK ─── */
+        .client-link {
+            color: var(--brand);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .client-link:hover { color: var(--brand-dark); text-decoration: underline; }
+
+        /* ─── YOY TABLE ─── */
+        .yoy-bar {
+            display: inline-block;
+            height: 12px;
+            border-radius: 3px;
+            min-width: 4px;
+            vertical-align: middle;
+        }
+
+        /* ─── TOP 10 CHART BARS ─── */
+        .bar-fill {
+            display: inline-block;
+            height: 10px;
+            border-radius: 3px;
+            min-width: 2px;
+            vertical-align: middle;
+        }
+
+        @media (max-width: 768px) {
+            .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+            .page-header { flex-direction: column; }
+        }
+    </style>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<div class="page-wrap">
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+        <div class="header-left">
+            <a id="back-link" class="back-btn" href="/directions-analytics">
+                ← Назад к направлениям
+            </a>
+            <div>
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <span class="dir-icon" id="dir-icon">⏳</span>
+                    <div>
+                        <div class="dir-title" id="dir-title">Загрузка...</div>
+                        <div class="dir-subtitle" id="dir-subtitle">Детальная аналитика направления</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="header-controls">
+            <select class="year-select" id="year-select" onchange="onYearChange()">
+                <option value="2024">2024</option>
+                <option value="2025">2025</option>
+                <option value="2026" selected>2026</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- KPI CARDS -->
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-label">Клиенты</div>
+            <div class="kpi-value" id="kpi-clients">—</div>
+            <div class="kpi-sub">активных покупателей</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Накладные</div>
+            <div class="kpi-value" id="kpi-invoices">—</div>
+            <div class="kpi-sub">документов за год</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Выручка (товары)</div>
+            <div class="kpi-value" id="kpi-revenue">—</div>
+            <div class="kpi-sub" id="kpi-share">доля в общей выручке</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Средний чек</div>
+            <div class="kpi-value" id="kpi-avg-ticket">—</div>
+            <div class="kpi-sub">на одну накладную</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">YoY к прошлому году</div>
+            <div class="kpi-value" id="kpi-yoy">—</div>
+            <div class="kpi-sub" id="kpi-prev-rev">Прошлый год: —</div>
+        </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('tab-companies')">🏢 Компании</button>
+        <button class="tab-btn" onclick="switchTab('tab-products')">📦 Продукты по размерам</button>
+        <button class="tab-btn" onclick="switchTab('tab-clients-yoy')">📊 Клиенты YoY</button>
+        <button class="tab-btn" onclick="switchTab('tab-sizes-yoy')">📐 Размеры YoY</button>
+    </div>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- TAB 1: COMPANIES -->
+    <!-- ═══════════════════════════════════════ -->
+    <div class="tab-panel active" id="tab-companies">
+        <!-- TOP-10 -->
+        <div class="section-card">
+            <div class="section-header">
+                <div>
+                    <div class="section-title">🏆 Топ-10 клиентов направления</div>
+                    <div class="section-desc">Крупнейшие покупатели по выручке за выбранный год</div>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width:32px;">#</th>
+                            <th>Клиент</th>
+                            <th>ЄДРПОУ</th>
+                            <th>Статус</th>
+                            <th class="text-center">ABC</th>
+                            <th class="text-right">Накладных</th>
+                            <th class="text-right">Выручка ₴</th>
+                            <th class="text-right">Ср. чек ₴</th>
+                            <th class="text-right">Доля %</th>
+                            <th>Визуально</th>
+                        </tr>
+                    </thead>
+                    <tbody id="top-clients-body">
+                        <tr><td colspan="10" class="state-container"><div class="spinner"></div><div style="margin-top:8px;">Загрузка...</div></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- FULL LIST -->
+        <div class="section-card">
+            <div class="section-header">
+                <div>
+                    <div class="section-title">📋 Все клиенты направления</div>
+                    <div class="section-desc" id="clients-count-info">Список с фильтрацией</div>
+                </div>
+                <button class="btn-filter" onclick="exportClientsCSV()">📥 Экспорт CSV</button>
+            </div>
+            <div class="filter-bar">
+                <input type="text" id="client-search" class="search-input"
+                       placeholder="Поиск по названию, коду, ЄДРПОУ..." oninput="debounceClientSearch()">
+                <select id="abc-filter" class="filter-select" onchange="onClientFilterChange()">
+                    <option value="ALL">Все группы ABC</option>
+                    <option value="A1">A1 (Крупнейшие)</option>
+                    <option value="A2">A2 (Очень крупные)</option>
+                    <option value="B1">B1 (Крупные)</option>
+                    <option value="B2">B2 (Средние)</option>
+                    <option value="C1">C1 (Малые)</option>
+                    <option value="C2">C2 (Разовые/Мелкие)</option>
+                </select>
+                <div style="margin-left:auto;font-size:12.5px;color:var(--text-muted);" id="clients-badge">—</div>
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width:32px;">#</th>
+                            <th>Код</th>
+                            <th>Компания</th>
+                            <th>ЄДРПОУ</th>
+                            <th>ИПН</th>
+                            <th>Статус</th>
+                            <th class="text-center">ABC</th>
+                            <th class="text-right">Накл.</th>
+                            <th class="text-right">Выручка ₴</th>
+                            <th class="text-right">Ср. чек ₴</th>
+                            <th>Последняя отгрузка</th>
+                            <th class="text-center">Карточка</th>
+                        </tr>
+                    </thead>
+                    <tbody id="clients-list-body">
+                        <tr><td colspan="12" class="state-container"><div class="spinner"></div><div style="margin-top:8px;">Загрузка списка...</div></td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="pagination-bar">
+                <div class="pagination-info" id="clients-pagination-info">—</div>
+                <div style="display:flex;gap:8px;">
+                    <button class="btn-filter" id="btn-prev" onclick="changePage(-1)" disabled>← Назад</button>
+                    <button class="btn-filter" id="btn-next" onclick="changePage(1)" disabled>Вперед →</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- TAB 2: PRODUCTS BY SIZE -->
+    <!-- ═══════════════════════════════════════ -->
+    <div class="tab-panel" id="tab-products">
+        <div class="section-card">
+            <div class="section-header">
+                <div>
+                    <div class="section-title">📦 Матрица продаж по размерам</div>
+                    <div class="section-desc">Кликните на ячейку для просмотра детализации</div>
+                </div>
+            </div>
+            <div class="matrix-type-toggle">
+                <button class="matrix-toggle-btn active" id="btn-matrix-round" onclick="switchMatrixType('round', this)">🟢 Круглі</button>
+                <button class="matrix-toggle-btn" id="btn-matrix-prof" onclick="switchMatrixType('prof', this)">🟦 Профільні</button>
+            </div>
+            <div class="size-matrix-wrap" id="size-matrix-container">
+                <div class="state-container"><div class="spinner"></div><div style="margin-top:8px;">Загрузка матрицы...</div></div>
+            </div>
+            <div id="matrix-counter-container"></div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- TAB 3: CLIENTS YOY -->
+    <!-- ═══════════════════════════════════════ -->
+    <div class="tab-panel" id="tab-clients-yoy">
+        <div class="section-card">
+            <div class="section-header">
+                <div>
+                    <div class="section-title" id="clients-yoy-title">📊 Клиенты: год к году</div>
+                    <div class="section-desc">Сравнение выручки каждого клиента с прошлым годом</div>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width:32px;">#</th>
+                            <th>Клиент</th>
+                            <th>Статус</th>
+                            <th class="text-right">Текущий год ₴</th>
+                            <th class="text-right">Прошлый год ₴</th>
+                            <th class="text-right">YoY %</th>
+                            <th class="text-right">Накл. (тек)</th>
+                            <th class="text-right">Накл. (пред)</th>
+                            <th class="text-center">Тренд</th>
+                            <th class="text-center">Карточка</th>
+                        </tr>
+                    </thead>
+                    <tbody id="clients-yoy-body">
+                        <tr><td colspan="10" class="state-container"><div class="spinner"></div><div style="margin-top:8px;">Загрузка...</div></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- TAB 4: SIZES YOY -->
+    <!-- ═══════════════════════════════════════ -->
+    <div id="tab-sizes-yoy" class="tab-panel">
+        <!-- KPI-карточки -->
+        <div class="kpi-grid" id="sizesYoYKpiGrid"></div>
+
+        <!-- График ТОП-10 -->
+        <div class="section-card">
+            <div class="section-header">
+                <div>
+                    <div class="section-title">📊 ТОП-10 размеров (2024 / 2025 / 2026)</div>
+                </div>
+            </div>
+            <div class="chart-container" style="height:380px;">
+                <canvas id="chartSizesYoY"></canvas>
+            </div>
+        </div>
+
+        <!-- Таблица размеров с YoY + Drill-down -->
+        <div class="section-card">
+            <div class="section-header">
+                <div>
+                    <div class="section-title">
+                        📏 Все размеры — сравнение по годам
+                    </div>
+                    <div class="section-desc">
+                        Кликните на строку для детализации по ГОСТам и сталям.
+                        <br>
+                        <span style="color:var(--accent);">
+                            Сортировка: от наиболее покупаемых (по выручке 2026) к менее.
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="sizes-table" id="sizesYoYTable">
+                    <thead>
+                        <tr>
+                            <th style="width:36px;text-align:center;"></th>
+                            <th>Размер</th>
+                            <th class="num text-right">2024 ₴</th>
+                            <th class="num text-right">2025 ₴</th>
+                            <th class="num text-right">2026 ₴</th>
+                            <th class="num text-right">Δ к 2025</th>
+                            <th class="num text-right">Рост %</th>
+                            <th>Тренд</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sizesYoYBody">
+                        <tr>
+                            <td colspan="8" class="state-container">
+                                <div class="spinner"></div><div style="margin-top:8px;">Загрузка сравнения размеров...</div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div><!-- /page-wrap -->
+
+<!-- SIZE DRILL-DOWN MODAL -->
+<div class="modal-overlay" id="drilldown-modal">
+    <div class="modal-box">
+        <button class="modal-close" onclick="closeModal()">✕</button>
+        <div class="modal-title" id="modal-title">Детализация по размеру</div>
+        <div id="modal-body">
+            <div class="state-container"><div class="spinner"></div></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ─── URL PARAMS & STATE ───
+    const urlParams = new URLSearchParams(window.location.search);
+    const TOKEN = urlParams.get('token') || 'utsk2026';
+    const DIRECTION_ID = parseInt(urlParams.get('direction_id')) || 1;
+    let currentYear = parseInt(urlParams.get('year')) || 2026;
+
+    // Pagination state (companies tab)
+    let clientsData = [];
+    let clientsPage = 0;
+    const PAGE_SIZE = 50;
+    let clientsTotalCount = 0;
+    let clientsSearchTimer = null;
+
+    // Size matrix data
+    let sizeMatrixData = [];
+
+    // ─── INIT ───
+    window.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('year-select').value = currentYear;
+        const backLink = document.getElementById('back-link');
+        backLink.href = `/directions-analytics?token=${TOKEN}&year=${currentYear}`;
+        loadAll();
+    });
+
+    function onYearChange() {
+        currentYear = parseInt(document.getElementById('year-select').value);
+        clientsPage = 0;
+        const backLink = document.getElementById('back-link');
+        backLink.href = `/directions-analytics?token=${TOKEN}&year=${currentYear}`;
+        
+        if (typeof closeYoYDrilldown === 'function') closeYoYDrilldown();
+        
+        sizeMatrixData = []; // clear cache for size matrix
+        
+        loadAll();
+        
+        if (activeTab === 'tab-products') loadSizeMatrix();
+        if (activeTab === 'tab-clients-yoy') loadClientsYoY();
+        if (activeTab === 'tab-sizes-yoy') loadSizesYoY();
+    }
+
+    async function loadAll() {
+        await Promise.all([
+            loadKPI(),
+            loadTopClients(),
+            loadClientsList(),
+        ]);
+    }
+
+    // ─── FORMATTERS ───
+    function fmtM(val) {
+        if (!val || isNaN(val)) return '0 ₴';
+        const v = parseFloat(val);
+        if (Math.abs(v) >= 1000000)
+            return (v / 1000000).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' млн ₴';
+        return Math.round(v).toLocaleString('ru-RU') + ' ₴';
+    }
+    function fmtCur(val) {
+        if (!val || isNaN(val)) return '0 ₴';
+        return Math.round(parseFloat(val)).toLocaleString('ru-RU') + ' ₴';
+    }
+    function fmtNum(val) {
+        if (!val || isNaN(val)) return '0';
+        return parseInt(val).toLocaleString('ru-RU');
+    }
+    function fmtQty(val) {
+        if (!val || isNaN(val)) return '0';
+        return parseFloat(val).toLocaleString('ru-RU', { maximumFractionDigits: 2 });
+    }
+    function fmtPct(val) {
+        if (val === null || val === undefined || isNaN(val)) return '—';
+        const v = parseFloat(val);
+        return (v > 0 ? '+' : '') + v.toFixed(1) + '%';
+    }
+    function yoyClass(val) {
+        if (val === null || val === undefined || isNaN(val)) return 'yoy-flat';
+        const v = parseFloat(val);
+        if (v > 2) return 'yoy-pos';
+        if (v < -2) return 'yoy-neg';
+        return 'yoy-flat';
+    }
+
+    // ─── TAB SWITCHING ───
+    let activeTab = 'tab-companies';
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        event.currentTarget.classList.add('active');
+        activeTab = tabId;
+
+        // Lazy load
+        if (tabId === 'tab-products' && sizeMatrixData.length === 0) loadSizeMatrix();
+        if (tabId === 'tab-clients-yoy') loadClientsYoY();
+        if (tabId === 'tab-sizes-yoy') loadSizesYoY();
+    }
+
+    // ─── KPI ───
+    async function loadKPI() {
+        try {
+            const res = await fetch(`/api/analytics/direction/kpi?token=${TOKEN}&direction_id=${DIRECTION_ID}&year=${currentYear}`);
+            const json = await res.json();
+            
+            if (!json || json.status !== 'ok' || !json.data) {
+                console.warn('[KPI] API вернул пустые данные:', json);
+                return;
+            }
+            
+            const d = json.data;
+            
+            const setText = (id, value) => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = value;
+                else console.warn(`[KPI] #${id} не найден`);
+            };
+            
+            const setHtml = (id, html) => {
+                const el = document.getElementById(id);
+                if (el) el.innerHTML = html;
+                else console.warn(`[KPI] #${id} не найден`);
+            };
+            
+            setText('dir-icon', d.direction_icon || '🌐');
+            setText('dir-title', d.direction_name || 'Направление');
+            setText('dir-subtitle', `Детальная аналитика · ${currentYear} год`);
+            setText('kpi-clients', fmtNum(d.clients_count));
+            setText('kpi-invoices', fmtNum(d.invoices_count));
+            setText('kpi-revenue', fmtM(d.goods_revenue));
+            setText('kpi-share', `${parseFloat(d.revenue_share_pct || 0).toFixed(1)}% от общей выручки`);
+            setText('kpi-avg-ticket', fmtCur(d.avg_ticket));
+            
+            const yoy = parseFloat(d.yoy_pct || 0);
+            setHtml('kpi-yoy', `<span class="kpi-yoy ${yoyClass(yoy)}">${fmtPct(yoy)}</span>`);
+            setText('kpi-prev-rev', `Прошлый год: ${fmtM(d.prev_year_revenue)}`);
+            
+            setText('clients-yoy-title', `📊 Клиенты: ${currentYear} vs ${currentYear - 1}`);
+            setText('sizes-yoy-title', `📐 Размеры: ${currentYear} vs ${currentYear - 1}`);
+            
+            document.title = `UTSK — ${d.direction_name} — ${currentYear}`;
+        } catch (e) {
+            console.error('Ошибка loadKPI:', e);
+        }
+    }
+    async function loadTopClients() {
+        const tbody = document.getElementById('top-clients-body');
+        tbody.innerHTML = `<tr><td colspan="10" class="state-container"><div class="spinner"></div></td></tr>`;
+        try {
+            const res = await fetch(`/api/analytics/direction/top-clients?token=${TOKEN}&direction_id=${DIRECTION_ID}&year=${currentYear}&limit=10`);
+            const json = await res.json();
+            if (json.status === 'ok' && json.data.length > 0) {
+                const maxRev = json.data[0].goods_revenue || 1;
+                tbody.innerHTML = json.data.map((r, i) => {
+                    const abcCls = `abc-${r.abc_group || 'C2'}`;
+                    const barWidth = Math.round(r.goods_revenue * 100 / maxRev);
+                    return `
+                        <tr>
+                            <td style="color:var(--text-muted);font-size:12px;">${i + 1}</td>
+                            <td>
+                                <div style="font-weight:600;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+                                    <a href="/client-detail?token=${TOKEN}&code=${r.client_code}" class="client-link" target="_blank">
+                                        ${r.client_name}
+                                    </a>
+                                </div>
+                                <div style="font-size:11px;color:var(--text-muted);">${r.client_code}</div>
+                            </td>
+                            <td style="font-family:monospace;font-weight:600;color:#334155;">${r.edrpou || '—'}</td>
+                            <td><span class="badge" style="background:#f1f5f9;color:#334155;">${r.status_name || 'Н/Д'}</span></td>
+                            <td class="text-center"><span class="badge badge-abc ${abcCls}">${r.abc_group || '—'}</span></td>
+                            <td class="text-right">${fmtNum(r.invoices_count)}</td>
+                            <td class="text-right" style="font-weight:700;">${fmtCur(r.goods_revenue)}</td>
+                            <td class="text-right" style="color:#2563eb;font-weight:600;">${fmtCur(r.avg_ticket)}</td>
+                            <td class="text-right">${parseFloat(r.revenue_share_pct || 0).toFixed(1)}%</td>
+                            <td>
+                                <div style="display:flex;align-items:center;gap:6px;">
+                                    <div style="flex:1;background:#f1f5f9;border-radius:3px;height:10px;min-width:60px;">
+                                        <div class="bar-fill" style="width:${barWidth}%;background:var(--brand);height:100%;border-radius:3px;"></div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>`;
+                }).join('');
+            } else {
+                tbody.innerHTML = `<tr><td colspan="10" class="state-container">Нет данных</td></tr>`;
+            }
+        } catch (e) {
+            tbody.innerHTML = `<tr><td colspan="10" class="state-container">⚠️ Ошибка: ${e.message}</td></tr>`;
+        }
+    }
+
+    // ─── CLIENTS LIST ───
+    async function loadClientsList() {
+        const tbody = document.getElementById('clients-list-body');
+        tbody.innerHTML = `<tr><td colspan="12" class="state-container"><div class="spinner"></div><div style="margin-top:8px;">Загрузка...</div></td></tr>`;
+        const search = (document.getElementById('client-search').value || '').trim();
+        const abc = document.getElementById('abc-filter').value;
+        const offset = clientsPage * PAGE_SIZE;
+        try {
+            let url = `/api/analytics/direction/clients?token=${TOKEN}&direction_id=${DIRECTION_ID}&year=${currentYear}&limit=${PAGE_SIZE}&offset=${offset}`;
+            if (search) url += `&search=${encodeURIComponent(search)}`;
+            if (abc && abc !== 'ALL') url += `&abc_group=${encodeURIComponent(abc)}`;
+            const res = await fetch(url);
+            const json = await res.json();
+            if (json.status === 'ok') {
+                clientsData = json.data || [];
+                clientsTotalCount = json.total_count || 0;
+                renderClientsList(clientsData, offset);
+            } else {
+                tbody.innerHTML = `<tr><td colspan="12" class="state-container">⚠️ Ошибка</td></tr>`;
+            }
+        } catch (e) {
+            tbody.innerHTML = `<tr><td colspan="12" class="state-container">⚠️ Ошибка: ${e.message}</td></tr>`;
+        }
+    }
+
+    function renderClientsList(data, offset) {
+        const tbody = document.getElementById('clients-list-body');
+        if (!data || data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="12" class="state-container">Клиенты не найдены</td></tr>`;
+            document.getElementById('clients-badge').textContent = 'Найдено: 0';
+            return;
+        }
+        tbody.innerHTML = data.map((c, i) => {
+            const abcCls = `abc-${c.abc_group || 'C2'}`;
+            return `
+                <tr>
+                    <td style="color:var(--text-muted);font-size:12px;">${offset + i + 1}</td>
+                    <td><a href="/client-detail?token=${TOKEN}&code=${c.client_code}" class="client-link" target="_blank">${c.client_code}</a></td>
+                    <td>
+                        <div style="font-weight:600;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${c.client_name}">
+                            ${c.client_name}
+                        </div>
+                    </td>
+                    <td style="font-family:monospace;font-weight:600;color:#334155;">${c.edrpou || '—'}</td>
+                    <td style="font-family:monospace;font-size:11.5px;color:#64748b;">${c.ipn || '—'}</td>
+                    <td><span class="badge" style="background:#f1f5f9;color:#334155;">${c.status_name || 'Н/Д'}</span></td>
+                    <td class="text-center"><span class="badge badge-abc ${abcCls}">${c.abc_group || '—'}</span></td>
+                    <td class="text-right">${fmtNum(c.invoices_count)}</td>
+                    <td class="text-right" style="font-weight:700;color:#0f172a;">${fmtCur(c.goods_revenue)}</td>
+                    <td class="text-right" style="font-weight:600;color:#2563eb;">${fmtCur(c.avg_ticket)}</td>
+                    <td style="font-size:12px;color:var(--text-muted);">${c.last_purchase_date || '—'}</td>
+                    <td class="text-center">
+                        <a href="/client-detail?token=${TOKEN}&code=${c.client_code}" target="_blank"
+                           class="btn-filter" style="padding:3px 8px;font-size:11.5px;text-decoration:none;">
+                            Карточка ↗
+                        </a>
+                    </td>
+                </tr>`;
+        }).join('');
+        document.getElementById('clients-badge').textContent = `Показано: ${data.length} из ${clientsTotalCount}`;
+        updateClientsPagination();
+        document.getElementById('clients-count-info').textContent = `Всего клиентов: ${clientsTotalCount}`;
+    }
+
+    function updateClientsPagination() {
+        const totalPages = Math.ceil(clientsTotalCount / PAGE_SIZE) || 1;
+        const start = clientsTotalCount > 0 ? (clientsPage * PAGE_SIZE + 1) : 0;
+        const end = Math.min((clientsPage + 1) * PAGE_SIZE, clientsTotalCount);
+        document.getElementById('clients-pagination-info').textContent =
+            `Показано ${start}–${end} из ${clientsTotalCount} (стр. ${clientsPage + 1} из ${totalPages})`;
+        document.getElementById('btn-prev').disabled = clientsPage === 0;
+        document.getElementById('btn-next').disabled = (clientsPage + 1) >= totalPages;
+    }
+
+    function changePage(delta) {
+        clientsPage += delta;
+        if (clientsPage < 0) clientsPage = 0;
+        loadClientsList();
+    }
+
+    function onClientFilterChange() {
+        clientsPage = 0;
+        loadClientsList();
+    }
+
+    function debounceClientSearch() {
+        clearTimeout(clientsSearchTimer);
+        clientsSearchTimer = setTimeout(() => {
+            clientsPage = 0;
+            loadClientsList();
+        }, 300);
+    }
+
+    function exportClientsCSV() {
+        if (!clientsData || clientsData.length === 0) { alert('Нет данных'); return; }
+        const headers = ['Код', 'Компания', 'ЄДРПОУ', 'ИПН', 'Статус', 'ABC', 'Накладных', 'Выручка_грн', 'Ср_чек_грн', 'Последняя_отгрузка'];
+        const rows = [headers.join(';')];
+        clientsData.forEach(c => rows.push([
+            c.client_code,
+            `"${(c.client_name || '').replace(/"/g, '""')}"`,
+            c.edrpou || '',
+            c.ipn || '',
+            c.status_name || '',
+            c.abc_group,
+            c.invoices_count,
+            c.goods_revenue,
+            c.avg_ticket,
+            c.last_purchase_date,
+        ].join(';')));
+        const blob = new Blob(['\uFEFF' + rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `direction_${DIRECTION_ID}_clients_${currentYear}.csv`;
+        a.click();
+    }
+
+    // ─── SIZE MATRIX ───
+    let currentMatrixType = 'round'; // 'round' | 'prof'
+
+    function switchMatrixType(type, btn) {
+        currentMatrixType = type;
+        document.querySelectorAll('.matrix-toggle-btn').forEach(b => b.classList.remove('active'));
+        if (btn) {
+            btn.classList.add('active');
+        } else {
+            const el = document.getElementById(type === 'prof' ? 'btn-matrix-prof' : 'btn-matrix-round');
+            if (el) el.classList.add('active');
+        }
+        renderSizeMatrix(sizeMatrixData);
+    }
+    window.switchMatrixType = switchMatrixType;
+
+    async function loadSizeMatrix() {
+        const container = document.getElementById('size-matrix-container');
+        container.innerHTML = `<div class="state-container"><div class="spinner"></div><div style="margin-top:8px;">Загрузка матрицы...</div></div>`;
+        const counterEl = document.getElementById('matrix-counter-container');
+        if (counterEl) counterEl.innerHTML = '';
+        try {
+            const res = await fetch(`/api/analytics/directions/products-by-size?token=${TOKEN}&direction_id=${DIRECTION_ID}&year=${currentYear}`);
+            const json = await res.json();
+            if (json.status === 'ok' && json.data && json.data.length > 0) {
+                sizeMatrixData = json.data;
+                renderSizeMatrix(json.data);
+            } else {
+                container.innerHTML = `<div class="state-container">Нет данных по размерам за ${currentYear} год</div>`;
+                if (counterEl) counterEl.innerHTML = '';
+            }
+        } catch (e) {
+            container.innerHTML = `<div class="state-container">⚠️ Ошибка: ${e.message}</div>`;
+            if (counterEl) counterEl.innerHTML = '';
+        }
+    }
+
+    function renderSizeMatrix(data) {
+        sizeMatrixData = data || [];
+        const container = document.getElementById('size-matrix-container');
+        const counterEl = document.getElementById('matrix-counter-container');
+        if (!container) return;
+
+        const isProf = currentMatrixType === 'prof';
+        const filtered = sizeMatrixData.filter(x => isProf ? !!x.is_prof : !x.is_prof);
+
+        if (filtered.length === 0) {
+            container.innerHTML = `<div style="padding:40px;text-align:center;color:var(--text-muted);">
+                Немає даних для ${isProf ? 'профільних' : 'круглих'} труб за ${currentYear} рік
+            </div>`;
+            if (counterEl) counterEl.innerHTML = '';
+            return;
+        }
+
+        // Ключи строк и колонок
+        let rows, cols, getRowKey, getColKey;
+
+        if (isProf) {
+            // Профильные: A×B × S
+            rows = [...new Set(filtered.map(x => `${x.prof_w || 0}×${x.prof_h || 0}`))]
+                .sort((a, b) => {
+                    const [a1, a2] = a.split('×').map(Number);
+                    const [b1, b2] = b.split('×').map(Number);
+                    const maxA = Math.max(a1, a2);
+                    const maxB = Math.max(b1, b2);
+                    if (maxA !== maxB) return maxA - maxB;
+                    const minA = Math.min(a1, a2);
+                    const minB = Math.min(b1, b2);
+                    if (minA !== minB) return minA - minB;
+                    return a1 - b1;
+                });
+            cols = [...new Set(filtered.map(x => x.wall))].filter(w => w != null).sort((a, b) => a - b);
+            getRowKey = x => `${x.prof_w || 0}×${x.prof_h || 0}`;
+            getColKey = x => x.wall;
+        } else {
+            // Круглые: Ø × t
+            rows = [...new Set(filtered.map(x => x.diameter))].filter(d => d != null).sort((a, b) => a - b);
+            cols = [...new Set(filtered.map(x => x.wall))].filter(w => w != null).sort((a, b) => a - b);
+            getRowKey = x => x.diameter;
+            getColKey = x => x.wall;
+        }
+
+        // Индексация данных
+        const cellMap = {};
+        filtered.forEach(x => {
+            const r = getRowKey(x);
+            const c = getColKey(x);
+            if (!cellMap[r]) cellMap[r] = {};
+            if (!cellMap[r][c]) cellMap[r][c] = { revenue: 0, quantity: 0, invoices: 0, clients: 0 };
+            cellMap[r][c].revenue += parseFloat(x.total_revenue) || 0;
+            cellMap[r][c].quantity += parseFloat(x.total_quantity) || 0;
+            cellMap[r][c].invoices += parseInt(x.invoices_count) || 0;
+            cellMap[r][c].clients = Math.max(cellMap[r][c].clients, parseInt(x.clients_count) || 0);
+        });
+
+        // Максимум выручки для heatmap
+        let maxRev = 0;
+        Object.values(cellMap).forEach(row => {
+            Object.values(row).forEach(cell => {
+                if (cell.revenue > maxRev) maxRev = cell.revenue;
+            });
+        });
+        if (maxRev === 0) maxRev = 1;
+
+        // HTML таблицы
+        const rowLabel = isProf ? 'Сечение A×B (мм)' : 'Ø (мм)';
+        const colLabel = 't (мм)';
+
+        let html = `<table class="size-matrix">`;
+        html += `<thead><tr><th style="min-width:140px;">${rowLabel} \\ ${colLabel}</th>`;
+        cols.forEach(c => { html += `<th>t=${c}</th>`; });
+        html += `<th class="matrix-total-col">РАЗОМ</th></tr></thead><tbody>`;
+
+        let activeCells = 0;
+
+        rows.forEach(r => {
+            let rowTotal = 0;
+            let rowQty = 0;
+            let rowCellsHtml = '';
+
+            cols.forEach(c => {
+                const cell = (cellMap[r] || {})[c];
+                if (cell && cell.revenue > 0) {
+                    activeCells++;
+                    rowTotal += cell.revenue;
+                    rowQty += cell.quantity;
+                    const heat = Math.min(5, Math.ceil((cell.revenue / maxRev) * 5));
+                    const sizeKey = isProf
+                        ? `prof_${String(r).replace('×', 'x')}x${c}`
+                        : `round_${r}x${c}`;
+                    const displayLabel = isProf ? `${r} × ${c} мм` : `Ø${r} × t${c} мм`;
+
+                    rowCellsHtml += `<td class="size-cell size-cell-heat-${heat}"
+                        onclick="openSizeDrilldown('${sizeKey}', '${displayLabel}')"
+                        title="${displayLabel}: ${fmtCur(cell.revenue)} · ${fmtQty(cell.quantity)} т · ${cell.clients} кл">
+                        <div style="font-weight:700;font-size:12px;">${fmtM(cell.revenue)}</div>
+                        <div style="font-size:10px;opacity:.85;">${fmtQty(cell.quantity)} т</div>
+                    </td>`;
+                } else {
+                    rowCellsHtml += `<td class="size-cell empty">—</td>`;
+                }
+            });
+
+            if (rowTotal > 0) {
+                html += `<tr>`;
+                html += `<td class="matrix-row-label">${r}</td>`;
+                html += rowCellsHtml;
+                html += `<td class="matrix-total-col">
+                    <div style="font-size:12px;">${fmtM(rowTotal)}</div>
+                    <div style="font-size:10px;opacity:.8;">${fmtQty(rowQty)} т</div>
+                </td>`;
+                html += `</tr>`;
+            }
+        });
+
+        // Колонка ИТОГО по столбцам (Footer)
+        html += `</tbody><tfoot><tr class="matrix-footer"><td class="matrix-row-label">РАЗОМ</td>`;
+        let grandTotal = 0;
+        let grandQty = 0;
+        cols.forEach(c => {
+            let colTotal = 0;
+            let colQty = 0;
+            rows.forEach(r => {
+                const cell = (cellMap[r] || {})[c];
+                if (cell) {
+                    colTotal += cell.revenue;
+                    colQty += cell.quantity;
+                }
+            });
+            grandTotal += colTotal;
+            grandQty += colQty;
+            html += `<td class="matrix-total-col">
+                <div style="font-size:12px;">${colTotal > 0 ? fmtM(colTotal) : '—'}</div>
+                ${colQty > 0 ? `<div style="font-size:10px;opacity:.8;">${fmtQty(colQty)} т</div>` : ''}
+            </td>`;
+        });
+        html += `<td class="matrix-total-col grand-total">
+            <div style="font-size:12.5px;font-weight:800;">${fmtM(grandTotal)}</div>
+            <div style="font-size:10px;opacity:.85;">${fmtQty(grandQty)} т</div>
+        </td></tr></tfoot></table>`;
+
+        container.innerHTML = html;
+
+        if (counterEl) {
+            counterEl.innerHTML = `<div class="matrix-counter">
+                📊 Унікальних ${isProf ? 'перетинів' : 'діаметрів'}: <b>${rows.length}</b> &nbsp;•&nbsp; 
+                товщин: <b>${cols.length}</b> &nbsp;•&nbsp; 
+                активних осередків продажу: <b>${activeCells}</b>
+            </div>`;
+        }
+    }
+    window.renderSizeMatrix = renderSizeMatrix;
+
+    // ─── SIZE DRILL-DOWN MODAL ───
+    async function openSizeDrilldown(arg1, arg2) {
+        const modal = document.getElementById('drilldown-modal');
+        const title = document.getElementById('modal-title');
+        const body = document.getElementById('modal-body');
+
+        let sizeKey, displayTitle;
+        if (typeof arg1 === 'string' && (arg1.startsWith('round_') || arg1.startsWith('prof_'))) {
+            sizeKey = arg1;
+            displayTitle = arg2 || sizeKey;
+        } else {
+            const diameter = arg1;
+            const wall = arg2;
+            sizeKey = wall ? `round_${diameter}x${wall}` : `round_${diameter}`;
+            displayTitle = `Ø${diameter}${wall ? ` × t${wall}` : ''} мм`;
+        }
+
+        title.textContent = `Деталізація: ${displayTitle} — ${currentYear} рік`;
+        body.innerHTML = `<div class="state-container"><div class="spinner"></div></div>`;
+        modal.classList.add('open');
+
+        try {
+            let url = `/api/analytics/directions/size-drilldown?token=${TOKEN}&direction_id=${DIRECTION_ID}&year=${currentYear}&size_key=${sizeKey}`;
+            const res = await fetch(url);
+            const json = await res.json();
+            if (json.status === 'ok' && json.data.length > 0) {
+                const totalQty = json.data.reduce((s, r) => s + (parseFloat(r.quantity) || 0), 0);
+                const totalRev = json.data.reduce((s, r) => s + (parseFloat(r.revenue) || 0), 0);
+                body.innerHTML = `
+                    <div style="margin-bottom:12px;font-size:13px;color:var(--text-muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+                        <span>Позицій: <b style="color:var(--text-main);">${json.data.length}</b></span>
+                        <span>Обсяг: <b style="color:var(--text-main);">${fmtQty(totalQty)} т</b></span>
+                        <span>Виручка: <b style="color:var(--brand);">${fmtCur(totalRev)}</b></span>
+                    </div>
+                    <div class="table-responsive" style="max-height:60vh;overflow-y:auto;">
+                        <table style="width:100%;font-size:12.5px;">
+                            <thead>
+                                <tr>
+                                    <th style="width:30px;">#</th>
+                                    <th style="width:70px;">Код</th>
+                                    <th>Номенклатура</th>
+                                    <th class="text-right">Клієнтів</th>
+                                    <th class="text-right">К-сть (т)</th>
+                                    <th class="text-right">Сума ₴</th>
+                                    <th style="text-align:center;">Остання покупка</th>
+                                    <th class="text-right">Залишок</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${json.data.map((r, i) => `
+                                    <tr>
+                                        <td style="color:var(--text-muted);font-size:12px;">${i+1}</td>
+                                        <td style="font-family:monospace;font-size:11.5px;color:var(--text-muted);">${r.product_code || '—'}</td>
+                                        <td style="font-size:12px;font-weight:500;">${r.product_name}</td>
+                                        <td class="text-right">${r.clients_count || '—'}</td>
+                                        <td class="text-right" style="font-weight:600;">${fmtQty(r.quantity)}</td>
+                                        <td class="text-right" style="font-weight:700;color:var(--text-main);">${fmtCur(r.revenue)}</td>
+                                        <td style="text-align:center;font-size:12px;color:var(--text-muted);">${r.last_purchase_date || '—'}</td>
+                                        <td class="text-right" style="font-size:12px;color:var(--text-muted);">${fmtQty(r.stock_balance)}</td>
+                                    </tr>`).join('')}
+                            </tbody>
+                        </table>
+                    </div>`;
+            } else {
+                body.innerHTML = `<div class="state-container">Немає даних для цього розміру</div>`;
+            }
+        } catch (e) {
+            body.innerHTML = `<div class="state-container">⚠️ Ошибка: ${e.message}</div>`;
+        }
+    }
+
+    function closeModal() {
+        document.getElementById('drilldown-modal').classList.remove('open');
+    }
+    document.getElementById('drilldown-modal').addEventListener('click', function(e) {
+        if (e.target === this) closeModal();
+    });
+
+    // ─── CLIENTS YoY ───
+    async function loadClientsYoY() {
+        const tbody = document.getElementById('clients-yoy-body');
+        tbody.innerHTML = `<tr><td colspan="10" class="state-container"><div class="spinner"></div><div style="margin-top:8px;">Загрузка...</div></td></tr>`;
+        try {
+            const res = await fetch(`/api/analytics/direction/clients-yoy?token=${TOKEN}&direction_id=${DIRECTION_ID}&year=${currentYear}`);
+            const json = await res.json();
+            if (json.status === 'ok' && json.data.length > 0) {
+                tbody.innerHTML = json.data.map((r, i) => {
+                    const yoy = parseFloat(r.yoy_pct);
+                    const trendMap = { 'up': '▲ Рост', 'down': '▼ Падение', 'flat': '→ Стабильно', 'new': '⭐ Новый' };
+                    const trendCls = { 'up': 'trend-up', 'down': 'trend-down', 'flat': 'trend-flat', 'new': 'trend-new' };
+                    const trend = r.trend || 'flat';
+                    return `
+                        <tr>
+                            <td style="color:var(--text-muted);font-size:12px;">${i+1}</td>
+                            <td>
+                                <a href="/client-detail?token=${TOKEN}&code=${r.client_code}" class="client-link" target="_blank">
+                                    ${r.client_name}
+                                </a>
+                                <div style="font-size:11px;color:var(--text-muted);">${r.client_code}</div>
+                            </td>
+                            <td><span class="badge" style="background:#f1f5f9;color:#334155;">${r.status_name || 'Н/Д'}</span></td>
+                            <td class="text-right" style="font-weight:700;">${fmtCur(r.curr_revenue)}</td>
+                            <td class="text-right" style="color:var(--text-muted);">${fmtCur(r.prev_revenue)}</td>
+                            <td class="text-right">
+                                <span class="kpi-yoy ${yoyClass(yoy)}">${isNaN(yoy) ? '—' : fmtPct(yoy)}</span>
+                            </td>
+                            <td class="text-right">${fmtNum(r.curr_invoices)}</td>
+                            <td class="text-right" style="color:var(--text-muted);">${fmtNum(r.prev_invoices)}</td>
+                            <td class="text-center">
+                                <span class="${trendCls[trend] || 'trend-flat'}">${trendMap[trend] || trend}</span>
+                            </td>
+                            <td class="text-center">
+                                <a href="/client-detail?token=${TOKEN}&code=${r.client_code}" target="_blank"
+                                   class="btn-filter" style="padding:3px 8px;font-size:11px;text-decoration:none;">↗</a>
+                            </td>
+                        </tr>`;
+                }).join('');
+            } else {
+                tbody.innerHTML = `<tr><td colspan="10" class="state-container">Нет данных</td></tr>`;
+            }
+        } catch (e) {
+            tbody.innerHTML = `<tr><td colspan="10" class="state-container">⚠️ Ошибка: ${e.message}</td></tr>`;
+        }
+    }
+
+    // ─── SIZES YoY ───
+    // ─── FORMATTERS ───
+    function fmtFullMoney(n) {
+        if (n == null) return '—';
+        return Number(n).toLocaleString('ru-RU', { maximumFractionDigits: 0 }) + ' ₴';
+    }
+
+    function stockClass(v) {
+        if (v == null || v <= 0) return 'stock-zero';
+        if (v < 10) return 'stock-low';
+        return 'stock-ok';
+    }
+
+    // ─── SIZES YoY ───
+    let currentYoYSizeKey = null;
+    let chartSizesYoYInstance = null;
+
+    async function loadSizesYoY() {
+        const tbody = document.getElementById('sizesYoYBody');
+        if (!tbody) return;
+        tbody.innerHTML = `<tr><td colspan="8" class="state-container"><div class="spinner"></div><div style="margin-top:8px;">Загрузка сравнения размеров...</div></td></tr>`;
+        try {
+            const res = await fetch(`/api/analytics/directions/sizes-yoy?token=${TOKEN}&direction_id=${DIRECTION_ID}&year=${currentYear}`);
+            const json = await res.json();
+            if (json.status === 'ok' && json.data.length > 0) {
+                renderSizesYoY(json.data);
+                renderSizesYoYChart(json.data);
+            } else {
+                tbody.innerHTML = `<tr><td colspan="8" class="state-container">Нет данных для сравнения</td></tr>`;
+            }
+        } catch (e) {
+            tbody.innerHTML = `<tr><td colspan="8" class="state-container">⚠️ Ошибка: ${e.message}</td></tr>`;
+        }
+    }
+
+    function renderSizesYoYChart(items) {
+        const ctx = document.getElementById('chartSizesYoY');
+        if (!ctx) return;
+        if (chartSizesYoYInstance) {
+            chartSizesYoYInstance.destroy();
+        }
+        
+        const top10 = items.filter(x => x.revenue_2026 > 0 || x.revenue_2025 > 0 || x.revenue_2024 > 0).slice(0, 10);
+        if (top10.length === 0) return;
+
+        // Check if Chart.js is available
+        if (typeof Chart === 'undefined') return;
+
+        chartSizesYoYInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: top10.map(x => x.size_display || x.size_key),
+                datasets: [
+                    {
+                        label: `${currentYear - 2} рік`,
+                        data: top10.map(x => x.revenue_2024),
+                        backgroundColor: '#e2e8f0',
+                        borderRadius: 4,
+                    },
+                    {
+                        label: `${currentYear - 1} рік`,
+                        data: top10.map(x => x.revenue_2025),
+                        backgroundColor: '#cbd5e1',
+                        borderRadius: 4,
+                    },
+                    {
+                        label: `${currentYear} рік`,
+                        data: top10.map(x => x.revenue_2026),
+                        backgroundColor: '#0ea5e9',
+                        borderRadius: 4,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top' },
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => context.dataset.label + ': ' + fmtFullMoney(context.parsed.y)
+                        }
+                    }
+                },
+                scales: {
+                    x: { ticks: { font: { size: 11 } } },
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: (v) => {
+                                if (v >= 1e6) return (v / 1e6).toFixed(1) + 'M';
+                                if (v >= 1e3) return (v / 1e3).toFixed(0) + 'K';
+                                return v;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function renderSizesYoY(items) {
+        const tbody = document.getElementById('sizesYoYBody');
+        if (!tbody) return;
+
+        tbody.innerHTML = items.map(x => {
+            const deltaClass = x.yoy_abs > 0 ? 'positive' : x.yoy_abs < 0 ? 'negative' : '';
+            const deltaText = x.yoy_abs == 0 ? '—' : (x.yoy_abs > 0 ? '+' : '') + fmtFullMoney(x.yoy_abs);
+
+            const yoyText = x.yoy_pct == null ? '—' : (x.yoy_pct >= 100 ? '↑ ' : '↓ ') + x.yoy_pct.toFixed(0) + '%';
+            const yoyClass = x.yoy_pct == null ? '' : (x.yoy_pct >= 100 ? 'positive' : 'negative');
+
+            const typeIcon = {
+                'round':  '⭕',
+                'square': '⬛',
+                'rect':   '▬',
+            }[x.pipe_type] || '❓';
+
+            const safeKey = (x.size_key || '').replace(/'/g, "\\'");
+            const safeName = (x.display_name || '').replace(/'/g, "\\'");
+            const isActive = currentYoYSizeKey === x.size_key;
+
+            return `
+                <tr class="size-row ${isActive ? 'active' : ''}" 
+                    data-size="${x.size_key}"
+                    onclick="toggleYoYDrilldown('${safeKey}', '${safeName}')">
+                    <td class="expand-cell">
+                        <i class="fa-solid fa-chevron-right expand-icon"></i>
+                    </td>
+                    <td>
+                        <div style="display:flex;align-items:center;gap:8px;">
+                            <span style="font-size:14px;" title="${x.pipe_type_ua || ''}">
+                                ${typeIcon}
+                            </span>
+                            <b>${x.display_name}</b>
+                        </div>
+                    </td>
+                    <td class="num text-right" style="color:var(--text-muted);">${fmtFullMoney(x.revenue_2024)}</td>
+                    <td class="num text-right" style="color:var(--text-muted);">${fmtFullMoney(x.revenue_2025)}</td>
+                    <td class="num text-right" style="font-weight:700;">${fmtFullMoney(x.revenue_2026)}</td>
+                    <td class="num text-right ${deltaClass}">${deltaText}</td>
+                    <td class="num text-right ${yoyClass}">${yoyText}</td>
+                    <td style="font-size:13px;white-space:nowrap;">${x.trend}</td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    async function toggleYoYDrilldown(sizeKey, displayName) {
+        if (currentYoYSizeKey === sizeKey) {
+            closeYoYDrilldown();
+            return;
+        }
+
+        closeYoYDrilldown();
+        currentYoYSizeKey = sizeKey;
+
+        const targetRow = document.querySelector(`#sizesYoYBody tr[data-size="${sizeKey}"]`);
+        if (!targetRow) return;
+
+        targetRow.classList.add('active');
+
+        const drillRow = document.createElement('tr');
+        drillRow.id = 'yoyDrilldownRow';
+        drillRow.className = 'drilldown-row';
+        drillRow.innerHTML = `
+            <td colspan="8" id="yoyDrilldownCell">
+                <div class="drilldown-panel" id="yoyDrilldownPanel">
+                    <div class="drilldown-header">
+                        <div class="drilldown-title" id="yoyDrilldownTitle">
+                            <i class="fa-solid fa-box-open" style="color:var(--accent);"></i>
+                            Все товары размера: <b>${displayName}</b>
+                        </div>
+                        <button class="drilldown-close" onclick="event.stopPropagation(); closeYoYDrilldown();">
+                            ✕
+                        </button>
+                    </div>
+                    <div id="yoyDrilldownContent">
+                        <div class="state-container">
+                            <div class="spinner"></div>
+                            <div style="margin-top:8px;">Загрузка позиций (ГОСТ / ДСТУ / Марка стали)...</div>
+                        </div>
+                    </div>
+                </div>
+            </td>
+        `;
+        targetRow.after(drillRow);
+        drillRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+        const url = `/api/analytics/directions/size-drilldown?token=${TOKEN}&direction_id=${DIRECTION_ID}&size_key=${encodeURIComponent(sizeKey)}&year=${currentYear}`;
+        
+        console.log('[DRILLDOWN] fetching:', url);
+        console.log('DIRECTION_ID:', DIRECTION_ID, typeof DIRECTION_ID);
+        console.log('YEAR:', currentYear, typeof currentYear);
+        console.log('TOKEN:', TOKEN);
+        console.log('sizeKey JSON:', JSON.stringify(sizeKey));
+
+        try {
+            const res = await fetch(url);
+            if (!res.ok) {
+                const errText = await res.text();
+                throw new Error(`HTTP ${res.status}: ${errText.substring(0, 200)}`);
+            }
+            const json = await res.json();
+            const data = json.data || [];
+
+            if (data.length === 0) {
+                document.getElementById('yoyDrilldownContent').innerHTML = `<div class="state-container">Нет товаров данного размера</div>`;
+                return;
+            }
+
+            const purchased = data.filter(x => x.is_purchased);
+            const notPurchased = data.filter(x => !x.is_purchased);
+
+            let html = `
+                <div style="margin-bottom:12px;font-size:13px;color:var(--text-muted);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+                    <span>
+                        <span class="purchased-badge"></span>
+                        Куплено компаниями направления: <b>${purchased.length}</b>
+                    </span>
+                    <span>
+                        <span class="available-badge"></span>
+                        Доступно на складе: <b>${notPurchased.length}</b>
+                    </span>
+                </div>
+            `;
+
+            if (purchased.length > 0) {
+                html += `
+                    <div class="drilldown-section-title">
+                        ✅ Куплено компаниями направления в ${currentYear}
+                    </div>
+                    <table class="products-table">
+                        <thead>
+                            <tr>
+                                <th style="width:80px;">Код</th>
+                                <th>Наименование (ГОСТ / ДСТУ / Марка стали)</th>
+                                <th class="num text-right">Раз</th>
+                                <th class="num text-right">Клиентов</th>
+                                <th class="num text-right">Выручка</th>
+                                <th class="num text-right">Остаток</th>
+                                <th>Последняя</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${purchased.map(p => `
+                                <tr class="purchased">
+                                    <td><code style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#475569;">${p.product_code}</code></td>
+                                    <td><b>${p.product_name}</b></td>
+                                    <td class="num text-right">${p.purchase_count} раз</td>
+                                    <td class="num text-right">${p.clients_count || 0}</td>
+                                    <td class="num text-right" style="font-weight:700;">${fmtFullMoney(p.revenue)}</td>
+                                    <td class="num text-right">
+                                        <span class="stock-badge ${stockClass(p.stock_balance)}">${fmtNum(p.stock_balance, 1)} т</span>
+                                    </td>
+                                    <td style="font-size:12px;white-space:nowrap;">${p.last_purchase_date || '—'}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            }
+
+            if (notPurchased.length > 0) {
+                html += `
+                    <div class="drilldown-section-title" style="margin-top:16px;">
+                        📦 Доступно на складе (можно предложить)
+                    </div>
+                    <table class="products-table">
+                        <thead>
+                            <tr>
+                                <th style="width:80px;">Код</th>
+                                <th>Наименование (ГОСТ / ДСТУ / Марка стали)</th>
+                                <th class="num text-right">Остаток на складе</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${notPurchased.map(p => `
+                                <tr class="not-purchased">
+                                    <td><code style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#475569;">${p.product_code}</code></td>
+                                    <td><b>${p.product_name}</b></td>
+                                    <td class="num text-right">
+                                        <span class="stock-badge ${stockClass(p.stock_balance)}">${fmtNum(p.stock_balance, 1)} т</span>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            }
+
+            document.getElementById('yoyDrilldownContent').innerHTML = html;
+        } catch (e) {
+            console.error('toggleYoYDrilldown error:', e);
+            document.getElementById('yoyDrilldownContent').innerHTML = `<div class="state-container" style="color:var(--bad);">⚠️ Ошибка загрузки: ${e.message}</div>`;
+        }
+    }
+
+    function closeYoYDrilldown() {
+        currentYoYSizeKey = null;
+        const existingRow = document.getElementById('yoyDrilldownRow');
+        if (existingRow) {
+            existingRow.remove();
+        }
+        document.querySelectorAll('#sizesYoYBody tr.size-row').forEach(tr => {
+            tr.classList.remove('active');
+        });
+    }
+
+    // Экспорт функций для inline onclick
+    window.toggleYoYDrilldown = toggleYoYDrilldown;
+    window.closeYoYDrilldown = closeYoYDrilldown;
+</script>
+</body>
+</html>

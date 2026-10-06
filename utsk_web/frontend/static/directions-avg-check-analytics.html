@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>💵 UTSK — Аналитика среднего чека по отраслям</title>
+    <title>💵 UTSK — Аналітика середнього чека за галузями</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
@@ -162,17 +162,17 @@
             <div class="header-title-area">
                 <div class="header-icon">🏷️</div>
                 <div class="header-title">
-                    <h1>Аналитика среднего чека по отраслям</h1>
-                    <p>Средний размер сделки, медианные показатели и анализ распределения по накладным</p>
+                    <h1>Аналітика середнього чека за галузями</h1>
+                    <p>Середній розмір угоди, медіанні показники та аналіз розподілу за накладними</p>
                 </div>
             </div>
             <div class="header-controls">
                 <select id="yearSelect" class="select-year" onchange="onYearChange()">
-                    <option value="2026">2026 год</option>
-                    <option value="2025">2025 год</option>
-                    <option value="2024">2024 год</option>
+                    <option value="2026">2026 рік</option>
+                    <option value="2025">2025 рік</option>
+                    <option value="2024">2024 рік</option>
                 </select>
-                <a href="#" id="backToDirectionsBtn" class="btn-nav primary">← К направлениям</a>
+                <a href="#" id="backToDirectionsBtn" class="btn-nav primary">← До напрямків</a>
                 <a href="/?token=utsk2026" class="btn-nav">🏠 Дашборд</a>
             </div>
         </header>
@@ -180,29 +180,29 @@
         <!-- KPI Cards -->
         <section class="kpi-grid">
             <div class="kpi-card indigo">
-                <div class="kpi-label"><i class="fa-solid fa-calculator"></i> Средний чек компании</div>
+                <div class="kpi-label"><i class="fa-solid fa-calculator"></i> Середній чек компанії</div>
                 <div class="kpi-value" id="kpi-avg-check">—</div>
-                <div class="kpi-sub">Общая выручка / все накладные</div>
+                <div class="kpi-sub">Загальні продажі / всі накладні</div>
             </div>
             <div class="kpi-card green">
-                <div class="kpi-label"><i class="fa-solid fa-chart-line"></i> Медианный чек</div>
+                <div class="kpi-label"><i class="fa-solid fa-chart-line"></i> Медіанний чек</div>
                 <div class="kpi-value" id="kpi-median-check">—</div>
-                <div class="kpi-sub">50% отгрузок ниже этого чека</div>
+                <div class="kpi-sub">50% відвантажень нижче цього чека</div>
             </div>
             <div class="kpi-card purple">
-                <div class="kpi-label"><i class="fa-solid fa-crown"></i> Лидер по чеку</div>
+                <div class="kpi-label"><i class="fa-solid fa-crown"></i> Лідер за чеком</div>
                 <div class="kpi-value" id="kpi-top-check-dir" style="font-size:20px;">—</div>
-                <div class="kpi-sub" id="kpi-top-check-sub">Максимальный средний чек</div>
+                <div class="kpi-sub" id="kpi-top-check-sub">Максимальний середній чек</div>
             </div>
             <div class="kpi-card blue">
-                <div class="kpi-label"><i class="fa-solid fa-file-invoice-dollar"></i> Всего отгрузок</div>
+                <div class="kpi-label"><i class="fa-solid fa-file-invoice-dollar"></i> Всього відвантажень</div>
                 <div class="kpi-value" id="kpi-total-checks">—</div>
-                <div class="kpi-sub">Накладных в расчёте</div>
+                <div class="kpi-sub">Накладних у розрахунку</div>
             </div>
             <div class="kpi-card amber">
-                <div class="kpi-label"><i class="fa-solid fa-arrows-split-up-and-left"></i> Разброс чеков</div>
+                <div class="kpi-label"><i class="fa-solid fa-arrows-split-up-and-left"></i> Розкид чеків</div>
                 <div class="kpi-value" id="kpi-ratio">—</div>
-                <div class="kpi-sub">Отношение Ср. чек / Медиана</div>
+                <div class="kpi-sub">Відношення Сер. чек / Медіана</div>
             </div>
         </section>
 
@@ -210,8 +210,8 @@
         <section class="grid-2">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fa-solid fa-bars-staggered" style="color:#4f46e5"></i> Средний чек по отраслям (Рейтинг)</h3>
-                    <span id="chartYearTag" style="font-size:12px;color:var(--text-muted);">2026 год</span>
+                    <h3 class="card-title"><i class="fa-solid fa-bars-staggered" style="color:#4f46e5"></i> Середній чек за галузями (Рейтинг)</h3>
+                    <span id="chartYearTag" style="font-size:12px;color:var(--text-muted);">2026 рік</span>
                 </div>
                 <div class="chart-box">
                     <canvas id="chartAvgChecksBar"></canvas>
@@ -220,8 +220,8 @@
 
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fa-solid fa-chart-line" style="color:var(--good)"></i> Динамика среднего чека YoY (2024-2026)</h3>
-                    <span style="font-size:12px;color:var(--text-muted);">ТОП-отрасли</span>
+                    <h3 class="card-title"><i class="fa-solid fa-chart-line" style="color:var(--good)"></i> Динаміка середнього чека YoY (2024-2026)</h3>
+                    <span style="font-size:12px;color:var(--text-muted);">ТОП-галузі</span>
                 </div>
                 <div class="chart-box">
                     <canvas id="chartYoyLine"></canvas>
@@ -232,7 +232,7 @@
         <!-- Table 1: Directions Avg Check Breakdown -->
         <section class="card" style="margin-bottom: 24px;">
             <div class="card-header">
-                <h3 class="card-title"><i class="fa-solid fa-table-cells" style="color:var(--brand)"></i> Статистика чеков по отраслям</h3>
+                <h3 class="card-title"><i class="fa-solid fa-table-cells" style="color:var(--brand)"></i> Статистика чеків за галузями</h3>
                 <span id="tableDirsSub" style="font-size:13px;color:var(--text-muted);">14 отраслей</span>
             </div>
             <div class="table-responsive">
@@ -240,18 +240,18 @@
                     <thead>
                         <tr>
                             <th style="width: 40px;">#</th>
-                            <th>Отрасль</th>
-                            <th class="num">Средний чек</th>
-                            <th class="num">Медианный чек</th>
-                            <th class="num">Накладных</th>
-                            <th class="num">Клиентов</th>
-                            <th class="num">Мин. чек</th>
+                            <th>Галузь</th>
+                            <th class="num">Середній чек</th>
+                            <th class="num">Медіанний чек</th>
+                            <th class="num">Накладних</th>
+                            <th class="num">Клієнтів</th>
+                            <th class="num">Мін. чек</th>
                             <th class="num">Макс. чек</th>
-                            <th class="num">Стандартное откл.</th>
+                            <th class="num">Стандартне відхилення</th>
                         </tr>
                     </thead>
                     <tbody id="avgCheckTbody">
-                        <tr><td colspan="9" style="text-align:center;padding:24px;color:var(--text-muted);">Загрузка аналитики...</td></tr>
+                        <tr><td colspan="9" style="text-align:center;padding:24px;color:var(--text-muted);">Завантаження аналітики...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -260,24 +260,24 @@
         <!-- Table 2: Top Company Checks -->
         <section class="card">
             <div class="card-header">
-                <h3 class="card-title"><i class="fa-solid fa-trophy" style="color:var(--warn)"></i> ТОП-10 крупнейших разовых накладных</h3>
-                <span style="font-size:13px;color:var(--text-muted);">Рекордные суммы документов</span>
+                <h3 class="card-title"><i class="fa-solid fa-trophy" style="color:var(--warn)"></i> ТОП-10 найбільших разових накладних</h3>
+                <span style="font-size:13px;color:var(--text-muted);">Рекордні суми документів</span>
             </div>
             <div class="table-responsive">
                 <table class="data-table">
                     <thead>
                         <tr>
                             <th style="width: 40px;">#</th>
-                            <th>Номер накладной</th>
+                            <th>Номер накладної</th>
                             <th>Дата</th>
                             <th>Код</th>
-                            <th>Клиент</th>
-                            <th>Отрасль</th>
+                            <th>Клієнт</th>
+                            <th>Галузь</th>
                             <th class="num">Сумма чека</th>
                         </tr>
                     </thead>
                     <tbody id="topCompanyChecksTbody">
-                        <tr><td colspan="7" style="text-align:center;padding:20px;color:var(--text-muted);">Загрузка...</td></tr>
+                        <tr><td colspan="7" style="text-align:center;padding:20px;color:var(--text-muted);">Завантаження...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -296,14 +296,14 @@
             if (!val || isNaN(val)) return '0 ₴';
             const v = parseFloat(val);
             if (Math.abs(v) >= 1000000) {
-                return (v / 1000000).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' млн ₴';
+                return (v / 1000000).toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' млн ₴';
             }
-            return Math.round(v).toLocaleString('ru-RU') + ' ₴';
+            return Math.round(v).toLocaleString('uk-UA') + ' ₴';
         }
 
         function fmtNum(val) {
             if (!val || isNaN(val)) return '0';
-            return parseInt(val).toLocaleString('ru-RU');
+            return parseInt(val).toLocaleString('uk-UA');
         }
 
         function onYearChange() {
@@ -315,12 +315,12 @@
             try {
                 document.getElementById('backToDirectionsBtn').href = `/directions-analytics?token=${TOKEN}&year=${currentYear}`;
                 document.getElementById('yearSelect').value = currentYear;
-                document.getElementById('chartYearTag').textContent = `${currentYear} год`;
+                document.getElementById('chartYearTag').textContent = `${currentYear} рік`;
 
                 const res = await fetch(`/api/analytics/directions/avg-check-analytics?token=${TOKEN}&year=${currentYear}`);
                 const json = await res.json();
                 if (json.status !== 'ok' || !json.data) {
-                    throw new Error('Не удалось загрузить данные');
+                    throw new Error('Не вдалося завантажити дані');
                 }
                 renderDashboard(json.data);
             } catch (err) {
@@ -341,10 +341,10 @@
             document.getElementById('kpi-avg-check').textContent = fmtM(totalAvg);
             document.getElementById('kpi-median-check').textContent = fmtM(totalMedian);
             document.getElementById('kpi-top-check-dir').textContent = `${topCheckDir.icon || '🌐'} ${topCheckDir.direction_name || '—'}`;
-            document.getElementById('kpi-top-check-sub').textContent = `${fmtM(topCheckDir.avg_check)} (${fmtNum(topCheckDir.checks_count)} накладных)`;
+            document.getElementById('kpi-top-check-sub').textContent = `${fmtM(topCheckDir.avg_check)} (${fmtNum(topCheckDir.checks_count)} накладних)`;
             document.getElementById('kpi-total-checks').textContent = fmtNum(totalChecks);
             document.getElementById('kpi-ratio').textContent = `x${skewRatio}`;
-            document.getElementById('tableDirsSub').textContent = `${dirs.length} активных отраслей`;
+            document.getElementById('tableDirsSub').textContent = `${dirs.length} активних галузей`;
 
             // Charts
             renderAvgBar(dirs);
@@ -367,13 +367,13 @@
                     labels: sorted.map(d => `${d.icon} ${d.direction_name}`),
                     datasets: [
                         {
-                            label: 'Средний чек',
+                            label: 'Середній чек',
                             data: sorted.map(d => d.avg_check),
                             backgroundColor: '#4f46e5',
                             borderRadius: 6
                         },
                         {
-                            label: 'Медианный чек',
+                            label: 'Медіанний чек',
                             data: sorted.map(d => d.median_check),
                             backgroundColor: '#10b981',
                             borderRadius: 6
@@ -451,7 +451,7 @@
         function renderAvgCheckTable(dirs) {
             const tbody = document.getElementById('avgCheckTbody');
             if (!dirs || dirs.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:24px;">Нет данных</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:24px;">Немає даних</td></tr>';
                 return;
             }
 
@@ -478,7 +478,7 @@
         function renderTopChecksTable(checks) {
             const tbody = document.getElementById('topCompanyChecksTbody');
             if (!checks || checks.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:20px;">Нет данных</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:20px;">Немає даних</td></tr>';
                 return;
             }
 

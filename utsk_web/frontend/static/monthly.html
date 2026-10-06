@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UTSK — Аналитика за месяц</title>
+    <title>UTSK — Аналітика за місяць</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -334,94 +334,94 @@
     <!-- ====== HEADER ====== -->
     <div class="page-header">
         <div>
-            <h1>📅 Аналитика за месяц</h1>
+            <h1>📅 Аналітика за місяць</h1>
         </div>
         <a href="/?token=utsk2026" style="text-decoration:none;color:var(--text-main, #1e293b);font-weight:700;font-size:14px;display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:10px;background:#fff;border:1px solid var(--border, #e2e8f0);transition:all .15s;white-space:nowrap;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='#fff'">← На дашборд</a>
     </div>
 
     <!-- ====== ПАНЕЛЬ ПАРАМЕТРОВ ====== -->
     <div class="params-panel">
-        <label>Год:</label>
+        <label>Рік:</label>
         <select id="param-year">
             <option value="2026" selected>2026</option>
             <option value="2025">2025</option>
         </select>
         <span class="param-divider"></span>
-        <label>Месяц:</label>
+        <label>Місяць:</label>
         <select id="param-month">
-            <option value="1">Январь</option>
-            <option value="2">Февраль</option>
-            <option value="3">Март</option>
-            <option value="4">Апрель</option>
-            <option value="5" selected>Май</option>
-            <option value="6">Июнь</option>
-            <option value="7">Июль</option>
-            <option value="8">Август</option>
-            <option value="9">Сентябрь</option>
-            <option value="10">Октябрь</option>
-            <option value="11">Ноябрь</option>
-            <option value="12">Декабрь</option>
+            <option value="1">Січень</option>
+            <option value="2">Лютий</option>
+            <option value="3">Березень</option>
+            <option value="4">Квітень</option>
+            <option value="5" selected>Травень</option>
+            <option value="6">Червень</option>
+            <option value="7">Липень</option>
+            <option value="8">Серпень</option>
+            <option value="9">Вересень</option>
+            <option value="10">Жовтень</option>
+            <option value="11">Листопад</option>
+            <option value="12">Грудень</option>
         </select>
         <span class="param-divider"></span>
-        <label>Коэф. ABC:</label>
+        <label>Коеф. ABC:</label>
         <input type="number" id="param-multiplier" value="2.9" step="0.1" min="0.1" max="10">
-        <button class="btn-update" onclick="refreshActiveTab()">🔄 Обновить</button>
+        <button class="btn-update" onclick="refreshActiveTab()">🔄 Оновити</button>
     </div>
 
     <!-- ====== KPI ====== -->
     <div class="kpi-row">
         <div class="kpi-card">
             <div class="kpi-icon">💰</div>
-            <div class="kpi-label">Товарная выручка</div>
+            <div class="kpi-label">Товарні продажі</div>
             <div class="kpi-value" id="kpi-goods" style="color:var(--green);">—</div>
         </div>
         <div class="kpi-card">
             <div class="kpi-icon">📦</div>
-            <div class="kpi-label">Накладных</div>
+            <div class="kpi-label">Накладних</div>
             <div class="kpi-value" id="kpi-invoices" style="color:var(--blue);">—</div>
         </div>
         <div class="kpi-card">
             <div class="kpi-icon">👥</div>
-            <div class="kpi-label">Клиентов</div>
+            <div class="kpi-label">Клієнтів</div>
             <div class="kpi-value" id="kpi-clients" style="color:var(--purple);">—</div>
         </div>
         <div class="kpi-card">
             <div class="kpi-icon">🛒</div>
-            <div class="kpi-label">Средний чек</div>
+            <div class="kpi-label">Середній чек</div>
             <div class="kpi-value" id="kpi-ticket" style="color:var(--amber);">—</div>
         </div>
         <div class="kpi-card">
             <div class="kpi-icon">📈</div>
-            <div class="kpi-label">Рост к прошлому</div>
+            <div class="kpi-label">Зростання до минулого</div>
             <div class="kpi-value" id="kpi-growth" style="color:var(--blue);">—</div>
         </div>
     </div>
 
     <!-- ====== ВКЛАДКИ ====== -->
     <div class="tabs-container">
-        <button class="tab-btn active" data-tab="tab-daily">📈 По дням</button>
-        <button class="tab-btn" data-tab="tab-compare">📊 Сравнение</button>
-        <button class="tab-btn" data-tab="tab-migration">🔄 Миграция ABC</button>
-        <button class="tab-btn" data-tab="tab-zalet">🆕 Залётные</button>
-        <button class="tab-btn" data-tab="tab-directions">🏗️ Отрасли и Товары</button>
+        <button class="tab-btn active" data-tab="tab-daily">📈 За днями</button>
+        <button class="tab-btn" data-tab="tab-compare">📊 Порівняння</button>
+        <button class="tab-btn" data-tab="tab-migration">🔄 Міграція ABC</button>
+        <button class="tab-btn" data-tab="tab-zalet">🆕 Зальотні</button>
+        <button class="tab-btn" data-tab="tab-directions">🏗️ Галузі та Товари</button>
         <button class="tab-btn" data-tab="tab-top">👥 Топ-10</button>
     </div>
 
     <!-- ====== ВКЛАДКА 1: ПО ДНЯМ ====== -->
     <div class="tab-content active" id="tab-daily">
         <div class="chart-card">
-            <h2 class="card-title">📈 Динамика товарной выручки по дням</h2>
+            <h2 class="card-title">📈 Динаміка товарних продажів за днями</h2>
             <div class="bar-chart" id="chart-daily">
-                <div style="color:#94a3b8;align-self:center;width:100%;text-align:center;">Загрузка...</div>
+                <div style="color:#94a3b8;align-self:center;width:100%;text-align:center;">Завантаження...</div>
             </div>
             <div style="overflow-x:auto;margin-top:16px;">
                 <table>
                     <thead>
                         <tr>
                             <th>День</th>
-                            <th class="right">Клиентов</th>
-                            <th class="right">Накладных</th>
-                            <th class="right">Выручка</th>
+                            <th class="right">Клієнтів</th>
+                            <th class="right">Накладних</th>
+                            <th class="right">Продажі</th>
                         </tr>
                     </thead>
                     <tbody id="table-daily"></tbody>
@@ -433,19 +433,19 @@
     <!-- ====== ВКЛАДКА 2: СРАВНЕНИЕ ====== -->
     <div class="tab-content" id="tab-compare">
         <div class="chart-card">
-            <h2 class="card-title">📊 Сравнение месяцев</h2>
+            <h2 class="card-title">📊 Порівняння місяців</h2>
             <div class="grid-2">
                 <div class="bar-chart" id="chart-compare">
-                    <div style="color:#94a3b8;align-self:center;width:100%;text-align:center;">Загрузка...</div>
+                    <div style="color:#94a3b8;align-self:center;width:100%;text-align:center;">Завантаження...</div>
                 </div>
                 <div>
                     <table>
                         <thead>
                             <tr>
-                                <th>Показатель</th>
-                                <th class="right">Текущий</th>
-                                <th class="right">Прошлый</th>
-                                <th class="right">Рост</th>
+                                <th>Показник</th>
+                                <th class="right">Поточний</th>
+                                <th class="right">Минулий</th>
+                                <th class="right">Зростання</th>
                             </tr>
                         </thead>
                         <tbody id="table-compare"></tbody>
@@ -458,16 +458,16 @@
     <!-- ====== ВКЛАДКА 3: МИГРАЦИЯ ABC ====== -->
     <div class="tab-content" id="tab-migration">
         <div class="chart-card">
-            <h2 class="card-title">🔄 Активность групп A1, A2, B1, B2</h2>
-            <p style="color:var(--muted);margin-bottom:16px;">Клиенты с группой в <span id="mig-year-prev">2025</span> →
-                их метрики в <span id="mig-year">2026</span></p>
+            <h2 class="card-title">🔄 Активність груп A1, A2, B1, B2</h2>
+            <p style="color:var(--muted);margin-bottom:16px;">Клієнти з групою в <span id="mig-year-prev">2025</span> →
+                їх метрики в <span id="mig-year">2026</span></p>
             <table>
                 <thead>
                     <tr>
-                        <th>Группа в <span id="mig-th-prev">2025</span></th>
-                        <th class="right">Компаний</th>
-                        <th class="right">Расходных</th>
-                        <th class="right">Сумма</th>
+                        <th>Група в <span id="mig-th-prev">2025</span></th>
+                        <th class="right">Компаній</th>
+                        <th class="right">Накладних</th>
+                        <th class="right">Сума</th>
                     </tr>
                 </thead>
                 <tbody id="table-migration"></tbody>
@@ -478,16 +478,16 @@
     <!-- ====== ВКЛАДКА 4: ЗАЛЁТНЫЕ ====== -->
     <div class="tab-content" id="tab-zalet">
         <div class="chart-card">
-            <h2 class="card-title">🆕 Залётные клиенты</h2>
-            <p style="color:var(--muted);margin-bottom:16px;">C1/C2 в <span id="zal-year-prev">2025</span> + новые →
+            <h2 class="card-title">🆕 Зальотні клієнти</h2>
+            <p style="color:var(--muted);margin-bottom:16px;">C1/C2 в <span id="zal-year-prev">2025</span> + нові →
                 метрики в <span id="zal-year">2026</span></p>
             <table>
                 <thead>
                     <tr>
-                        <th>Группа в <span id="zal-th-prev">2025</span></th>
-                        <th class="right">Компаний</th>
-                        <th class="right">Расходных</th>
-                        <th class="right">Сумма</th>
+                        <th>Група в <span id="zal-th-prev">2025</span></th>
+                        <th class="right">Компаній</th>
+                        <th class="right">Накладних</th>
+                        <th class="right">Сума</th>
                     </tr>
                 </thead>
                 <tbody id="table-zalet"></tbody>
@@ -498,30 +498,30 @@
     <!-- ====== ВКЛАДКА 5: ОТРАСЛИ И ТОВАРЫ ====== -->
     <div class="tab-content" id="tab-directions">
         <div class="chart-card">
-            <h2 class="card-title">🏗️ Отрасли и Товары</h2>
+            <h2 class="card-title">🏗️ Галузі та Товари</h2>
             <div class="grid-2">
                 <div>
-                    <h3 style="margin-bottom:12px;">🏗️ Топ отраслей</h3>
+                    <h3 style="margin-bottom:12px;">🏗️ Топ галузей</h3>
                     <table>
                         <thead>
                             <tr>
-                                <th>Отрасль</th>
-                                <th class="right">Компаний</th>
-                                <th class="right">Накладных</th>
-                                <th class="right">Выручка</th>
+                                <th>Галузь</th>
+                                <th class="right">Компаній</th>
+                                <th class="right">Накладних</th>
+                                <th class="right">Продажі</th>
                             </tr>
                         </thead>
                         <tbody id="table-directions"></tbody>
                     </table>
                 </div>
                 <div>
-                    <h3 style="margin-bottom:12px;">📦 Топ товаров</h3>
+                    <h3 style="margin-bottom:12px;">📦 Топ товарів</h3>
                     <table>
                         <thead>
                             <tr>
                                 <th>Товар</th>
-                                <th class="right">Накладных</th>
-                                <th class="right">Продажи</th>
+                                <th class="right">Накладних</th>
+                                <th class="right">Продажі</th>
                             </tr>
                         </thead>
                         <tbody id="table-products"></tbody>
@@ -534,15 +534,15 @@
     <!-- ====== ВКЛАДКА 6: ТОП-10 ====== -->
     <div class="tab-content" id="tab-top">
         <div class="chart-card">
-            <h2 class="card-title">👥 Топ-10 клиентов</h2>
+            <h2 class="card-title">👥 Топ-10 клієнтів</h2>
             <table>
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>Наименование</th>
-                        <th>Группа в <span id="top-th-prev">2025</span></th>
-                        <th class="right">Накладных</th>
-                        <th class="right">Сумма</th>
+                        <th>Найменування</th>
+                        <th>Група в <span id="top-th-prev">2025</span></th>
+                        <th class="right">Накладних</th>
+                        <th class="right">Сума</th>
                     </tr>
                 </thead>
                 <tbody id="table-top"></tbody>
@@ -553,12 +553,12 @@
     <!-- ====== JAVASCRIPT ====== -->
     <script>
         var TOKEN = new URLSearchParams(window.location.search).get('token') || 'utsk2026';
-        var MONTH_NAMES = ['', 'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+        var MONTH_NAMES = ['', 'Січень', 'Лютий', 'Березень', 'Квітень', 'Травень', 'Червень', 'Липень', 'Серпень', 'Вересень', 'Жовтень', 'Листопад', 'Грудень'];
 
         function fmtM(v) {
             if (!v || v === 0) return '0';
             if (Math.abs(v) >= 1e6) return (v / 1e6).toFixed(2) + ' млн ₴';
-            if (Math.abs(v) >= 1e3) return Math.round(v / 1000) + ' тыс ₴';
+            if (Math.abs(v) >= 1e3) return Math.round(v / 1000) + ' тис ₴';
             return Math.round(v).toLocaleString('ru-RU') + ' ₴';
         }
         function fmtS(v) { if (!v) return '0'; if (Math.abs(v) >= 1e6) return (v / 1e6).toFixed(1) + 'M'; if (Math.abs(v) >= 1e3) return Math.round(v / 1000) + 'K'; return Math.round(v).toString(); }
@@ -630,11 +630,11 @@
                 el.style.color = (g || 0) >= 0 ? '#10b981' : '#ef4444';
 
                 var rows = [
-                    ['Товарная выручка', fmtM(curr.goods_revenue), fmtM(prev.goods_revenue), growth.goods_revenue],
-                    ['Накладных', fmtN(curr.invoice_count), fmtN(prev.invoice_count), growth.invoice_count],
-                    ['Клиентов', fmtN(curr.active_clients), fmtN(prev.active_clients), growth.active_clients],
-                    ['Средний чек', fmtM(curr.avg_ticket), fmtM(prev.avg_ticket), growth.avg_ticket],
-                    ['Услуги', fmtM(curr.services_revenue), fmtM(prev.services_revenue), growth.services_revenue]
+                    ['Товарні продажі', fmtM(curr.goods_revenue), fmtM(prev.goods_revenue), growth.goods_revenue],
+                    ['Накладних', fmtN(curr.invoice_count), fmtN(prev.invoice_count), growth.invoice_count],
+                    ['Клієнтів', fmtN(curr.active_clients), fmtN(prev.active_clients), growth.active_clients],
+                    ['Середній чек', fmtM(curr.avg_ticket), fmtM(prev.avg_ticket), growth.avg_ticket],
+                    ['Послуги', fmtM(curr.services_revenue), fmtM(prev.services_revenue), growth.services_revenue]
                 ];
                 tbody.innerHTML = rows.map(function (r) {
                     var gClass = (r[3] || 0) >= 0 ? 'growth-up' : 'growth-down';
@@ -668,7 +668,7 @@
 
                 tbody.innerHTML = json.data.map(function (r) {
                     return '<tr><td><strong>' + r.group_prev + '</strong></td><td class="right">' + fmtN(r.companies_count) + '</td><td class="right">' + fmtN(r.invoice_count) + '</td><td class="right">' + fmtM(r.goods_revenue) + '</td></tr>';
-                }).join('') || '<tr><td colspan="4">📭 Нет данных</td></tr>';
+                }).join('') || '<tr><td colspan="4">📭 Немає даних</td></tr>';
             } catch (e) { console.error(e); }
         }
 
@@ -688,7 +688,7 @@
 
                 tbody.innerHTML = json.data.map(function (r) {
                     return '<tr><td><strong>' + r.group_prev + '</strong></td><td class="right">' + fmtN(r.companies_count) + '</td><td class="right">' + fmtN(r.invoice_count) + '</td><td class="right">' + fmtM(r.goods_revenue) + '</td></tr>';
-                }).join('') || '<tr><td colspan="4">📭 Нет данных</td></tr>';
+                }).join('') || '<tr><td colspan="4">📭 Немає даних</td></tr>';
             } catch (e) { console.error(e); }
         }
 
@@ -705,11 +705,11 @@
 
                 document.getElementById('table-directions').innerHTML = (dJson.data || []).map(function (r) {
                     return '<tr><td>' + r.direction_name + '</td><td class="right">' + fmtN(r.companies_count) + '</td><td class="right">' + fmtN(r.invoice_count) + '</td><td class="right">' + fmtM(r.goods_revenue) + '</td></tr>';
-                }).join('') || '<tr><td colspan="4">📭 Нет данных</td></tr>';
+                }).join('') || '<tr><td colspan="4">📭 Немає даних</td></tr>';
 
                 document.getElementById('table-products').innerHTML = (pJson.data || []).map(function (r) {
                     return '<tr><td>' + r.product_name + '</td><td class="right">' + fmtN(r.invoice_count) + '</td><td class="right">' + fmtM(r.total_sales) + '</td></tr>';
-                }).join('') || '<tr><td colspan="3">📭 Нет данных</td></tr>';
+                }).join('') || '<tr><td colspan="3">📭 Немає даних</td></tr>';
             } catch (e) { console.error(e); }
         }
 
@@ -727,7 +727,7 @@
 
                 tbody.innerHTML = json.data.map(function (r) {
                     return '<tr><td><strong>' + r.position + '</strong></td><td>' + r.client_name + '</td><td>' + r.group_prev + '</td><td class="right">' + fmtN(r.invoice_count) + '</td><td class="right">' + fmtM(r.goods_revenue) + '</td></tr>';
-                }).join('') || '<tr><td colspan="5">📭 Нет данных</td></tr>';
+                }).join('') || '<tr><td colspan="5">📭 Немає даних</td></tr>';
             } catch (e) { console.error(e); }
         }
 

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>📅 UTSK — Анализ месяца компании</title>
+    <title>📅 UTSK — Аналіз місяця клієнта</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -284,9 +284,9 @@
         <!-- Top Header -->
         <header class="top-header">
             <div class="header-left">
-                <a href="#" id="btn-back-rev" class="btn-back">← Назад к анализу выручки</a>
+                <a href="#" id="btn-back-rev" class="btn-back">← Назад до аналізу продажів</a>
                 <div class="client-title">
-                    <h1 id="month-title">📅 Анализ месяца: —</h1>
+                    <h1 id="month-title">📅 Аналіз місяця: —</h1>
                     <div class="client-meta">
                         <span id="client-name-meta">Компания: <strong>—</strong></span>
                         <span>•</span>
@@ -301,22 +301,22 @@
         <!-- KPI Cards Grid (4 штуки) -->
         <section class="kpi-grid">
             <div class="kpi-card" style="border-top-color: #4f46e5;">
-                <span class="kpi-title">💰 Выручка за месяц</span>
+                <span class="kpi-title">💰 Продажі за місяць</span>
                 <span class="kpi-value" id="kpi-rev-month" style="color:#4f46e5;">—</span>
-                <span class="kpi-subtext">Без сервисных услуг</span>
+                <span class="kpi-subtext">Без сервісних послуг</span>
             </div>
             <div class="kpi-card" style="border-top-color: #06b6d4;">
-                <span class="kpi-title">📄 Накладных за месяц</span>
+                <span class="kpi-title">📄 Накладних за місяць</span>
                 <span class="kpi-value" id="kpi-inv-month">—</span>
-                <span class="kpi-subtext">Количество отгрузок</span>
+                <span class="kpi-subtext">Кількість відвантажень</span>
             </div>
             <div class="kpi-card" style="border-top-color: #a855f7;">
-                <span class="kpi-title">🛒 Средний чек</span>
+                <span class="kpi-title">🛒 Середній чек</span>
                 <span class="kpi-value" id="kpi-avg-check">—</span>
-                <span class="kpi-subtext">Выручка / накладные</span>
+                <span class="kpi-subtext">Продажі / накладні</span>
             </div>
             <div class="kpi-card" style="border-top-color: #10b981;">
-                <span class="kpi-title">📈 Рост к прошлому месяцу</span>
+                <span class="kpi-title">📈 Зростання до минулого місяця</span>
                 <span class="kpi-value" id="kpi-growth-prev">—</span>
                 <span class="kpi-subtext">Динамика MoM</span>
             </div>
@@ -326,8 +326,8 @@
         <div class="grid-2">
             <div class="panel-card">
                 <div class="panel-title">
-                    <span>📊 Выручка по дням месяца</span>
-                    <span style="font-size:12px;color:var(--text-muted);">Дни 1 - 31</span>
+                    <span>📊 Продажі по днях місяця</span>
+                    <span style="font-size:12px;color:var(--text-muted);">Дні 1 - 31</span>
                 </div>
                 <div class="chart-container">
                     <canvas id="chart-daily-bar"></canvas>
@@ -336,8 +336,8 @@
 
             <div class="panel-card">
                 <div class="panel-title">
-                    <span id="chart-compare-title">📊 Сравнение по дням: 2026 vs 2025</span>
-                    <span style="font-size:12px;color:var(--text-muted);">Текущий год vs Прошлый год</span>
+                    <span id="chart-compare-title">📊 Порівняння по днях: 2026 vs 2025</span>
+                    <span style="font-size:12px;color:var(--text-muted);">Поточний рік vs Минулий рік</span>
                 </div>
                 <div class="chart-container">
                     <canvas id="chart-daily-grouped"></canvas>
@@ -349,15 +349,15 @@
         
         <!-- Table 3: Сравнение с прошлым месяцем -->
         <div class="panel-card" style="margin-bottom:24px;">
-            <div class="panel-title">📊 Сравнение с прошлым месяцем</div>
+            <div class="panel-title">📊 Порівняння з минулим місяцем</div>
             <div class="table-responsive">
                 <table class="custom-table">
                     <thead>
                         <tr>
-                            <th>Показатель</th>
-                            <th style="text-align:right;">Текущий месяц</th>
-                            <th style="text-align:right;">Прошлый месяц</th>
-                            <th style="text-align:center;">Изменение %</th>
+                            <th>Показник</th>
+                            <th style="text-align:right;">Поточний місяць</th>
+                            <th style="text-align:right;">Минулий місяць</th>
+                            <th style="text-align:center;">Зміна %</th>
                         </tr>
                     </thead>
                     <tbody id="table-comparison-body">
@@ -370,20 +370,20 @@
         <div class="grid-2">
             <!-- Table 1: Накладные месяца -->
             <div class="panel-card">
-                <div class="panel-title">📄 Накладные месяца</div>
+                <div class="panel-title">📄 Накладні місяця</div>
                 <div class="table-responsive" style="max-height:420px;overflow-y:auto;">
                     <table class="custom-table">
                         <thead>
                             <tr>
                                 <th>Дата</th>
-                                <th>№ Накладной</th>
+                                <th>№ Накладної</th>
                                 <th style="text-align:right;">Сумма (₴)</th>
-                                <th style="text-align:center;">Позиций</th>
-                                <th style="text-align:right;">Детали</th>
+                                <th style="text-align:center;">Позицій</th>
+                                <th style="text-align:right;">Деталі</th>
                             </tr>
                         </thead>
                         <tbody id="table-invoices-body">
-                            <tr><td colspan="5" style="text-align:center;">⏳ Загрузка...</td></tr>
+                            <tr><td colspan="5" style="text-align:center;">⏳ Завантаження...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -391,20 +391,20 @@
 
             <!-- Table 2: ТОП-10 товаров месяца -->
             <div class="panel-card">
-                <div class="panel-title">🛍️ ТОП-10 товаров месяца</div>
+                <div class="panel-title">🛍️ ТОП-10 товарів місяця</div>
                 <div class="table-responsive" style="max-height:420px;overflow-y:auto;">
                     <table class="custom-table">
                         <thead>
                             <tr>
                                 <th>#</th>
                                 <th>Товар</th>
-                                <th style="text-align:center;">Накладных</th>
+                                <th style="text-align:center;">Накладних</th>
                                 <th style="text-align:right;">Сумма (₴)</th>
-                                <th style="text-align:right;">Доля %</th>
+                                <th style="text-align:right;">Частка %</th>
                             </tr>
                         </thead>
                         <tbody id="table-products-body">
-                            <tr><td colspan="5" style="text-align:center;">⏳ Загрузка...</td></tr>
+                            <tr><td colspan="5" style="text-align:center;">⏳ Завантаження...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -417,7 +417,7 @@
         <div class="modal-card">
             <div class="modal-header">
                 <div>
-                    <h3 style="font-size:16px;font-weight:800;" id="modal-inv-title">Содержимое накладной № —</h3>
+                    <h3 style="font-size:16px;font-weight:800;" id="modal-inv-title">Вміст накладної № —</h3>
                     <div style="font-size:12px;color:var(--text-muted);" id="modal-inv-date">Дата: —</div>
                 </div>
                 <button onclick="closeModal()" style="border:none;background:none;font-size:20px;cursor:pointer;color:var(--text-muted);">✕</button>
@@ -428,14 +428,14 @@
                         <thead>
                             <tr>
                                 <th>Код</th>
-                                <th>Наименование</th>
-                                <th style="text-align:right;">Кол-во</th>
-                                <th style="text-align:right;">Цена (₴)</th>
+                                <th>Найменування</th>
+                                <th style="text-align:right;">Кількість</th>
+                                <th style="text-align:right;">Ціна (₴)</th>
                                 <th style="text-align:right;">Сумма (₴)</th>
                             </tr>
                         </thead>
                         <tbody id="modal-items-body">
-                            <tr><td colspan="5" style="text-align:center;">⏳ Загрузка...</td></tr>
+                            <tr><td colspan="5" style="text-align:center;">⏳ Завантаження...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -482,9 +482,9 @@
                 const kpi = data.kpi;
                 const prevM = data.prev_month_comparison;
 
-                document.getElementById('month-title').textContent = `📅 Анализ месяца: ${mInfo.month_name} ${mInfo.year} г.`;
-                document.getElementById('chart-compare-title').textContent = `📊 Сравнение по дням: ${mInfo.month_name} ${mInfo.year} vs ${mInfo.year - 1}`;
-                document.getElementById('client-name-meta').innerHTML = `Компания: <strong>${info.name}</strong>`;
+                document.getElementById('month-title').textContent = `📅 Аналіз місяця: ${mInfo.month_name} ${mInfo.year} р.`;
+                document.getElementById('chart-compare-title').textContent = `📊 Порівняння по днях: ${mInfo.month_name} ${mInfo.year} vs ${mInfo.year - 1}`;
+                document.getElementById('client-name-meta').innerHTML = `Компанія: <strong>${info.name}</strong>`;
                 document.getElementById('client-code').textContent = info.code;
                 document.getElementById('client-status').textContent = info.status_name;
 
@@ -507,9 +507,9 @@
                 compBody.innerHTML = '';
 
                 const metrics = [
-                    { name: 'Выручка', curr: fmtCur(prevM.rev_curr), prev: fmtCur(prevM.rev_prev_month), pct: prevM.rev_change_pct },
-                    { name: 'Количество накладных', curr: `${prevM.inv_curr} шт.`, prev: `${prevM.inv_prev_month} шт.`, pct: prevM.inv_change_pct },
-                    { name: 'Средний чек', curr: fmtCur(prevM.avg_curr), prev: fmtCur(prevM.avg_prev_month), pct: prevM.avg_change_pct }
+                    { name: 'Продажі', curr: fmtCur(prevM.rev_curr), prev: fmtCur(prevM.rev_prev_month), pct: prevM.rev_change_pct },
+                    { name: 'Кількість накладних', curr: `${prevM.inv_curr} шт.`, prev: `${prevM.inv_prev_month} шт.`, pct: prevM.inv_change_pct },
+                    { name: 'Середній чек', curr: fmtCur(prevM.avg_curr), prev: fmtCur(prevM.avg_prev_month), pct: prevM.avg_change_pct }
                 ];
 
                 metrics.forEach(m => {
@@ -546,7 +546,7 @@
                 renderChart('chart-daily-bar', 'bar', {
                     labels: daysLabels,
                     datasets: [
-                        { label: `Выручка ${YEAR} (₴)`, data: revCurrs, backgroundColor: '#4f46e5', borderRadius: 4 }
+                        { label: `Продажі ${YEAR} (₴)`, data: revCurrs, backgroundColor: '#4f46e5', borderRadius: 4 }
                     ]
                 });
 
@@ -575,7 +575,7 @@
                 const invoices = data.invoices || [];
 
                 if (!invoices.length) {
-                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Нет накладных за этот месяц</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Немає накладних за цей місяць</td></tr>';
                     return;
                 }
 
@@ -587,7 +587,7 @@
                         <td style="text-align:right;font-weight:700;color:#4f46e5;">₴ ${fmtNum(inv.amount)}</td>
                         <td style="text-align:center;font-weight:700;">${inv.items_count}</td>
                         <td style="text-align:right;">
-                            <button class="btn-view" onclick="openInvoiceDetails(${inv.doc_id}, '${inv.doc_number}', '${inv.doc_date}')">🔍 Позиции (${inv.items_count})</button>
+                            <button class="btn-view" onclick="openInvoiceDetails(${inv.doc_id}, '${inv.doc_number}', '${inv.doc_date}')">🔍 Позиції (${inv.items_count})</button>
                         </td>
                     `;
                     tbody.appendChild(tr);
@@ -608,7 +608,7 @@
                 const products = data.products || [];
 
                 if (!products.length) {
-                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Нет отгруженных товаров в этом месяце</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Немає відвантажених товарів у цьому місяці</td></tr>';
                     return;
                 }
 
@@ -629,10 +629,10 @@
         }
 
         async function openInvoiceDetails(docId, docNumber, docDate) {
-            document.getElementById('modal-inv-title').textContent = `Содержимое накладной № ${docNumber}`;
-            document.getElementById('modal-inv-date').textContent = `Дата выписки: ${docDate}`;
+            document.getElementById('modal-inv-title').textContent = `Вміст накладної № ${docNumber}`;
+            document.getElementById('modal-inv-date').textContent = `Дата виписки: ${docDate}`;
             const tbody = document.getElementById('modal-items-body');
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">⏳ Загрузка позиций...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">⏳ Завантаження позицій...</td></tr>';
             document.getElementById('invoice-modal').style.display = 'flex';
 
             try {
@@ -642,7 +642,7 @@
 
                 const items = data.items || [];
                 if (!items.length) {
-                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Нет данных по позициям</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Немає даних щодо позицій</td></tr>';
                     return;
                 }
 

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UTSK Intelligent Sales — Аналитика Среднего Чека</title>
+    <title>UTSK Intelligent Sales — Аналітика Середнього Чеку</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
@@ -210,23 +210,23 @@
     <div class="app-window">
         <!-- Header -->
         <div class="header">
-            <span class="header-logo">🛒 UTSK Аналитика Чека</span>
-            <span class="header-badge">Средний чек 2026</span>
+            <span class="header-logo">🛒 UTSK Аналітика Чеку</span>
+            <span class="header-badge">Середній чек 2026</span>
             <span class="header-trend" id="headerTrend">
-                📈 Рост чека +8.4%
+                📈 Зростання чеку +8.4%
             </span>
             <div class="header-actions">
                 <a href="/?token=utsk2026" style="text-decoration:none;color:var(--text-main, #0f172a);font-weight:700;font-size:13px;display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:10px;background:#fff;border:1px solid var(--border, #e2e8f0);transition:all .15s;white-space:nowrap;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='#fff'">← На дашборд</a>
-                <a href="/advanced?token=utsk2026" class="btn">📊 Аналитика</a>
-                <button class="btn btn-accent" onclick="refreshData()">🔄 Обновить</button>
+                <a href="/advanced?token=utsk2026" class="btn">📊 Аналітика</a>
+                <button class="btn btn-accent" onclick="refreshData()">🔄 Оновити</button>
             </div>
         </div>
 
         <!-- Tabs -->
         <div class="tabs-nav" id="tabsNav">
-            <button class="tab-btn active" data-tab="overview">💰 Общий срез</button>
-            <button class="tab-btn" data-tab="ml">🤖 Влияние ML и Услуг</button>
-            <button class="tab-btn" data-tab="segments">👥 Сегментация по ABC</button>
+            <button class="tab-btn active" data-tab="overview">💰 Загальний зріз</button>
+            <button class="tab-btn" data-tab="ml">🤖 Вплив ML та Послуг</button>
+            <button class="tab-btn" data-tab="segments">👥 Сегментація за ABC</button>
         </div>
 
         <!-- Content -->
@@ -235,39 +235,39 @@
             <div class="tab-content active" id="tab-overview">
                 <div class="kpi-grid">
                     <div class="kpi-card">
-                        <span class="kpi-badge info">2026 Цель</span>
-                        <span class="kpi-label">💰 Средний Чек (Общий)</span>
+                        <span class="kpi-badge info">2026 Ціль</span>
+                        <span class="kpi-label">💰 Середній Чек (Загальний)</span>
                         <span class="kpi-value" id="kpi-avg-total">—</span>
-                        <span class="kpi-sub" id="kpi-avg-total-sub">Загрузка...</span>
+                        <span class="kpi-sub" id="kpi-avg-total-sub">Завантаження...</span>
                     </div>
                     <div class="kpi-card">
-                        <span class="kpi-label">📦 Чек без услуг (База)</span>
+                        <span class="kpi-label">📦 Чек без послуг (База)</span>
                         <span class="kpi-value" id="kpi-avg-goods">—</span>
-                        <span class="kpi-sub">Только металлопрокат</span>
+                        <span class="kpi-sub">Тільки металопрокат</span>
                     </div>
                     <div class="kpi-card accent">
-                        <span class="kpi-label">⭐ Чек Ядра (ABC-клиенты)</span>
+                        <span class="kpi-label">⭐ Чек Ядра (ABC-клієнти)</span>
                         <span class="kpi-value" id="kpi-avg-core">—</span>
-                        <span class="kpi-sub" id="kpi-avg-core-sub">Системные закупки</span>
+                        <span class="kpi-sub" id="kpi-avg-core-sub">Системні закупівлі</span>
                     </div>
                     <div class="kpi-card">
-                        <span class="kpi-label">📉 Чек Случайных (C)</span>
+                        <span class="kpi-label">📉 Чек Випадкових (C)</span>
                         <span class="kpi-value" id="kpi-avg-random">—</span>
-                        <span class="kpi-sub" id="kpi-avg-random-sub">Тянут общий чек вниз</span>
+                        <span class="kpi-sub" id="kpi-avg-random-sub">Тягнуть загальний чек вниз</span>
                     </div>
                 </div>
 
                 <div class="grid-2">
                     <div class="panel">
                         <div class="panel-head">
-                            <h2 class="panel-title">📈 Динамика Среднего Чека (YoY)</h2>
-                            <span class="badge info">тыс ₴</span>
+                            <h2 class="panel-title">📈 Динаміка Середнього Чеку (YoY)</h2>
+                            <span class="badge info">тис ₴</span>
                         </div>
                         <div class="panel-body"><div style="height:300px"><canvas id="chartTrend"></canvas></div></div>
                     </div>
                     <div class="panel">
                         <div class="panel-head">
-                            <h2 class="panel-title">📊 Распределение накладных по суммам</h2>
+                            <h2 class="panel-title">📊 Розподіл накладних за сумами</h2>
                         </div>
                         <div class="panel-body"><div style="height:300px"><canvas id="chartDistribution"></canvas></div></div>
                     </div>
@@ -279,7 +279,7 @@
                 <div class="grid-3-2">
                     <div class="panel">
                         <div class="panel-head">
-                            <h2 class="panel-title">📦 Структура увеличения чека</h2>
+                            <h2 class="panel-title">📦 Структура збільшення чеку</h2>
                             <span class="badge info">Алгоритм ML</span>
                         </div>
                         <div class="panel-body">
@@ -291,19 +291,19 @@
                     </div>
                     <div class="insight-card">
                         <h3 style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px">
-                            💡 Инсайты Системы
+                            💡 Інсайти Системи
                         </h3>
                         <div class="insight-item">
-                            <h4 style="color:#10b981;">Резка = +12% к чеку</h4>
-                            <p>Каждая вторая накладная с круглой трубой, в которую добавляется услуга резки, закрывается с маржинальностью выше на 12%.</p>
+                            <h4 style="color:#10b981;">Різка = +12% до чеку</h4>
+                            <p>Кожна друга накладна з круглою трубою, до якої додається послуга різки, закривається з маржинальністю вище на 12%.</p>
                         </div>
                         <div class="insight-item">
-                            <h4 style="color:#0ea5e9;">Заглушки = +4% к чеку</h4>
-                            <p>Жёсткие кросс-ссылки (профильная труба + пластиковая заглушка) сработали в 28% счетов этого месяца.</p>
+                            <h4 style="color:#0ea5e9;">Заглушки = +4% до чеку</h4>
+                            <p>Жорсткі крос-посилання (профільна труба + пластикова заглушка) спрацювали у 28% рахунків цього місяця.</p>
                         </div>
                         <div class="insight-item">
-                            <h4 style="color:#f59e0b;">Риск: Пустые чеки</h4>
-                            <p>14% накладных сегмента «Случайные» состоят только из 1 позиции (арматура). Потенциал для авто-предложений.</p>
+                            <h4 style="color:#f59e0b;">Ризик: Порожні чеки</h4>
+                            <p>14% накладних сегмента «Випадкові» складаються лише з 1 позиції (арматура). Потенціал для авто-пропозицій.</p>
                         </div>
                     </div>
                 </div>
@@ -313,8 +313,8 @@
             <div class="tab-content" id="tab-segments">
                 <div class="panel">
                     <div class="panel-head">
-                        <h2 class="panel-title">👥 Сегментация по среднему чеку</h2>
-                        <span class="badge info">Активные 2026</span>
+                        <h2 class="panel-title">👥 Сегментація за середнім чеком</h2>
+                        <span class="badge info">Активні 2026</span>
                     </div>
                     <div class="table-wrap" id="segTableContainer">
                         <div class="loading">⏳ Загрузка...</div>
@@ -388,8 +388,8 @@
             const delta = t25.avg > 0 ? ((t26.avg - t25.avg) / t25.avg * 100) : 0;
 
             $('kpi-avg-total').textContent = moneyK(t26.avg);
-            $('kpi-avg-total-sub').innerHTML = `<span class="badge ${delta >= 0 ? 'good' : 'bad'}">${delta >= 0 ? '+' : ''}${pf.format(delta)}%</span> к 2025`;
-            $('headerTrend').innerHTML = `📈 Рост чека ${delta >= 0 ? '+' : ''}${pf.format(delta)}%`;
+            $('kpi-avg-total-sub').innerHTML = `<span class="badge ${delta >= 0 ? 'good' : 'bad'}">${delta >= 0 ? '+' : ''}${pf.format(delta)}%</span> до 2025`;
+            $('headerTrend').innerHTML = `📈 Зростання чеку ${delta >= 0 ? '+' : ''}${pf.format(delta)}%`;
             $('kpi-avg-goods').textContent = moneyK(Math.round(t26.avg * 0.91));
 
             // Ядро vs Случайные из сегментации
@@ -400,9 +400,9 @@
                     const random = alt.groups?.['random'] || { companies: 0, sales: 0, avg_check: 0 };
 
                     $('kpi-avg-core').textContent = moneyK(regular.avg_check * 1000 || (regular.companies > 0 ? Math.round(regular.sales / regular.companies) : 0));
-                    $('kpi-avg-core-sub').textContent = num(regular.companies) + ' постоянных';
+                    $('kpi-avg-core-sub').textContent = num(regular.companies) + ' постійних';
                     $('kpi-avg-random').textContent = moneyK(random.avg_check * 1000 || (random.companies > 0 ? Math.round(random.sales / random.companies) : 0));
-                    $('kpi-avg-random-sub').textContent = num(random.companies) + ' залётных';
+                    $('kpi-avg-random-sub').textContent = num(random.companies) + ' зальотних';
                 }
             }
         }
@@ -431,7 +431,7 @@
                     labels: months,
                     datasets: [
                         {
-                            label: 'Средний чек 2026 (тыс ₴)',
+                            label: 'Середній чек 2026 (тис ₴)',
                             data: vals26,
                             borderColor: '#0ea5e9',
                             backgroundColor: 'rgba(14,165,233,0.08)',
@@ -439,7 +439,7 @@
                             pointBackgroundColor: '#fff', pointBorderColor: '#0ea5e9', pointRadius: 5
                         },
                         {
-                            label: 'Средний чек 2025 (тыс ₴)',
+                            label: 'Середній чек 2025 (тис ₴)',
                             data: vals25,
                             borderColor: '#cbd5e1',
                             borderWidth: 2, borderDash: [5, 5], fill: false, tension: 0.4, pointRadius: 0
@@ -464,7 +464,7 @@
                 { label: 'До 50K', count: Math.round(t26.invoices * 0.45) },
                 { label: '50K - 150K', count: Math.round(t26.invoices * 0.25) },
                 { label: '150K - 300K', count: Math.round(t26.invoices * 0.18) },
-                { label: 'От 300K (Ядро)', count: Math.round(t26.invoices * 0.12) }
+                { label: 'Від 300K (Ядро)', count: Math.round(t26.invoices * 0.12) }
             ];
 
             if (charts.dist) charts.dist.destroy();
@@ -523,7 +523,7 @@
                     plugins: { legend: { position: 'bottom' } },
                     scales: {
                         x: { stacked: true, grid: { display: false } },
-                        y: { stacked: true, beginAtZero: true, title: { display: true, text: 'Средний чек (тыс ₴)' }, grid: { color: '#f1f5f9' } }
+                        y: { stacked: true, beginAtZero: true, title: { display: true, text: 'Средний чек (тис ₴)' }, grid: { color: '#f1f5f9' } }
                     }
                 }
             });
@@ -531,7 +531,7 @@
 
         function renderSegTable() {
             if (!apiData || !apiData.seg?.status === 'ok') {
-                $('segTableContainer').innerHTML = '<div class="loading">📭 Нет данных</div>';
+                $('segTableContainer').innerHTML = '<div class="loading">📭 Немає даних</div>';
                 return;
             }
 
@@ -554,7 +554,7 @@
             </tr>`).join('');
 
             $('segTableContainer').innerHTML = `<table>
-                <thead><tr><th>Группа клиентов</th><th style="text-align:center">Клас</th><th style="text-align:right">Компаний</th><th style="text-align:right">Выручка</th><th style="text-align:right">Средний чек</th></tr></thead>
+                <thead><tr><th>Група клієнтів</th><th style="text-align:center">Клас</th><th style="text-align:right">Компаній</th><th style="text-align:right">Продажі</th><th style="text-align:right">Середній чек</th></tr></thead>
                 <tbody>${tableRows}</tbody></table>`;
         }
 

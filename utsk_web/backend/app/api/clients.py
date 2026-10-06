@@ -128,7 +128,14 @@ def get_client_detail(code: str, token: str = Query(None), year: int = 2026, db:
 
         meta_row = db.execute(
             text("""
-                SELECT c.edrpou, c.ipn, ad.name AS direction_name
+                SELECT
+                    c.edrpou,
+                    c.ipn,
+                    ad.name AS direction_name,
+                    c.activity_direction_id AS direction_id,
+                    c.direction_source,
+                    c.direction_confidence,
+                    c.is_direction_manual
                 FROM clients c
                 LEFT JOIN activity_directions ad ON c.activity_direction_id = ad.id
                 WHERE c.code = :code
@@ -138,6 +145,10 @@ def get_client_detail(code: str, token: str = Query(None), year: int = 2026, db:
         edrpou_val = meta_row.edrpou if meta_row and meta_row.edrpou else "—"
         ipn_val = meta_row.ipn if meta_row and meta_row.ipn else "—"
         direction_val = meta_row.direction_name if meta_row and meta_row.direction_name else "—"
+        direction_id_val = meta_row.direction_id if meta_row else None
+        direction_source_val = meta_row.direction_source if meta_row else None
+        direction_confidence_val = float(meta_row.direction_confidence) if meta_row and meta_row.direction_confidence is not None else None
+        is_direction_manual_val = bool(meta_row.is_direction_manual) if meta_row and meta_row.is_direction_manual is not None else False
 
         return {
             "status": "ok",
@@ -154,6 +165,10 @@ def get_client_detail(code: str, token: str = Query(None), year: int = 2026, db:
                 "edrpou": edrpou_val,
                 "ipn": ipn_val,
                 "direction": direction_val,
+                "direction_id": direction_id_val,
+                "direction_source": direction_source_val,
+                "direction_confidence": direction_confidence_val,
+                "is_direction_manual": is_direction_manual_val,
                 "monthly_data": monthly_data,
                 "last_invoices": last_invoices
             }
@@ -325,9 +340,9 @@ def funnel(token: str = Query(None), year: int = 2026, db: Session = Depends(get
                 r["revenue"] = round(float(r["revenue"]), 2)
             active_funnel.append(r)
 
-        desc_sleeping = f"Нет покупок в {year}, были в {year-1}"
-        desc_left = f"Нет покупок в {year} и {year-1}"
-        desc_returned = f"Покупали в {year} и {year-2}, пропустили {year-1}"
+        desc_sleeping = f"Немає покупок у {year}, були у {year-1}"
+        desc_left = f"Немає покупок у {year} та {year-1}"
+        desc_returned = f"Купували у {year} та {year-2}, пропустили {year-1}"
         result_lifecycle = db.execute(text("""
             SELECT 
                 sr.id AS status_id,
@@ -337,7 +352,7 @@ def funnel(token: str = Query(None), year: int = 2026, db: Session = Depends(get
                     WHEN 8 THEN :desc_sleeping
                     WHEN 9 THEN :desc_left
                     WHEN 10 THEN :desc_returned
-                    ELSE 'Неактивные клиенты'
+                    ELSE 'Неактивні клієнти'
                 END AS description
             FROM clients c
             JOIN status_rules sr ON c.current_status_id = sr.id

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🏆 UTSK — Аналитика отрасли-лидера и концентрации</title>
+    <title>🏆 UTSK — Аналітика галузі-лідера та концентрації</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
@@ -189,17 +189,17 @@
             <div class="header-title-area">
                 <div class="header-icon">🏆</div>
                 <div class="header-title">
-                    <h1>Аналитика отрасли-лидера и концентрации</h1>
-                    <p>Рейтинги лидерства, концентрация объёмов ТОП-3 / ТОП-5 и рыночный индекс HHI</p>
+                    <h1>Аналітика галузі-лідера та концентрації</h1>
+                    <p>Рейтинги лідерства, концентрація обсягів ТОП-3 / ТОП-5 та ринковий індекс HHI</p>
                 </div>
             </div>
             <div class="header-controls">
                 <select id="yearSelect" class="select-year" onchange="onYearChange()">
-                    <option value="2026">2026 год</option>
-                    <option value="2025">2025 год</option>
-                    <option value="2024">2024 год</option>
+                    <option value="2026">2026 рік</option>
+                    <option value="2025">2025 рік</option>
+                    <option value="2024">2024 рік</option>
                 </select>
-                <a href="#" id="backToDirectionsBtn" class="btn-nav primary">← К направлениям</a>
+                <a href="#" id="backToDirectionsBtn" class="btn-nav primary">← До напрямків</a>
                 <a href="/?token=utsk2026" class="btn-nav">🏠 Дашборд</a>
             </div>
         </header>
@@ -207,53 +207,53 @@
         <!-- KPI Cards -->
         <section class="kpi-grid">
             <div class="kpi-card gold">
-                <div class="kpi-label"><i class="fa-solid fa-sack-dollar"></i> Лидер по выручке</div>
+                <div class="kpi-label"><i class="fa-solid fa-sack-dollar"></i> Лідер за продажами</div>
                 <div class="kpi-value" id="kpi-rev-leader">—</div>
-                <div class="kpi-sub" id="kpi-rev-leader-sub">Доля в продажах</div>
+                <div class="kpi-sub" id="kpi-rev-leader-sub">Частка в продажах</div>
             </div>
             <div class="kpi-card purple">
-                <div class="kpi-label"><i class="fa-solid fa-users"></i> Лидер по клиентам</div>
+                <div class="kpi-label"><i class="fa-solid fa-users"></i> Лідер за клієнтами</div>
                 <div class="kpi-value" id="kpi-cli-leader">—</div>
-                <div class="kpi-sub" id="kpi-cli-leader-sub">Доля покупателей</div>
+                <div class="kpi-sub" id="kpi-cli-leader-sub">Частка покупців</div>
             </div>
             <div class="kpi-card blue">
-                <div class="kpi-label"><i class="fa-solid fa-truck-ramp-box"></i> Лидер по накладным</div>
+                <div class="kpi-label"><i class="fa-solid fa-truck-ramp-box"></i> Лідер за накладними</div>
                 <div class="kpi-value" id="kpi-inv-leader">—</div>
-                <div class="kpi-sub" id="kpi-inv-leader-sub">Доля документов</div>
+                <div class="kpi-sub" id="kpi-inv-leader-sub">Частка документів</div>
             </div>
             <div class="kpi-card green">
-                <div class="kpi-label"><i class="fa-solid fa-hand-holding-dollar"></i> Лидер по ср. чеку</div>
+                <div class="kpi-label"><i class="fa-solid fa-hand-holding-dollar"></i> Лідер за сер. чеком</div>
                 <div class="kpi-value" id="kpi-avg-leader">—</div>
-                <div class="kpi-sub" id="kpi-avg-leader-sub">Крупнейший размер сделки</div>
+                <div class="kpi-sub" id="kpi-avg-leader-sub">Найбільший розмір угоди</div>
             </div>
             <div class="kpi-card amber">
-                <div class="kpi-label"><i class="fa-solid fa-scale-balanced"></i> Индекс Херфиндаля (HHI)</div>
+                <div class="kpi-label"><i class="fa-solid fa-scale-balanced"></i> Індекс Герфіндаля (HHI)</div>
                 <div class="kpi-value" id="kpi-hhi">—</div>
-                <div class="kpi-sub" id="kpi-hhi-sub">Уровень рыночной концентрации</div>
+                <div class="kpi-sub" id="kpi-hhi-sub">Рівень ринкової концентрації</div>
             </div>
         </section>
 
         <!-- Executive Concentration Banner -->
         <div class="concentration-banner">
             <div class="concentration-item">
-                <div class="title">Выручка ТОП-3 отраслей</div>
+                <div class="title">Продажі ТОП-3 галузей</div>
                 <div class="val" id="banner-rev-top3">—</div>
-                <div class="note">Крупнейшие 3 отрасли</div>
+                <div class="note">Найбільші 3 галузі</div>
             </div>
             <div class="concentration-item">
-                <div class="title">Выручка ТОП-5 отраслей</div>
+                <div class="title">Продажі ТОП-5 галузей</div>
                 <div class="val" id="banner-rev-top5">—</div>
-                <div class="note">92% товарного оборота</div>
+                <div class="note">92% товарного обороту</div>
             </div>
             <div class="concentration-item">
-                <div class="title">Клиентов в ТОП-3</div>
+                <div class="title">Клієнтів у ТОП-3</div>
                 <div class="val" id="banner-cli-top3">—</div>
-                <div class="note">Концентрация клиентской базы</div>
+                <div class="note">Концентрація клієнтської бази</div>
             </div>
             <div class="concentration-item">
-                <div class="title">Накладных в ТОП-3</div>
+                <div class="title">Накладних у ТОП-3</div>
                 <div class="val" id="banner-inv-top3">—</div>
-                <div class="note">Концентрация документооборота</div>
+                <div class="note">Концентрація документообігу</div>
             </div>
         </div>
 
@@ -261,8 +261,8 @@
         <section class="grid-2">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fa-solid fa-chart-pie" style="color:var(--gold)"></i> Концентрация выручки TOP-5</h3>
-                    <span id="chartYearTag" style="font-size:12px;color:var(--text-muted);">2026 год</span>
+                    <h3 class="card-title"><i class="fa-solid fa-chart-pie" style="color:var(--gold)"></i> Концентрація продажів TOP-5</h3>
+                    <span id="chartYearTag" style="font-size:12px;color:var(--text-muted);">2026 рік</span>
                 </div>
                 <div class="chart-box">
                     <canvas id="chartTop5Pie"></canvas>
@@ -271,8 +271,8 @@
 
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fa-solid fa-chart-bar" style="color:var(--brand)"></i> Сравнение долей: Выручка vs Клиенты vs Накладные</h3>
-                    <span style="font-size:12px;color:var(--text-muted);">ТОП-6 отраслей (%)</span>
+                    <h3 class="card-title"><i class="fa-solid fa-chart-bar" style="color:var(--brand)"></i> Порівняння часток: Продажі vs Клієнти vs Накладні</h3>
+                    <span style="font-size:12px;color:var(--text-muted);">ТОП-6 галузей (%)</span>
                 </div>
                 <div class="chart-box">
                     <canvas id="chartComparisonBar"></canvas>
@@ -283,29 +283,29 @@
         <!-- Table: Comprehensive Direction Ranking -->
         <section class="card">
             <div class="card-header">
-                <h3 class="card-title"><i class="fa-solid fa-ranking-star" style="color:var(--gold)"></i> Полная матрица показателей отраслей и ранжирование</h3>
-                <span id="tableDirsSub" style="font-size:13px;color:var(--text-muted);">14 отраслей</span>
+                <h3 class="card-title"><i class="fa-solid fa-ranking-star" style="color:var(--gold)"></i> Повна матриця показників галузей та ранжування</h3>
+                <span id="tableDirsSub" style="font-size:13px;color:var(--text-muted);">14 галузей</span>
             </div>
             <div class="table-responsive">
                 <table class="data-table">
                     <thead>
                         <tr>
                             <th style="width: 30px;">Ранг</th>
-                            <th>Отрасль</th>
-                            <th class="num">Выручка</th>
-                            <th class="num">Доля выр.</th>
-                            <th class="num">Клиентов</th>
-                            <th class="num">Доля кл.</th>
+                            <th>Галузь</th>
+                            <th class="num">Продажі</th>
+                            <th class="num">Частка прод.</th>
+                            <th class="num">Клієнтів</th>
+                            <th class="num">Частка кл.</th>
                             <th class="num">Ранг кл.</th>
-                            <th class="num">Накладных</th>
-                            <th class="num">Доля накл.</th>
+                            <th class="num">Накладних</th>
+                            <th class="num">Частка накл.</th>
                             <th class="num">Ранг накл.</th>
-                            <th class="num">Ср. чек</th>
-                            <th class="num">Выручка / кл.</th>
+                            <th class="num">Сер. чек</th>
+                            <th class="num">Продажі / кл.</th>
                         </tr>
                     </thead>
                     <tbody id="leadersTbody">
-                        <tr><td colspan="12" style="text-align:center;padding:24px;color:var(--text-muted);">Загрузка матрицы...</td></tr>
+                        <tr><td colspan="12" style="text-align:center;padding:24px;color:var(--text-muted);">Завантаження матриці...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -324,14 +324,14 @@
             if (!val || isNaN(val)) return '0 ₴';
             const v = parseFloat(val);
             if (Math.abs(v) >= 1000000) {
-                return (v / 1000000).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' млн ₴';
+                return (v / 1000000).toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' млн ₴';
             }
-            return Math.round(v).toLocaleString('ru-RU') + ' ₴';
+            return Math.round(v).toLocaleString('uk-UA') + ' ₴';
         }
 
         function fmtNum(val) {
             if (!val || isNaN(val)) return '0';
-            return parseInt(val).toLocaleString('ru-RU');
+            return parseInt(val).toLocaleString('uk-UA');
         }
 
         function fmtPct(val) {
@@ -348,17 +348,17 @@
             try {
                 document.getElementById('backToDirectionsBtn').href = `/directions-analytics?token=${TOKEN}&year=${currentYear}`;
                 document.getElementById('yearSelect').value = currentYear;
-                document.getElementById('chartYearTag').textContent = `${currentYear} год`;
+                document.getElementById('chartYearTag').textContent = `${currentYear} рік`;
 
                 const res = await fetch(`/api/analytics/directions/leader-analytics?token=${TOKEN}&year=${currentYear}`);
                 const json = await res.json();
                 if (json.status !== 'ok' || !json.data) {
-                    throw new Error('Не удалось загрузить данные');
+                    throw new Error('Не вдалося завантажити дані');
                 }
                 renderDashboard(json.data);
             } catch (err) {
                 console.error(err);
-                document.getElementById('leadersTbody').innerHTML = `<tr><td colspan="12" style="text-align:center;color:var(--danger);padding:20px;">⚠️ Ошибка: ${err.message}</td></tr>`;
+                document.getElementById('leadersTbody').innerHTML = `<tr><td colspan="12" style="text-align:center;color:var(--danger);padding:20px;">⚠️ Помилка: ${err.message}</td></tr>`;
             }
         }
 
@@ -383,18 +383,18 @@
             document.getElementById('kpi-inv-leader-sub').textContent = `${fmtPct(invLeader.pct)} (${fmtNum(invLeader.value)} накл.)`;
 
             document.getElementById('kpi-avg-leader').textContent = `${avgLeader.icon || '🌐'} ${(avgLeader.direction_name || '').split('/')[0]}`;
-            document.getElementById('kpi-avg-leader-sub').textContent = `${fmtM(avgLeader.value)} ср. чек`;
+            document.getElementById('kpi-avg-leader-sub').textContent = `${fmtM(avgLeader.value)} сер. чек`;
 
             const hhi = topConc.hhi_index || 0;
-            document.getElementById('kpi-hhi').textContent = hhi.toLocaleString('ru-RU');
-            document.getElementById('kpi-hhi-sub').textContent = hhi > 2500 ? 'Высокая концентрация' : (hhi > 1500 ? 'Умеренная концентрация' : 'Низкая концентрация');
+            document.getElementById('kpi-hhi').textContent = hhi.toLocaleString('uk-UA');
+            document.getElementById('kpi-hhi-sub').textContent = hhi > 2500 ? 'Висока концентрація' : (hhi > 1500 ? 'Помірна концентрація' : 'Низька концентрація');
 
             // Banner
             document.getElementById('banner-rev-top3').textContent = fmtPct(topConc.rev_top3_pct);
             document.getElementById('banner-rev-top5').textContent = fmtPct(topConc.rev_top5_pct);
             document.getElementById('banner-cli-top3').textContent = fmtPct(topConc.cli_top3_pct);
             document.getElementById('banner-inv-top3').textContent = fmtPct(topConc.inv_top3_pct);
-            document.getElementById('tableDirsSub').textContent = `${conc.length} активных отраслей`;
+            document.getElementById('tableDirsSub').textContent = `${conc.length} активних галузей`;
 
             // Charts
             renderTop5Pie(conc);
@@ -416,7 +416,7 @@
             const colors = top5.map(d => d.color);
 
             if (otherRev > 0) {
-                labels.push('🌐 Прочие отрасли');
+                labels.push('🌐 Інші галузі');
                 values.push(otherRev);
                 colors.push('#94a3b8');
             }
@@ -466,19 +466,19 @@
                     labels: labels,
                     datasets: [
                         {
-                            label: 'Выручка (%)',
+                            label: 'Продажі (%)',
                             data: top6.map(d => d.revenue_pct),
                             backgroundColor: '#eab308',
                             borderRadius: 4
                         },
                         {
-                            label: 'Клиенты (%)',
+                            label: 'Клієнти (%)',
                             data: top6.map(d => d.clients_pct),
                             backgroundColor: '#8b5cf6',
                             borderRadius: 4
                         },
                         {
-                            label: 'Накладные (%)',
+                            label: 'Накладні (%)',
                             data: top6.map(d => d.invoices_pct),
                             backgroundColor: '#0284c7',
                             borderRadius: 4
@@ -511,7 +511,7 @@
         function renderLeadersTable(conc) {
             const tbody = document.getElementById('leadersTbody');
             if (!conc || conc.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="12" style="text-align:center;padding:24px;">Нет данных</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="12" style="text-align:center;padding:24px;">Немає даних</td></tr>';
                 return;
             }
 

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🕒 UTSK — Анализ последней покупки клиента</title>
+    <title>🕒 UTSK — Аналіз останньої покупки клієнта</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -215,9 +215,9 @@
         <!-- Top Header -->
         <header class="top-header">
             <div class="header-left">
-                <a href="#" id="btn-client-detail" class="btn-back">← В карточку клиента</a>
+                <a href="#" id="btn-client-detail" class="btn-back">← До картки клієнта</a>
                 <div class="client-title">
-                    <h1 id="client-name">🕒 Анализ последней покупки клиента</h1>
+                    <h1 id="client-name">🕒 Аналіз останньої покупки клієнта</h1>
                     <div class="client-meta">
                         <span>Код: <strong id="client-code">—</strong></span>
                         <span>•</span>
@@ -230,20 +230,20 @@
         <!-- Main Banner Card -->
         <div class="last-purchase-banner">
             <div>
-                <div style="font-size:12px;font-weight:700;color:#6366f1;text-transform:uppercase;">Последняя накладная</div>
+                <div style="font-size:12px;font-weight:700;color:#6366f1;text-transform:uppercase;">Остання накладна</div>
                 <div style="font-size:26px;font-weight:800;color:#0f172a;margin-top:4px;" id="banner-date">—</div>
                 <div style="font-size:13px;color:var(--text-muted);margin-top:2px;">
-                    № накладной: <strong id="banner-number" style="color:#0f172a;">—</strong>
+                    № накладної: <strong id="banner-number" style="color:#0f172a;">—</strong>
                 </div>
             </div>
             <div class="banner-metrics">
                 <div class="banner-box">
                     <span class="banner-val" id="banner-amount">—</span>
-                    <span class="banner-lbl">Сумма накладной</span>
+                    <span class="banner-lbl">Сума накладної</span>
                 </div>
                 <div class="banner-box">
                     <span class="banner-val" id="banner-days" style="color:#ef4444;">—</span>
-                    <span class="banner-lbl">Прошло дней</span>
+                    <span class="banner-lbl">Минуло днів</span>
                 </div>
             </div>
         </div>
@@ -252,37 +252,37 @@
         <div class="grid-2">
             <!-- Comparison 2026 vs 2025 -->
             <div class="panel-card">
-                <div class="panel-title">⚖️ Сравнение последних покупок (2026 vs 2025)</div>
+                <div class="panel-title">⚖️ Порівняння останніх покупок (2026 vs 2025)</div>
                 <div style="display:flex;flex-direction:column;gap:14px;">
                     <div style="background:#ecfdf5;padding:16px;border-radius:12px;border:1px solid #a7f3d0;">
-                        <div style="font-size:12px;color:#047857;font-weight:700;text-transform:uppercase;">📅 Последняя покупка в 2026 году</div>
+                        <div style="font-size:12px;color:#047857;font-weight:700;text-transform:uppercase;">📅 Остання покупка у 2026 році</div>
                         <div style="font-size:18px;font-weight:800;color:#065f46;margin-top:4px;" id="comp-2026-date">—</div>
-                        <div style="font-size:13px;color:#047857;margin-top:2px;" id="comp-2026-amount">Сумма: —</div>
+                        <div style="font-size:13px;color:#047857;margin-top:2px;" id="comp-2026-amount">Сума: —</div>
                     </div>
                     <div style="background:#f8fafc;padding:16px;border-radius:12px;border:1px solid var(--border);">
-                        <div style="font-size:12px;color:var(--text-muted);font-weight:700;text-transform:uppercase;">📅 Последняя покупка в 2025 году</div>
+                        <div style="font-size:12px;color:var(--text-muted);font-weight:700;text-transform:uppercase;">📅 Остання покупка у 2025 році</div>
                         <div style="font-size:18px;font-weight:800;color:var(--text-main);margin-top:4px;" id="comp-2025-date">—</div>
-                        <div style="font-size:13px;color:var(--text-muted);margin-top:2px;" id="comp-2025-amount">Сумма: —</div>
+                        <div style="font-size:13px;color:var(--text-muted);margin-top:2px;" id="comp-2025-amount">Сума: —</div>
                     </div>
                 </div>
             </div>
 
             <!-- Recommendation & Next Purchase AI Prediction -->
             <div class="panel-card">
-                <div class="panel-title">🔮 Прогноз и частота закупок</div>
+                <div class="panel-title">🔮 Прогноз та частота закупівель</div>
                 <div style="display:flex;flex-direction:column;gap:14px;">
                     <div style="background:#f8fafc;padding:14px;border-radius:12px;border:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
-                        <span style="font-size:13px;color:var(--text-muted);font-weight:600;">Средний интервал между покупками:</span>
+                        <span style="font-size:13px;color:var(--text-muted);font-weight:600;">Середній інтервал між покупками:</span>
                         <strong style="font-size:16px;color:#4f46e5;" id="rec-interval">— дн.</strong>
                     </div>
                     <div style="background:#f8fafc;padding:14px;border-radius:12px;border:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
-                        <span style="font-size:13px;color:var(--text-muted);font-weight:600;">Всего накладных за всё время:</span>
+                        <span style="font-size:13px;color:var(--text-muted);font-weight:600;">Всього накладних за весь час:</span>
                         <strong style="font-size:16px;color:#0f172a;" id="rec-total-inv">— шт.</strong>
                     </div>
                     <div style="background:#e0e7ff;padding:16px;border-radius:12px;border:1px solid #c7d2fe;">
-                        <div style="font-size:12px;color:#3730a3;font-weight:700;text-transform:uppercase;">📅 Ожидаемая дата следующей покупки</div>
+                        <div style="font-size:12px;color:#3730a3;font-weight:700;text-transform:uppercase;">📅 Очікувана дата наступної покупки</div>
                         <div style="font-size:22px;font-weight:800;color:#312e81;margin-top:4px;" id="rec-next-date">—</div>
-                        <div style="font-size:12px;color:#4338ca;margin-top:2px;" id="rec-status-note">На основе математической модели частоты отгрузок</div>
+                        <div style="font-size:12px;color:#4338ca;margin-top:2px;" id="rec-status-note">На основі математичної моделі частоти відвантажень</div>
                     </div>
                 </div>
             </div>
@@ -290,16 +290,16 @@
 
         <!-- Items Table -->
         <div class="panel-card">
-            <div class="panel-title">🛍️ Товары в последней накладной</div>
+            <div class="panel-title">🛍️ Товари в останній накладній</div>
             <div class="table-responsive">
                 <table class="custom-table">
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>Код товара</th>
-                            <th>Наименование товара</th>
-                            <th style="text-align:right;">Количество</th>
-                            <th style="text-align:right;">Цена/ед (₴)</th>
+                            <th>Код товару</th>
+                            <th>Найменування товару</th>
+                            <th style="text-align:right;">Кількість</th>
+                            <th style="text-align:right;">Ціна/од (₴)</th>
                             <th style="text-align:right;">Сумма (₴)</th>
                         </tr>
                     </thead>
@@ -332,7 +332,7 @@
                 if (data.status !== 'ok') return;
 
                 const info = data.client_info;
-                document.getElementById('client-name').textContent = `🕒 Анализ последней покупки: ${info.name}`;
+                document.getElementById('client-name').textContent = `🕒 Аналіз останньої покупки: ${info.name}`;
                 document.getElementById('client-code').textContent = info.code;
                 document.getElementById('client-status').textContent = info.status_name;
 
@@ -344,10 +344,10 @@
                 // Comparison
                 const comp = data.comparison_2025;
                 document.getElementById('comp-2026-date').textContent = info.last_doc_date || '—';
-                document.getElementById('comp-2026-amount').textContent = `Сумма: ${fmtCur(info.last_doc_amount)}`;
+                document.getElementById('comp-2026-amount').textContent = `Сума: ${fmtCur(info.last_doc_amount)}`;
 
-                document.getElementById('comp-2025-date').textContent = comp.last_2025_date || 'Нет заказов в 2025';
-                document.getElementById('comp-2025-amount').textContent = comp.last_2025_date ? `Сумма: ${fmtCur(comp.last_2025_amount)}` : '—';
+                document.getElementById('comp-2025-date').textContent = comp.last_2025_date || 'Немає замовлень у 2025';
+                document.getElementById('comp-2025-amount').textContent = comp.last_2025_date ? `Сума: ${fmtCur(comp.last_2025_amount)}` : '—';
 
                 // Recommendation
                 const rec = data.recommendation;
@@ -361,7 +361,7 @@
                 const items = data.last_invoice_items || [];
 
                 if (!items.length) {
-                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Нет данных по товарам в последней накладной</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Немає даних щодо товарів в останній накладній</td></tr>';
                     return;
                 }
 

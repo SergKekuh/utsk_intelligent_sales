@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UTSK — Детализация клиента</title>
+    <title>UTSK — Деталізація клієнта</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -476,6 +476,36 @@
             from { transform: translateY(30px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
+
+        /* Classification Widget */
+        .classification-widget {
+            background: var(--bg-surface, #fff);
+            border: 1px solid var(--border, #e2e8f0);
+            border-radius: var(--radius-lg, 12px);
+            padding: 16px 20px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.05));
+        }
+        .cw-header {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: var(--text-muted, #64748b);
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: 0.5px;
+        }
+        .cw-direction { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; font-size: 18px; font-weight: 700; color: var(--text-main, #0f172a); }
+        .cw-icon { font-size: 22px; }
+        .cw-row { display: flex; align-items: center; gap: 10px; margin-top: 8px; font-size: 14px; }
+        .cw-label { color: var(--text-muted, #64748b); min-width: 100px; font-weight: 500; }
+        .cw-badge { padding: 3px 10px; border-radius: 8px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
+        .cw-badge-manual { background: #dcfce7; color: #166534; }
+        .cw-progress { flex: 1; max-width: 250px; height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; }
+        .cw-progress-bar { height: 100%; transition: width 0.3s; }
+        .cw-confidence-value { font-weight: 700; font-size: 13px; min-width: 45px; text-align: left; }
     </style>
 </head>
 <body>
@@ -485,7 +515,7 @@
             <div class="header-title-area">
                 <a href="/" id="back-link" class="back-btn">← На дашборд</a>
                 <div class="client-info">
-                    <h1 id="client-name">⏳ Загрузка клиента...</h1>
+                    <h1 id="client-name">⏳ Завантаження клієнта...</h1>
                     <div class="client-meta" id="client-meta">Код: —</div>
                 </div>
             </div>
@@ -494,27 +524,56 @@
             </div>
         </div>
 
+        <!-- ====== ВИДЖЕТ КЛАСИФІКАЦІЇ ====== -->
+        <div id="classification-widget" class="classification-widget" style="display:none;">
+            <div class="cw-header">
+                <i class="fa-solid fa-tags" style="color:#4f46e5;"></i>
+                <span>Класифікація</span>
+            </div>
+            <div class="cw-body">
+                <div class="cw-direction">
+                    <span class="cw-icon" id="cw-direction-icon">❓</span>
+                    <span class="cw-name" id="cw-direction-name">—</span>
+                </div>
+                <div class="cw-row">
+                    <span class="cw-label">Джерело:</span>
+                    <span class="cw-badge" id="cw-source-badge">—</span>
+                </div>
+                <div class="cw-row">
+                    <span class="cw-label">Впевненість:</span>
+                    <div class="cw-progress">
+                        <div class="cw-progress-bar" id="cw-confidence-bar" style="width:0%"></div>
+                    </div>
+                    <span class="cw-confidence-value" id="cw-confidence-value">—</span>
+                </div>
+                <div class="cw-row" id="cw-manual-row" style="display:none;">
+                    <span class="cw-badge cw-badge-manual">✋ Вручну встановлено</span>
+                </div>
+            </div>
+        </div>
+        <!-- ====== /ВИДЖЕТ КЛАСИФІКАЦІЇ ====== -->
+
         <!-- KPI Grid -->
         <div class="kpi-grid">
             <a href="#" id="kpi-link-revenue" class="kpi-card-link">
                 <div class="kpi-card">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span class="kpi-label" id="kpi-revenue-lbl">💰 Выручка 2026</span>
-                        <span style="font-size:11px; background:#e0e7ff; color:#4f46e5; padding:2px 8px; border-radius:12px; font-weight:700;">Анализ ➔</span>
+                        <span class="kpi-label" id="kpi-revenue-lbl">💰 Продажі 2026</span>
+                        <span style="font-size:11px; background:#e0e7ff; color:#4f46e5; padding:2px 8px; border-radius:12px; font-weight:700;">Аналіз ➔</span>
                     </div>
                     <div class="kpi-value" id="kpi-revenue" style="color:#047857;">—</div>
-                    <div class="kpi-sub">Товарная без услуг</div>
+                    <div class="kpi-sub">Товарні без послуг</div>
                 </div>
             </a>
             <a href="#" id="kpi-link-invoices" class="kpi-card-link">
                 <div class="kpi-card">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span class="kpi-label">📄 Всего накладных</span>
-                        <span style="font-size:11px; background:#e0e7ff; color:#4f46e5; padding:2px 8px; border-radius:12px; font-weight:700;">Анализ ➔</span>
+                        <span class="kpi-label">📄 Всього накладних</span>
+                        <span style="font-size:11px; background:#e0e7ff; color:#4f46e5; padding:2px 8px; border-radius:12px; font-weight:700;">Аналіз ➔</span>
                     </div>
                     <div class="kpi-value" id="kpi-invoices">—</div>
                     <div class="kpi-sub" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:4px;">
-                        <span id="kpi-invoices-year">За 2026 год</span>
+                        <span id="kpi-invoices-year">За 2026 рік</span>
                         <span class="kpi-extra" id="kpi-total-positions" style="font-size:12px; color:#4f46e5; font-weight:700; background:#eef2ff; padding:1px 6px; border-radius:6px;">📦 Позицій: —</span>
                     </div>
                 </div>
@@ -522,21 +581,21 @@
             <a href="#" id="kpi-link-avg-check" class="kpi-card-link">
                 <div class="kpi-card">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span class="kpi-label">🛒 Средний чек</span>
-                        <span style="font-size:11px; background:#e0e7ff; color:#4f46e5; padding:2px 8px; border-radius:12px; font-weight:700;">Анализ ➔</span>
+                        <span class="kpi-label">🛒 Середній чек</span>
+                        <span style="font-size:11px; background:#e0e7ff; color:#4f46e5; padding:2px 8px; border-radius:12px; font-weight:700;">Аналіз ➔</span>
                     </div>
                     <div class="kpi-value" id="kpi-avg-check">—</div>
-                    <div class="kpi-sub">На одну накладную</div>
+                    <div class="kpi-sub">На одну накладну</div>
                 </div>
             </a>
             <a href="#" id="kpi-link-last-purchase" class="kpi-card-link">
                 <div class="kpi-card">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span class="kpi-label">🕒 Последняя покупка</span>
-                        <span style="font-size:11px; background:#e0e7ff; color:#4f46e5; padding:2px 8px; border-radius:12px; font-weight:700;">Анализ ➔</span>
+                        <span class="kpi-label">🕒 Остання покупка</span>
+                        <span style="font-size:11px; background:#e0e7ff; color:#4f46e5; padding:2px 8px; border-radius:12px; font-weight:700;">Аналіз ➔</span>
                     </div>
                     <div class="kpi-value" id="kpi-last-date" style="font-size:20px;">—</div>
-                    <div class="kpi-sub" id="kpi-status-sub">Текущий статус: —</div>
+                    <div class="kpi-sub" id="kpi-status-sub">Поточний статус: —</div>
                 </div>
             </a>
         </div>
@@ -573,7 +632,7 @@
             <!-- Chart Block -->
             <div class="card-block">
                 <div class="block-header">
-                    <h2 class="block-title">📊 Динамика продаж по месяцам (2026 vs 2025)</h2>
+                    <h2 class="block-title">📊 Динаміка продажів по місяцях (2026 vs 2025)</h2>
                 </div>
                 <div class="chart-container">
                     <canvas id="monthlyChart"></canvas>
@@ -588,13 +647,13 @@
             <div class="card-block rec-block-clickable" 
                  id="rec-block"
                  onclick="if(event.target.closest('.rec-item')) return; location.href=this.dataset.href;"
-                 data-href="/product-analytics?token=utsk2026&code=4501"
+                 data-href="/recommendations-overview?token=utsk2026&code=4501&year=2026"
                  style="cursor:pointer;">
                 <h3 class="rec-block-title">
-                    💡 Рекомендации для клиента — <span id="rec-year">2026</span>
+                    💡 Рекомендації для клієнта — <span id="rec-year">2026</span>
                 </h3>
                 <div class="rec-list" id="rec-list">
-                    <div style="padding:20px;text-align:center;color:#94a3b8;">Загрузка…</div>
+                    <div style="padding:20px;text-align:center;color:#94a3b8;">Завантаження…</div>
                 </div>
             </div>
         </div>
@@ -602,33 +661,33 @@
         <!-- Invoices Table Block -->
         <div class="card-block">
             <div class="block-header">
-                <h2 class="block-title">🧾 Накладные клиента</h2>
+                <h2 class="block-title">🧾 Накладні клієнта</h2>
             </div>
 
             <!-- Filter Bar -->
             <div class="filter-bar">
-                <label>Год:</label>
+                <label>Рік:</label>
                 <select id="invoice-year">
                     <option value="2026" selected>2026</option>
                     <option value="2025">2025</option>
                     <option value="2024">2024</option>
                 </select>
 
-                <label>Месяц:</label>
+                <label>Місяць:</label>
                 <select id="invoice-month">
-                    <option value="all" selected>Все месяцы</option>
-                    <option value="1">Январь</option>
-                    <option value="2">Февраль</option>
-                    <option value="3">Март</option>
-                    <option value="4">Апрель</option>
-                    <option value="5">Май</option>
-                    <option value="6">Июнь</option>
-                    <option value="7">Июль</option>
-                    <option value="8">Август</option>
-                    <option value="9">Сентябрь</option>
-                    <option value="10">Октябрь</option>
-                    <option value="11">Ноябрь</option>
-                    <option value="12">Декабрь</option>
+                    <option value="all" selected>Всі місяці</option>
+                    <option value="1">Січень</option>
+                    <option value="2">Лютий</option>
+                    <option value="3">Березень</option>
+                    <option value="4">Квітень</option>
+                    <option value="5">Травень</option>
+                    <option value="6">Червень</option>
+                    <option value="7">Липень</option>
+                    <option value="8">Серпень</option>
+                    <option value="9">Вересень</option>
+                    <option value="10">Жовтень</option>
+                    <option value="11">Листопад</option>
+                    <option value="12">Грудень</option>
                 </select>
 
                 <label>С:</label>
@@ -637,7 +696,7 @@
                 <label>По:</label>
                 <input type="date" id="date-to">
 
-                <button class="btn-filter" onclick="loadInvoices()">🔄 Применить</button>
+                <button class="btn-filter" onclick="loadInvoices()">🔄 Застосувати</button>
             </div>
 
             <div class="table-scroll">
@@ -647,13 +706,13 @@
                             <th>#</th>
                             <th>Дата</th>
                             <th>Номер</th>
-                            <th style="text-align:right;">Сумма</th>
-                            <th style="text-align:center;">Позиций</th>
-                            <th style="text-align:center;">Действие</th>
+                            <th style="text-align:right;">Сума</th>
+                            <th style="text-align:center;">Позицій</th>
+                            <th style="text-align:center;">Дія</th>
                         </tr>
                     </thead>
                     <tbody id="invoices-table-body">
-                        <tr><td colspan="6" class="empty-state">⏳ Загрузка накладных...</td></tr>
+                        <tr><td colspan="6" class="empty-state">⏳ Завантаження накладних...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -665,10 +724,10 @@
         <div class="modal-content">
             <div class="modal-header">
                 <div>
-                    <h3 class="modal-title">📋 Накладная <span id="modal-invoice-number">Н-12345</span></h3>
+                    <h3 class="modal-title">📋 Накладна <span id="modal-invoice-number">Н-12345</span></h3>
                     <p class="modal-subtitle">
                         Дата: <span id="modal-invoice-date">—</span> | 
-                        Сумма: <span id="modal-invoice-total" style="color:#047857;font-weight:700;">—</span>
+                        Сума: <span id="modal-invoice-total" style="color:#047857;font-weight:700;">—</span>
                     </p>
                 </div>
                 <button onclick="closeModal()" class="modal-close">✕</button>
@@ -679,20 +738,20 @@
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>Код товара</th>
-                                <th>Наименование</th>
-                                <th style="text-align:right;">Кол-во</th>
-                                <th style="text-align:right;">Вес (кг)</th>
-                                <th style="text-align:right;">Цена/ед</th>
-                                <th style="text-align:right;">Стоимость</th>
+                                <th>Код товару</th>
+                                <th>Найменування</th>
+                                <th style="text-align:right;">Кількість</th>
+                                <th style="text-align:right;">Вага (кг)</th>
+                                <th style="text-align:right;">Ціна/од</th>
+                                <th style="text-align:right;">Вартість</th>
                             </tr>
                         </thead>
                         <tbody id="modal-invoice-items">
-                            <tr><td colspan="7" style="text-align:center;">⏳ Загрузка...</td></tr>
+                            <tr><td colspan="7" style="text-align:center;">⏳ Завантаження...</td></tr>
                         </tbody>
                         <tfoot id="modal-invoice-footer" style="display:none;">
                             <tr style="background:#f8fafc;font-weight:700;border-top:2px solid var(--border);">
-                                <td colspan="3" style="text-align:right;">📊 Итого:</td>
+                                <td colspan="3" style="text-align:right;">📊 Разом:</td>
                                 <td style="text-align:right;" id="modal-total-quantity">—</td>
                                 <td style="text-align:right;" id="modal-total-weight">—</td>
                                 <td style="text-align:right;">—</td>
@@ -785,7 +844,7 @@
             }
         })();
 
-        function formatNum(n) { return (n == null) ? '—' : Number(n).toLocaleString('ru-RU'); }
+        function formatNum(n) { return (n == null) ? '—' : Number(n).toLocaleString('uk-UA'); }
         function formatCur(n) { return (n == null) ? '—' : '₴ ' + formatNum(Math.round(n)); }
         
         function trimProductCode(name) {
@@ -797,6 +856,60 @@
                 parts.pop();
             }
             return parts.join(' ') || name;
+        }
+
+        function renderClassificationWidget(c) {
+            const widget = document.getElementById('classification-widget');
+            if (!widget) return;
+
+            const dirId = c.direction_id;
+            const source = c.direction_source || 'unknown';
+            const conf = c.direction_confidence != null ? Number(c.direction_confidence) : null;
+            const isManual = !!c.is_direction_manual;
+
+            widget.style.display = 'block';
+
+            // Название и иконка отрасли
+            document.getElementById('cw-direction-name').textContent = c.direction || '—';
+            const ICONS = {
+                1:'🌾', 2:'🏗️', 3:'🏭', 4:'🚰', 5:'🛣️', 6:'💼', 7:'👤', 8:'⚙️',
+                9:'🏢', 10:'🔩', 11:'⚙️', 12:'⚡', 13:'🚗', 14:'🚚', 15:'🏛️', 16:'❓'
+            };
+            document.getElementById('cw-direction-icon').textContent = ICONS[dirId] || '❓';
+
+            // Источник
+            const SOURCE_MAP = {
+                'manual':       { label: '✅ Вручну',         bg: '#dcfce7', fg: '#166534' },
+                'auto_name':    { label: '🔤 Авто (назва)',   bg: '#dbeafe', fg: '#1e40af' },
+                'basket':       { label: '🛒 Авто (кошик)',   bg: '#cffafe', fg: '#155e75' },
+                'edrpou_match': { label: '🔑 ЄДРПОУ',         bg: '#ede9fe', fg: '#5b21b6' },
+                'revert':       { label: '↩️ Відкат',         bg: '#fed7aa', fg: '#9a3412' },
+                'unknown':      { label: '❓ Не визначено',   bg: '#f1f5f9', fg: '#475569' }
+            };
+            const s = SOURCE_MAP[source] || SOURCE_MAP['unknown'];
+            const badge = document.getElementById('cw-source-badge');
+            badge.textContent = s.label;
+            badge.style.background = s.bg;
+            badge.style.color = s.fg;
+
+            // Уверенность
+            if (conf != null) {
+                const pct = Math.round(conf * 100);
+                const bar = document.getElementById('cw-confidence-bar');
+                bar.style.width = pct + '%';
+                bar.style.background =
+                    conf >= 0.85 ? '#22c55e' :
+                    conf >= 0.65 ? '#3b82f6' :
+                    conf >= 0.50 ? '#f59e0b' :
+                                   '#ef4444';
+                document.getElementById('cw-confidence-value').textContent = pct + '%';
+            } else {
+                document.getElementById('cw-confidence-bar').style.width = '0%';
+                document.getElementById('cw-confidence-value').textContent = '—';
+            }
+
+            // Ручная пометка
+            document.getElementById('cw-manual-row').style.display = isManual ? 'flex' : 'none';
         }
 
         let monthlyChartInstance = null;
@@ -818,11 +931,12 @@
                 document.getElementById('client-name').textContent = c.name;
                 document.title = `UTSK — ${c.name}`;
                 
-                let metaParts = [`Код клиента: ${c.code}`];
+                let metaParts = [`Код клієнта: ${c.code}`];
                 if (c.edrpou && c.edrpou !== '—') metaParts.push(`ЄДРПОУ: ${c.edrpou}`);
-                if (c.ipn && c.ipn !== '—') metaParts.push(`ИПН: ${c.ipn}`);
-                if (c.direction && c.direction !== '—') metaParts.push(`Отрасль: ${c.direction}`);
+                if (c.ipn && c.ipn !== '—') metaParts.push(`ІПН: ${c.ipn}`);
+                if (c.direction && c.direction !== '—') metaParts.push(`Галузь: ${c.direction}`);
                 document.getElementById('client-meta').textContent = metaParts.join('  •  ');
+                renderClassificationWidget(c);
                 
                 // Статусы
                 const statusBadges = document.getElementById('status-badges');
@@ -835,29 +949,29 @@
 
                 // KPI Карточки
                 const revLbl = document.getElementById('kpi-revenue-lbl');
-                if (revLbl) revLbl.textContent = `💰 Выручка ${y}`;
+                if (revLbl) revLbl.textContent = `💰 Продажі ${y}`;
                 document.getElementById('kpi-revenue').textContent = formatCur(c.total_revenue);
                 document.getElementById('kpi-invoices').textContent = formatNum(c.total_invoices);
                 const invYearEl = document.getElementById('kpi-invoices-year');
-                if (invYearEl) invYearEl.textContent = `За ${y} год`;
+                if (invYearEl) invYearEl.textContent = `За ${y} рік`;
                 const posEl = document.getElementById('kpi-total-positions');
                 if (posEl) posEl.textContent = `📦 Позицій: ${formatNum(c.total_positions || 0)}`;
                 document.getElementById('kpi-avg-check').textContent = formatCur(c.avg_check);
                 document.getElementById('kpi-last-date').textContent = c.last_purchase_date || '—';
-                document.getElementById('kpi-status-sub').textContent = `Текущий статус: ${c.status || '—'}`;
+                document.getElementById('kpi-status-sub').textContent = `Поточний статус: ${c.status || '—'}`;
 
                 // График помесячной динамики
                 renderChart(c.monthly_data || []);
 
             } catch (err) {
                 console.error('Client detail error:', err);
-                document.getElementById('client-name').textContent = '⚠️ Ошибка загрузки данных клиента';
+                document.getElementById('client-name').textContent = '⚠️ Помилка завантаження даних клієнта';
             }
         }
 
         async function initPage() {
             if (!CLIENT_CODE) {
-                document.getElementById('client-name').textContent = '⚠️ Код клиента не указан';
+                document.getElementById('client-name').textContent = '⚠️ Код клієнта не вказано';
                 return;
             }
 
@@ -877,7 +991,7 @@
 
         function renderChart(monthlyData) {
             const ctx = document.getElementById('monthlyChart').getContext('2d');
-            const monthNames = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'];
+            const monthNames = ['Січ', 'Лют', 'Бер', 'Кві', 'Тра', 'Чер', 'Лип', 'Сер', 'Вер', 'Жов', 'Лис', 'Гру'];
             
             const data2026 = new Array(12).fill(0);
             const data2025 = new Array(12).fill(0);
@@ -898,13 +1012,13 @@
                     labels: monthNames,
                     datasets: [
                         {
-                            label: 'Продажи 2026 (₴)',
+                            label: 'Продажі 2026 (₴)',
                             data: data2026,
                             backgroundColor: '#047857',
                             borderRadius: 6,
                         },
                         {
-                            label: 'Продажи 2025 (₴)',
+                            label: 'Продажі 2025 (₴)',
                             data: data2025,
                             backgroundColor: '#cbd5e1',
                             borderRadius: 6,
@@ -942,7 +1056,7 @@
 
         async function loadInvoices() {
             const tb = document.getElementById('invoices-table-body');
-            tb.innerHTML = '<tr><td colspan="6" class="empty-state">⏳ Загрузка...</td></tr>';
+            tb.innerHTML = '<tr><td colspan="6" class="empty-state">⏳ Завантаження...</td></tr>';
 
             const year = document.getElementById('invoice-year')?.value || '2026';
             const month = document.getElementById('invoice-month')?.value || 'all';
@@ -963,7 +1077,7 @@
                 renderInvoicesTable(data.invoices || [], data.total_sum || 0, data.total_count || 0, data.total_positions || 0);
             } catch (err) {
                 console.error('Error loading invoices:', err);
-                tb.innerHTML = '<tr><td colspan="6" class="empty-state" style="color:#ef4444;">⚠️ Ошибка загрузки накладных</td></tr>';
+                tb.innerHTML = '<tr><td colspan="6" class="empty-state" style="color:#ef4444;">⚠️ Помилка завантаження накладних</td></tr>';
             }
         }
 
@@ -972,7 +1086,7 @@
             tb.innerHTML = '';
 
             if (!invoices.length) {
-                tb.innerHTML = '<tr><td colspan="6" class="empty-state">📭 Накладные за выбранный период не найдены</td></tr>';
+                tb.innerHTML = '<tr><td colspan="6" class="empty-state">📭 Накладні за обраний період не знайдені</td></tr>';
                 return;
             }
 
@@ -984,14 +1098,14 @@
                     <td style="text-align:right;font-weight:700;color:#047857;">₴ ${formatNum(Math.round(inv.total || 0))}</td>
                     <td style="text-align:center;font-weight:600;color:#475569;">${inv.positions || 0} поз.</td>
                     <td style="text-align:center;">
-                        <button onclick="showInvoiceDetail(${inv.doc_id}, '${inv.number}')" class="btn-detail">📄 Открыть ➔</button>
+                        <button onclick="showInvoiceDetail(${inv.doc_id}, '${inv.number}')" class="btn-detail">📄 Відкрити ➔</button>
                     </td>
                 </tr>`;
             });
 
             // Итоговая строка
             tb.innerHTML += `<tr style="background:#f8fafc;font-weight:700;border-top:2px solid var(--border);">
-                <td colspan="3" style="text-align:right;">📊 Итого за период: ${formatNum(totalCount)} накладных</td>
+                <td colspan="3" style="text-align:right;">📊 Разом за період: ${formatNum(totalCount)} накладних</td>
                 <td style="text-align:right;color:#047857;font-size:15px;">₴ ${formatNum(Math.round(totalSum))}</td>
                 <td style="text-align:center;color:var(--text-main);">${formatNum(totalPositions)} поз.</td>
                 <td></td>
@@ -1008,7 +1122,7 @@
             document.getElementById('modal-invoice-number').textContent = invoiceNumber;
             document.getElementById('modal-invoice-date').textContent = '—';
             document.getElementById('modal-invoice-total').textContent = '—';
-            itemsBody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:20px;">⏳ Загрузка товаров...</td></tr>';
+            itemsBody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:20px;">⏳ Завантаження товарів...</td></tr>';
             footer.style.display = 'none';
             
             try {
@@ -1024,7 +1138,7 @@
                 document.getElementById('modal-invoice-total').textContent = formatCur(data.total || 0);
                 
                 if (!data.items || !data.items.length) {
-                    itemsBody.innerHTML = '<tr><td colspan="7" style="text-align:center;">📭 Содержимое накладной не найдено</td></tr>';
+                    itemsBody.innerHTML = '<tr><td colspan="7" style="text-align:center;">📭 Вміст накладної не знайдено</td></tr>';
                     return;
                 }
                 
@@ -1055,7 +1169,7 @@
                 
             } catch (e) {
                 console.error('Invoice items error:', e);
-                itemsBody.innerHTML = '<tr><td colspan="7" style="color:#ef4444;text-align:center;">⚠️ Ошибка загрузки детализации накладной</td></tr>';
+                itemsBody.innerHTML = '<tr><td colspan="7" style="color:#ef4444;text-align:center;">⚠️ Помилка завантаження деталізації накладної</td></tr>';
             }
         }
 
@@ -1070,7 +1184,7 @@
             // Обновляем data-href блока (на случай смены клиента)
             const blockEl = document.getElementById('rec-block');
             if (blockEl) {
-                const href = `/product-analytics?token=${TOKEN}&code=${CLIENT_CODE}`;
+                const href = `/recommendations-overview?token=${TOKEN}&code=${CLIENT_CODE}&year=${year}`;
                 blockEl.dataset.href = href;
                 blockEl.setAttribute('onclick',
                     `if(event.target.closest('.rec-item')) return; location.href='${href}';`
@@ -1078,7 +1192,7 @@
             }
             
             const container = document.getElementById('rec-list');
-            container.innerHTML = '<div style="padding:20px;text-align:center;color:#94a3b8;">Загрузка…</div>';
+            container.innerHTML = '<div style="padding:20px;text-align:center;color:#94a3b8;">Завантаження…</div>';
             
             try {
                 const res = await fetch(
@@ -1090,13 +1204,13 @@
                 if (!data.items || data.items.length === 0) {
                     container.innerHTML = `
                         <div style="padding:20px;text-align:center;color:#94a3b8;">
-                            Нет данных для рекомендаций
+                            Немає даних для рекомендацій
                         </div>`;
                     return;
                 }
                 
                 container.innerHTML = data.items.map(r => `
-                    <a href="/product-analytics?token=${TOKEN}&code=${CLIENT_CODE}&size=${encodeURIComponent(r.size_key)}"
+                    <a href="/product-recommendation-detail?token=${TOKEN}&code=${CLIENT_CODE}&size_key=${encodeURIComponent(r.size_key)}&year=${currentYear || 2026}"
                        class="rec-item">
                         <div class="rec-top-row">
                             <b>${r.display_name}</b>
@@ -1107,7 +1221,7 @@
                         </div>
                         <div class="rec-bottom-row">
                             <small>${r.reason}</small>
-                            <span class="rec-stock">Остаток: ${formatStock(r.stock)} т</span>
+                            <span class="rec-stock">Залишок: ${formatStock(r.stock)} т</span>
                         </div>
                     </a>
                 `).join('');
@@ -1115,7 +1229,7 @@
                 console.error('loadRecommendations error:', e);
                 container.innerHTML = `
                     <div style="padding:20px;text-align:center;color:#ef4444;">
-                        Ошибка загрузки: ${e.message}
+                        Помилка завантаження: ${e.message}
                     </div>`;
             }
         }
@@ -1126,8 +1240,8 @@
             const mod10 = n % 10;
             const mod100 = n % 100;
             if (mod10 === 1 && mod100 !== 11) return 'раз';
-            if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return 'раза';
-            return 'раз';
+            if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return 'рази';
+            return 'разів';
         }
 
         // Формат остатка

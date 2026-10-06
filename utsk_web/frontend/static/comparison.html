@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Сравнительный анализ сегментов — UTSK</title>
+  <title>Порівняльний аналіз сегментів — UTSK</title>
   <style>
     :root {
       --bg: #f6f7f9;
@@ -182,41 +182,41 @@
   </style>
 </head>
 <body>
-  <div class="loading-overlay hidden" id="loadingOverlay">⏳ Загрузка данных...</div>
+  <div class="loading-overlay hidden" id="loadingOverlay">⏳ Завантаження даних...</div>
 
   <main class="page">
     <section class="year-selector">
-      <label>Текущий год:</label>
+      <label>Поточний рік:</label>
       <select id="yearCurrent">
         <option value="2026" selected>2026</option>
         <option value="2025">2025</option>
         <option value="2024">2024</option>
       </select>
       <span class="vs">VS</span>
-      <label>Сравниваемый год:</label>
+      <label>Порівнюваний рік:</label>
       <select id="yearPrevious">
         <option value="2025" selected>2025</option>
         <option value="2026">2026</option>
         <option value="2024">2024</option>
       </select>
-      <button id="btnLoad" onclick="loadData()">🔄 Загрузить данные</button>
+      <button id="btnLoad" onclick="loadData()">🔄 Завантажити дані</button>
       <a href="/?token=utsk2026" style="text-decoration:none;color:var(--text-main, #0f172a);font-weight:700;font-size:14px;display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:10px;background:#fff;border:1px solid var(--line, #d9dee7);transition:all .15s;white-space:nowrap;margin-left:8px;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='#fff'">← На дашборд</a>
     </section>
 
     <section class="hero">
       <div>
-        <h1>Сравнение сегментов ABC по частоте покупок</h1>
-        <p class="subtitle" id="heroSubtitle">Два ракурса анализа: 6 групп RFM и альтернативная классификация из 4 групп.</p>
+        <h1>Порівняння сегментів ABC за частотою покупок</h1>
+        <p class="subtitle" id="heroSubtitle">Два ракурси аналізу: 6 груп RFM та альтернативна класифікація з 4 груп.</p>
       </div>
-      <div class="hero-note" id="heroNote"><strong>Готово к загрузке.</strong> Выберите годы для сравнения и нажмите «Загрузить данные».</div>
+      <div class="hero-note" id="heroNote"><strong>Готово до завантаження.</strong> Виберіть роки для порівняння та натисніть «Завантажити дані».</div>
     </section>
 
     <!-- 4 ГРУППЫ -->
     <section class="panel">
       <div class="panel-head">
         <div>
-          <h2 class="panel-title">ИТОГО ABC — Альтернативная классификация (4 группы)</h2>
-          <p class="panel-caption" id="altCaption">Группировка: 🔴 Залётные, 🟠 Разовые основные, 🔵 Повторно основные, 🟢 Постоянные.</p>
+          <h2 class="panel-title">РАЗОМ ABC — Альтернативна класифікація (4 групи)</h2>
+          <p class="panel-caption" id="altCaption">Групування: 🔴 Зальотні, 🟠 Разові основні, 🔵 Повторно основні, 🟢 Постійні.</p>
         </div>
       </div>
       <div class="panel-body">
@@ -239,20 +239,20 @@
       <button class="filter-btn" data-filter="random">💡 Лайт</button>
       <button class="filter-btn" data-filter="main">💎 Преміум</button>
       <button class="filter-btn" data-filter="total">📊 Всі</button>
-      <button class="sort-btn" id="sortBtn" title="Сортувати за виручкою"><span>За виручкою</span><span class="arrow">▼</span></button>
+      <button class="sort-btn" id="sortBtn" title="Сортувати за продажами"><span>За продажами</span><span class="arrow">▼</span></button>
     </div>
 
     <!-- ГРАФИКИ 6 ГРУПП -->
     <section class="analytics-grid">
       <article class="panel">
         <div class="panel-head">
-          <div><h2 class="panel-title">Виручка за групами частоти (6 груп)</h2><p class="panel-caption">Клас "Всі", млн ₴</p></div>
+          <div><h2 class="panel-title">Продажі за групами частоти (6 груп)</h2><p class="panel-caption">Клас "Всі", млн ₴</p></div>
           <div class="legend"><span><i class="dot" style="--dot:#1d74d8"></i><span id="legendCurrent2">2026</span></span><span><i class="dot" style="--dot:#b9c1cf"></i><span id="legendPrev2">2025</span></span></div>
         </div>
         <div class="panel-body"><div class="bar-list" id="revenueBars"></div></div>
       </article>
       <article class="panel">
-        <div class="panel-head"><div><h2 class="panel-title">Структура продажів (6 груп)</h2><p class="panel-caption">Частка груп у виручці "Всі"</p></div></div>
+        <div class="panel-head"><div><h2 class="panel-title">Структура продажів (6 груп)</h2><p class="panel-caption">Частка груп у продажах "Всі"</p></div></div>
         <div class="panel-body"><div class="share-grid" id="shareGrid"></div></div>
       </article>
     </section>
@@ -260,11 +260,11 @@
     <!-- DONUTS -->
     <section class="donut-row">
       <article class="panel">
-        <div class="panel-head"><div><h2 class="panel-title">6 груп (Всі)</h2><p class="panel-caption">Розподіл виручки за частотою</p></div></div>
+        <div class="panel-head"><div><h2 class="panel-title">6 груп (Всі)</h2><p class="panel-caption">Розподіл продажів за частотою</p></div></div>
         <div class="panel-body"><div class="donut-container"><canvas id="donut6" class="donut-canvas"></canvas></div></div>
       </article>
       <article class="panel">
-        <div class="panel-head"><div><h2 class="panel-title">4 групи (РАЗОМ)</h2><p class="panel-caption">🔴 Залітні / 🟠 Разові / 🔵 Повторні / 🟢 Постійні</p></div></div>
+        <div class="panel-head"><div><h2 class="panel-title">4 групи (РАЗОМ)</h2><p class="panel-caption">🔴 Зальотні / 🟠 Разові / 🔵 Повторні / 🟢 Постійні</p></div></div>
         <div class="panel-body"><div class="donut-container"><canvas id="donut4" class="donut-canvas"></canvas></div></div>
       </article>
     </section>
@@ -286,7 +286,7 @@
 
     <!-- ВЫВОДЫ -->
     <section class="panel">
-      <div class="panel-head"><h2 class="panel-title">📊 Автоматические выводы</h2></div>
+      <div class="panel-head"><h2 class="panel-title">📊 Автоматичні висновки</h2></div>
       <div class="panel-body" id="callout"></div>
     </section>
   </main>
@@ -305,19 +305,19 @@
     let donut4Chart = null;
 
     const segments = [
-      { id: "one", title: "1. Разовые", hint: "1 накладная", color: "#c27900", soft: "#fff8e8" },
-      { id: "repeat", title: "2. Повторные", hint: "2-3 накладные", color: "#0796a8", soft: "#eafcff" },
-      { id: "quarter", title: "3. Квартал", hint: "4-10 накладных", color: "#138a5b", soft: "#edfbf5" },
-      { id: "month", title: "4. Месяц", hint: "11-40 накладных", color: "#1d74d8", soft: "#eef6ff" },
-      { id: "week", title: "5. Неделя", hint: "41-170 накладных", color: "#6957d6", soft: "#f3f1ff" },
-      { id: "day", title: "6. День", hint: ">170 накладных", color: "#c83c5a", soft: "#fff0f4" }
+      { id: "one", title: "1. Разові", hint: "1 накладна", color: "#c27900", soft: "#fff8e8" },
+      { id: "repeat", title: "2. Повторні", hint: "2-3 накладні", color: "#0796a8", soft: "#eafcff" },
+      { id: "quarter", title: "3. Квартал", hint: "4-10 накладних", color: "#138a5b", soft: "#edfbf5" },
+      { id: "month", title: "4. Місяць", hint: "11-40 накладних", color: "#1d74d8", soft: "#eef6ff" },
+      { id: "week", title: "5. Тиждень", hint: "41-170 накладних", color: "#6957d6", soft: "#f3f1ff" },
+      { id: "day", title: "6. День", hint: ">170 накладних", color: "#c83c5a", soft: "#fff0f4" }
     ];
 
     const altGroups = [
-      { name: "Залётные", icon: "🔴", color: "#c5243d", bg: "#fff0f2", desc: "Случайные покупатели с минимальным чеком" },
-      { name: "Разовые основные", icon: "🟠", color: "#c27900", bg: "#fff8e8", desc: "Основные клиенты с 1 покупкой" },
-      { name: "Повторно основные", icon: "🔵", color: "#1d74d8", bg: "#eef6ff", desc: "Основные клиенты с 2-3 покупками" },
-      { name: "Постоянные", icon: "🟢", color: "#138a5b", bg: "#edfbf5", desc: "Регулярные покупатели (4+ накладных)" }
+      { name: "Зальотні", icon: "🔴", color: "#c5243d", bg: "#fff0f2", desc: "Випадкові покупці з мінімальним чеком" },
+      { name: "Разові основні", icon: "🟠", color: "#c27900", bg: "#fff8e8", desc: "Основні клієнти з 1 покупкою" },
+      { name: "Повторно основні", icon: "🔵", color: "#1d74d8", bg: "#eef6ff", desc: "Основні клієнти з 2-3 покупками" },
+      { name: "Постійні", icon: "🟢", color: "#138a5b", bg: "#edfbf5", desc: "Регулярні покупці (4+ накладних)" }
     ];
 
     const classDefs = [
@@ -330,7 +330,7 @@
     function cls(value) { if (value > 0.05) return "good"; if (value < -0.05) return "bad"; return "neutral"; }
     function sign(value) { return value > 0 ? "+" : ""; }
     function moneyM(value) { return `${nf.format(Number(value.toFixed(2)))} млн ₴`; }
-    function moneyK(value) { return `${nf.format(value)} тыс ₴`; }
+    function moneyK(value) { return `${nf.format(value)} тис ₴`; }
     function number(value) { return nf.format(value); }
     function pp(value) { return `${sign(value)}${pf.format(value)} п.п.`; }
     function yoyBadge(now, prev) { const change = pct(now, prev); return `<span class="badge ${cls(change)}">${sign(change)}${pf.format(change)}%</span>`; }
@@ -422,14 +422,14 @@
     async function loadData() {
       yearCurrent = parseInt(document.getElementById("yearCurrent").value);
       yearPrevious = parseInt(document.getElementById("yearPrevious").value);
-      if (yearCurrent === yearPrevious) { alert("Выберите разные годы!"); return; }
+      if (yearCurrent === yearPrevious) { alert("Виберіть різні роки!"); return; }
 
       document.getElementById("loadingOverlay").classList.remove("hidden");
       document.getElementById("btnLoad").disabled = true;
 
       try {
         const resp = await fetch(`/api/analytics/segment-comparison?token=${TOKEN}&year_current=${yearCurrent}&year_previous=${yearPrevious}`);
-        if (!resp.ok) throw new Error(`Ошибка ${resp.status}`);
+        if (!resp.ok) throw new Error(`Помилка ${resp.status}`);
         const apiData = await resp.json();
 
         window._apiData = apiData;
@@ -441,7 +441,7 @@
         updateLabels();
         renderAll();
       } catch (e) {
-        document.getElementById("heroNote").innerHTML = `<strong style="color:var(--bad)">⚠️ Ошибка: ${e.message}</strong>`;
+        document.getElementById("heroNote").innerHTML = `<strong style="color:var(--bad)">⚠️ Помилка: ${e.message}</strong>`;
       } finally {
         document.getElementById("loadingOverlay").classList.add("hidden");
         document.getElementById("btnLoad").disabled = false;
@@ -489,7 +489,7 @@
       const curr = rfmData[String(yearCurrent)];
       const prev = rfmData[String(yearPrevious)];
       if (!curr || !prev) return null;
-      const labels = ["Разовые", "Повторные", "Регулярные 4+", "Итого"];
+      const labels = ["Разові", "Повторні", "Регулярні 4+", "Разом"];
       const data = {};
       [String(yearCurrent), String(yearPrevious)].forEach(yr => {
         const rfm = rfmData[yr];
@@ -516,9 +516,9 @@
     }
 
     function updateLabels() {
-      document.getElementById("heroSubtitle").textContent = `Сравнение ${yearCurrent} (YTD) против ${yearPrevious}.`;
-      document.getElementById("heroNote").innerHTML = `<strong>Данные загружены.</strong> Сравнение ${yearCurrent} vs ${yearPrevious}.`;
-      document.getElementById("altCaption").innerHTML = `Сравнение ${yearCurrent} и ${yearPrevious}. 🔴 Залётные, 🟠 Разовые основные, 🔵 Повторно основные, 🟢 Постоянные.`;
+      document.getElementById("heroSubtitle").textContent = `Порівняння ${yearCurrent} (YTD) проти ${yearPrevious}.`;
+      document.getElementById("heroNote").innerHTML = `<strong>Дані завантажені.</strong> Порівняння ${yearCurrent} vs ${yearPrevious}.`;
+      document.getElementById("altCaption").innerHTML = `Порівняння ${yearCurrent} та ${yearPrevious}. 🔴 Зальотні, 🟠 Разові основні, 🔵 Повторно основні, 🟢 Постійні.`;
       document.querySelectorAll("[id^='legendCurrent']").forEach(el => el.textContent = yearCurrent);
       document.querySelectorAll("[id^='legendPrev']").forEach(el => el.textContent = yearPrevious);
     }
@@ -532,22 +532,22 @@
         return `<div class="alt-segment-card" style="border-left:4px solid ${group.color}">
           <div class="alt-segment-header"><div class="alt-segment-icon" style="background:${group.color}">${group.icon}</div><div><div class="alt-segment-name">${group.name}</div><div style="font-size:10px;color:var(--muted)">${group.desc}</div></div></div>
           <div class="alt-segment-metrics">
-            <div class="alt-metric-row"><span class="alt-metric-label">Компании</span><div class="alt-metric-values"><span class="alt-metric-current">${number(dCurr.companies)} <span style="font-size:11px;color:var(--muted)">(${pf.format(dCurr.companiesPct)}%)</span></span><span class="alt-metric-prev">${yearPrevious}: ${number(dPrev.companies)} (${pf.format(dPrev.companiesPct)}%)</span>${altDeltaHTML(dCurr.companies, dPrev.companies, "number")}</div></div>
-            <div class="alt-metric-row"><span class="alt-metric-label">Продажи</span><div class="alt-metric-values"><span class="alt-metric-current">${moneyM(dCurr.sales)} <span style="font-size:11px;color:var(--muted)">(${pf.format(dCurr.salesPct)}%)</span></span><span class="alt-metric-prev">${yearPrevious}: ${moneyM(dPrev.sales)} (${pf.format(dPrev.salesPct)}%)</span>${altDeltaHTML(dCurr.sales, dPrev.sales, "moneyM")}</div></div>
-            <div class="alt-metric-row"><span class="alt-metric-label">Средний чек</span><div class="alt-metric-values"><span class="alt-metric-current">${moneyK(dCurr.avg)}</span><span class="alt-metric-prev">${yearPrevious}: ${moneyK(dPrev.avg)}</span>${altDeltaHTML(dCurr.avg, dPrev.avg, "moneyK")}</div></div>
+            <div class="alt-metric-row"><span class="alt-metric-label">Компанії</span><div class="alt-metric-values"><span class="alt-metric-current">${number(dCurr.companies)} <span style="font-size:11px;color:var(--muted)">(${pf.format(dCurr.companiesPct)}%)</span></span><span class="alt-metric-prev">${yearPrevious}: ${number(dPrev.companies)} (${pf.format(dPrev.companiesPct)}%)</span>${altDeltaHTML(dCurr.companies, dPrev.companies, "number")}</div></div>
+            <div class="alt-metric-row"><span class="alt-metric-label">Продажі</span><div class="alt-metric-values"><span class="alt-metric-current">${moneyM(dCurr.sales)} <span style="font-size:11px;color:var(--muted)">(${pf.format(dCurr.salesPct)}%)</span></span><span class="alt-metric-prev">${yearPrevious}: ${moneyM(dPrev.sales)} (${pf.format(dPrev.salesPct)}%)</span>${altDeltaHTML(dCurr.sales, dPrev.sales, "moneyM")}</div></div>
+            <div class="alt-metric-row"><span class="alt-metric-label">Середній чек</span><div class="alt-metric-values"><span class="alt-metric-current">${moneyK(dCurr.avg)}</span><span class="alt-metric-prev">${yearPrevious}: ${moneyK(dPrev.avg)}</span>${altDeltaHTML(dCurr.avg, dPrev.avg, "moneyK")}</div></div>
           </div></div>`;
       }).join("");
 
-      document.getElementById("altComparisonTable").innerHTML = `<thead><tr><th>Группа</th><th>Фирм ${yearCurrent}</th><th>Фирм ${yearPrevious}</th><th>Δ фирм</th><th>Продажи ${yearCurrent}</th><th>Продажи ${yearPrevious}</th><th>Δ продаж</th><th>% ${yearCurrent}</th><th>% ${yearPrevious}</th><th>Δ доли</th></tr></thead><tbody>
+      document.getElementById("altComparisonTable").innerHTML = `<thead><tr><th>Група</th><th>Фірм ${yearCurrent}</th><th>Фірм ${yearPrevious}</th><th>Δ фірм</th><th>Продажі ${yearCurrent}</th><th>Продажі ${yearPrevious}</th><th>Δ продажів</th><th>% ${yearCurrent}</th><th>% ${yearPrevious}</th><th>Δ частки</th></tr></thead><tbody>
         ${alt.map(group => {
           const dCurr = group.data.current; const dPrev = group.data.previous;
           const compDiff = dCurr.companies - dPrev.companies; const salesDiff = dCurr.sales - dPrev.sales; const shareDiff = dCurr.salesPct - dPrev.salesPct;
           return `<tr><td class="class-name"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${group.color};margin-right:8px"></span>${group.name}</td><td class="v-current">${number(dCurr.companies)}</td><td class="v-prev">${number(dPrev.companies)}</td><td><span class="delta ${compDiff>0?'good':(compDiff<0?'bad':'neutral')}">${sign(compDiff)}${number(compDiff)} (${sign(pct(dCurr.companies,dPrev.companies))}${pf.format(pct(dCurr.companies,dPrev.companies))}%)</span></td><td class="v-current">${moneyM(dCurr.sales)}</td><td class="v-prev">${moneyM(dPrev.sales)}</td><td><span class="delta ${salesDiff>0?'good':(salesDiff<0?'bad':'neutral')}">${sign(salesDiff)}${moneyM(salesDiff)} (${sign(pct(dCurr.sales,dPrev.sales))}${pf.format(pct(dCurr.sales,dPrev.sales))}%)</span></td><td class="v-current">${pf.format(dCurr.salesPct)}%</td><td class="v-prev">${pf.format(dPrev.salesPct)}%</td><td><span class="delta ${shareDiff>0?'good':(shareDiff<0?'bad':'neutral')}">${sign(shareDiff)}${pf.format(shareDiff)} п.п.</span></td></tr>`;
         }).join("")}
-        <tr style="background:#fbfcfe;font-weight:900"><td class="class-name">📊 Всего</td><td class="v-current">${number(alt.reduce((s,g)=>s+g.data.current.companies,0))}</td><td class="v-prev">${number(alt.reduce((s,g)=>s+g.data.previous.companies,0))}</td><td></td><td class="v-current">${moneyM(alt.reduce((s,g)=>s+g.data.current.sales,0))}</td><td class="v-prev">${moneyM(alt.reduce((s,g)=>s+g.data.previous.sales,0))}</td><td colspan="4"></td></tr></tbody>`;
+        <tr style="background:#fbfcfe;font-weight:900"><td class="class-name">📊 Всього</td><td class="v-current">${number(alt.reduce((s,g)=>s+g.data.current.companies,0))}</td><td class="v-prev">${number(alt.reduce((s,g)=>s+g.data.previous.companies,0))}</td><td></td><td class="v-current">${moneyM(alt.reduce((s,g)=>s+g.data.current.sales,0))}</td><td class="v-prev">${moneyM(alt.reduce((s,g)=>s+g.data.previous.sales,0))}</td><td colspan="4"></td></tr></tbody>`;
 
       const sCurr = alt.map(g => g.data.current.sales); const sPrev = alt.map(g => g.data.previous.sales); const maxAlt = Math.max(...sCurr, ...sPrev, 1);
-      document.getElementById("altBars").innerHTML = alt.map((group, i) => `<div class="bar-row"><div class="bar-label">${["Залётные","Разовые осн.","Повторные осн.","Постоянные"][i]}</div><div class="bar-pair"><div class="bar-track"><div class="bar-fill" style="--w:${(sCurr[i]/maxAlt)*100}%;--c:${group.color}"></div></div><div class="bar-track"><div class="bar-fill" style="--w:${(sPrev[i]/maxAlt)*100}%;--c:#b9c1cf"></div></div></div><div class="bar-value">${moneyM(sCurr[i])}<br>${moneyM(sPrev[i])}</div></div>`).join("");
+      document.getElementById("altBars").innerHTML = alt.map((group, i) => `<div class="bar-row"><div class="bar-label">${["Зальотні","Разові осн.","Повторні осн.","Постійні"][i]}</div><div class="bar-pair"><div class="bar-track"><div class="bar-fill" style="--w:${(sCurr[i]/maxAlt)*100}%;--c:${group.color}"></div></div><div class="bar-track"><div class="bar-fill" style="--w:${(sPrev[i]/maxAlt)*100}%;--c:#b9c1cf"></div></div></div><div class="bar-value">${moneyM(sCurr[i])}<br>${moneyM(sPrev[i])}</div></div>`).join("");
     }
 
     function renderKpis() {
@@ -556,7 +556,7 @@
       const invCurr = rfm.reduce((s,g)=>s+g.current.invoices,0); const invPrev = rfm.reduce((s,g)=>s+g.previous.invoices,0);
       const compCurr = rfm.reduce((s,g)=>s+g.current.companies,0); const compPrev = rfm.reduce((s,g)=>s+g.previous.companies,0);
       const avgCurr = Math.round((totalCurr*1_000_000)/(compCurr||1)/1000); const avgPrev = Math.round((totalPrev*1_000_000)/(compPrev||1)/1000);
-      const items = [["Виручка Всі",totalCurr,totalPrev,"moneyM"],["Накладні Всі",invCurr,invPrev,"number"],["Компанії Всі",compCurr,compPrev,"number"],["Середній чек Всі",avgCurr,avgPrev,"moneyK"],["Виручка VIP",totalCurr*0.97,totalPrev*0.98,"moneyM"]];
+      const items = [["Продажі Всі",totalCurr,totalPrev,"moneyM"],["Накладні Всі",invCurr,invPrev,"number"],["Компанії Всі",compCurr,compPrev,"number"],["Середній чек Всі",avgCurr,avgPrev,"moneyK"],["Продажі VIP",totalCurr*0.97,totalPrev*0.98,"moneyM"]];
       document.getElementById("kpiGrid").innerHTML = items.map(([label,now,prev,type])=>`<article class="kpi"><div class="kpi-label">${label}</div><div class="kpi-value">${type==="moneyM"?moneyM(now):type==="moneyK"?moneyK(now):number(now)}</div><div class="kpi-sub">${yoyBadge(now,prev)} <span>${yearPrevious}: ${type==="moneyM"?moneyM(prev):type==="moneyK"?moneyK(prev):number(prev)}</span></div></article>`).join("");
     }
 
@@ -600,8 +600,8 @@
 
         return `<article class="segment-card ${isInactive?'inactive':''}" style="--accent:${seg.color};--soft:${seg.soft}">
           <header class="segment-top"><div><h2 class="segment-title"><span class="segment-mark"></span>${seg.title}</h2><p class="segment-sub">${seg.hint}</p></div>
-          <div class="segment-summary"><span><b class="summary-num">${moneyM(salesCurr)}</b>выручка ${yoyBadge(salesCurr,salesPrev)}</span><span><b class="summary-num">${number(invCurr)}</b>накладные ${yoyBadge(invCurr,invPrev)}</span><span><b class="summary-num">${number(compCurr)}</b>компании ${yoyBadge(compCurr,compPrev)}</span></div></header>
-          <div class="table-wrap"><table><thead><tr><th>Класс</th><th>Компании</th><th>Накладные</th><th>Сумма продаж</th><th>Средний чек</th><th>% от продаж</th></tr></thead><tbody>${rows}</tbody></table></div></article>`;
+          <div class="segment-summary"><span><b class="summary-num">${moneyM(salesCurr)}</b>продажі ${yoyBadge(salesCurr,salesPrev)}</span><span><b class="summary-num">${number(invCurr)}</b>накладні ${yoyBadge(invCurr,invPrev)}</span><span><b class="summary-num">${number(compCurr)}</b>компанії ${yoyBadge(compCurr,compPrev)}</span></div></header>
+          <div class="table-wrap"><table><thead><tr><th>Клас</th><th>Компанії</th><th>Накладні</th><th>Сума продажів</th><th>Середній чек</th><th>% від продажів</th></tr></thead><tbody>${rows}</tbody></table></div></article>`;
       }).join("");
     }
 
@@ -610,7 +610,7 @@
       const curr = imp[String(yearCurrent)]; const prev = imp[String(yearPrevious)];
       if (!curr || !prev) return;
       const rows = curr.labels.map((label,i)=>`<tr><td class="class-name">${label}</td><td>${metricCell(curr.arr[i].companies,prev.arr[i].companies,"number",yearPrevious)}</td><td>${metricCell(curr.arr[i].invoices,prev.arr[i].invoices,"number",yearPrevious)}</td><td>${metricCell(curr.arr[i].sales,prev.arr[i].sales,"moneyM",yearPrevious)}</td><td>${metricCell(curr.arr[i].avg,prev.arr[i].avg,"moneyK",yearPrevious)}</td><td>${metricCell(curr.arr[i].share,prev.arr[i].share,"percent",yearPrevious)}</td></tr>`).join("");
-      document.getElementById("importantTable").innerHTML = `<thead><tr><th>Группа</th><th>Компании</th><th>Накладные</th><th>Сумма продаж</th><th>Средний чек</th><th>% от продаж</th></tr></thead><tbody>${rows}</tbody>`;
+      document.getElementById("importantTable").innerHTML = `<thead><tr><th>Група</th><th>Компанії</th><th>Накладні</th><th>Сума продажів</th><th>Середній чек</th><th>% від продажів</th></tr></thead><tbody>${rows}</tbody>`;
     }
 
     function renderCallout() {
@@ -619,7 +619,7 @@
       const totalCurr = rfm.reduce((s,g)=>s+g.current.sales,0); const totalPrev = rfm.reduce((s,g)=>s+g.previous.sales,0);
       const permCurr = alt[3]?.data?.current; const permPrev = alt[3]?.data?.previous;
       if (!permCurr || !permPrev) return;
-      document.getElementById("callout").innerHTML = `<p><strong>Главный вывод:</strong> выручка в ${yearCurrent}: ${moneyM(totalCurr)} vs ${yearPrevious}: ${moneyM(totalPrev)}. Постоянные покупатели: ${pf.format(permCurr.salesPct)}% vs ${pf.format(permPrev.salesPct)}%.</p>`;
+      document.getElementById("callout").innerHTML = `<p><strong>Головний висновок:</strong> продажі у ${yearCurrent}: ${moneyM(totalCurr)} vs ${yearPrevious}: ${moneyM(totalPrev)}. Постійні покупці: ${pf.format(permCurr.salesPct)}% vs ${pf.format(permPrev.salesPct)}%.</p>`;
     }
 
     function renderDonutCharts() {

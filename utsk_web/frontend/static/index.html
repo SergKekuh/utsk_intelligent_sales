@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uk">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UTSK Intelligent Sales — Аналитика</title>
+    <title>UTSK Intelligent Sales — Аналітика</title>
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
         rel="stylesheet">
@@ -695,9 +695,9 @@
                 <div class="titlebar-dot green"></div>
             </div>
             <span class="titlebar-logo">UTSK Studio</span>
-            <span class="titlebar-badge">Intelligent Sales v7.5</span>
+            <span class="titlebar-badge">Intelligent Sales v9.0</span>
             <div class="titlebar-actions">
-                <button class="btn" onclick="refreshAll()">🔄 Обновить</button>
+                <button class="btn" onclick="refreshAll()">🔄 Оновити</button>
                 <a href="https://grandkid-unrest-undesired.ngrok-free.dev/?token=utsk2026" target="_blank"
                     class="btn btn-accent">🌐 Live Demo</a>
             </div>
@@ -706,21 +706,21 @@
         <div class="main-content">
             <!-- Sidebar -->
             <div class="sidebar">
-                <div class="sidebar-section">Мониторинг</div>
+                <div class="sidebar-section">Моніторинг</div>
                 <button class="sidebar-item active" data-page="dashboard">📊 Дашборд</button>
-                <button class="sidebar-item" data-page="clients">👥 Активные</button>
+                <button class="sidebar-item" data-page="clients">👥 Активні</button>
                 <button class="sidebar-item" data-page="funnel">🏷️ Воронка</button>
-                <div class="sidebar-section">AI Аналитика</div>
-                <button class="sidebar-item" data-page="recommendations">✨ Рекомендации</button>
-                <button class="sidebar-item" data-page="churn">⚠️ Риск оттока</button>
-                <div class="sidebar-section">Инструменты</div>
-                <a href="/top-sales-analytics?token=utsk2026" target="_blank" class="sidebar-item">🏆 ТОП продаж — Визуализация</a>
-                <a href="/new-clients-analytics?token=utsk2026" target="_blank" class="sidebar-item">🌱 Аналитика Новых клиентов</a>
-                <a href="/returned-clients-analytics?token=utsk2026" target="_blank" class="sidebar-item">🔄 Аналитика Вернувшихся клиентов</a>
-                <a href="/inactive-clients-analytics?token=utsk2026" target="_blank" class="sidebar-item">💤 Аналитика Неактивных клиентов</a>
-                <a href="/comparison?token=utsk2026" target="_blank" class="sidebar-item">📊 Расширенная аналитика</a>
-                <a href="/abc-structure?token=utsk2026" target="_blank" class="sidebar-item">🏗️ Аналитика ABC</a>
-                <a href="/directions-analytics?token=utsk2026" target="_blank" class="sidebar-item">🏢 Аналитика Отраслей</a>
+                <div class="sidebar-section">AI Аналітика</div>
+                <button class="sidebar-item" data-page="recommendations">✨ Рекомендації</button>
+                <button class="sidebar-item" data-page="churn">⚠️ Ризик відтоку</button>
+                <div class="sidebar-section">Інструменти</div>
+                <a href="/top-sales-analytics?token=utsk2026" target="_blank" class="sidebar-item">🏆 ТОП продажів — Візуалізація</a>
+                <a href="/new-clients-analytics?token=utsk2026" target="_blank" class="sidebar-item">🌱 Аналітика Нових клієнтів</a>
+                <a href="/returned-clients-analytics?token=utsk2026" target="_blank" class="sidebar-item">🔄 Аналітика Повернених клієнтів</a>
+                <a href="/inactive-clients-analytics?token=utsk2026" target="_blank" class="sidebar-item">💤 Аналітика Неактивних клієнтів</a>
+                <a href="/comparison?token=utsk2026" target="_blank" class="sidebar-item">📊 Розширена аналітика</a>
+                <a href="/abc-structure?token=utsk2026" target="_blank" class="sidebar-item">🏗️ Аналітика ABC</a>
+                <a href="/directions-analytics?token=utsk2026" target="_blank" class="sidebar-item">🏢 Аналітика Галузей</a>
             </div>
 
             <!-- Workspace -->
@@ -728,35 +728,35 @@
                 <div class="content-area" id="content-area">
                     <!-- Header -->
                     <div class="page-header">
-                        <h1 class="page-title" id="page-title">Обзорный дашборд</h1>
+                        <h1 class="page-title" id="page-title">Оглядовий дашборд</h1>
                         <div class="search-wrapper">
-                            <input type="text" class="search-input" id="search-input" placeholder="🔍 Поиск по клиентам...">
+                            <input type="text" class="search-input" id="search-input" placeholder="🔍 Пошук за клієнтами...">
                         </div>
                     </div>
 
                     <!-- KPI Cards -->
                     <div class="kpi-grid" id="kpi-grid">
                         <div class="kpi-card" onclick="window.location.href='/analytics?token=utsk2026'">
-                            <span class="kpi-label">👥 Активных клиентов</span>
+                            <span class="kpi-label">👥 Покупці</span>
                             <span class="kpi-value" id="kpi-total-clients">—</span>
-                            <span class="kpi-trend">В аналитике 2026</span>
+                            <span class="kpi-trend">В аналітиці 2026</span>
                         </div>
                         <div class="kpi-card" onclick="window.location.href='/monthly?token=utsk2026'">
-                            <span class="kpi-label">📅 Покупок за 30 дн.</span>
+                            <span class="kpi-label">📅 Продажі за 30 днів</span>
                             <span class="kpi-value" id="kpi-active-30d">—</span>
-                            <span class="kpi-trend">Активных клиентов</span>
+                            <span class="kpi-trend">Активних покупців</span>
                         </div>
                         <div class="kpi-card" onclick="window.location.href='/advanced?token=utsk2026'"
                             style="cursor:pointer;">
-                            <span class="kpi-label">💰 Выручка 2026</span>
+                            <span class="kpi-label">💰 Продажі 2026</span>
                             <span class="kpi-value" id="kpi-total-revenue">—</span>
-                            <span class="kpi-trend">Товарная</span>
+                            <span class="kpi-trend">Товарні</span>
                         </div>
                         <div class="kpi-card" onclick="window.location.href='/avg-check?token=utsk2026'"
                             style="cursor:pointer;">
-                            <span class="kpi-label">🛒 Средний чек</span>
+                            <span class="kpi-label">🛒 Середній чек</span>
                             <span class="kpi-value" id="kpi-avg-check">—</span>
-                            <span class="kpi-trend">Без услуг</span>
+                            <span class="kpi-trend">Без послуг</span>
                         </div>
                     </div>
 
@@ -765,11 +765,11 @@
                         <div class="table-block">
                             <div class="table-header">
                                 <a href="/top-sales-analytics?token=utsk2026" id="top-sales-link" class="top-sales-link">
-                                    <span class="top-sales-title" id="block-title">📊 ТОП продаж (80% правило)</span>
-                                    <span class="top-sales-badge">📈 Визуализация</span>
+                                    <span class="top-sales-title" id="block-title">📊 ТОП продажів (80% правило)</span>
+                                    <span class="top-sales-badge">📈 Візуалізація</span>
                                 </a>
                                 <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-                                    <label style="font-size:11px;color:var(--text-muted);font-weight:600;">С:</label>
+                                    <label style="font-size:11px;color:var(--text-muted);font-weight:600;">З:</label>
                                     <input type="date" id="date-from" style="padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:12px;background:#fff;" onchange="refreshAll()">
                                     <label style="font-size:11px;color:var(--text-muted);font-weight:600;">По:</label>
                                     <input type="date" id="date-to" style="padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:12px;background:#fff;" onchange="refreshAll()">
@@ -783,14 +783,14 @@
                                     <thead id="table-head">
                                         <tr>
                                             <th rowspan="2" style="text-align:center;">#</th>
-                                            <th rowspan="2">Клиент</th>
+                                            <th rowspan="2">Клієнт</th>
                                             <th colspan="2" style="text-align:center;background:#e2e8f0;color:#1e293b;font-weight:800;font-size:12px;">Статус</th>
-                                            <th rowspan="2" style="text-align:right;">Продажи</th>
-                                            <th rowspan="2" style="text-align:right;">% от общих</th>
+                                            <th rowspan="2" style="text-align:right;">Продажі</th>
+                                            <th rowspan="2" style="text-align:right;">% від загальних</th>
                                         </tr>
                                         <tr>
-                                            <th style="text-align:center;background:#fefce8;color:#854d0e;font-weight:700;">базовый 2025</th>
-                                            <th style="text-align:center;background:#ecfdf5;color:#065f46;font-weight:700;">текущий 2026</th>
+                                            <th style="text-align:center;background:#fefce8;color:#854d0e;font-weight:700;">базовий 2025</th>
+                                            <th style="text-align:center;background:#ecfdf5;color:#065f46;font-weight:700;">поточний 2026</th>
                                         </tr>
                                     </thead>
                                     <tbody id="clients-table-body">
@@ -814,7 +814,7 @@
 
         function $(id) { return document.getElementById(id); }
         function safeText(id, text) { const el = $(id); if (el) el.textContent = text; }
-        function formatNum(n) { return (n == null) ? '—' : Number(n).toLocaleString('ru-RU'); }
+        function formatNum(n) { return (n == null) ? '—' : Number(n).toLocaleString('uk-UA'); }
         
         function trimProductCode(name) {
             if (!name) return '—';
@@ -826,7 +826,7 @@
             }
             return parts.join(' ') || name;
         }
-        const pf = new Intl.NumberFormat('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const pf = new Intl.NumberFormat('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         function formatCur(n) {
             if (n == null) return '—';
             n = Number(n);
@@ -886,14 +886,14 @@
                 const bt = $('block-title');
                 if (bt) {
                     const periodText = data.period_label ? ` — ${data.period_label}` : '';
-                    bt.textContent = `📊 ТОП продаж (80% правило)${periodText}`;
+                    bt.textContent = `📊 ТОП продажів (80% правило)${periodText}`;
                 }
                 const topSalesLink = $('top-sales-link');
                 if (topSalesLink) topSalesLink.href = `/top-sales-analytics?token=${TOKEN}`;
                 
                 tb.innerHTML = '';
                 if (!data.clients || !data.clients.length) {
-                    tb.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;">📭 Нет данных</td></tr>';
+                    tb.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;">📭 Немає даних</td></tr>';
                     return;
                 }
                 
@@ -926,7 +926,7 @@
                             <td style="text-align:center;vertical-align:middle;">${rankCell}</td>
                             <td>
                                 <b>${c.name || '—'}</b>
-                                <br><small style="color:var(--text-muted);">Код: ${c.code} | Продаж: ${c.invoice_count || 0}</small>
+                                <br><small style="color:var(--text-muted);">Код: ${c.code} | Продажів: ${c.invoice_count || 0}</small>
                             </td>
                             <td style="text-align:center;"><span class="status-pill ${cls25}">${status2025}</span></td>
                             <td style="text-align:center;"><span class="status-pill ${cls26}">${status2026}</span></td>
@@ -951,14 +951,14 @@
                     
                     tb.innerHTML += `
                         <tr style="background:#f0fdf4;font-weight:700;border-top:1px solid var(--border);">
-                            <td colspan="4" style="text-align:right;">Общие продажи выбранных (80%):</td>
+                            <td colspan="4" style="text-align:right;">Загальні продажі обраних (80%):</td>
                             <td style="text-align:right;color:#047857;font-size:14px;">₴ ${formatNum(Math.round(selectedSum))}</td>
                             <td style="text-align:right;color:#047857;">${pf.format(lastRunningPct)}%</td>
                         </tr>`;
                     
                     tb.innerHTML += `
                         <tr style="background:#f8fafc;font-weight:700;border-top:2px solid var(--border);">
-                            <td colspan="4" style="text-align:right;">📊 Общие продажи за период:</td>
+                            <td colspan="4" style="text-align:right;">📊 Загальні продажі за період:</td>
                             <td style="text-align:right;color:#047857;font-size:15px;">₴ ${formatNum(Math.round(data.total_revenue))}</td>
                             <td style="text-align:right;color:var(--text-muted);">100%</td>
                         </tr>`;
@@ -966,7 +966,7 @@
                 
             } catch (e) {
                 console.error('Top sales error:', e);
-                tb.innerHTML = '<tr><td colspan="6" style="color:#ef4444;text-align:center;">⚠️ Ошибка загрузки данных</td></tr>';
+                tb.innerHTML = '<tr><td colspan="6" style="color:#ef4444;text-align:center;">⚠️ Помилка завантаження даних</td></tr>';
             }
         }
 
@@ -980,7 +980,7 @@
                 const raw = await r.json();
                 const data = Array.isArray(raw) ? raw : (raw.data || []);
                 tb.innerHTML = '';
-                if (!data.length) { tb.innerHTML = '<tr><td colspan="4">📭 Нет активных</td></tr>'; return; }
+                if (!data.length) { tb.innerHTML = '<tr><td colspan="4">📭 Немає активних</td></tr>'; return; }
                 data.forEach(c => {
                     tb.innerHTML += `<tr>
                         <td><b>${c.name || '—'}</b><br><small>Код: ${c.code}</small></td>
@@ -1002,7 +1002,7 @@
             const container = $('table-scroll-container') || document.querySelector('.table-scroll');
             if (!container) return;
 
-            container.innerHTML = `<div style="text-align:center;padding:30px;color:var(--text-muted);font-weight:600;">⏳ Загрузка воронки продаж за ${funnelYear} год...</div>`;
+            container.innerHTML = `<div style="text-align:center;padding:30px;color:var(--text-muted);font-weight:600;">⏳ Завантаження воронки продажів за ${funnelYear} рік...</div>`;
 
             try {
                 const r = await fetch(`/api/funnel?token=${TOKEN}&year=${funnelYear}`);
@@ -1018,8 +1018,8 @@
                 let sleepingCount = 0;
                 let leftCount = 0;
                 lifecycleList.forEach(item => {
-                    if (item.status_id === 8 || (item.status_name && item.status_name.includes('Спящие'))) sleepingCount = item.count;
-                    if (item.status_id === 9 || (item.status_name && item.status_name.includes('Ушедшие'))) leftCount = item.count;
+                    if (item.status_id === 8 || (item.status_name && item.status_name.includes('Сплячі'))) sleepingCount = item.count;
+                    if (item.status_id === 9 || (item.status_name && item.status_name.includes('Вибули'))) leftCount = item.count;
                 });
 
                 let totalRetCount = 0;
@@ -1049,45 +1049,45 @@
                         <div>
                             <div class="tooltip-trigger" tabindex="0">
                                 <div style="font-size:14px; font-weight:700; color:#1e293b; display:flex; align-items:center; gap:8px;">
-                                    <span>💤</span> Жизненный цикл клиентов 🔗
+                                    <span>💤</span> Життєвий цикл клієнтів 🔗
                                 </div>
                                 <span class="tooltip-info-badge" title="Справка по группе">?</span>
                                 <div class="funnel-tooltip-text">
-                                    <div style="font-weight:700; color:#f59e0b; margin-bottom:4px; font-size:12px;">💤 Спящие (${formatNum(sleepingCount || 401)})</div>
+                                    <div style="font-weight:700; color:#f59e0b; margin-bottom:4px; font-size:12px;">💤 Сплячі (${formatNum(sleepingCount || 401)})</div>
                                     <div style="color:#cbd5e1; margin-bottom:10px; font-size:11px; line-height:1.4;">
-                                        Покупали в ${funnelYear-1}, но в ${funnelYear} — тишина.<br>
-                                        Клиент «засыпает» — пора напомнить о себе.
+                                        Купували у ${funnelYear-1}, але у ${funnelYear} — тиша.<br>
+                                        Клієнт «засинає» — час нагадати про себе.
                                     </div>
-                                    <div style="font-weight:700; color:#ef4444; margin-bottom:4px; font-size:12px;">👻 Ушедшие (${formatNum(leftCount || 605)})</div>
+                                    <div style="font-weight:700; color:#ef4444; margin-bottom:4px; font-size:12px;">👻 Вибули (${formatNum(leftCount || 605)})</div>
                                     <div style="color:#cbd5e1; font-size:11px; line-height:1.4;">
-                                        Не покупали ни в ${funnelYear-1}, ни в ${funnelYear}.<br>
-                                        Потерянная база — кандидаты на реактивацию.
+                                        Не купували ні у ${funnelYear-1}, ні у ${funnelYear}.<br>
+                                        Втрачена база — кандидати на реактивацію.
                                     </div>
                                 </div>
                             </div>
-                            <div style="font-size:11px; color:#64748b; margin-top:2px;">Показывает неактивных и вернувшихся клиентов за ${funnelYear} год</div>
+                            <div style="font-size:11px; color:#64748b; margin-top:2px;">Показує неактивних та повернених клієнтів за ${funnelYear} рік</div>
                         </div>
                         <div style="font-size:12px; font-weight:700; color:#ef4444; background:#fee2e2; padding:4px 10px; border-radius:8px; display:flex; align-items:center; gap:4px; transition:background 0.2s;">
-                            Аналитика 🔗
+                            Аналітика 🔗
                         </div>
                     </div>
                     <table style="width:100%; border-collapse:collapse;">
                         <thead>
                             <tr style="background:#f8fafc; border-bottom:1px solid #e2e8f0;">
                                 <th style="padding:10px 14px; text-align:left; font-size:12px; font-weight:700; color:#475569;">Статус</th>
-                                <th style="padding:10px 14px; text-align:center; font-size:12px; font-weight:700; color:#475569;">Количество</th>
-                                <th style="padding:10px 14px; text-align:left; font-size:12px; font-weight:700; color:#475569;">Описание</th>
+                                <th style="padding:10px 14px; text-align:center; font-size:12px; font-weight:700; color:#475569;">Кількість</th>
+                                <th style="padding:10px 14px; text-align:left; font-size:12px; font-weight:700; color:#475569;">Опис</th>
                             </tr>
                         </thead>
                         <tbody>
                 `;
 
                 if (!lifecycleList.length) {
-                    html += `<tr><td colspan="3" style="text-align:center; padding:14px; color:#94a3b8; font-size:13px;">📭 Нет данных о неактивных клиентах</td></tr>`;
+                    html += `<tr><td colspan="3" style="text-align:center; padding:14px; color:#94a3b8; font-size:13px;">📭 Немає даних про неактивних клієнтів</td></tr>`;
                 } else {
                     lifecycleList.forEach(item => {
-                        const isSleeping = item.status_id === 8 || (item.status_name && item.status_name.includes('Спящие'));
-                        const isReturned = item.status_id === 10 || (item.status_name && item.status_name.includes('Вернувшиеся'));
+                        const isSleeping = item.status_id === 8 || (item.status_name && item.status_name.includes('Сплячі'));
+                        const isReturned = item.status_id === 10 || (item.status_name && item.status_name.includes('Повернені'));
                         const icon = isReturned ? '🔄' : (isSleeping ? '💤' : '👻');
                         const pillBg = isReturned ? '#e0f2fe' : (isSleeping ? '#fef3c7' : '#fee2e2');
                         const pillColor = isReturned ? '#0369a1' : (isSleeping ? '#92400e' : '#991b1b');
@@ -1123,39 +1123,39 @@
                         <div>
                             <div class="tooltip-trigger" tabindex="0">
                                 <div style="font-size:14px; font-weight:700; color:#1e293b; display:flex; align-items:center; gap:8px;">
-                                    <span>🔄</span> Вернувшиеся клиенты по частоте покупок 🔗
+                                    <span>🔄</span> Повернені клієнти за частотою покупок 🔗
                                 </div>
                                 <span class="tooltip-info-badge" title="Справка по группе">?</span>
                                 <div class="funnel-tooltip-text">
-                                    <div style="font-weight:700; color:#38bdf8; margin-bottom:4px; font-size:12px;">🔄 Вернувшиеся (${formatNum(totalRetCount || 31)})</div>
+                                    <div style="font-weight:700; color:#38bdf8; margin-bottom:4px; font-size:12px;">🔄 Повернені (${formatNum(totalRetCount || 31)})</div>
                                     <div style="color:#cbd5e1; margin-bottom:8px; font-size:11px; line-height:1.4;">
-                                        Покупали в ${funnelYear-2} → пропустили ${funnelYear-1} → вернулись в ${funnelYear}.<br>
-                                        Сигнал: компания снова активна на рынке.
+                                        Купували у ${funnelYear-2} → пропустили ${funnelYear-1} → повернулися у ${funnelYear}.<br>
+                                        Сигнал: компанія знову активна на ринку.
                                     </div>
                                     <div style="color:#6ee7b7; font-size:11px; font-weight:600;">
-                                        ✨ Отличный момент для восстановления партнёрства!
+                                        ✨ Чудовий момент для відновлення партнерства!
                                     </div>
                                 </div>
                             </div>
                             <div style="font-size:11px; color:#64748b; margin-top:2px;">Покупали в 2024, пропустили 2025, вернулись в ${funnelYear} (status_id=10)</div>
                         </div>
                         <div style="font-size:12px; font-weight:700; color:#0284c7; background:#e0f2fe; padding:4px 10px; border-radius:8px; display:flex; align-items:center; gap:4px; transition:background 0.2s;">
-                            Аналитика 🔗
+                            Аналітика 🔗
                         </div>
                     </div>
                     <table style="width:100%; border-collapse:collapse;">
                         <thead>
                             <tr style="background:#f8fafc; border-bottom:1px solid #e2e8f0;">
-                                <th style="padding:10px 14px; text-align:left; font-size:12px; font-weight:700; color:#475569;">Группа частоты</th>
-                                <th style="padding:10px 14px; text-align:center; font-size:12px; font-weight:700; color:#475569;">Количество</th>
-                                <th style="padding:10px 14px; text-align:right; font-size:12px; font-weight:700; color:#475569;">Товарная выручка (${funnelYear})</th>
+                                <th style="padding:10px 14px; text-align:left; font-size:12px; font-weight:700; color:#475569;">Група частоти</th>
+                                <th style="padding:10px 14px; text-align:center; font-size:12px; font-weight:700; color:#475569;">Кількість</th>
+                                <th style="padding:10px 14px; text-align:right; font-size:12px; font-weight:700; color:#475569;">Товарні продажі (${funnelYear})</th>
                             </tr>
                         </thead>
                         <tbody>
                 `;
 
                 if (!returnedClientsList.length) {
-                    html += `<tr><td colspan="3" style="text-align:center; padding:14px; color:#94a3b8; font-size:13px;">📭 Нет вернувшихся клиентов за ${funnelYear}</td></tr>`;
+                    html += `<tr><td colspan="3" style="text-align:center; padding:14px; color:#94a3b8; font-size:13px;">📭 Немає повернених клієнтів за ${funnelYear}</td></tr>`;
                 } else {
                     returnedClientsList.forEach(item => {
                         html += `
@@ -1169,7 +1169,7 @@
 
                     html += `
                         <tr style="background:#f8fafc; border-top:2px solid #e2e8f0;">
-                            <td style="padding:10px 14px; font-size:13px; font-weight:800; color:#0f172a;">Итого Вернувшихся</td>
+                            <td style="padding:10px 14px; font-size:13px; font-weight:800; color:#0f172a;">Разом Повернених</td>
                             <td style="padding:10px 14px; text-align:center; font-weight:800; font-size:14px; color:#0f172a;">${formatNum(totalRetCount)}</td>
                             <td style="padding:10px 14px; text-align:right; font-weight:800; font-size:14px; color:#047857;">${formatCur(totalRetRevenue)}</td>
                         </tr>
@@ -1193,39 +1193,39 @@
                         <div>
                             <div class="tooltip-trigger" tabindex="0">
                                 <div style="font-size:14px; font-weight:700; color:#1e293b; display:flex; align-items:center; gap:8px;">
-                                    <span>🆕</span> Новые клиенты по частоте покупок 🔗
+                                    <span>🆕</span> Нові клієнти за частотою покупок 🔗
                                 </div>
                                 <span class="tooltip-info-badge" title="Справка по группе">?</span>
                                 <div class="funnel-tooltip-text">
-                                    <div style="font-weight:700; color:#c084fc; margin-bottom:4px; font-size:12px;">🆕 Новые (${formatNum(totalNewCount || 119)})</div>
+                                    <div style="font-weight:700; color:#c084fc; margin-bottom:4px; font-size:12px;">🆕 Нові (${formatNum(totalNewCount || 119)})</div>
                                     <div style="color:#cbd5e1; margin-bottom:8px; font-size:11px; line-height:1.4;">
-                                        Не покупали 2 года (${funnelYear-2}–${funnelYear-1}) → первая покупка в ${funnelYear}.<br>
-                                        Это действительно новый контакт для компании.
+                                        Не купували 2 роки (${funnelYear-2}–${funnelYear-1}) → перша покупка у ${funnelYear}.<br>
+                                        Це дійсно новий контакт для компанії.
                                     </div>
                                     <div style="color:#fde68a; font-size:11px; font-weight:600;">
-                                        ⚠️ Требует подтверждения (опрос) и внимания менеджера.
+                                        ⚠️ Потребує підтвердження (опитування) та уваги менеджера.
                                     </div>
                                 </div>
                             </div>
-                            <div style="font-size:11px; color:#64748b; margin-top:2px;">Распределение только Новых клиентов (status_id=1) за ${funnelYear} год</div>
+                            <div style="font-size:11px; color:#64748b; margin-top:2px;">Розподіл тільки Нових клієнтів (status_id=1) за ${funnelYear} рік</div>
                         </div>
                         <div style="font-size:12px; font-weight:700; color:#8b5cf6; background:#f5f3ff; padding:4px 10px; border-radius:8px; display:flex; align-items:center; gap:4px; transition:background 0.2s;">
-                            Аналитика 🔗
+                            Аналітика 🔗
                         </div>
                     </div>
                     <table style="width:100%; border-collapse:collapse;">
                         <thead>
                             <tr style="background:#f8fafc; border-bottom:1px solid #e2e8f0;">
-                                <th style="padding:10px 14px; text-align:left; font-size:12px; font-weight:700; color:#475569;">Группа частоты</th>
-                                <th style="padding:10px 14px; text-align:center; font-size:12px; font-weight:700; color:#475569;">Количество</th>
-                                <th style="padding:10px 14px; text-align:right; font-size:12px; font-weight:700; color:#475569;">Товарная выручка (${funnelYear})</th>
+                                <th style="padding:10px 14px; text-align:left; font-size:12px; font-weight:700; color:#475569;">Група частоти</th>
+                                <th style="padding:10px 14px; text-align:center; font-size:12px; font-weight:700; color:#475569;">Кількість</th>
+                                <th style="padding:10px 14px; text-align:right; font-size:12px; font-weight:700; color:#475569;">Товарні продажі (${funnelYear})</th>
                             </tr>
                         </thead>
                         <tbody>
                 `;
 
                 if (!newClientsList.length) {
-                    html += `<tr><td colspan="3" style="text-align:center; padding:14px; color:#94a3b8; font-size:13px;">📭 Нет новых клиентов за ${funnelYear}</td></tr>`;
+                    html += `<tr><td colspan="3" style="text-align:center; padding:14px; color:#94a3b8; font-size:13px;">📭 Немає нових клієнтів за ${funnelYear}</td></tr>`;
                 } else {
                     newClientsList.forEach(item => {
                         totalNewCount += item.count || 0;
@@ -1242,7 +1242,7 @@
 
                     html += `
                         <tr style="background:#f8fafc; border-top:2px solid #e2e8f0;">
-                            <td style="padding:10px 14px; font-size:13px; font-weight:800; color:#0f172a;">Итого Новых</td>
+                            <td style="padding:10px 14px; font-size:13px; font-weight:800; color:#0f172a;">Разом Нових</td>
                             <td style="padding:10px 14px; text-align:center; font-weight:800; font-size:14px; color:#0f172a;">${formatNum(totalNewCount)}</td>
                             <td style="padding:10px 14px; text-align:right; font-weight:800; font-size:14px; color:#047857;">${formatCur(totalNewRevenue)}</td>
                         </tr>
@@ -1265,27 +1265,27 @@
                     <div style="margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid #f1f5f9; display:flex; align-items:center; justify-content:space-between;">
                         <div>
                             <div style="font-size:14px; font-weight:700; color:#1e293b; display:flex; align-items:center; gap:8px;">
-                                <span>📈</span> Активные клиенты по частоте 🔗
+                                <span>📈</span> Активні клієнти за частотою 🔗
                             </div>
-                            <div style="font-size:11px; color:#64748b; margin-top:2px;">Распределение всех активных клиентов за ${funnelYear} год</div>
+                            <div style="font-size:11px; color:#64748b; margin-top:2px;">Розподіл усіх активних клієнтів за ${funnelYear} рік</div>
                         </div>
                         <div style="font-size:12px; font-weight:700; color:#4f46e5; background:#e0e7ff; padding:4px 10px; border-radius:8px; display:flex; align-items:center; gap:4px; transition:background 0.2s;">
-                            Аналитика 🔗
+                            Аналітика 🔗
                         </div>
                     </div>
                     <table style="width:100%; border-collapse:collapse;">
                         <thead>
                             <tr style="background:#f8fafc; border-bottom:1px solid #e2e8f0;">
-                                <th style="padding:10px 14px; text-align:left; font-size:12px; font-weight:700; color:#475569;">Группа частоты</th>
-                                <th style="padding:10px 14px; text-align:center; font-size:12px; font-weight:700; color:#475569;">Количество фирм</th>
-                                <th style="padding:10px 14px; text-align:right; font-size:12px; font-weight:700; color:#475569;">Товарная выручка (${funnelYear})</th>
+                                <th style="padding:10px 14px; text-align:left; font-size:12px; font-weight:700; color:#475569;">Група частоти</th>
+                                <th style="padding:10px 14px; text-align:center; font-size:12px; font-weight:700; color:#475569;">Кількість фірм</th>
+                                <th style="padding:10px 14px; text-align:right; font-size:12px; font-weight:700; color:#475569;">Товарні продажі (${funnelYear})</th>
                             </tr>
                         </thead>
                         <tbody>
                 `;
 
                 if (!activeList.length) {
-                    html += `<tr><td colspan="3" style="text-align:center; padding:14px; color:#94a3b8; font-size:13px;">📭 Нет данных за ${funnelYear}</td></tr>`;
+                    html += `<tr><td colspan="3" style="text-align:center; padding:14px; color:#94a3b8; font-size:13px;">📭 Немає даних за ${funnelYear}</td></tr>`;
                 } else {
                     let totalActiveCount = 0;
                     let totalActiveRevenue = 0;
@@ -1305,7 +1305,7 @@
 
                     html += `
                         <tr style="background:#f8fafc; border-top:2px solid #e2e8f0;">
-                            <td style="padding:10px 14px; font-size:13px; font-weight:800; color:#0f172a;">Итого</td>
+                            <td style="padding:10px 14px; font-size:13px; font-weight:800; color:#0f172a;">Разом</td>
                             <td style="padding:10px 14px; text-align:center; font-weight:800; font-size:14px; color:#0f172a;">${formatNum(totalActiveCount)}</td>
                             <td style="padding:10px 14px; text-align:right; font-weight:800; font-size:14px; color:#047857;">${formatCur(totalActiveRevenue)}</td>
                         </tr>
@@ -1336,7 +1336,7 @@
                 const raw = await r.json();
                 const data = Array.isArray(raw) ? raw : (raw.data || []);
                 tb.innerHTML = '';
-                if (!data.length) { tb.innerHTML = '<tr><td colspan="4">✅ Риска оттока нет</td></tr>'; return; }
+                if (!data.length) { tb.innerHTML = '<tr><td colspan="4">✅ Ризику відтоку немає</td></tr>'; return; }
                 data.forEach(c => {
                     tb.innerHTML += `<tr style="background:#fff5f5;">
                         <td><b>${c.name || '—'}</b><br><small>Код: ${c.code}</small></td>
@@ -1352,11 +1352,11 @@
         async function showRecSearch() {
             const tb = $('clients-table-body');
             tb.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:20px;">
-                <div style="font-size:16px;margin-bottom:12px;">🔍 Введите название или код клиента</div>
-                <input type="text" id="rec-search-input" placeholder="Название компании..." 
+                <div style="font-size:16px;margin-bottom:12px;">🔍 Введіть назву або код клієнта</div>
+                <input type="text" id="rec-search-input" placeholder="Назва компанії..." 
                     style="padding:12px 20px;border-radius:10px;border:1px solid var(--border);font-size:14px;width:320px;"
                     oninput="filterClientList()" autofocus>
-                <br><small style="color:var(--text-muted);">Список обновится автоматически</small>
+                <br><small style="color:var(--text-muted);">Список оновиться автоматично</small>
             </td></tr>
             <tr><td colspan="5" id="client-list-cell" style="padding:0;"></td></tr>`;
             loadAllClientsForSearch();
@@ -1382,9 +1382,9 @@
             let filtered = window.allClientsCache || [];
             if (query) filtered = filtered.filter(c => (c.name && c.name.toLowerCase().includes(query)) || (c.code && c.code.toString().includes(query)));
             const display = filtered.slice(0, 50);
-            if (!display.length) { cell.innerHTML = '<div style="text-align:center;padding:15px;">Ничего не найдено</div>'; return; }
+            if (!display.length) { cell.innerHTML = '<div style="text-align:center;padding:15px;">Нічого не знайдено</div>'; return; }
 
-            let html = '<table style="width:100%;"><thead><tr><th>Код</th><th>Название</th><th>Статус</th><th></th></tr></thead><tbody>';
+            let html = '<table style="width:100%;"><thead><tr><th>Код</th><th>Назва</th><th>Статус</th><th></th></tr></thead><tbody>';
             display.forEach(c => {
                 let cls = 'blue';
                 if (c.status && (c.status.includes('Спящ') || c.status.includes('Ушедш'))) cls = 'orange';
@@ -1393,7 +1393,7 @@
                     <td style="padding:10px 16px;font-weight:600;">${c.code}</td>
                     <td style="padding:10px 16px;">${c.name || '—'}</td>
                     <td style="padding:10px 16px;"><span class="status-pill ${cls}">${c.status || '—'}</span></td>
-                    <td style="padding:10px 16px;color:#6366f1;font-weight:600;">💡 Выбрать</td>
+                    <td style="padding:10px 16px;color:#6366f1;font-weight:600;">💡 Обрати</td>
                 </tr>`;
             });
             html += '</tbody></table>';
@@ -1409,12 +1409,12 @@
                 const data = await r.json();
                 tb.innerHTML = '';
                 if (!data.recommendations || !data.recommendations.length) {
-                    tb.innerHTML = `<tr><td colspan="5" style="text-align:center;">📭 Нет рекомендаций для <b>${data.client_name || clientCode}</b></td></tr>`;
+                    tb.innerHTML = `<tr><td colspan="5" style="text-align:center;">📭 Немає рекомендацій для <b>${data.client_name || clientCode}</b></td></tr>`;
                     return;
                 }
 
-                tb.innerHTML += `<tr style="background:#f0fdf4;"><td colspan="5" style="text-align:center;font-weight:700;padding:12px;">🎯 Рекомендации для: <b>${data.client_name}</b> (${data.client_code})</td></tr>`;
-                tb.innerHTML += '<tr><td colspan="5" style="text-align:center;padding:8px;"><button onclick="showRecSearch()" style="padding:8px 20px;background:#6366f1;color:white;border:none;border-radius:10px;cursor:pointer;font-weight:600;">🔍 Искать другого</button></td></tr>';
+                tb.innerHTML += `<tr style="background:#f0fdf4;"><td colspan="5" style="text-align:center;font-weight:700;padding:12px;">🎯 Рекомендації для: <b>${data.client_name}</b> (${data.client_code})</td></tr>`;
+                tb.innerHTML += '<tr><td colspan="5" style="text-align:center;padding:8px;"><button onclick="showRecSearch()" style="padding:8px 20px;background:#6366f1;color:white;border:none;border-radius:10px;cursor:pointer;font-weight:600;">🔍 Шукати іншого</button></td></tr>';
 
                 data.recommendations.forEach((p, i) => {
                     const reasonText = p.reason || 'Часто покупаете';
@@ -1463,20 +1463,20 @@
             const thead = $('table-head');
 
             if (page === 'dashboard') {
-                if (pt) pt.textContent = 'Обзорный дашборд';
-                if (bt) bt.textContent = 'ТОП продаж';
+                if (pt) pt.textContent = 'Оглядовий дашборд';
+                if (bt) bt.textContent = 'ТОП продажів';
                 if (thead) {
                     thead.innerHTML = `
                         <tr>
                             <th rowspan="2" style="text-align:center;">#</th>
-                            <th rowspan="2">Клиент</th>
+                            <th rowspan="2">Клієнт</th>
                             <th colspan="2" style="text-align:center;background:#e2e8f0;color:#1e293b;font-weight:800;font-size:12px;">Статус</th>
-                            <th rowspan="2" style="text-align:right;">Продажи</th>
-                            <th rowspan="2" style="text-align:right;">% от общих</th>
+                            <th rowspan="2" style="text-align:right;">Продажі</th>
+                            <th rowspan="2" style="text-align:right;">% від загальних</th>
                         </tr>
                         <tr>
-                            <th style="text-align:center;background:#fefce8;color:#854d0e;font-weight:700;">базовый 2025</th>
-                            <th style="text-align:center;background:#ecfdf5;color:#065f46;font-weight:700;">текущий 2026</th>
+                            <th style="text-align:center;background:#fefce8;color:#854d0e;font-weight:700;">базовий 2025</th>
+                            <th style="text-align:center;background:#ecfdf5;color:#065f46;font-weight:700;">поточний 2026</th>
                         </tr>
                     `;
                 }
@@ -1485,10 +1485,10 @@
             }
 
             const configs = {
-                clients: { title: 'Активные клиенты', block: 'Покупки за последние 30 дней', cols: 4, headers: ['Клиент', 'Статус', 'Последняя покупка', 'Выручка'] },
-                funnel: { title: 'Воронка продаж', block: `Воронка продаж и жизненный цикл клиентов — ${funnelYear}`, cols: 3, headers: ['Группа частоты', 'Количество фирм', `Товарная выручка (${funnelYear})`] },
-                churn: { title: 'Риск оттока', block: 'Без покупок более 90 дней', cols: 4, headers: ['Клиент', 'Статус', 'Последняя покупка', 'Предупреждение'] },
-                recommendations: { title: 'Рекомендации', block: 'Персональные для клиента', cols: 5, headers: ['#', 'Товар', 'Причина', 'Остаток', 'Статус'] }
+                clients: { title: 'Активні клієнти', block: 'Покупки за останні 30 днів', cols: 4, headers: ['Клієнт', 'Статус', 'Остання покупка', 'Продажі'] },
+                funnel: { title: 'Воронка продажів', block: `Воронка продажів та життєвий цикл клієнтів — ${funnelYear}`, cols: 3, headers: ['Група частоти', 'Кількість фірм', `Товарні продажі (${funnelYear})`] },
+                churn: { title: 'Ризик відтоку', block: 'Без покупок понад 90 днів', cols: 4, headers: ['Клієнт', 'Статус', 'Остання покупка', 'Попередження'] },
+                recommendations: { title: 'Рекомендації', block: 'Персональні для клієнта', cols: 5, headers: ['#', 'Товар', 'Причина', 'Залишок', 'Статус'] }
             };
 
             const cfg = configs[page] || configs.clients;
@@ -1630,7 +1630,7 @@
             resultsBlock.style.display = 'flex';
             resultsBlock.innerHTML = `
                 <div class="page-header">
-                    <h2 class="page-title" style="font-size: 20px;">🔍 Результаты поиска: "${query}"</h2>
+                    <h2 class="page-title" style="font-size: 20px;">🔍 Результати пошуку: "${query}"</h2>
                     <button class="btn btn-primary" onclick="backToDashboard()">← Назад на дашборд</button>
                 </div>
                 <div class="search-results-table-wrapper table-block">
@@ -1639,13 +1639,13 @@
                             <thead>
                                 <tr>
                                     <th style="width: 100px;">Код</th>
-                                    <th>Название компании</th>
+                                    <th>Назва компанії</th>
                                     <th style="width: 160px; text-align: center;">Статус</th>
-                                    <th style="width: 140px; text-align: right;">Действие</th>
+                                    <th style="width: 140px; text-align: right;">Дія</th>
                                 </tr>
                             </thead>
                             <tbody id="search-results-body">
-                                <tr><td colspan="4" style="text-align:center; padding: 30px;">⏳ Поиск клиентов...</td></tr>
+                                <tr><td colspan="4" style="text-align:center; padding: 30px;">⏳ Пошук клієнтів...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -1664,17 +1664,17 @@
                             <td><code style="font-weight:700;color:#4f46e5;">${c.code}</code></td>
                             <td style="color:#0f172a;font-weight:600;">${c.name || '—'}</td>
                             <td style="text-align:center;"><span class="status-pill blue">${c.status || '—'}</span></td>
-                            <td style="text-align:right;"><span class="badge-link">Открыть →</span></td>
+                            <td style="text-align:right;"><span class="badge-link">Відкрити →</span></td>
                         </tr>
                     `).join('');
                 } else {
-                    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding: 40px; color: var(--text-muted);">Ничего не найдено по запросу "${query}"</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding: 40px; color: var(--text-muted);">Нічого не знайдено за запитом "${query}"</td></tr>`;
                 }
             } catch (err) {
                 console.error('Ошибка загрузки результатов поиска:', err);
                 const tbody = document.getElementById('search-results-body');
                 if (tbody) {
-                    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding: 30px; color: #ef4444;">Ошибка при поиске</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding: 30px; color: #ef4444;">Помилка при пошуку</td></tr>`;
                 }
             }
         }
@@ -1715,7 +1715,7 @@
 
             initClientSearch();
 
-            console.log('🚀 UTSK v7.5 запущен');
+            console.log('🚀 UTSK v9.0 запущен');
             refreshAll();
         });
     </script>

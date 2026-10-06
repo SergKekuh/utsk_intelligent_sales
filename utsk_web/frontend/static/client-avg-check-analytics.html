@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🛒 UTSK — Анализ среднего чека клиента</title>
+    <title>🛒 UTSK — Аналіз середнього чека клієнта</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -240,9 +240,9 @@
         <!-- Top Header -->
         <header class="top-header">
             <div class="header-left">
-                <a href="#" id="btn-client-detail" class="btn-back">← В карточку клиента</a>
+                <a href="#" id="btn-client-detail" class="btn-back">← До картки клієнта</a>
                 <div class="client-title">
-                    <h1 id="client-name">🛒 Анализ среднего чека клиента</h1>
+                    <h1 id="client-name">🛒 Аналіз середнього чека клієнта</h1>
                     <div class="client-meta">
                         <span>Код: <strong id="client-code">—</strong></span>
                         <span>•</span>
@@ -265,22 +265,22 @@
             <div class="kpi-card" style="border-top-color: #4f46e5;">
                 <span class="kpi-title">🛒 Средний чек 2026</span>
                 <span class="kpi-value" id="kpi-avg-curr" style="color:#4f46e5;">—</span>
-                <span class="kpi-subtext">Выручка / накладные</span>
+                <span class="kpi-subtext">Продажі / накладні</span>
             </div>
             <div class="kpi-card" style="border-top-color: #64748b;">
                 <span class="kpi-title">📅 Средний чек 2025</span>
                 <span class="kpi-value" id="kpi-avg-prev">—</span>
-                <span class="kpi-subtext">Прошлый год</span>
+                <span class="kpi-subtext">Минулий рік</span>
             </div>
             <div class="kpi-card" style="border-top-color: #10b981;">
                 <span class="kpi-title">📈 Рост среднего чека YoY</span>
                 <span class="kpi-value" id="kpi-growth">—</span>
-                <span class="kpi-subtext">Изменение в %</span>
+                <span class="kpi-subtext">Зміна у %</span>
             </div>
             <div class="kpi-card" style="border-top-color: #a855f7;">
-                <span class="kpi-title">📊 Медианный чек</span>
+                <span class="kpi-title">📊 Медіанний чек</span>
                 <span class="kpi-value" id="kpi-median">—</span>
-                <span class="kpi-subtext">50% чеков выше этого</span>
+                <span class="kpi-subtext">50% чеків вище цього</span>
             </div>
         </section>
 
@@ -294,21 +294,21 @@
             </div>
 
             <div class="panel-card">
-                <div class="panel-title">📊 Распределение и экстремумы чеков</div>
+                <div class="panel-title">📊 Розподіл та екстремуми чеків</div>
                 <div style="display:flex;flex-direction:column;gap:14px;">
                     <div style="background:#f8fafc;padding:16px;border-radius:12px;border:1px solid var(--border);">
-                        <div style="font-size:12px;color:var(--text-muted);font-weight:700;text-transform:uppercase;">🔝 Максимальный чек</div>
+                        <div style="font-size:12px;color:var(--text-muted);font-weight:700;text-transform:uppercase;">🔝 Максимальний чек</div>
                         <div style="font-size:22px;font-weight:800;color:#10b981;margin-top:4px;" id="stat-max-check">—</div>
                         <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">Крупнейшая накладная за год</div>
                     </div>
                     <div style="background:#f8fafc;padding:16px;border-radius:12px;border:1px solid var(--border);">
-                        <div style="font-size:12px;color:var(--text-muted);font-weight:700;text-transform:uppercase;">🔻 Минимальный чек</div>
+                        <div style="font-size:12px;color:var(--text-muted);font-weight:700;text-transform:uppercase;">🔻 Мінімальний чек</div>
                         <div style="font-size:22px;font-weight:800;color:#f59e0b;margin-top:4px;" id="stat-min-check">—</div>
                         <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">Наименьшая закупка</div>
                     </div>
                     <div style="background:#f3e8ff;padding:16px;border-radius:12px;border:1px solid #e9d5ff;">
                         <div style="font-size:12px;color:#7e22ce;font-weight:700;text-transform:uppercase;">💡 Аналитика чека</div>
-                        <div style="font-size:13px;color:#581c87;margin-top:4px;line-height:1.4;" id="stat-note">Загрузка структуры закупок...</div>
+                        <div style="font-size:13px;color:#581c87;margin-top:4px;line-height:1.4;" id="stat-note">Завантаження структури закупівель...</div>
                     </div>
                 </div>
             </div>
@@ -316,15 +316,15 @@
 
         <!-- Table Panel -->
         <div class="panel-card">
-            <div class="panel-title">📋 Помесячный отчёт среднего чека с отклонениями</div>
+            <div class="panel-title">📋 Помісячний звіт середнього чека з відхиленнями</div>
             <div class="table-responsive">
                 <table class="custom-table">
                     <thead>
                         <tr>
-                            <th>Месяц</th>
-                            <th style="text-align:right;">Средний чек 2026 (₴)</th>
-                            <th style="text-align:right;">Средний чек 2025 (₴)</th>
-                            <th style="text-align:center;">Отклонение YoY %</th>
+                            <th>Місяць</th>
+                            <th style="text-align:right;">Середній чек 2026 (₴)</th>
+                            <th style="text-align:right;">Середній чек 2025 (₴)</th>
+                            <th style="text-align:center;">Відхилення YoY %</th>
                         </tr>
                     </thead>
                     <tbody id="avg-table-body">
@@ -359,7 +359,7 @@
                 if (data.status !== 'ok') return;
 
                 const info = data.client_info;
-                document.getElementById('client-name').textContent = `🛒 Анализ среднего чека: ${info.name}`;
+                document.getElementById('client-name').textContent = `🛒 Аналіз середнього чека: ${info.name}`;
                 document.getElementById('client-code').textContent = info.code;
                 document.getElementById('client-status').textContent = info.status_name;
 
@@ -383,12 +383,12 @@
                     growthElem.style.color = isGood ? '#10b981' : '#ef4444';
 
                     document.getElementById('stat-note').textContent = isGood
-                        ? `Средний чек клиента составил ${fmtPct(kpi.growth_yoy_pct)} от уровня прошлого года. Динамика чека опережает аналогичный период прошлого года.`
-                        : `Средний чек составил ${fmtPct(kpi.growth_yoy_pct)} от уровня прошлого года. Рекомендуется предлагать комплектные закупки и оптовые скидки.`;
+                        ? `Середній чек клієнта склав ${fmtPct(kpi.growth_yoy_pct)} від рівня минулого року. Динаміка чека випереджає аналогічний період минулого року.`
+                        : `Середній чек склав ${fmtPct(kpi.growth_yoy_pct)} від рівня минулого року. Рекомендується пропонувати комплектні закупівлі та оптові знижки.`;
                 } else {
                     growthElem.textContent = '—';
                     growthElem.style.color = '#64748b';
-                    document.getElementById('stat-note').textContent = 'Нет данных за прошлый год для сравнения динамики среднего чека.';
+                    document.getElementById('stat-note').textContent = 'Немає даних за минулий рік для порівняння динаміки середнього чека.';
                 }
 
                 // Monthly Table
@@ -426,8 +426,8 @@
                     data: {
                         labels: monthLabels,
                         datasets: [
-                            { label: `Средний чек ${year}`, data: currAvgs, borderColor: '#4f46e5', backgroundColor: 'rgba(79,70,229,0.1)', fill: true, tension: 0.3 },
-                            { label: `Средний чек ${year - 1}`, data: prevAvgs, borderColor: '#94a3b8', borderDash: [4, 4], fill: false, tension: 0.3 }
+                            { label: `Середній чек ${year}`, data: currAvgs, borderColor: '#4f46e5', backgroundColor: 'rgba(79,70,229,0.1)', fill: true, tension: 0.3 },
+                            { label: `Середній чек ${year - 1}`, data: prevAvgs, borderColor: '#94a3b8', borderDash: [4, 4], fill: false, tension: 0.3 }
                         ]
                     },
                     options: {

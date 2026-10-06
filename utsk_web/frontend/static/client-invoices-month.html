@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>📄 UTSK — Накладные клиента за месяц</title>
+    <title>📄 UTSK — Накладні клієнта за місяць</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -234,9 +234,9 @@
         <!-- Top Header -->
         <header class="top-header">
             <div class="header-left">
-                <a href="#" id="btn-back-analytics" class="btn-back">← К анализу накладных</a>
+                <a href="#" id="btn-back-analytics" class="btn-back">← До аналізу накладних</a>
                 <div class="client-title">
-                    <h1 id="month-title">📄 Накладные клиента за месяц</h1>
+                    <h1 id="month-title">📄 Накладні клієнта за місяць</h1>
                     <div class="client-meta">
                         <span>Клиент: <strong id="client-name">—</strong></span>
                         <span>•</span>
@@ -249,7 +249,7 @@
         <!-- KPI Summary Cards -->
         <section class="kpi-grid">
             <div class="kpi-card" style="border-top-color:#4f46e5;">
-                <span class="kpi-title">📄 Накладных за месяц</span>
+                <span class="kpi-title">📄 Накладних за місяць</span>
                 <div class="kpi-value" id="kpi-month-inv" style="color:#4f46e5;">—</div>
             </div>
             <div class="kpi-card" style="border-top-color:#10b981;">
@@ -264,16 +264,16 @@
 
         <!-- Invoices List Table -->
         <div class="panel-card">
-            <div class="panel-title">📋 Список отгрузочных накладных</div>
+            <div class="panel-title">📋 Список видаткових накладних</div>
             <div class="table-responsive">
                 <table class="custom-table">
                     <thead>
                         <tr>
-                            <th>№ Накладной</th>
-                            <th>Дата выписки</th>
-                            <th style="text-align:center;">Позиций в чеке</th>
+                            <th>№ Накладної</th>
+                            <th>Дата виписки</th>
+                            <th style="text-align:center;">Позицій у чеку</th>
                             <th style="text-align:right;">Сумма (₴)</th>
-                            <th style="text-align:right;">Просмотр</th>
+                            <th style="text-align:right;">Перегляд</th>
                         </tr>
                     </thead>
                     <tbody id="month-invoices-body">
@@ -289,7 +289,7 @@
         <div class="modal-card">
             <div class="modal-header">
                 <div>
-                    <h3 style="font-size:16px;font-weight:800;" id="modal-inv-title">Содержимое накладной № —</h3>
+                    <h3 style="font-size:16px;font-weight:800;" id="modal-inv-title">Вміст накладної № —</h3>
                     <div style="font-size:12px;color:var(--text-muted);" id="modal-inv-date">Дата: —</div>
                 </div>
                 <button onclick="closeModal()" style="border:none;background:none;font-size:20px;cursor:pointer;color:var(--text-muted);">✕</button>
@@ -300,9 +300,9 @@
                         <thead>
                             <tr>
                                 <th>Код</th>
-                                <th>Наименование</th>
-                                <th style="text-align:right;">Кол-во</th>
-                                <th style="text-align:right;">Цена (₴)</th>
+                                <th>Найменування</th>
+                                <th style="text-align:right;">Кількість</th>
+                                <th style="text-align:right;">Ціна (₴)</th>
                                 <th style="text-align:right;">Сумма (₴)</th>
                             </tr>
                         </thead>
@@ -354,7 +354,7 @@
                 const invoices = data.invoices || [];
 
                 if (!invoices.length) {
-                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Нет накладных за выбранный месяц</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Немає накладних за обраний місяць</td></tr>';
                     return;
                 }
 
@@ -396,7 +396,7 @@
 
                 const items = data.items || data.data?.items || [];
                 if (!items.length) {
-                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Нет данных по позициям</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Немає даних щодо позицій</td></tr>';
                     return;
                 }
 

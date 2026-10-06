@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>📑 UTSK — Аналитика накладных по отраслям</title>
+    <title>📑 UTSK — Аналітика накладних за галузями</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
@@ -168,17 +168,17 @@
             <div class="header-title-area">
                 <div class="header-icon">📑</div>
                 <div class="header-title">
-                    <h1>Аналитика накладных и отгрузок по отраслям</h1>
-                    <p>Интенсивность документооборота, распределение по дням недели и анализ накладных</p>
+                    <h1>Аналітика накладних та відвантажень за галузями</h1>
+                    <p>Інтенсивність документообігу, розподіл за днями тижня та аналіз накладних</p>
                 </div>
             </div>
             <div class="header-controls">
                 <select id="yearSelect" class="select-year" onchange="onYearChange()">
-                    <option value="2026">2026 год</option>
-                    <option value="2025">2025 год</option>
-                    <option value="2024">2024 год</option>
+                    <option value="2026">2026 рік</option>
+                    <option value="2025">2025 рік</option>
+                    <option value="2024">2024 рік</option>
                 </select>
-                <a href="#" id="backToDirectionsBtn" class="btn-nav primary">← К направлениям</a>
+                <a href="#" id="backToDirectionsBtn" class="btn-nav primary">← До напрямків</a>
                 <a href="/?token=utsk2026" class="btn-nav">🏠 Дашборд</a>
             </div>
         </header>
@@ -186,29 +186,29 @@
         <!-- KPI Cards -->
         <section class="kpi-grid">
             <div class="kpi-card amber">
-                <div class="kpi-label"><i class="fa-solid fa-file-invoice"></i> Накладных / Отгрузок</div>
+                <div class="kpi-label"><i class="fa-solid fa-file-invoice"></i> Накладних / Відвантажень</div>
                 <div class="kpi-value" id="kpi-total-inv">—</div>
-                <div class="kpi-sub" id="kpi-total-inv-sub">Всего документов за год</div>
+                <div class="kpi-sub" id="kpi-total-inv-sub">Всього документів за рік</div>
             </div>
             <div class="kpi-card green">
-                <div class="kpi-label"><i class="fa-solid fa-money-bill-wave"></i> Сумма по отгрузкам</div>
+                <div class="kpi-label"><i class="fa-solid fa-money-bill-wave"></i> Сума за відвантаженнями</div>
                 <div class="kpi-value" id="kpi-total-amt">—</div>
-                <div class="kpi-sub">Товарная реализация</div>
+                <div class="kpi-sub">Товарна реалізація</div>
             </div>
             <div class="kpi-card indigo">
-                <div class="kpi-label"><i class="fa-solid fa-calculator"></i> Средняя накладная</div>
+                <div class="kpi-label"><i class="fa-solid fa-calculator"></i> Середня накладна</div>
                 <div class="kpi-value" id="kpi-avg-inv">—</div>
-                <div class="kpi-sub">Сумма / количество документов</div>
+                <div class="kpi-sub">Сума / кількість документів</div>
             </div>
             <div class="kpi-card blue">
-                <div class="kpi-label"><i class="fa-solid fa-repeat"></i> Накладных на клиента</div>
+                <div class="kpi-label"><i class="fa-solid fa-repeat"></i> Накладних на клієнта</div>
                 <div class="kpi-value" id="kpi-inv-per-client">—</div>
-                <div class="kpi-sub">Интенсивность повторных заказов</div>
+                <div class="kpi-sub">Інтенсивність повторних замовлень</div>
             </div>
             <div class="kpi-card">
-                <div class="kpi-label"><i class="fa-solid fa-calendar-check"></i> Пиковый день</div>
+                <div class="kpi-label"><i class="fa-solid fa-calendar-check"></i> Піковий день</div>
                 <div class="kpi-value" id="kpi-peak-day" style="font-size:20px;">—</div>
-                <div class="kpi-sub" id="kpi-peak-day-sub">Максимум отгрузок в неделю</div>
+                <div class="kpi-sub" id="kpi-peak-day-sub">Максимум відвантажень за тиждень</div>
             </div>
         </section>
 
@@ -216,8 +216,8 @@
         <section class="grid-2">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fa-solid fa-chart-column" style="color:var(--warn)"></i> Документооборот по отраслям</h3>
-                    <span id="chartInvoicesTag" style="font-size:12px;color:var(--text-muted);">2026 год</span>
+                    <h3 class="card-title"><i class="fa-solid fa-chart-column" style="color:var(--warn)"></i> Документообіг за галузями</h3>
+                    <span id="chartInvoicesTag" style="font-size:12px;color:var(--text-muted);">2026 рік</span>
                 </div>
                 <div class="chart-box">
                     <canvas id="chartInvoicesBar"></canvas>
@@ -226,8 +226,8 @@
 
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fa-solid fa-calendar-week" style="color:var(--brand)"></i> Распределение отгрузок по дням недели</h3>
-                    <span style="font-size:12px;color:var(--text-muted);">Всего за год</span>
+                    <h3 class="card-title"><i class="fa-solid fa-calendar-week" style="color:var(--brand)"></i> Розподіл відвантажень за днями тижня</h3>
+                    <span style="font-size:12px;color:var(--text-muted);">Всього за рік</span>
                 </div>
                 <div class="chart-box">
                     <canvas id="chartDowBar"></canvas>
@@ -238,7 +238,7 @@
         <!-- Table 1: Direction Invoices Breakdown -->
         <section class="card" style="margin-bottom: 24px;">
             <div class="card-header">
-                <h3 class="card-title"><i class="fa-solid fa-list-check" style="color:var(--good)"></i> Отгрузки по отраслям</h3>
+                <h3 class="card-title"><i class="fa-solid fa-list-check" style="color:var(--good)"></i> Відвантаження за галузями</h3>
                 <span id="tableDirsSub" style="font-size:13px;color:var(--text-muted);">14 отраслей</span>
             </div>
             <div class="table-responsive">
@@ -246,19 +246,19 @@
                     <thead>
                         <tr>
                             <th style="width: 40px;">#</th>
-                            <th>Отрасль</th>
-                            <th class="num">Накладных</th>
-                            <th style="width: 140px;">Доля накладных</th>
-                            <th class="num">Клиентов</th>
-                            <th class="num">Сумма реализации</th>
-                            <th class="num">Ср. чек накладной</th>
-                            <th class="num">Мин. чек</th>
+                            <th>Галузь</th>
+                            <th class="num">Накладних</th>
+                            <th style="width: 140px;">Частка накладних</th>
+                            <th class="num">Клієнтів</th>
+                            <th class="num">Сума реалізації</th>
+                            <th class="num">Сер. чек накладної</th>
+                            <th class="num">Мін. чек</th>
                             <th class="num">Макс. чек</th>
-                            <th class="num">Накладных / кл.</th>
+                            <th class="num">Накладних / кл.</th>
                         </tr>
                     </thead>
                     <tbody id="invoicesTbody">
-                        <tr><td colspan="10" style="text-align:center;padding:24px;color:var(--text-muted);">Загрузка аналитики...</td></tr>
+                        <tr><td colspan="10" style="text-align:center;padding:24px;color:var(--text-muted);">Завантаження аналітики...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -267,24 +267,24 @@
         <!-- Table 2: Top Invoices of Year -->
         <section class="card">
             <div class="card-header">
-                <h3 class="card-title"><i class="fa-solid fa-receipt" style="color:var(--accent)"></i> ТОП-10 крупнейших накладных года</h3>
-                <span style="font-size:13px;color:var(--text-muted);">Рекордные отгрузки</span>
+                <h3 class="card-title"><i class="fa-solid fa-receipt" style="color:var(--accent)"></i> ТОП-10 найбільших накладних року</h3>
+                <span style="font-size:13px;color:var(--text-muted);">Рекордні відвантаження</span>
             </div>
             <div class="table-responsive">
                 <table class="data-table">
                     <thead>
                         <tr>
                             <th style="width: 40px;">#</th>
-                            <th>Номер накладной</th>
-                            <th>Дата отгрузки</th>
-                            <th>Код клиента</th>
-                            <th>Клиент</th>
-                            <th>Отрасль</th>
-                            <th class="num">Сумма накладной</th>
+                            <th>Номер накладної</th>
+                            <th>Дата відвантаження</th>
+                            <th>Код клієнта</th>
+                            <th>Клієнт</th>
+                            <th>Галузь</th>
+                            <th class="num">Сума накладної</th>
                         </tr>
                     </thead>
                     <tbody id="topInvoicesTbody">
-                        <tr><td colspan="7" style="text-align:center;padding:20px;color:var(--text-muted);">Загрузка...</td></tr>
+                        <tr><td colspan="7" style="text-align:center;padding:20px;color:var(--text-muted);">Завантаження...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -303,14 +303,14 @@
             if (!val || isNaN(val)) return '0 ₴';
             const v = parseFloat(val);
             if (Math.abs(v) >= 1000000) {
-                return (v / 1000000).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' млн ₴';
+                return (v / 1000000).toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' млн ₴';
             }
-            return Math.round(v).toLocaleString('ru-RU') + ' ₴';
+            return Math.round(v).toLocaleString('uk-UA') + ' ₴';
         }
 
         function fmtNum(val) {
             if (!val || isNaN(val)) return '0';
-            return parseInt(val).toLocaleString('ru-RU');
+            return parseInt(val).toLocaleString('uk-UA');
         }
 
         function fmtPct(val) {
@@ -327,12 +327,12 @@
             try {
                 document.getElementById('backToDirectionsBtn').href = `/directions-analytics?token=${TOKEN}&year=${currentYear}`;
                 document.getElementById('yearSelect').value = currentYear;
-                document.getElementById('chartInvoicesTag').textContent = `${currentYear} год`;
+                document.getElementById('chartInvoicesTag').textContent = `${currentYear} рік`;
 
                 const res = await fetch(`/api/analytics/directions/invoices-analytics?token=${TOKEN}&year=${currentYear}`);
                 const json = await res.json();
                 if (json.status !== 'ok' || !json.data) {
-                    throw new Error('Не удалось загрузить данные');
+                    throw new Error('Не вдалося завантажити дані');
                 }
                 renderDashboard(json.data);
             } catch (err) {
@@ -357,9 +357,10 @@
             document.getElementById('kpi-total-amt').textContent = fmtM(totalAmt);
             document.getElementById('kpi-avg-inv').textContent = fmtM(avgInv);
             document.getElementById('kpi-inv-per-client').textContent = `${invPerClient} док.`;
-            document.getElementById('kpi-peak-day').textContent = peakDow.dow_name || '—';
-            document.getElementById('kpi-peak-day-sub').textContent = `${fmtNum(peakDow.invoices_count)} накладных (${fmtM(peakDow.amount)})`;
-            document.getElementById('tableDirsSub').textContent = `${dirs.length} активных отраслей`;
+            const dowUaMap = { 1: 'Понеділок', 2: 'Вівторок', 3: 'Середа', 4: 'Четвер', 5: "П'ятниця", 6: 'Субота', 7: 'Неділя' };
+            document.getElementById('kpi-peak-day').textContent = dowUaMap[peakDow.dow] || peakDow.dow_name || '—';
+            document.getElementById('kpi-peak-day-sub').textContent = `${fmtNum(peakDow.invoices_count)} накладних (${fmtM(peakDow.amount)})`;
+            document.getElementById('tableDirsSub').textContent = `${dirs.length} активних галузей`;
 
             // Charts
             renderInvoicesBar(dirs);
@@ -381,7 +382,7 @@
                 data: {
                     labels: sorted.map(d => `${d.icon} ${d.direction_name}`),
                     datasets: [{
-                        label: 'Количество накладных',
+                        label: 'Кількість накладних',
                         data: sorted.map(d => d.invoices_count),
                         backgroundColor: sorted.map(d => d.color),
                         borderRadius: 6
@@ -394,7 +395,7 @@
                         legend: { display: false },
                         tooltip: {
                             callbacks: {
-                                label: ctx => ` Накладных: ${fmtNum(ctx.raw)} (${fmtPct(dirs[ctx.dataIndex] ? dirs[ctx.dataIndex].share_pct : 0)})`
+                                label: ctx => ` Накладних: ${fmtNum(ctx.raw)} (${fmtPct(dirs[ctx.dataIndex] ? dirs[ctx.dataIndex].share_pct : 0)})`
                             }
                         }
                     },
@@ -410,7 +411,7 @@
             const ctx = document.getElementById('chartDowBar').getContext('2d');
             if (dowBarChart) dowBarChart.destroy();
 
-            const shortNames = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+            const shortNames = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Нд'];
             const labels = dows.map(d => shortNames[(d.dow - 1) % 7] || d.dow_name);
             const counts = dows.map(d => d.invoices_count);
             const colors = dows.map(d => d.dow <= 5 ? '#0284c7' : '#94a3b8');
@@ -420,7 +421,7 @@
                 data: {
                     labels: labels,
                     datasets: [{
-                        label: 'Накладных',
+                        label: 'Накладних',
                         data: counts,
                         backgroundColor: colors,
                         borderRadius: 6
@@ -433,8 +434,8 @@
                         legend: { display: false },
                         tooltip: {
                             callbacks: {
-                                title: ctx => dows[ctx[0].dataIndex].dow_name,
-                                label: ctx => ` Накладных: ${fmtNum(ctx.raw)} (${fmtM(dows[ctx.dataIndex].amount)})`
+                                title: ctx => dowUaMap[dows[ctx[0].dataIndex].dow] || dows[ctx[0].dataIndex].dow_name,
+                                label: ctx => ` Накладних: ${fmtNum(ctx.raw)} (${fmtM(dows[ctx.dataIndex].amount)})`
                             }
                         }
                     },
@@ -449,7 +450,7 @@
         function renderInvoicesTable(dirs) {
             const tbody = document.getElementById('invoicesTbody');
             if (!dirs || dirs.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:24px;">Нет данных</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:24px;">Немає даних</td></tr>';
                 return;
             }
 

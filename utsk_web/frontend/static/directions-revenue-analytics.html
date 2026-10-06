@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>💰 UTSK — Аналитика выручки по отраслям</title>
+    <title>💰 UTSK — Аналітика продажів за галузями</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
@@ -174,17 +174,17 @@
             <div class="header-title-area">
                 <div class="header-icon">💰</div>
                 <div class="header-title">
-                    <h1>Выручка от товаров по направлениям</h1>
-                    <p>Детальный анализ объёмов реализации трубной продукции без сервисных услуг</p>
+                    <h1>Продажі товарів за напрямками</h1>
+                    <p>Детальний аналіз обсягів реалізації трубної продукції без сервісних послуг</p>
                 </div>
             </div>
             <div class="header-controls">
                 <select id="yearSelect" class="select-year" onchange="onYearChange()">
-                    <option value="2026">2026 год</option>
-                    <option value="2025">2025 год</option>
-                    <option value="2024">2024 год</option>
+                    <option value="2026">2026 рік</option>
+                    <option value="2025">2025 рік</option>
+                    <option value="2024">2024 рік</option>
                 </select>
-                <a href="#" id="backToDirectionsBtn" class="btn-nav primary">← К направлениям</a>
+                <a href="#" id="backToDirectionsBtn" class="btn-nav primary">← До напрямків</a>
                 <a href="/?token=utsk2026" class="btn-nav">🏠 Дашборд</a>
             </div>
         </header>
@@ -192,29 +192,29 @@
         <!-- KPI Summary Cards -->
         <section class="kpi-grid" id="kpiGrid">
             <div class="kpi-card green">
-                <div class="kpi-label"><i class="fa-solid fa-sack-dollar"></i> Выручка от товаров</div>
+                <div class="kpi-label"><i class="fa-solid fa-sack-dollar"></i> Продажі товарів</div>
                 <div class="kpi-value" id="kpi-total-rev">—</div>
-                <div class="kpi-sub" id="kpi-total-rev-sub">Все отрасли за год</div>
+                <div class="kpi-sub" id="kpi-total-rev-sub">Всі галузі за рік</div>
             </div>
             <div class="kpi-card purple">
-                <div class="kpi-label"><i class="fa-solid fa-trophy"></i> Отрасль-лидер</div>
+                <div class="kpi-label"><i class="fa-solid fa-trophy"></i> Галузь-лідер</div>
                 <div class="kpi-value" id="kpi-top-dir" style="font-size:20px;">—</div>
-                <div class="kpi-sub" id="kpi-top-dir-sub">Доля в выручке</div>
+                <div class="kpi-sub" id="kpi-top-dir-sub">Частка в продажах</div>
             </div>
             <div class="kpi-card indigo">
-                <div class="kpi-label"><i class="fa-solid fa-chart-pie"></i> Доля ТОП-3</div>
+                <div class="kpi-label"><i class="fa-solid fa-chart-pie"></i> Частка ТОП-3</div>
                 <div class="kpi-value" id="kpi-top3-share">—</div>
-                <div class="kpi-sub">Концентрация первых 3 отраслей</div>
+                <div class="kpi-sub">Концентрація перших 3 галузей</div>
             </div>
             <div class="kpi-card amber">
-                <div class="kpi-label"><i class="fa-solid fa-receipt"></i> Средний чек</div>
+                <div class="kpi-label"><i class="fa-solid fa-receipt"></i> Середній чек</div>
                 <div class="kpi-value" id="kpi-avg-check">—</div>
-                <div class="kpi-sub">Выручка / накладных</div>
+                <div class="kpi-sub">Продажі / накладних</div>
             </div>
             <div class="kpi-card">
-                <div class="kpi-label"><i class="fa-solid fa-layer-group"></i> Активных отраслей</div>
+                <div class="kpi-label"><i class="fa-solid fa-layer-group"></i> Активних галузей</div>
                 <div class="kpi-value" id="kpi-dirs-count">—</div>
-                <div class="kpi-sub">С продажами в этом году</div>
+                <div class="kpi-sub">З продажами в цьому році</div>
             </div>
         </section>
 
@@ -222,7 +222,7 @@
         <section class="grid-2">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fa-solid fa-chart-pie" style="color:var(--brand)"></i> Структура выручки по отраслям</h3>
+                    <h3 class="card-title"><i class="fa-solid fa-chart-pie" style="color:var(--brand)"></i> Структура продажів за галузями</h3>
                     <span id="chartYearTag" style="font-size:12px;font-weight:600;color:var(--text-muted);">2026</span>
                 </div>
                 <div class="chart-box">
@@ -232,7 +232,7 @@
 
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fa-solid fa-chart-column" style="color:var(--accent)"></i> Динамика выручки ТОП-5 отраслей по месяцам</h3>
+                    <h3 class="card-title"><i class="fa-solid fa-chart-column" style="color:var(--accent)"></i> Динаміка продажів ТОП-5 галузей за місяцями</h3>
                     <span style="font-size:12px;color:var(--text-muted);">млн ₴ / мес</span>
                 </div>
                 <div class="chart-box">
@@ -244,7 +244,7 @@
         <!-- Table 1: All Directions Detailed Revenue -->
         <section class="card" style="margin-bottom: 24px;">
             <div class="card-header">
-                <h3 class="card-title"><i class="fa-solid fa-table-list" style="color:var(--good)"></i> Реализация по всем отраслям</h3>
+                <h3 class="card-title"><i class="fa-solid fa-table-list" style="color:var(--good)"></i> Реалізація за всіма галузями</h3>
                 <span id="dirsTableSub" style="font-size:13px;color:var(--text-muted);">14 отраслей</span>
             </div>
             <div class="table-responsive">
@@ -252,18 +252,18 @@
                     <thead>
                         <tr>
                             <th style="width: 40px;">#</th>
-                            <th>Отрасль</th>
-                            <th class="num">Выручка от товаров</th>
-                            <th style="width: 140px;">Доля в объёме</th>
-                            <th class="num">Клиентов</th>
-                            <th class="num">Накладных</th>
-                            <th class="num">Ср. чек</th>
-                            <th class="num">Товаров</th>
-                            <th class="num">YoY Динамика</th>
+                            <th>Галузь</th>
+                            <th class="num">Продажі товарів</th>
+                            <th style="width: 140px;">Частка в обсязі</th>
+                            <th class="num">Клієнтів</th>
+                            <th class="num">Накладних</th>
+                            <th class="num">Сер. чек</th>
+                            <th class="num">Товарів</th>
+                            <th class="num">YoY Динаміка</th>
                         </tr>
                     </thead>
                     <tbody id="directionsTbody">
-                        <tr><td colspan="9" style="text-align:center;padding:24px;color:var(--text-muted);">Загрузка аналитики...</td></tr>
+                        <tr><td colspan="9" style="text-align:center;padding:24px;color:var(--text-muted);">Завантаження аналітики...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -272,8 +272,8 @@
         <!-- Table 2: Top Products -->
         <section class="card">
             <div class="card-header">
-                <h3 class="card-title"><i class="fa-solid fa-cubes" style="color:var(--warn)"></i> ТОП-10 позиций трубного проката по выручке</h3>
-                <span style="font-size:13px;color:var(--text-muted);">Лидеры продаж компании</span>
+                <h3 class="card-title"><i class="fa-solid fa-cubes" style="color:var(--warn)"></i> ТОП-10 позицій трубного прокату за продажами</h3>
+                <span style="font-size:13px;color:var(--text-muted);">Лідери продажів компанії</span>
             </div>
             <div class="table-responsive">
                 <table class="data-table" id="tableProducts">
@@ -281,13 +281,13 @@
                         <tr>
                             <th style="width: 40px;">#</th>
                             <th>Код</th>
-                            <th>Наименование товара</th>
-                            <th class="num">Выручка</th>
-                            <th class="num">Объём (т / шт)</th>
+                            <th>Найменування товару</th>
+                            <th class="num">Продажі</th>
+                            <th class="num">Обсяг (т / шт)</th>
                         </tr>
                     </thead>
                     <tbody id="productsTbody">
-                        <tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text-muted);">Загрузка...</td></tr>
+                        <tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text-muted);">Завантаження...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -306,14 +306,14 @@
             if (!val || isNaN(val)) return '0 ₴';
             const v = parseFloat(val);
             if (Math.abs(v) >= 1000000) {
-                return (v / 1000000).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' млн ₴';
+                return (v / 1000000).toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' млн ₴';
             }
-            return Math.round(v).toLocaleString('ru-RU') + ' ₴';
+            return Math.round(v).toLocaleString('uk-UA') + ' ₴';
         }
 
         function fmtNum(val) {
             if (!val || isNaN(val)) return '0';
-            return parseInt(val).toLocaleString('ru-RU');
+            return parseInt(val).toLocaleString('uk-UA');
         }
 
         function fmtPct(val) {
@@ -335,12 +335,12 @@
                 const res = await fetch(`/api/analytics/directions/revenue-analytics?token=${TOKEN}&year=${currentYear}`);
                 const json = await res.json();
                 if (json.status !== 'ok' || !json.data) {
-                    throw new Error('Не удалось загрузить данные');
+                    throw new Error('Не вдалося завантажити дані');
                 }
                 renderDashboard(json.data);
             } catch (err) {
                 console.error(err);
-                document.getElementById('directionsTbody').innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--danger);padding:20px;">⚠️ Ошибка: ${err.message}</td></tr>`;
+                document.getElementById('directionsTbody').innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--danger);padding:20px;">⚠️ Помилка: ${err.message}</td></tr>`;
             }
         }
 
@@ -355,13 +355,13 @@
 
             // KPI
             document.getElementById('kpi-total-rev').textContent = fmtM(totalRev);
-            document.getElementById('kpi-total-rev-sub').textContent = `Всего документов: ${fmtNum(data.total_docs)}`;
+            document.getElementById('kpi-total-rev-sub').textContent = `Всього документів: ${fmtNum(data.total_docs)}`;
             document.getElementById('kpi-top-dir').textContent = `${topDir.icon || '🌐'} ${topDir.direction_name || '—'}`;
             document.getElementById('kpi-top-dir-sub').textContent = `${fmtPct(topDir.pct)} (${fmtM(topDir.revenue)})`;
             document.getElementById('kpi-top3-share').textContent = fmtPct(top3Pct);
             document.getElementById('kpi-avg-check').textContent = fmtM(overallAvgCheck);
             document.getElementById('kpi-dirs-count').textContent = dirs.length;
-            document.getElementById('dirsTableSub').textContent = `${dirs.length} активных отраслей`;
+            document.getElementById('dirsTableSub').textContent = `${dirs.length} активних галузей`;
 
             // Charts
             renderPie(dirs);
@@ -384,7 +384,7 @@
             const colors = topDirs.map(d => d.color);
 
             if (otherRev > 0) {
-                labels.push('🌐 Остальные отрасли');
+                labels.push('🌐 Інші галузі');
                 values.push(otherRev);
                 colors.push('#94a3b8');
             }
@@ -426,7 +426,7 @@
             if (monthlyChart) monthlyChart.destroy();
 
             const top5 = dirs.slice(0, 5);
-            const monthLabels = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'];
+            const monthLabels = ['Січ', 'Лют', 'Бер', 'Кві', 'Тра', 'Чер', 'Лип', 'Сер', 'Вер', 'Жов', 'Лис', 'Гру'];
 
             const datasets = top5.map(d => {
                 const arr = Array(12).fill(0);
@@ -470,7 +470,7 @@
         function renderDirectionsTable(dirs) {
             const tbody = document.getElementById('directionsTbody');
             if (!dirs || dirs.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:24px;">Нет данных</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:24px;">Немає даних</td></tr>';
                 return;
             }
 
@@ -517,7 +517,7 @@
         function renderProductsTable(prods) {
             const tbody = document.getElementById('productsTbody');
             if (!prods || prods.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;">Нет данных по товарам</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;">Немає даних за товарами</td></tr>';
                 return;
             }
 
@@ -527,7 +527,7 @@
                     <td style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--brand);font-weight:600;">${p.product_code}</td>
                     <td style="font-weight:600;">${p.product_name}</td>
                     <td class="num" style="font-weight:700;color:var(--good);">${fmtM(p.revenue)}</td>
-                    <td class="num">${Number(p.qty).toLocaleString('ru-RU', { maximumFractionDigits: 2 })}</td>
+                    <td class="num">${Number(p.qty).toLocaleString('uk-UA', { maximumFractionDigits: 2 })}</td>
                 </tr>
             `).join('');
         }

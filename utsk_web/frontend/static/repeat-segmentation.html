@@ -631,14 +631,14 @@
                 <div class="kpi-sub">3 оформлені покупки</div>
             </div>
 
-            <!-- 5. Виручка повторних -->
+            <!-- 5. Продажі повторних -->
             <div class="kpi-card">
                 <div class="kpi-top">
-                    <span class="kpi-lbl">Виручка повторних</span>
+                    <span class="kpi-lbl">Продажі повторних</span>
                     <div class="kpi-icon" style="background:#fdf4ff;color:#a855f7;"><i class="fa-solid fa-sack-dollar"></i></div>
                 </div>
                 <div class="kpi-val" id="kpi-revenue">—</div>
-                <div class="kpi-sub">Товарна виручка когорти</div>
+                <div class="kpi-sub">Товарні продажі когорти</div>
             </div>
 
             <!-- 6. Накладних / Сер. чек -->
@@ -690,14 +690,14 @@
                 </div>
             </div>
 
-            <!-- Chart 2: Виручка за підгрупами -->
+            <!-- Chart 2: Продажі за підгрупами -->
             <div class="bento-card">
                 <div class="bento-card-header">
                     <div>
                         <h2 class="bento-card-title">
-                            <i class="fa-solid fa-chart-column" style="color:#10b981;"></i> Порівняння виручки за підгрупами
+                            <i class="fa-solid fa-chart-column" style="color:#10b981;"></i> Порівняння продажів за підгрупами
                         </h2>
-                        <div class="bento-card-subtitle">Товарна виручка (млн ₴) за кожною категорією</div>
+                        <div class="bento-card-subtitle">Товарні продажі (млн ₴) за кожною категорією</div>
                     </div>
                 </div>
                 <div style="height: 260px; width: 100%; position: relative;">
@@ -737,8 +737,8 @@
                     </select>
 
                     <select id="sortBy" class="select-filter" onchange="applyFilters()">
-                        <option value="rev_desc">Сортування: Виручка (макс)</option>
-                        <option value="rev_asc">Сортування: Виручка (мін)</option>
+                        <option value="rev_desc">Сортування: Продажі (макс)</option>
+                        <option value="rev_asc">Сортування: Продажі (мін)</option>
                         <option value="days_asc">Сортування: Дні між покупками (мін)</option>
                         <option value="days_desc">Сортування: Дні між покупками (макс)</option>
                         <option value="avg_desc">Сортування: Сер. чек (макс)</option>
@@ -761,7 +761,7 @@
                             <th>Назва компанії</th>
                             <th style="width: 190px;">Підгрупа</th>
                             <th class="text-center" style="width: 90px;">Накладних</th>
-                            <th class="text-right" style="width: 135px;">Виручка (₴)</th>
+                            <th class="text-right" style="width: 135px;">Продажі (₴)</th>
                             <th class="text-right" style="width: 125px;">Сер. чек (₴)</th>
                             <th class="text-center" style="width: 95px;">Клас</th>
                             <th class="text-center" style="width: 140px;">Дні між покупками</th>
@@ -795,7 +795,7 @@
             <div class="modal-body">
                 <div class="modal-stat-grid">
                     <div class="modal-stat-box highlight">
-                        <div class="modal-stat-lbl">Товарна виручка</div>
+                        <div class="modal-stat-lbl">Товарні продажі</div>
                         <div class="modal-stat-val" id="modalRevenue" style="color:#4f46e5;">—</div>
                     </div>
                     <div class="modal-stat-box">
@@ -990,7 +990,7 @@
 
             var totalRevFiltered = filteredCompanies.reduce(function(sum, c) { return sum + (c.goods_revenue || 0); }, 0);
             if (counter) {
-                counter.innerHTML = 'Показано <strong>' + fmtN(filteredCompanies.length) + '</strong> з ' + fmtN(allCompanies.length) + ' компаній (Виручка: <strong>' + fmtM(totalRevFiltered) + '</strong>)';
+                counter.innerHTML = 'Показано <strong>' + fmtN(filteredCompanies.length) + '</strong> з ' + fmtN(allCompanies.length) + ' компаній (Продажі: <strong>' + fmtM(totalRevFiltered) + '</strong>)';
             }
 
             if (!filteredCompanies.length) {
@@ -1075,7 +1075,7 @@
                     data: {
                         labels: labels,
                         datasets: [{
-                            label: 'Виручка (млн ₴)',
+                            label: 'Продажі (млн ₴)',
                             data: revs,
                             backgroundColor: ['rgba(245, 158, 11, 0.85)', 'rgba(79, 70, 229, 0.85)', 'rgba(16, 185, 129, 0.85)'],
                             borderColor: ['#f59e0b', '#4f46e5', '#10b981'],
@@ -1091,7 +1091,7 @@
                             tooltip: {
                                 callbacks: {
                                     label: function(c) {
-                                        return ' Виручка: ' + c.raw.toFixed(2) + ' млн ₴';
+                                        return ' Продажі: ' + c.raw.toFixed(2) + ' млн ₴';
                                     }
                                 }
                             }
@@ -1137,7 +1137,7 @@
                 return;
             }
 
-            var headers = ['Код 1С', 'Назва компанії', 'Підгрупа', 'Накладних', 'Товарна виручка (грн)', 'Послуги (грн)', 'Середній чек (грн)', 'ABC', 'Дні між покупками', 'Галузь'];
+            var headers = ['Код 1С', 'Назва компанії', 'Підгрупа', 'Накладних', 'Товарні продажі (грн)', 'Послуги (грн)', 'Середній чек (грн)', 'ABC', 'Дні між покупками', 'Галузь'];
             var csvRows = [headers.join(';')];
 
             filteredCompanies.forEach(function(c) {

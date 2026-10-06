@@ -1,6 +1,6 @@
 import os
 from fastapi import APIRouter, HTTPException, Query, Request, Depends
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, Response
 from ..deps import verify_token, find_file
 from ..config import FRONTEND_DIR, PROJECT_DIR, ROOT_DIR
 
@@ -8,6 +8,11 @@ router = APIRouter()
 
 def get_search_dirs():
     return [FRONTEND_DIR, os.path.join(PROJECT_DIR, "frontend", "static"), os.path.join(ROOT_DIR, "frontend", "static")]
+
+@router.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    return Response(content=b"", media_type="image/x-icon")
+
 
 @router.get("/", response_class=HTMLResponse)
 async def index(request: Request, token: str = Query(None)):
@@ -360,4 +365,25 @@ async def classification_audit_page(request: Request, token: str = Query(None)):
         with open(filepath, "r", encoding="utf-8") as f:
             return HTMLResponse(content=f.read())
     raise HTTPException(status_code=404, detail="Страница не найдена")
+
+
+@router.get("/product-recommendation-detail", response_class=HTMLResponse)
+async def product_recommendation_detail_page(request: Request, token: str = Query(None)):
+    verify_token(token)
+    filepath = find_file("product-recommendation-detail.html", get_search_dirs())
+    if filepath:
+        with open(filepath, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    raise HTTPException(status_code=404, detail="Страница не найдена")
+
+
+@router.get("/recommendations-overview", response_class=HTMLResponse)
+async def recommendations_overview_page(request: Request, token: str = Query(None)):
+    verify_token(token)
+    filepath = find_file("recommendations-overview.html", get_search_dirs())
+    if filepath:
+        with open(filepath, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    raise HTTPException(status_code=404, detail="Страница не найдена")
+
 

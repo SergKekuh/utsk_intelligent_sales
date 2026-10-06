@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>👥 UTSK — Аналитика клиентов по отраслям</title>
+    <title>👥 UTSK — Аналітика клієнтів за галузями</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
@@ -172,17 +172,17 @@
             <div class="header-title-area">
                 <div class="header-icon">👥</div>
                 <div class="header-title">
-                    <h1>Аналитика клиентской базы по отраслям</h1>
-                    <p>Структура активных контрагентов, статусное распределение и наполненность ЄДРПОУ</p>
+                    <h1>Аналітика клієнтської бази за галузями</h1>
+                    <p>Структура активних контрагентів, статусний розподіл та наповненість ЄДРПОУ</p>
                 </div>
             </div>
             <div class="header-controls">
                 <select id="yearSelect" class="select-year" onchange="onYearChange()">
-                    <option value="2026">2026 год</option>
-                    <option value="2025">2025 год</option>
-                    <option value="2024">2024 год</option>
+                    <option value="2026">2026 рік</option>
+                    <option value="2025">2025 рік</option>
+                    <option value="2024">2024 рік</option>
                 </select>
-                <a href="#" id="backToDirectionsBtn" class="btn-nav primary">← К направлениям</a>
+                <a href="#" id="backToDirectionsBtn" class="btn-nav primary">← До напрямків</a>
                 <a href="/?token=utsk2026" class="btn-nav">🏠 Дашборд</a>
             </div>
         </header>
@@ -190,29 +190,29 @@
         <!-- KPI Cards -->
         <section class="kpi-grid">
             <div class="kpi-card purple">
-                <div class="kpi-label"><i class="fa-solid fa-users"></i> Активных клиентов</div>
+                <div class="kpi-label"><i class="fa-solid fa-users"></i> Активних клієнтів</div>
                 <div class="kpi-value" id="kpi-active-clients">—</div>
-                <div class="kpi-sub" id="kpi-active-clients-sub">Покупали в выбранном году</div>
+                <div class="kpi-sub" id="kpi-active-clients-sub">Купували в обраному році</div>
             </div>
             <div class="kpi-card blue">
-                <div class="kpi-label"><i class="fa-solid fa-address-book"></i> Всего в базе</div>
+                <div class="kpi-label"><i class="fa-solid fa-address-book"></i> Всього у базі</div>
                 <div class="kpi-value" id="kpi-total-base">—</div>
-                <div class="kpi-sub">Историческая база клиентов</div>
+                <div class="kpi-sub">Історична база клієнтів</div>
             </div>
             <div class="kpi-card green">
-                <div class="kpi-label"><i class="fa-solid fa-id-card"></i> С кодом ЄДРПОУ</div>
+                <div class="kpi-label"><i class="fa-solid fa-id-card"></i> З кодом ЄДРПОУ</div>
                 <div class="kpi-value" id="kpi-with-edrpou">—</div>
-                <div class="kpi-sub" id="kpi-with-edrpou-sub">Верифицированные юрлица</div>
+                <div class="kpi-sub" id="kpi-with-edrpou-sub">Верифіковані юрособи</div>
             </div>
             <div class="kpi-card amber">
-                <div class="kpi-label"><i class="fa-solid fa-user-plus"></i> Новых клиентов</div>
+                <div class="kpi-label"><i class="fa-solid fa-user-plus"></i> Нових клієнтів</div>
                 <div class="kpi-value" id="kpi-new-clients">—</div>
-                <div class="kpi-sub" id="kpi-new-clients-sub">Первые сделки в году</div>
+                <div class="kpi-sub" id="kpi-new-clients-sub">Перші угоди в році</div>
             </div>
             <div class="kpi-card indigo">
-                <div class="kpi-label"><i class="fa-solid fa-coins"></i> Выручка на клиента</div>
+                <div class="kpi-label"><i class="fa-solid fa-coins"></i> Продажі на клієнта</div>
                 <div class="kpi-value" id="kpi-rev-per-client">—</div>
-                <div class="kpi-sub">Средний доход на контрагента</div>
+                <div class="kpi-sub">Середній дохід на контрагента</div>
             </div>
         </section>
 
@@ -220,8 +220,8 @@
         <section class="grid-2">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fa-solid fa-chart-bar" style="color:var(--accent)"></i> Клиенты по отраслям</h3>
-                    <span id="chartClientsTag" style="font-size:12px;color:var(--text-muted);">Активные в 2026</span>
+                    <h3 class="card-title"><i class="fa-solid fa-chart-bar" style="color:var(--accent)"></i> Клієнти за галузями</h3>
+                    <span id="chartClientsTag" style="font-size:12px;color:var(--text-muted);">Активні в 2026</span>
                 </div>
                 <div class="chart-box">
                     <canvas id="chartClientsBar"></canvas>
@@ -230,8 +230,8 @@
 
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fa-solid fa-pie-chart" style="color:var(--brand)"></i> Распределение по статусам</h3>
-                    <span style="font-size:12px;color:var(--text-muted);">Все покупатели года</span>
+                    <h3 class="card-title"><i class="fa-solid fa-pie-chart" style="color:var(--brand)"></i> Розподіл за статусами</h3>
+                    <span style="font-size:12px;color:var(--text-muted);">Всі покупці року</span>
                 </div>
                 <div class="chart-box">
                     <canvas id="chartStatusesPie"></canvas>
@@ -242,7 +242,7 @@
         <!-- Table 1: Direction Clients Breakdown -->
         <section class="card" style="margin-bottom: 24px;">
             <div class="card-header">
-                <h3 class="card-title"><i class="fa-solid fa-table" style="color:var(--good)"></i> Клиентская структура по отраслям</h3>
+                <h3 class="card-title"><i class="fa-solid fa-table" style="color:var(--good)"></i> Клієнтська структура за галузями</h3>
                 <span id="tableDirsSub" style="font-size:13px;color:var(--text-muted);">14 отраслей</span>
             </div>
             <div class="table-responsive">
@@ -250,19 +250,19 @@
                     <thead>
                         <tr>
                             <th style="width: 40px;">#</th>
-                            <th>Отрасль</th>
-                            <th class="num">Клиентов</th>
-                            <th style="width: 140px;">Доля клиентов</th>
-                            <th class="num">С ЄДРПОУ</th>
-                            <th class="num">Новых</th>
-                            <th class="num">Повторных</th>
-                            <th class="num">Регулярных</th>
-                            <th class="num">Выручка</th>
-                            <th class="num">Ср. выручка / кл.</th>
+                            <th>Галузь</th>
+                            <th class="num">Клієнтів</th>
+                            <th style="width: 140px;">Частка клієнтів</th>
+                            <th class="num">З ЄДРПОУ</th>
+                            <th class="num">Нових</th>
+                            <th class="num">Повторних</th>
+                            <th class="num">Регулярних</th>
+                            <th class="num">Продажі</th>
+                            <th class="num">Сер. продажі / кл.</th>
                         </tr>
                     </thead>
                     <tbody id="clientsTbody">
-                        <tr><td colspan="10" style="text-align:center;padding:24px;color:var(--text-muted);">Загрузка аналитики...</td></tr>
+                        <tr><td colspan="10" style="text-align:center;padding:24px;color:var(--text-muted);">Завантаження аналітики...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -271,8 +271,8 @@
         <!-- Table 2: Top Overall Clients -->
         <section class="card">
             <div class="card-header">
-                <h3 class="card-title"><i class="fa-solid fa-award" style="color:var(--warn)"></i> ТОП-10 ключевых клиентов по объёму покупок</h3>
-                <span style="font-size:13px;color:var(--text-muted);">Лидеры портфеля UTSK</span>
+                <h3 class="card-title"><i class="fa-solid fa-award" style="color:var(--warn)"></i> ТОП-10 ключових клієнтів за обсягом покупок</h3>
+                <span style="font-size:13px;color:var(--text-muted);">Лідери портфеля UTSK</span>
             </div>
             <div class="table-responsive">
                 <table class="data-table">
@@ -280,16 +280,16 @@
                         <tr>
                             <th style="width: 40px;">#</th>
                             <th>Код</th>
-                            <th>Наименование клиента</th>
+                            <th>Найменування клієнта</th>
                             <th>ЄДРПОУ</th>
-                            <th>Отрасль</th>
+                            <th>Галузь</th>
                             <th>Статус CRM</th>
-                            <th class="num">Выручка от товаров</th>
-                            <th class="num">Накладных</th>
+                            <th class="num">Продажі товарів</th>
+                            <th class="num">Накладних</th>
                         </tr>
                     </thead>
                     <tbody id="topClientsTbody">
-                        <tr><td colspan="8" style="text-align:center;padding:20px;color:var(--text-muted);">Загрузка...</td></tr>
+                        <tr><td colspan="8" style="text-align:center;padding:20px;color:var(--text-muted);">Завантаження...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -308,14 +308,14 @@
             if (!val || isNaN(val)) return '0 ₴';
             const v = parseFloat(val);
             if (Math.abs(v) >= 1000000) {
-                return (v / 1000000).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' млн ₴';
+                return (v / 1000000).toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' млн ₴';
             }
-            return Math.round(v).toLocaleString('ru-RU') + ' ₴';
+            return Math.round(v).toLocaleString('uk-UA') + ' ₴';
         }
 
         function fmtNum(val) {
             if (!val || isNaN(val)) return '0';
-            return parseInt(val).toLocaleString('ru-RU');
+            return parseInt(val).toLocaleString('uk-UA');
         }
 
         function fmtPct(val) {
@@ -332,12 +332,12 @@
             try {
                 document.getElementById('backToDirectionsBtn').href = `/directions-analytics?token=${TOKEN}&year=${currentYear}`;
                 document.getElementById('yearSelect').value = currentYear;
-                document.getElementById('chartClientsTag').textContent = `Активные в ${currentYear}`;
+                document.getElementById('chartClientsTag').textContent = `Активні в ${currentYear}`;
 
                 const res = await fetch(`/api/analytics/directions/clients-analytics?token=${TOKEN}&year=${currentYear}`);
                 const json = await res.json();
                 if (json.status !== 'ok' || !json.data) {
-                    throw new Error('Не удалось загрузить данные');
+                    throw new Error('Не вдалося завантажити дані');
                 }
                 renderDashboard(json.data);
             } catch (err) {
@@ -371,11 +371,11 @@
             document.getElementById('kpi-active-clients').textContent = fmtNum(totalClients);
             document.getElementById('kpi-total-base').textContent = fmtNum(totalInDb);
             document.getElementById('kpi-with-edrpou').textContent = `${fmtNum(totalEdrpou)}`;
-            document.getElementById('kpi-with-edrpou-sub').textContent = `${fmtPct(edrpouPct)} покрытия базы`;
+            document.getElementById('kpi-with-edrpou-sub').textContent = `${fmtPct(edrpouPct)} покриття бази`;
             document.getElementById('kpi-new-clients').textContent = fmtNum(totalNew);
-            document.getElementById('kpi-new-clients-sub').textContent = `${fmtPct(totalClients > 0 ? totalNew*100/totalClients : 0)} от активных`;
+            document.getElementById('kpi-new-clients-sub').textContent = `${fmtPct(totalClients > 0 ? totalNew*100/totalClients : 0)} від активних`;
             document.getElementById('kpi-rev-per-client').textContent = fmtM(avgRevPerClient);
-            document.getElementById('tableDirsSub').textContent = `${dirs.length} активных отраслей`;
+            document.getElementById('tableDirsSub').textContent = `${dirs.length} активних галузей`;
 
             // Charts
             renderClientsBar(dirs);
@@ -397,7 +397,7 @@
                 data: {
                     labels: sorted.map(d => `${d.icon} ${d.direction_name}`),
                     datasets: [{
-                        label: 'Количество клиентов',
+                        label: 'Кількість клієнтів',
                         data: sorted.map(d => d.clients_count),
                         backgroundColor: sorted.map(d => d.color),
                         borderRadius: 6
@@ -410,7 +410,7 @@
                         legend: { display: false },
                         tooltip: {
                             callbacks: {
-                                label: ctx => ` Клиентов: ${ctx.raw} (${fmtPct(dirs[ctx.dataIndex] ? dirs[ctx.dataIndex].share_pct : 0)})`
+                                label: ctx => ` Клієнтів: ${ctx.raw} (${fmtPct(dirs[ctx.dataIndex] ? dirs[ctx.dataIndex].share_pct : 0)})`
                             }
                         }
                     },
@@ -464,7 +464,7 @@
         function renderClientsTable(dirs) {
             const tbody = document.getElementById('clientsTbody');
             if (!dirs || dirs.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:24px;">Нет данных</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:24px;">Немає даних</td></tr>';
                 return;
             }
 
@@ -499,7 +499,7 @@
         function renderTopClientsTable(clients) {
             const tbody = document.getElementById('topClientsTbody');
             if (!clients || clients.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:20px;">Нет клиентов</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:20px;">Немає клієнтів</td></tr>';
                 return;
             }
 

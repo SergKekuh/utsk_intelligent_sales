@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UTSK — Деталізація рекомендації</title>
+    <link rel="icon" href="data:,">
+    
+    <!-- Шрифти та іконки -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        :root {
+            --brand: #4f46e5;
+            --brand-hover: #4338ca;
+            --accent: #0ea5e9;
+            --good: #10b981;
+            --warn: #f59e0b;
+            --danger: #ef4444;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
+            padding: 24px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        /* ─── Шапка ─── */
+        .top-header {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.04);
+            border: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.15s;
+        }
+        .back-btn:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+        }
+        
+        .header-title-area {
+            flex: 1;
+            min-width: 280px;
+        }
+        .header-title-area h1 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .client-meta {
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+        
+        /* ─── KPI-карточки ─── */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .kpi-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 18px 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.04);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--brand);
+            transition: transform 0.15s ease;
+        }
+        .kpi-card:hover {
+            transform: translateY(-2px);
+        }
+        .kpi-card:nth-child(1) { border-left-color: var(--brand); }
+        .kpi-card:nth-child(2) { border-left-color: var(--good); }
+        .kpi-card:nth-child(3) { border-left-color: var(--warn); }
+        .kpi-card:nth-child(4) { border-left-color: var(--accent); }
+        .kpi-card:nth-child(5) { border-left-color: #a855f7; }
+        
+        .kpi-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .kpi-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+        .kpi-sub {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+        
+        /* ─── Вкладки ─── */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.04);
+            border: 1px solid var(--border);
+            overflow-x: auto;
+        }
+        
+        .tab-btn {
+            padding: 10px 18px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.15s;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .tab-btn:hover {
+            background: #f1f5f9;
+            color: var(--text-main);
+        }
+        .tab-btn.active {
+            background: var(--brand);
+            color: #fff;
+            box-shadow: 0 2px 4px rgba(79, 70, 229, 0.2);
+        }
+        
+        /* ─── Контент вкладок ─── */
+        .tab-content {
+            display: none;
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.04);
+            border: 1px solid var(--border);
+        }
+        .tab-content.active { display: block; }
+        
+        .card-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        /* ─── Таблицы ─── */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th {
+            text-align: left;
+            padding: 12px 14px;
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            border-bottom: 2px solid var(--border);
+            background: #f8fafc;
+        }
+        td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+        tr:hover td { background: #f8fafc; }
+        
+        .num { text-align: right; font-family: 'JetBrains Mono', monospace; }
+        
+        /* ─── График ─── */
+        .chart-container {
+            position: relative;
+            height: 340px;
+            width: 100%;
+            margin-top: 16px;
+        }
+        
+        /* ─── Сравнение с сегментом ─── */
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+        }
+        .comparison-card {
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid var(--border);
+        }
+        .comparison-card.client {
+            border-color: #c7d2fe;
+            background: #f5f7ff;
+        }
+        .comparison-card.segment {
+            border-color: #bae6fd;
+            background: #f0f9ff;
+        }
+        .comparison-card h3 {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .comparison-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 9px 0;
+            border-bottom: 1px dashed var(--border);
+            font-size: 13px;
+        }
+        .comparison-row:last-child { border-bottom: none; }
+        .comparison-row b { font-family: 'JetBrains Mono', monospace; }
+        
+        /* ─── Похожие размеры ─── */
+        .similar-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 18px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 10px;
+            background: #fff;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.15s ease;
+        }
+        .similar-item:hover {
+            background: #f8fafc;
+            border-color: var(--brand);
+            transform: translateX(3px);
+        }
+        .similar-info { flex: 1; }
+        .similar-info b { font-size: 14px; }
+        .similar-info small { color: var(--text-muted); display: block; margin-top: 4px; }
+        .similar-stats { text-align: right; }
+        .similar-stats b { font-family: 'JetBrains Mono', monospace; font-size: 14px; }
+        .similar-stats small { display: block; color: var(--text-muted); margin-top: 4px; }
+        
+        /* ─── Утилиты ─── */
+        .text-muted { color: var(--text-muted); }
+        .text-good { color: var(--good); font-weight: 600; }
+        .text-danger { color: var(--danger); font-weight: 600; }
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            background: #e0e7ff;
+            color: #3730a3;
+        }
+        .badge.good { background: #dcfce7; color: #166534; }
+        .badge.warn { background: #fef3c7; color: #92400e; }
+        .badge.neutral { background: #f1f5f9; color: #475569; }
+        
+        .loading, .no-data {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- ═══════════════ ШАПКА ═══════════════ -->
+        <header class="top-header">
+            <div class="header-title-area">
+                <a href="#" id="back-link" class="back-btn"><i class="fa-solid fa-arrow-left"></i> До клієнта</a>
+                <div style="margin-top: 14px;">
+                    <h1 id="size-title">⏳ Завантаження...</h1>
+                    <div class="client-meta" id="client-meta">—</div>
+                </div>
+            </div>
+            <div>
+                <span class="badge" id="pipe-type-badge">—</span>
+            </div>
+        </header>
+        
+        <!-- ═══════════════ KPI ═══════════════ -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label"><i class="fa-solid fa-cart-shopping"></i> Кількість покупок</div>
+                <div class="kpi-value" id="kpi-count">—</div>
+                <div class="kpi-sub" id="kpi-last-purchase">—</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label"><i class="fa-solid fa-sack-dollar"></i> Продажі клієнту</div>
+                <div class="kpi-value" id="kpi-revenue">—</div>
+                <div class="kpi-sub" id="kpi-share">—</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label"><i class="fa-solid fa-warehouse"></i> Залишок на складі</div>
+                <div class="kpi-value" id="kpi-stock">—</div>
+                <div class="kpi-sub">Вільний залишок на складі</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label"><i class="fa-solid fa-tag"></i> Середня ціна</div>
+                <div class="kpi-value" id="kpi-avg-price">—</div>
+                <div class="kpi-sub">₴ / тонна</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label"><i class="fa-solid fa-chart-pie"></i> Частка в сегменті</div>
+                <div class="kpi-value" id="kpi-segment">—</div>
+                <div class="kpi-sub" id="kpi-segment-clients">—</div>
+            </div>
+        </div>
+        
+        <!-- ═══════════════ ВКЛАДКИ ═══════════════ -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="openTab('tab-overview', this)"><i class="fa-solid fa-chart-line"></i> 📊 Огляд</button>
+            <button class="tab-btn" onclick="openTab('tab-monthly', this)"><i class="fa-solid fa-calendar-days"></i> 📅 Динаміка</button>
+            <button class="tab-btn" onclick="openTab('tab-segment', this)"><i class="fa-solid fa-building"></i> 🏢 Порівняння з сегментом</button>
+            <button class="tab-btn" onclick="openTab('tab-products', this)"><i class="fa-solid fa-boxes-stacked"></i> 📦 Товари за ГОСТ</button>
+            <button class="tab-btn" onclick="openTab('tab-similar', this)"><i class="fa-solid fa-lightbulb"></i> 💡 Рекомендації</button>
+        </div>
+        
+        <!-- ═══════════════ ВКЛАДКА 1: ОГЛЯД ═══════════════ -->
+        <div id="tab-overview" class="tab-content active">
+            <h2 class="card-title"><i class="fa-solid fa-chart-pie"></i> 📊 Загальна інформація про позицію</h2>
+            <div id="overview-content" class="loading">⏳ Завантаження...</div>
+        </div>
+        
+        <!-- ═══════════════ ВКЛАДКА 2: ДИНАМІКА ═══════════════ -->
+        <div id="tab-monthly" class="tab-content">
+            <h2 class="card-title"><i class="fa-solid fa-chart-column"></i> 📅 Помісячна динаміка закупівель (2026 vs 2025)</h2>
+            <div class="chart-container">
+                <canvas id="monthly-chart"></canvas>
+            </div>
+            <div class="table-responsive" style="margin-top: 24px;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Місяць</th>
+                            <th class="num">Продажі 2026 (₴)</th>
+                            <th class="num">Продажі 2025 (₴)</th>
+                            <th class="num">Δ абс. (₴)</th>
+                            <th class="num">Δ %</th>
+                        </tr>
+                    </thead>
+                    <tbody id="monthly-table-body">
+                        <tr><td colspan="5" class="loading">⏳ Завантаження...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- ═══════════════ ВКЛАДКА 3: СЕГМЕНТ ═══════════════ -->
+        <div id="tab-segment" class="tab-content">
+            <h2 class="card-title"><i class="fa-solid fa-users"></i> 🏢 Порівняння клієнта з галуззю (сегментом)</h2>
+            <div class="comparison-grid" id="segment-content">
+                <div class="loading">⏳ Завантаження...</div>
+            </div>
+        </div>
+        
+        <!-- ═══════════════ ВКЛАДКА 4: ТОВАРИ ═══════════════ -->
+        <div id="tab-products" class="tab-content">
+            <h2 class="card-title"><i class="fa-solid fa-barcode"></i> 📦 Конкретні товари за ГОСТ / ДСТУ / Маркою сталі</h2>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Код</th>
+                            <th>Найменування (ГОСТ / ДСТУ / Марка сталі)</th>
+                            <th class="num">К-сть (т)</th>
+                            <th class="num">Продажі (₴)</th>
+                            <th class="num">Сер. ціна (₴/т)</th>
+                            <th class="num">Накладних</th>
+                            <th class="num">Залишок (т)</th>
+                            <th>Остання покупка</th>
+                        </tr>
+                    </thead>
+                    <tbody id="products-table-body">
+                        <tr><td colspan="8" class="loading">⏳ Завантаження...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- ═══════════════ ВКЛАДКА 5: РЕКОМЕНДАЦІЇ ═══════════════ -->
+        <div id="tab-similar" class="tab-content">
+            <h2 class="card-title"><i class="fa-solid fa-arrows-split-up-and-left"></i> 💡 Схожі та супутні розміри (Cross-sell / Up-sell)</h2>
+            <p style="color:var(--text-muted);margin-bottom:16px;">
+                Близькі розміри труб у сегменті клієнта з наявністю на складі та історією покупок:
+            </p>
+            <div id="similar-content">
+                <div class="loading">⏳ Завантаження...</div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // ═══════════════════════════════════════════════════
+        // КОНФІГУРАЦІЯ
+        // ═══════════════════════════════════════════════════
+        const urlParams = new URLSearchParams(window.location.search);
+        const TOKEN = urlParams.get('token') || 'utsk2026';
+        const CLIENT_CODE = urlParams.get('code') || '4501';
+        const SIZE_KEY = urlParams.get('size_key') || 'round_76x5';
+        const YEAR = parseInt(urlParams.get('year')) || 2026;
+        
+        if (!CLIENT_CODE || !SIZE_KEY) {
+            document.body.innerHTML = '<div class="no-data">❌ Не вказано code або size_key</div>';
+        }
+        
+        // ═══════════════════════════════════════════════════
+        // УТИЛІТИ ФОРМАТУВАННЯ
+        // ═══════════════════════════════════════════════════
+        function $(id) { return document.getElementById(id); }
+        
+        function setText(id, value) {
+            const el = $(id);
+            if (el) el.textContent = value;
+        }
+        
+        function fmtMoney(n) {
+            if (n == null || isNaN(n)) return '—';
+            n = Number(n);
+            if (Math.abs(n) >= 1e6) return (n / 1e6).toFixed(2) + ' млн ₴';
+            if (Math.abs(n) >= 1e3) return (n / 1e3).toFixed(1) + ' тис ₴';
+            return Math.round(n).toLocaleString('uk-UA') + ' ₴';
+        }
+        
+        function fmtFullMoney(n) {
+            if (n == null || isNaN(n)) return '—';
+            return Math.round(Number(n)).toLocaleString('uk-UA') + ' ₴';
+        }
+        
+        function fmtNum(n, digits = 2) {
+            if (n == null || isNaN(n)) return '—';
+            return Number(n).toLocaleString('uk-UA', { minimumFractionDigits: digits, maximumFractionDigits: digits });
+        }
+        
+        function fmtPct(n) {
+            if (n == null || isNaN(n)) return '—';
+            return Number(n).toFixed(2) + '%';
+        }
+        
+        function pluralizeRaz(n) {
+            n = Number(n);
+            const mod10 = n % 10;
+            const mod100 = n % 100;
+            if (mod10 === 1 && mod100 !== 11) return 'раз';
+            if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return 'рази';
+            return 'разів';
+        }
+        
+        // ═══════════════════════════════════════════════════
+        // ЗАВАНТАЖЕННЯ ДАНИХ
+        // ═══════════════════════════════════════════════════
+        async function loadKPI() {
+            try {
+                const res = await fetch(`/api/analytics/recommendation-detail/kpi?token=${encodeURIComponent(TOKEN)}&code=${encodeURIComponent(CLIENT_CODE)}&size_key=${encodeURIComponent(SIZE_KEY)}&year=${YEAR}`);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const json = await res.json();
+                const d = json.data;
+                if (!d) {
+                    $('overview-content').innerHTML = '<div class="no-data">📭 Немає даних для цього розміру</div>';
+                    return;
+                }
+                
+                // Шапка
+                const rawDim = (d.size_display || '').replace(/^(Кругла|Квадрат|Профіль)\s*/, '');
+                const cleanTitle = `${d.pipe_type_ua} ${rawDim}`;
+                setText('size-title', cleanTitle);
+                setText('client-meta', `Клієнт: ${d.client_name} | Код: ${CLIENT_CODE} | Рік: ${YEAR}`);
+                setText('pipe-type-badge', d.pipe_type_ua);
+                $('back-link').href = `/client-detail?token=${TOKEN}&code=${CLIENT_CODE}&year=${YEAR}`;
+                document.title = `UTSK — ${cleanTitle}`;
+                
+                // KPI
+                setText('kpi-count', d.purchase_count + ' ' + pluralizeRaz(d.purchase_count));
+                setText('kpi-last-purchase', 'Остання угода: ' + (d.last_purchase_date || '—'));
+                setText('kpi-revenue', fmtMoney(d.total_revenue));
+                setText('kpi-share', `Частка: ${fmtPct(d.share_pct)}`);
+                setText('kpi-stock', fmtNum(d.stock_tonnage, 1) + ' т');
+                setText('kpi-avg-price', fmtFullMoney(d.avg_price));
+                setText('kpi-segment', fmtPct(d.segment_share_pct));
+                setText('kpi-segment-clients', `${d.segment_clients_count} клієнтів у галузі`);
+                
+                // Overview Tab
+                $('overview-content').innerHTML = `
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;">
+                        <div style="padding:18px;border:1px solid var(--border);border-radius:12px;background:#f8fafc;">
+                            <div style="font-size:12px;color:var(--text-muted);font-weight:700;margin-bottom:8px;">ТИП ТА РОЗМІР</div>
+                            <div style="font-size:20px;font-weight:700;color:var(--brand);">${cleanTitle}</div>
+                            <div class="badge neutral" style="margin-top:10px;">Форма перетину: ${d.shape}</div>
+                        </div>
+                        <div style="padding:18px;border:1px solid var(--border);border-radius:12px;background:#f8fafc;">
+                            <div style="font-size:12px;color:var(--text-muted);font-weight:700;margin-bottom:8px;">ОБСЯГ ЗАКУПІВЕЛЬ КЛІЄНТОМ</div>
+                            <div style="font-size:20px;font-weight:700;font-family:'JetBrains Mono';">${fmtNum(d.total_quantity, 3)} т</div>
+                            <div style="font-size:12px;color:var(--text-muted);margin-top:8px;">Сума: ${fmtFullMoney(d.total_revenue)}</div>
+                        </div>
+                        <div style="padding:18px;border:1px solid var(--border);border-radius:12px;background:#f8fafc;">
+                            <div style="font-size:12px;color:var(--text-muted);font-weight:700;margin-bottom:8px;">ВАГОМІСТЬ ДЛЯ КЛІЄНТА</div>
+                            <div style="font-size:20px;font-weight:700;font-family:'JetBrains Mono';color:var(--good);">${fmtPct(d.share_pct)}</div>
+                            <div style="font-size:12px;color:var(--text-muted);margin-top:8px;">від загального бюджету покупок клієнта</div>
+                        </div>
+                        <div style="padding:18px;border:1px solid var(--border);border-radius:12px;background:#f8fafc;">
+                            <div style="font-size:12px;color:var(--text-muted);font-weight:700;margin-bottom:8px;">ЧАСТКА В СЕГМЕНТІ (ГАЛУЗІ)</div>
+                            <div style="font-size:20px;font-weight:700;font-family:'JetBrains Mono';color:#a855f7;">${fmtPct(d.segment_share_pct)}</div>
+                            <div style="font-size:12px;color:var(--text-muted);margin-top:8px;">від усіх продажів цього розміру в галузі (${d.segment_clients_count} покупців)</div>
+                        </div>
+                        <div style="padding:18px;border:1px solid var(--border);border-radius:12px;background:#f8fafc;">
+                            <div style="font-size:12px;color:var(--text-muted);font-weight:700;margin-bottom:8px;">СКЛАДСЬКИЙ ЗАПАС</div>
+                            <div style="font-size:20px;font-weight:700;font-family:'JetBrains Mono';color:var(--warn);">${fmtNum(d.stock_tonnage, 1)} т</div>
+                            <div style="font-size:12px;color:var(--text-muted);margin-top:8px;">Вільний залишок готової продукції на складі</div>
+                        </div>
+                        <div style="padding:18px;border:1px solid var(--border);border-radius:12px;background:#f8fafc;">
+                            <div style="font-size:12px;color:var(--text-muted);font-weight:700;margin-bottom:8px;">ОСТАННЯ УГОДА ТА ЦІНА</div>
+                            <div style="font-size:20px;font-weight:700;font-family:'JetBrains Mono';">${fmtFullMoney(d.avg_price)}/т</div>
+                            <div style="font-size:12px;color:var(--text-muted);margin-top:8px;">Дата: ${d.last_purchase_date || '—'}</div>
+                        </div>
+                    </div>
+                `;
+            } catch (e) {
+                console.error('[KPI]', e);
+                $('overview-content').innerHTML = `<div class="no-data">⚠️ Помилка: ${e.message}</div>`;
+            }
+        }
+        
+        async function loadMonthly() {
+            try {
+                const res = await fetch(`/api/analytics/recommendation-detail/monthly?token=${encodeURIComponent(TOKEN)}&code=${encodeURIComponent(CLIENT_CODE)}&size_key=${encodeURIComponent(SIZE_KEY)}&year=${YEAR}`);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const json = await res.json();
+                const items = json.data || [];
+                
+                // Таблиця
+                const tbody = $('monthly-table-body');
+                if (items.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="no-data">📭 Немає даних для динаміки</td></tr>';
+                    return;
+                }
+                
+                tbody.innerHTML = items.map(m => `
+                    <tr>
+                        <td><b>${m.month_name}</b></td>
+                        <td class="num">${fmtFullMoney(m.revenue_cur)}</td>
+                        <td class="num">${fmtFullMoney(m.revenue_prev)}</td>
+                        <td class="num ${m.delta_abs > 0 ? 'text-good' : (m.delta_abs < 0 ? 'text-danger' : '')}">${m.delta_abs > 0 ? '+' : ''}${fmtFullMoney(m.delta_abs)}</td>
+                        <td class="num ${m.delta_pct > 0 ? 'text-good' : (m.delta_pct < 0 ? 'text-danger' : '')}">${m.delta_pct != null ? (m.delta_pct > 0 ? '+' : '') + fmtPct(m.delta_pct) : '—'}</td>
+                    </tr>
+                `).join('');
+                
+                // Графік
+                const ctx = $('monthly-chart').getContext('2d');
+                if (window._monthlyChart) window._monthlyChart.destroy();
+                window._monthlyChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: items.map(m => m.month_name),
+                        datasets: [
+                            {
+                                label: `${YEAR} рік`,
+                                data: items.map(m => m.revenue_cur),
+                                backgroundColor: '#4f46e5',
+                                borderRadius: 6,
+                            },
+                            {
+                                label: `${YEAR - 1} рік`,
+                                data: items.map(m => m.revenue_prev),
+                                backgroundColor: '#cbd5e1',
+                                borderRadius: 6,
+                            },
+                        ],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                labels: { font: { family: 'Inter', weight: 600 } }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: ctx => `${ctx.dataset.label}: ${fmtFullMoney(ctx.raw)}`,
+                                },
+                            },
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: v => fmtMoney(v),
+                                    font: { family: 'JetBrains Mono' }
+                                },
+                                grid: { color: '#f1f5f9' }
+                            },
+                            x: {
+                                grid: { display: false },
+                                ticks: { font: { family: 'Inter', weight: 500 } }
+                            }
+                        },
+                    },
+                });
+            } catch (e) {
+                console.error('[Monthly]', e);
+                $('monthly-table-body').innerHTML = `<tr><td colspan="5" class="no-data">⚠️ Помилка: ${e.message}</td></tr>`;
+            }
+        }
+        
+        async function loadSegment() {
+            try {
+                const res = await fetch(`/api/analytics/recommendation-detail/segment?token=${encodeURIComponent(TOKEN)}&code=${encodeURIComponent(CLIENT_CODE)}&size_key=${encodeURIComponent(SIZE_KEY)}&year=${YEAR}`);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const json = await res.json();
+                const items = json.data || [];
+                const client = items.find(i => i.scope === 'client') || {};
+                const segment = items.find(i => i.scope === 'segment') || {};
+                
+                $('segment-content').innerHTML = `
+                    <div class="comparison-card client">
+                        <h3><i class="fa-solid fa-user-check" style="color:var(--brand);"></i> 👤 Показники клієнта</h3>
+                        <div class="comparison-row"><span>Виторг за розміром</span><b>${fmtFullMoney(client.revenue)}</b></div>
+                        <div class="comparison-row"><span>Обсяг закупівель</span><b>${fmtNum(client.quantity, 3)} т</b></div>
+                        <div class="comparison-row"><span>Середня ціна закупівлі</span><b>${fmtFullMoney(client.avg_price)} / т</b></div>
+                        <div class="comparison-row"><span>Кількість накладних</span><b>${client.invoices_count || 0}</b></div>
+                    </div>
+                    <div class="comparison-card segment">
+                        <h3><i class="fa-solid fa-industry" style="color:var(--accent);"></i> 🏢 Загалом по галузі (сегменту)</h3>
+                        <div class="comparison-row"><span>Сумарний виторг галузі</span><b>${fmtFullMoney(segment.revenue)}</b></div>
+                        <div class="comparison-row"><span>Сумарний обсяг галузі</span><b>${fmtNum(segment.quantity, 3)} т</b></div>
+                        <div class="comparison-row"><span>Середня ціна в галузі</span><b>${fmtFullMoney(segment.avg_price)} / т</b></div>
+                        <div class="comparison-row"><span>Клієнтів купують цей розмір</span><b>${segment.clients_count || 0}</b></div>
+                        <div class="comparison-row"><span>Всього накладних у галузі</span><b>${segment.invoices_count || 0}</b></div>
+                    </div>
+                `;
+            } catch (e) {
+                console.error('[Segment]', e);
+                $('segment-content').innerHTML = `<div class="no-data">⚠️ Помилка: ${e.message}</div>`;
+            }
+        }
+        
+        async function loadProducts() {
+            try {
+                const res = await fetch(`/api/analytics/recommendation-detail/products?token=${encodeURIComponent(TOKEN)}&code=${encodeURIComponent(CLIENT_CODE)}&size_key=${encodeURIComponent(SIZE_KEY)}&year=${YEAR}`);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const json = await res.json();
+                const items = json.data || [];
+                
+                const tbody = $('products-table-body');
+                if (items.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="8" class="no-data">📭 Немає конкретних товарів у цьому розмірі</td></tr>';
+                    return;
+                }
+                
+                tbody.innerHTML = items.map(p => `
+                    <tr>
+                        <td><code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;">${p.product_code}</code></td>
+                        <td><b>${p.product_name}</b></td>
+                        <td class="num">${fmtNum(p.quantity, 3)}</td>
+                        <td class="num">${fmtFullMoney(p.revenue)}</td>
+                        <td class="num">${fmtFullMoney(p.avg_price)}</td>
+                        <td class="num">${p.invoices}</td>
+                        <td class="num">${fmtNum(p.stock_tonnage, 1)}</td>
+                        <td>${p.last_purchase || '—'}</td>
+                    </tr>
+                `).join('');
+            } catch (e) {
+                console.error('[Products]', e);
+                $('products-table-body').innerHTML = `<tr><td colspan="8" class="no-data">⚠️ Помилка: ${e.message}</td></tr>`;
+            }
+        }
+        
+        async function loadSimilar() {
+            try {
+                const res = await fetch(`/api/analytics/recommendation-detail/similar?token=${encodeURIComponent(TOKEN)}&code=${encodeURIComponent(CLIENT_CODE)}&size_key=${encodeURIComponent(SIZE_KEY)}&year=${YEAR}`);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const json = await res.json();
+                const items = json.data || [];
+                
+                if (items.length === 0) {
+                    $('similar-content').innerHTML = '<div class="no-data">📭 Немає схожих розмірів для рекомендації</div>';
+                    return;
+                }
+                
+                $('similar-content').innerHTML = items.map(s => `
+                    <a href="/product-recommendation-detail?token=${TOKEN}&code=${CLIENT_CODE}&size_key=${encodeURIComponent(s.similar_size_key)}&year=${YEAR}"
+                       class="similar-item">
+                        <div class="similar-info">
+                            <b>${s.size_display}</b>
+                            <span class="badge ${s.client_bought ? 'good' : 'warn'}" style="margin-left:8px;">
+                                ${s.client_bought ? '✓ Купував раніше' : '✗ Не купував'}
+                            </span>
+                            <small>${s.pipe_type_ua} · Причина рекомендації: ${s.similarity_reason}</small>
+                        </div>
+                        <div class="similar-stats">
+                            <b>${fmtMoney(s.segment_revenue)}</b>
+                            <small>Залишок на складі: ${fmtNum(s.stock_tonnage, 1)} т</small>
+                        </div>
+                    </a>
+                `).join('');
+            } catch (e) {
+                console.error('[Similar]', e);
+                $('similar-content').innerHTML = `<div class="no-data">⚠️ Помилка: ${e.message}</div>`;
+            }
+        }
+        
+        // ═══════════════════════════════════════════════════
+        // ПЕРЕМИКАННЯ ВКЛАДОК
+        // ═══════════════════════════════════════════════════
+        function openTab(tabId, btn) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            const target = $(tabId);
+            if (target) target.classList.add('active');
+            if (btn) btn.classList.add('active');
+            
+            // Якщо перемикаємо на графік, викликаємо resize
+            if (tabId === 'tab-monthly' && window._monthlyChart) {
+                setTimeout(() => window._monthlyChart.resize(), 50);
+            }
+        }
+        window.openTab = openTab;
+        
+        // ═══════════════════════════════════════════════════
+        // ІНІЦІАЛІЗАЦІЯ СТОРІНКИ
+        // ═══════════════════════════════════════════════════
+        async function loadAll() {
+            await Promise.allSettled([
+                loadKPI(),
+                loadMonthly(),
+                loadSegment(),
+                loadProducts(),
+                loadSimilar()
+            ]);
+        }
+        
+        document.addEventListener('DOMContentLoaded', loadAll);
+    </script>
+</body>
+</html>

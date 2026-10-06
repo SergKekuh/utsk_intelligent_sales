@@ -1,0 +1,55 @@
+# Уроки проекта Intelligent Sales
+
+---
+
+## Урок 28. Родственные SQL-функции должны отдавать симметричные поля
+
+**Дата:** 2026-10-05  
+**Контекст:** Промт №18 (финал) → Промт №19  
+
+**Симптом:** `get_profile_pipes_sizes` отдаёт `size_display`, а `get_profile_pipes_sizes_yoy` — нет. Фронт компенсирует через JS-fallback `formatSizeDisplay()`.  
+
+**Причина:** функции писались в разное время, `yoy` группирует только по `size_key` и теряет `prof_w/prof_h/wall` внутри CTE.  
+
+**Урок:** Если `get_A` и `get_B` работают с одной сущностью — обе должны отдавать **все производные поля**, даже если фронт умеет fallback. Асимметрия — технический долг, который повторится.  
+
+**Фикс:** патчить через `pg_get_functiondef` → `CREATE OR REPLACE`, добавить поле и в `RETURNS TABLE`, и в `SELECT`, и в API-маппинг.  
+
+**Проверка:**
+```bash
+curl -s ".../sizes?..." | python3 -c "...print(sorted(keys))"
+curl -s ".../sizes-yoy?..." | python3 -c "...print(sorted(keys))"
+# Оба списка должны содержать 'size_display'
+```
+
+---
+
+## Урок 29. Заполнение метаданных (direction_source) при неизменных ключевых полях
+
+**Дата:** 2026-10-05  
+**Контекст:** Промт №22 (Миграция 54)  
+
+**Симптом:** 541 активный клиент (1496 всего) имел `direction_source = NULL`, при этом `activity_direction_id` и `direction_confidence` были заполнены. В карточке клиента отображался бейдж «❓ Не визначено».  
+
+**Причина:** В миграции 41 было выполнено `UPDATE clients SET direction_source = NULL;`, затем запущена `classify_clients_directions(FALSE)`. Но условие внутри функции:
+```sql
+WHERE c.code = cl.code
+  AND c.activity_direction_id IS DISTINCT FROM cl.new_dir_id
+```
+пропускало всех клиентов, чья отрасль уже совпадала с результатом regex (так как была предварительно восстановлена из бэкапа). В результате `direction_source` так и остался `NULL`.  
+
+**Урок:** При обновлении сопутствующих метаданных (source, timestamp, author) условие `UPDATE` должно учитывать случаи, когда ключевое поле не изменилось, но метаданные отсутствуют:
+```sql
+WHERE c.code = cl.code
+  AND (
+      (c.activity_direction_id IS DISTINCT FROM cl.new_dir_id AND cl.new_conf >= COALESCE(c.direction_confidence, 0))
+      OR ((c.direction_source IS NULL OR c.direction_source = 'unknown') AND cl.new_dir_id != 9)
+  )
+```
+
+**Фикс:** Миграция 54 выполнила бэкфилл:
+1. `confidence = 1.00` → `'manual'` (36 клиентов)
+2. `activity_direction_id NOT IN (9, 16)` → `'auto_name'` (713 клиентов)
+3. `activity_direction_id IN (9, 16)` → `'unknown'` (747 клиентов)
+И пропатчила `classify_clients_directions` и `classify_clients_by_basket` для будущих запусков.
+
