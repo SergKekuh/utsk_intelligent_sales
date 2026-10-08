@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UTSK Intelligent Sales — Матриця розмірів клієнта</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-app: #f8fafc;
+            --bg-surface: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --border-subtle: #f1f5f9;
+            --primary: #4f46e5;
+            --primary-soft: #e0e7ff;
+            --primary-dark: #4338ca;
+            --brand: #0ea5e9;
+            --brand-soft: #e0f2fe;
+            --good: #10b981;
+            --good-soft: #dcfce7;
+            --good-border: #86efac;
+            --warn: #f59e0b;
+            --warn-soft: #fef3c7;
+            --bad: #ef4444;
+            --bad-soft: #fee2e2;
+            --catalog-soft: #f1f5f9;
+            --catalog-border: #cbd5e1;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -2px rgba(0,0,0,0.03);
+            --radius-sm: 8px;
+            --radius: 12px;
+            --radius-lg: 16px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+
+        body {
+            background: #f1f5f9;
+            min-height: 100vh;
+            color: var(--text-main);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .page-wrap {
+            max-width: 1560px;
+            margin: 0 auto;
+            padding: 24px 24px 60px;
+        }
+
+        /* ─── PAGE HEADER ─── */
+        .page-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+        .header-left {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .nav-breadcrumbs {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .nav-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 14px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-main);
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all .15s ease;
+        }
+        .nav-btn:hover {
+            background: var(--border-subtle);
+            border-color: #cbd5e1;
+        }
+        .header-title-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .header-icon {
+            font-size: 32px;
+            color: var(--primary);
+            background: var(--primary-soft);
+            width: 52px;
+            height: 52px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .page-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--text-main);
+            letter-spacing: -0.02em;
+        }
+        .page-subtitle {
+            font-size: 13.5px;
+            color: var(--text-muted);
+            margin-top: 3px;
+        }
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .year-select {
+            padding: 9px 16px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--bg-surface);
+            font-size: 13.5px;
+            font-weight: 700;
+            color: var(--text-main);
+            cursor: pointer;
+            box-shadow: var(--shadow-sm);
+            outline: none;
+        }
+
+        /* ─── KPI CARDS ─── */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+        .kpi-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            box-shadow: var(--shadow-sm);
+            transition: transform .15s, box-shadow .15s;
+            position: relative;
+            overflow: hidden;
+        }
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: var(--border);
+        }
+        .kpi-card.kpi-cat::before { background: #6366f1; }
+        .kpi-card.kpi-sizes::before { background: #3b82f6; }
+        .kpi-card.kpi-bought::before { background: #10b981; }
+        .kpi-card.kpi-rev::before { background: #059669; }
+        .kpi-card.kpi-qty::before { background: #f59e0b; }
+        .kpi-card.kpi-stock::before { background: #8b5cf6; }
+
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+        .kpi-label {
+            font-size: 11.5px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 6px;
+        }
+        .kpi-value {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--text-main);
+            line-height: 1.2;
+        }
+        .kpi-sub {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* ─── SECTION & CONTROLS ─── */
+        .section-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 22px;
+            box-shadow: var(--shadow-sm);
+        }
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+        }
+        .section-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-desc {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .controls-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        /* Toggle Button Group */
+        .matrix-toggle-group {
+            display: inline-flex;
+            background: var(--border-subtle);
+            padding: 4px;
+            border-radius: 10px;
+            gap: 4px;
+            border: 1px solid var(--border);
+        }
+        .matrix-toggle-btn {
+            border: none;
+            background: transparent;
+            padding: 8px 18px;
+            border-radius: 8px;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .matrix-toggle-btn:hover { color: var(--text-main); }
+        .matrix-toggle-btn.active {
+            background: #ffffff;
+            color: var(--text-main);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        /* Filter Chips & Search */
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .filter-chip {
+            padding: 6px 14px;
+            border: 1px solid var(--border);
+            background: #ffffff;
+            border-radius: 20px;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all .15s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .filter-chip:hover {
+            border-color: #cbd5e1;
+            color: var(--text-main);
+        }
+        .filter-chip.active {
+            background: #e0e7ff;
+            color: #4338ca;
+            border-color: #c7d2fe;
+        }
+        .search-box {
+            position: relative;
+        }
+        .search-input {
+            padding: 7px 12px 7px 32px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            outline: none;
+            width: 170px;
+            background: #fff;
+            transition: width .2s ease, border-color .2s ease;
+        }
+        .search-input:focus {
+            width: 220px;
+            border-color: var(--primary);
+        }
+        .search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+
+        /* ─── SIZE MATRIX TABLE ─── */
+        .size-matrix-wrap {
+            overflow-x: auto;
+            overflow-y: auto;
+            max-height: 68vh;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: #ffffff;
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 #f1f5f9;
+        }
+        .size-matrix-wrap::-webkit-scrollbar { width: 8px; height: 8px; }
+        .size-matrix-wrap::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+        .size-matrix-wrap::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .size-matrix-wrap::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        .size-matrix {
+            border-collapse: collapse;
+            min-width: 100%;
+        }
+        .size-matrix th, .size-matrix td {
+            padding: 8px 10px;
+            border: 1px solid var(--border);
+            text-align: right;
+            font-size: 12.5px;
+            white-space: nowrap;
+        }
+        .size-matrix thead th {
+            position: sticky;
+            top: 0;
+            background: #f8fafc;
+            font-weight: 700;
+            text-align: center;
+            z-index: 2;
+            box-shadow: 0 1px 0 var(--border);
+        }
+        .matrix-row-label {
+            font-weight: 700;
+            text-align: left !important;
+            background: #f8fafc;
+            position: sticky;
+            left: 0;
+            z-index: 1;
+        }
+        .size-matrix thead th:first-child {
+            left: 0;
+            z-index: 3;
+        }
+        .matrix-total-col {
+            font-weight: 700;
+            background: #f0f9ff;
+        }
+        .matrix-footer td {
+            font-weight: 700;
+            background: #f8fafc;
+            position: sticky;
+            bottom: 0;
+            z-index: 2;
+            box-shadow: 0 -1px 0 var(--border);
+        }
+        .matrix-footer td.grand-total {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        /* ─── CELL STATES ─── */
+        .size-cell {
+            cursor: pointer;
+            transition: all .12s ease;
+            text-align: center;
+            vertical-align: middle;
+            min-width: 64px;
+            user-select: none;
+        }
+        .size-cell:hover {
+            box-shadow: inset 0 0 0 2px var(--primary);
+            z-index: 1;
+        }
+
+        /* 1. Клиент покупал (ЗЕЛЕНЫЙ) */
+        .cell-bought {
+            background: #ecfdf5;
+            color: #065f46;
+            border-color: #a7f3d0;
+        }
+        .cell-bought:hover {
+            background: #d1fae5;
+        }
+        .cell-bought .cell-val {
+            font-weight: 700;
+            font-size: 11.5px;
+            color: #047857;
+        }
+        .cell-bought .cell-sub {
+            font-size: 9.5px;
+            opacity: 0.85;
+            color: #065f46;
+        }
+
+        /* 2. Есть в каталоге, клиент не покупал (СВЕТЛЫЙ НЕЙТРАЛЬНЫЙ) */
+        .cell-catalog {
+            background: #f8fafc;
+            color: #64748b;
+        }
+        .cell-catalog.with-stock {
+            background: #f0f9ff;
+            color: #0369a1;
+        }
+        .cell-catalog:hover {
+            background: #e2e8f0;
+        }
+        .cell-catalog .cell-val {
+            font-weight: 600;
+            font-size: 10.5px;
+        }
+        .cell-catalog .cell-sub {
+            font-size: 9.5px;
+            opacity: 0.75;
+        }
+
+        /* 3. Нет в каталоге (ПУСТО) */
+        .cell-empty {
+            background: #ffffff;
+            color: #cbd5e1;
+            text-align: center;
+            cursor: default;
+        }
+        .cell-empty:hover {
+            box-shadow: none;
+        }
+
+        /* ─── LEGEND & SUMMARY ─── */
+        .legend-bar {
+            margin-top: 14px;
+            padding: 12px 18px;
+            background: #f8fafc;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .legend-items {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .legend-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+        .legend-badge {
+            width: 14px;
+            height: 14px;
+            border-radius: 4px;
+            border: 1px solid transparent;
+        }
+        .legend-badge.bought { background: #10b981; }
+        .legend-badge.catalog-stock { background: #bae6fd; border-color: #7dd3fc; }
+        .legend-badge.catalog-no-stock { background: #f1f5f9; border-color: #cbd5e1; }
+        .legend-badge.empty { background: #ffffff; border-color: #e2e8f0; }
+
+        .legend-stats {
+            font-size: 12.5px;
+            color: var(--text-muted);
+        }
+
+        /* ─── MODAL DRILL-DOWN ─── */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(4px);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: fadeIn .15s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .modal-box {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            max-width: 900px;
+            width: 100%;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+        .modal-header {
+            padding: 18px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f8fafc;
+        }
+        .modal-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 18px;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 6px;
+            line-height: 1;
+        }
+        .modal-close:hover { background: #e2e8f0; color: var(--text-main); }
+        .modal-body {
+            padding: 20px 24px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        .modal-footer {
+            padding: 14px 24px;
+            border-top: 1px solid var(--border);
+            background: #f8fafc;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        /* Drilldown Table */
+        .drill-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .drill-table th {
+            background: #f8fafc;
+            font-weight: 700;
+            text-align: left;
+            padding: 9px 12px;
+            border-bottom: 2px solid var(--border);
+            color: var(--text-muted);
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+        .drill-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-subtle);
+            color: var(--text-main);
+        }
+        .drill-table tr:hover { background: #f8fafc; }
+
+        .badge-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 9px;
+            border-radius: 12px;
+            font-size: 11.5px;
+            font-weight: 700;
+        }
+        .badge-bought { background: #dcfce7; color: #15803d; }
+        .badge-avail { background: #e0f2fe; color: #0284c7; }
+        .badge-nostock { background: #f1f5f9; color: #64748b; }
+
+        /* States */
+        .state-container {
+            padding: 50px 20px;
+            text-align: center;
+            color: var(--text-muted);
+        }
+        .spinner {
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            border: 3px solid rgba(79, 70, 229, 0.2);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="page-wrap">
+        <!-- ─── HEADER ─── -->
+        <header class="page-header">
+            <div class="header-left">
+                <div class="nav-breadcrumbs">
+                    <a id="btn-back-analytics" href="#" class="nav-btn">
+                        <i class="fa-solid fa-arrow-left"></i> Назад до товарної аналітики
+                    </a>
+                    <a id="btn-back-client" href="#" class="nav-btn">
+                        <i class="fa-solid fa-user"></i> Картка клієнта
+                    </a>
+                </div>
+                <div class="header-title-box">
+                    <div class="header-icon">
+                        <i class="fa-solid fa-table-cells"></i>
+                    </div>
+                    <div>
+                        <h1 class="page-title">Матриця розмірів: Каталог vs Покупки клієнта</h1>
+                        <div class="page-subtitle" id="clientSubtitle">
+                            Клієнт: <strong id="headerClientName">—</strong> (Код: <span id="headerClientCode">—</span>)
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="header-controls">
+                <select id="year-select" class="year-select" onchange="onYearChange()">
+                    <option value="2026" selected>2026 рік</option>
+                    <option value="2025">2025 рік</option>
+                </select>
+            </div>
+        </header>
+
+        <!-- ─── KPI GRID ─── -->
+        <div class="kpi-grid">
+            <div class="kpi-card kpi-cat">
+                <div class="kpi-label"><i class="fa-solid fa-boxes-stacked"></i> Всього в каталозі</div>
+                <div class="kpi-value" id="kpiCatalogPositions">—</div>
+                <div class="kpi-sub">Позицій номенклатури компанії</div>
+            </div>
+            <div class="kpi-card kpi-sizes">
+                <div class="kpi-label"><i class="fa-solid fa-ruler-combined"></i> Типорозмірів у каталозі</div>
+                <div class="kpi-value" id="kpiCatalogSizes">—</div>
+                <div class="kpi-sub" id="kpiCatalogSizesSub">Унікальних геометрій труб</div>
+            </div>
+            <div class="kpi-card kpi-bought">
+                <div class="kpi-label"><i class="fa-solid fa-circle-check"></i> Купував клієнт</div>
+                <div class="kpi-value" id="kpiClientBought" style="color:#059669;">—</div>
+                <div class="kpi-sub" id="kpiClientBoughtSub">Унікальних типорозмірів за рік</div>
+            </div>
+            <div class="kpi-card kpi-rev">
+                <div class="kpi-label"><i class="fa-solid fa-sack-dollar"></i> Виручка клієнта</div>
+                <div class="kpi-value" id="kpiClientRevenue" style="color:#047857;">—</div>
+                <div class="kpi-sub">За вибраний звітний рік</div>
+            </div>
+            <div class="kpi-card kpi-qty">
+                <div class="kpi-label"><i class="fa-solid fa-weight-hanging"></i> Обсяг покупок</div>
+                <div class="kpi-value" id="kpiClientQty" style="color:#d97706;">—</div>
+                <div class="kpi-sub">Тонн відвантаженої продукції</div>
+            </div>
+            <div class="kpi-card kpi-stock">
+                <div class="kpi-label"><i class="fa-solid fa-warehouse"></i> На складі</div>
+                <div class="kpi-value" id="kpiStockSizes" style="color:#7c3aed;">—</div>
+                <div class="kpi-sub">Типорозмірів із залишком > 0</div>
+            </div>
+        </div>
+
+        <!-- ─── MAIN MATRIX SECTION ─── -->
+        <div class="section-card">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">
+                        <i class="fa-solid fa-border-all" style="color:var(--primary);"></i>
+                        Матриця типорозмірів каталогу
+                    </h2>
+                    <div class="section-desc">
+                        Зелені клітинки — типорозміри, які клієнт купував. Натисніть на будь-яку клітинку для деталізації товарів та залишків.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Toolbar: Type Toggle + Filters + Search -->
+            <div class="controls-toolbar">
+                <div class="matrix-toggle-group">
+                    <button class="matrix-toggle-btn active" id="btn-toggle-round" onclick="switchMatrixType('round')">
+                        <i class="fa-solid fa-circle-dot" style="color:#10b981;"></i> 🟢 Круглі (Ø × t)
+                    </button>
+                    <button class="matrix-toggle-btn" id="btn-toggle-prof" onclick="switchMatrixType('prof')">
+                        <i class="fa-solid fa-square" style="color:#3b82f6;"></i> 🟦 Профільні (A×B × S)
+                    </button>
+                    <button class="matrix-toggle-btn" id="btn-toggle-welded" onclick="switchMatrixType('welded')">
+                        <i class="fa-solid fa-fire" style="color:#ef4444;"></i> 🔥 Сварні (Ø × t)
+                    </button>
+                    <button class="matrix-toggle-btn" id="btn-toggle-sheet" onclick="switchMatrixType('sheet')">
+                        <i class="fa-solid fa-file-lines" style="color:#f59e0b;"></i> 📄 Лист (s × Ш×Д)
+                    </button>
+                </div>
+
+                <div class="filter-group">
+                    <button class="filter-chip active" id="filter-all" onclick="setFilter('all')">
+                        Всі розміри каталогу
+                    </button>
+                    <button class="filter-chip" id="filter-bought" onclick="setFilter('bought')">
+                        🟢 Тільки купував клієнт
+                    </button>
+                    <button class="filter-chip" id="filter-stock" onclick="setFilter('stock')">
+                        📦 Тільки на складі
+                    </button>
+                    <div class="search-box">
+                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                        <input type="text" id="matrixSearch" class="search-input" placeholder="Пошук розміру..." oninput="onSearchInput()">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Matrix Scrollable Container -->
+            <div class="size-matrix-wrap" id="matrixContainer">
+                <div class="state-container">
+                    <div class="spinner"></div>
+                    <div style="margin-top:12px; font-weight:600;">Завантаження матриці розмірів...</div>
+                </div>
+            </div>
+
+            <!-- Legend Bar -->
+            <div class="legend-bar">
+                <div class="legend-items">
+                    <div class="legend-item">
+                        <span class="legend-badge bought"></span>
+                        <span>Купував клієнт (сума та тонни)</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-badge catalog-stock"></span>
+                        <span>Є в каталозі + на складі</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-badge catalog-no-stock"></span>
+                        <span>Є в каталозі (під замовлення)</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-badge empty"></span>
+                        <span>Немає в каталозі (—)</span>
+                    </div>
+                </div>
+                <div class="legend-stats" id="legendStatsText">
+                    Показано типорозмірів: <b>0</b>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─── DRILL-DOWN MODAL ─── -->
+    <div id="drillModal" class="modal-backdrop" style="display:none;" onclick="handleModalBackdropClick(event)">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class="fa-solid fa-box-open" style="color:var(--primary);"></i>
+                    <span id="modalTitle">Деталізація типорозміру</span>
+                </div>
+                <button class="modal-close" onclick="closeDrillModal()" title="Закрити (Esc)">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <div class="state-container">
+                    <div class="spinner"></div>
+                    <div style="margin-top:8px;">Завантаження товарів...</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="nav-btn" onclick="closeDrillModal()">Закрити</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─── SCRIPT ─── -->
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const TOKEN = urlParams.get('token') || 'utsk2026';
+        const CLIENT_CODE = urlParams.get('code') || urlParams.get('client_code') || '4501';
+        let currentYear = parseInt(urlParams.get('year') || '2026', 10);
+
+        let currentMatrixType = 'round'; // 'round' | 'prof' | 'welded' | 'sheet'
+        let currentFilter = 'all';       // 'all' | 'bought' | 'stock'
+        let searchQuery = '';
+        let matrixRawData = [];
+        let matrixKPI = null;
+
+        // ---- Formatters ----
+        function fmtCur(n) {
+            return Number(n || 0).toLocaleString('uk-UA', { maximumFractionDigits: 0 }) + ' ₴';
+        }
+        function fmtM(n) {
+            const num = Number(n || 0);
+            if (Math.abs(num) >= 1e6) return (num / 1e6).toFixed(2) + ' млн ₴';
+            if (Math.abs(num) >= 1e3) return (num / 1e3).toFixed(0) + 'K ₴';
+            return num.toLocaleString('uk-UA', { maximumFractionDigits: 0 }) + ' ₴';
+        }
+        function fmtQty(n) {
+            return Number(n || 0).toLocaleString('uk-UA', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+        }
+        function fmtInt(n) {
+            return Number(n || 0).toLocaleString('uk-UA');
+        }
+
+        // ---- Navigation links ----
+        function updateNavLinks() {
+            const btnBack = document.getElementById('btn-back-analytics');
+            if (btnBack) {
+                btnBack.href = `/product-analytics?token=${TOKEN}&code=${CLIENT_CODE}&year=${currentYear}`;
+            }
+            const btnClient = document.getElementById('btn-back-client');
+            if (btnClient) {
+                btnClient.href = `/client-detail?token=${TOKEN}&code=${CLIENT_CODE}&year=${currentYear}`;
+            }
+        }
+        updateNavLinks();
+
+        // ---- Year Change ----
+        function onYearChange() {
+            currentYear = parseInt(document.getElementById('year-select').value, 10);
+            updateNavLinks();
+            loadMatrixData();
+        }
+
+        // ---- Switch Type / Category ----
+        function switchMatrixType(type) {
+            currentMatrixType = type;
+            document.querySelectorAll('.matrix-toggle-btn').forEach(b => b.classList.remove('active'));
+            const activeBtn = document.getElementById(`btn-toggle-${type}`);
+            if (activeBtn) activeBtn.classList.add('active');
+            renderMatrix();
+        }
+
+        function switchCategory(cat, btn) {
+            switchMatrixType(cat);
+        }
+
+        // ---- Filters ----
+        function setFilter(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+            const activeBtn = document.getElementById(`filter-${filter}`);
+            if (activeBtn) activeBtn.classList.add('active');
+            renderMatrix();
+        }
+
+        function onSearchInput() {
+            searchQuery = (document.getElementById('matrixSearch').value || '').trim().toLowerCase();
+            renderMatrix();
+        }
+
+        // ---- Load Data ----
+        async function loadMatrixData() {
+            const container = document.getElementById('matrixContainer');
+            container.innerHTML = `
+                <div class="state-container">
+                    <div class="spinner"></div>
+                    <div style="margin-top:12px; font-weight:600;">Завантаження матриці розмірів...</div>
+                </div>`;
+
+            try {
+                const res = await fetch(`/api/analytics/client-size-matrix?token=${TOKEN}&code=${CLIENT_CODE}&year=${currentYear}`);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const json = await res.json();
+
+                if (json.status !== 'ok') {
+                    throw new Error(json.detail || 'Помилка отримання даних');
+                }
+
+                matrixKPI = json.kpi || {};
+                matrixRawData = json.data || [];
+
+                // Header info
+                const clientName = json.client_name || CLIENT_CODE;
+                document.getElementById('headerClientName').textContent = clientName;
+                document.getElementById('headerClientCode').textContent = CLIENT_CODE;
+                document.getElementById('year-select').value = String(currentYear);
+
+                // Update KPI Cards
+                renderKPICards(matrixKPI);
+
+                // Render Matrix
+                renderMatrix();
+
+            } catch (e) {
+                console.error('[SIZE-MATRIX] Error:', e);
+                container.innerHTML = `
+                    <div class="state-container" style="color:var(--bad);">
+                        <i class="fa-solid fa-triangle-exclamation" style="font-size:24px; margin-bottom:8px;"></i>
+                        <div>Помилка завантаження даних: ${e.message}</div>
+                        <button class="nav-btn" style="margin-top:12px;" onclick="loadMatrixData()">Спробувати знову</button>
+                    </div>`;
+            }
+        }
+
+        function renderKPICards(kpi) {
+            document.getElementById('kpiCatalogPositions').textContent = fmtInt(kpi.total_catalog_products || kpi.catalog_positions_total || 4450);
+            document.getElementById('kpiCatalogSizes').textContent = fmtInt(kpi.total_catalog_sizes || kpi.catalog_sizes_total || 0);
+            document.getElementById('kpiCatalogSizesSub').textContent = 
+                `${fmtInt(kpi.round_sizes || 0)} круглих · ${fmtInt(kpi.prof_sizes || 0)} проф. · ${fmtInt(kpi.welded_sizes || 0)} сварних · ${fmtInt(kpi.sheet_sizes || 0)} лист`;
+
+            document.getElementById('kpiClientBought').textContent = fmtInt(kpi.client_bought_sizes || kpi.client_sizes_bought || 0);
+            document.getElementById('kpiClientBoughtSub').textContent = 
+                `${fmtInt(kpi.client_round_sizes || 0)} круглих · ${fmtInt(kpi.client_prof_sizes || 0)} проф. · ${fmtInt(kpi.client_welded_sizes || 0)} сварних · ${fmtInt(kpi.client_sheet_sizes || 0)} лист`;
+
+            document.getElementById('kpiClientRevenue').textContent = fmtM(kpi.client_revenue || kpi.client_revenue_total || 0);
+            document.getElementById('kpiClientQty').textContent = fmtQty(kpi.client_quantity || kpi.client_quantity_total || 0) + ' т';
+            document.getElementById('kpiStockSizes').textContent = fmtInt(kpi.stock_sizes || kpi.sizes_in_stock_count || 0);
+        }
+
+        // ---- Render Matrix Table ----
+        function renderMatrix() {
+            const container = document.getElementById('matrixContainer');
+
+            // Filter by category
+            let filtered = matrixRawData.filter(x => {
+                if (currentMatrixType === 'round') return x.product_category === 'round';
+                if (currentMatrixType === 'prof') return x.product_category === 'prof';
+                if (currentMatrixType === 'welded') return x.product_category === 'welded';
+                if (currentMatrixType === 'sheet') return x.product_category === 'sheet';
+                return true;
+            });
+
+            // Filter by quick chip
+            if (currentFilter === 'bought') {
+                filtered = filtered.filter(x => !!x.client_bought);
+            } else if (currentFilter === 'stock') {
+                filtered = filtered.filter(x => !!x.has_stock);
+            }
+
+            // Search query
+            if (searchQuery) {
+                filtered = filtered.filter(x => {
+                    const disp = (x.size_display || '').toLowerCase();
+                    const key = (x.size_key || '').toLowerCase();
+                    return disp.includes(searchQuery) || key.includes(searchQuery);
+                });
+            }
+
+            const catLabel = currentMatrixType === 'sheet' ? 'листовий прокат' :
+                             currentMatrixType === 'welded' ? 'сварні труби' :
+                             currentMatrixType === 'prof' ? 'профільні' : 'круглі';
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="state-container">
+                        <i class="fa-solid fa-filter-circle-xmark" style="font-size:24px; margin-bottom:8px;"></i>
+                        <div>Не знайдено типорозмірів для заданих фільтрів (${catLabel})</div>
+                    </div>`;
+                document.getElementById('legendStatsText').innerHTML = `Показано типорозмірів: <b>0</b>`;
+                return;
+            }
+
+            // Keys for rows and cols
+            let rows, cols, getRowKey, getColKey;
+            let rowLabel, colLabel, colPrefix;
+
+            if (currentMatrixType === 'sheet') {
+                // Лист: строки = товщина s, колонки = розкрій Ш×Д
+                rowLabel = 'Товщина s (мм)';
+                colLabel = 'Розкрій Ш×Д (мм)';
+                colPrefix = '';
+                rows = [...new Set(filtered.map(x => x.wall))].filter(w => w != null).sort((a, b) => a - b);
+                cols = [...new Set(filtered.map(x => `${x.prof_w || 0}×${x.prof_h || 0}`))]
+                    .sort((a, b) => {
+                        const [a1, a2] = a.split('×').map(Number);
+                        const [b1, b2] = b.split('×').map(Number);
+                        if (a1 !== b1) return a1 - b1;
+                        return a2 - b2;
+                    });
+                getRowKey = x => x.wall;
+                getColKey = x => `${x.prof_w || 0}×${x.prof_h || 0}`;
+            } else if (currentMatrixType === 'prof') {
+                // Профільні: строки = A×B, колонки = стінка S
+                rowLabel = 'Перетин A×B (мм)';
+                colLabel = 'Стінка S (мм)';
+                colPrefix = 'S=';
+                rows = [...new Set(filtered.map(x => `${x.prof_w || 0}×${x.prof_h || 0}`))]
+                    .sort((a, b) => {
+                        const [a1, a2] = a.split('×').map(Number);
+                        const [b1, b2] = b.split('×').map(Number);
+                        const maxA = Math.max(a1, a2);
+                        const maxB = Math.max(b1, b2);
+                        if (maxA !== maxB) return maxA - maxB;
+                        const minA = Math.min(a1, a2);
+                        const minB = Math.min(b1, b2);
+                        if (minA !== minB) return minA - minB;
+                        return a1 - b1;
+                    });
+                cols = [...new Set(filtered.map(x => x.wall))].filter(w => w != null).sort((a, b) => a - b);
+                getRowKey = x => `${x.prof_w || 0}×${x.prof_h || 0}`;
+                getColKey = x => x.wall;
+            } else {
+                // Круглі та Сварні: строки = Ø, колонки = t
+                rowLabel = 'Ø (мм)';
+                colLabel = 't (мм)';
+                colPrefix = 't=';
+                rows = [...new Set(filtered.map(x => x.diameter))].filter(d => d != null).sort((a, b) => a - b);
+                cols = [...new Set(filtered.map(x => x.wall))].filter(w => w != null).sort((a, b) => a - b);
+                getRowKey = x => x.diameter;
+                getColKey = x => x.wall;
+            }
+
+            // Index data in cellMap
+            const cellMap = {};
+            filtered.forEach(x => {
+                const r = getRowKey(x);
+                const c = getColKey(x);
+                if (!cellMap[r]) cellMap[r] = {};
+                cellMap[r][c] = x;
+            });
+
+            let html = `<table class="size-matrix">`;
+            html += `<thead><tr><th style="min-width:140px;">${rowLabel} \\ ${colLabel}</th>`;
+            cols.forEach(c => { 
+                const headerText = colPrefix ? `${colPrefix}${c}` : c;
+                html += `<th>${headerText}</th>`; 
+            });
+            html += `<th class="matrix-total-col">РАЗОМ КЛІЄНТ</th></tr></thead><tbody>`;
+
+            let visibleActiveCells = 0;
+            let grandClientRev = 0;
+            let grandClientQty = 0;
+
+            rows.forEach(r => {
+                let rowClientRev = 0;
+                let rowClientQty = 0;
+                let rowHasAnyCell = false;
+                let rowCellsHtml = '';
+
+                cols.forEach(c => {
+                    const item = (cellMap[r] || {})[c];
+                    if (item) {
+                        rowHasAnyCell = true;
+                        visibleActiveCells++;
+                        const isBought = item.client_bought && item.client_revenue > 0;
+                        const hasStock = item.has_stock;
+
+                        if (isBought) {
+                            rowClientRev += item.client_revenue;
+                            rowClientQty += item.client_quantity;
+                        }
+
+                        const sizeKey = item.size_key;
+                        let displayLabel;
+                        if (currentMatrixType === 'sheet') {
+                            displayLabel = `s${r} × ${c} мм`;
+                        } else if (currentMatrixType === 'prof') {
+                            displayLabel = `${r} × ${c} мм`;
+                        } else {
+                            displayLabel = `Ø${r} × t${c} мм`;
+                        }
+
+                        if (isBought) {
+                            // КУПЛЕНО КЛИЕНТОМ
+                            const tooltip = `${displayLabel} | КУПЛЕНО: ${fmtCur(item.client_revenue)} (${fmtQty(item.client_quantity)} т, ${item.client_invoices_count} накл.) | Склад: ${fmtQty(item.stock_total)} т (${item.catalog_products_count} поз.)`;
+                            rowCellsHtml += `
+                                <td class="size-cell cell-bought" 
+                                    onclick="openDrillModal('${sizeKey}', '${displayLabel}')"
+                                    title="${tooltip}">
+                                    <div class="cell-val">${fmtM(item.client_revenue)}</div>
+                                    <div class="cell-sub">${fmtQty(item.client_quantity)} т</div>
+                                </td>`;
+                        } else {
+                            // В КАТАЛОГЕ (НЕ КУПЛЕНО)
+                            const stockClass = hasStock ? 'with-stock' : '';
+                            const tooltip = `${displayLabel} | В каталозі: ${item.catalog_products_count} поз. | Склад: ${fmtQty(item.stock_total)} т | Клієнт не купував`;
+                            const displaySub = hasStock ? `📦 ${fmtQty(item.stock_total)} т` : `${item.catalog_products_count} поз.`;
+                            rowCellsHtml += `
+                                <td class="size-cell cell-catalog ${stockClass}" 
+                                    onclick="openDrillModal('${sizeKey}', '${displayLabel}')"
+                                    title="${tooltip}">
+                                    <div class="cell-val">${hasStock ? '📦' : '⚪'}</div>
+                                    <div class="cell-sub">${displaySub}</div>
+                                </td>`;
+                        }
+                    } else {
+                        rowCellsHtml += `<td class="size-cell cell-empty">—</td>`;
+                    }
+                });
+
+                if (rowHasAnyCell) {
+                    grandClientRev += rowClientRev;
+                    grandClientQty += rowClientQty;
+
+                    html += `<tr>`;
+                    html += `<td class="matrix-row-label">${r}</td>`;
+                    html += rowCellsHtml;
+                    html += `<td class="matrix-total-col">
+                        <div style="font-size:12px; font-weight:700; color:${rowClientRev > 0 ? '#047857' : 'inherit'};">${rowClientRev > 0 ? fmtM(rowClientRev) : '—'}</div>
+                        <div style="font-size:10px; opacity:.8;">${rowClientQty > 0 ? fmtQty(rowClientQty) + ' т' : ''}</div>
+                    </td>`;
+                    html += `</tr>`;
+                }
+            });
+
+            // Column totals (Footer)
+            html += `</tbody><tfoot><tr class="matrix-footer"><td class="matrix-row-label">РАЗОМ КЛІЄНТ</td>`;
+            cols.forEach(c => {
+                let colRev = 0;
+                let colQty = 0;
+                rows.forEach(r => {
+                    const item = (cellMap[r] || {})[c];
+                    if (item && item.client_bought) {
+                        colRev += item.client_revenue || 0;
+                        colQty += item.client_quantity || 0;
+                    }
+                });
+                html += `<td>
+                    <div style="font-size:11.5px; font-weight:700; color:${colRev > 0 ? '#047857' : 'inherit'};">${colRev > 0 ? fmtM(colRev) : '—'}</div>
+                    <div style="font-size:9.5px; opacity:.8;">${colQty > 0 ? fmtQty(colQty) + ' т' : ''}</div>
+                </td>`;
+            });
+
+            html += `<td class="matrix-total-col grand-total">
+                <div style="font-size:13px; font-weight:800;">${fmtM(grandClientRev)}</div>
+                <div style="font-size:10.5px;">${fmtQty(grandClientQty)} т</div>
+            </td></tr></tfoot></table>`;
+
+            container.innerHTML = html;
+            document.getElementById('legendStatsText').innerHTML = 
+                `Показано типорозмірів: <b>${fmtInt(visibleActiveCells)}</b> (${catLabel})`;
+        }
+
+        // ─── DRILL-DOWN MODAL ───
+        async function openDrillModal(sizeKey, displayLabel) {
+            const modal = document.getElementById('drillModal');
+            const titleEl = document.getElementById('modalTitle');
+            const bodyEl = document.getElementById('modalBody');
+
+            titleEl.textContent = `Товари типорозміру: ${displayLabel}`;
+            bodyEl.innerHTML = `
+                <div class="state-container">
+                    <div class="spinner"></div>
+                    <div style="margin-top:10px;">Завантаження списку товарів (ДСТУ / ГОСТ / Марка сталі)...</div>
+                </div>`;
+            modal.style.display = 'flex';
+
+            try {
+                const res = await fetch(`/api/client-products-by-size/${CLIENT_CODE}/${sizeKey}?token=${TOKEN}&year=${currentYear}`);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+
+                if (!data.items || data.items.length === 0) {
+                    bodyEl.innerHTML = `<div class="state-container">У каталозі немає зареєстрованих товарів для цього типорозміру</div>`;
+                    return;
+                }
+
+                const purchased = data.items.filter(x => x.is_purchased);
+                const notPurchased = data.items.filter(x => !x.is_purchased);
+
+                let html = `
+                    <div style="display:flex; justify-content:space-between; align-items:center; gap:16px; margin-bottom:14px; flex-wrap:wrap;">
+                        <div style="font-size:13px; color:var(--text-muted);">
+                            Всього в каталозі: <b style="color:var(--text-main);">${data.items.length}</b> поз. | 
+                            Куплено клієнтом: <b style="color:#059669;">${purchased.length}</b> поз.
+                        </div>
+                        <div style="font-size:12.5px;">
+                            <span class="badge-status badge-bought">Куплено</span>
+                            <span class="badge-status badge-avail" style="margin-left:6px;">На складі</span>
+                        </div>
+                    </div>
+
+                    <table class="drill-table">
+                        <thead>
+                            <tr>
+                                <th>Код</th>
+                                <th>Найменування продукції</th>
+                                <th>Стандарт</th>
+                                <th style="text-align:right;">Склад</th>
+                                <th style="text-align:center;">Статус клієнта</th>
+                                <th style="text-align:right;">Куплено</th>
+                                <th style="text-align:right;">Сума</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+
+                data.items.forEach(p => {
+                    const isBought = !!p.is_purchased;
+                    const stock = parseFloat(p.stock_balance) || 0;
+                    const qty = parseFloat(p.quantity) || 0;
+                    const rev = parseFloat(p.revenue) || 0;
+
+                    let statusBadge = '';
+                    if (isBought) {
+                        statusBadge = `<span class="badge-status badge-bought"><i class="fa-solid fa-check"></i> Куплено</span>`;
+                    } else if (stock > 0) {
+                        statusBadge = `<span class="badge-status badge-avail"><i class="fa-solid fa-box"></i> На складі</span>`;
+                    } else {
+                        statusBadge = `<span class="badge-status badge-nostock">Під замовлення</span>`;
+                    }
+
+                    html += `
+                        <tr style="${isBought ? 'background:#f0fdf4;' : ''}">
+                            <td style="font-family:monospace; font-weight:600; color:var(--text-muted);">${p.product_code}</td>
+                            <td style="font-weight:600;">${p.product_name}</td>
+                            <td style="color:var(--text-muted); font-size:12px;">${p.standard || '—'}</td>
+                            <td style="text-align:right; font-weight:${stock > 0 ? '700' : '400'}; color:${stock > 0 ? 'var(--text-main)' : 'var(--text-muted)'};">
+                                ${stock > 0 ? fmtQty(stock) + ' т' : '0 т'}
+                            </td>
+                            <td style="text-align:center;">${statusBadge}</td>
+                            <td style="text-align:right; font-weight:600; color:${qty > 0 ? '#047857' : 'inherit'};">
+                                ${qty > 0 ? fmtQty(qty) + ' т' : '—'}
+                            </td>
+                            <td style="text-align:right; font-weight:700; color:${rev > 0 ? '#047857' : 'inherit'};">
+                                ${rev > 0 ? fmtCur(rev) : '—'}
+                            </td>
+                        </tr>`;
+                });
+
+                html += `</tbody></table>`;
+                bodyEl.innerHTML = html;
+
+            } catch (err) {
+                bodyEl.innerHTML = `
+                    <div class="state-container" style="color:var(--bad);">
+                        <i class="fa-solid fa-circle-exclamation"></i> Помилка завантаження товарів: ${err.message}
+                    </div>`;
+            }
+        }
+
+        function closeDrillModal() {
+            document.getElementById('drillModal').style.display = 'none';
+        }
+
+        function handleModalBackdropClick(e) {
+            if (e.target.id === 'drillModal') {
+                closeDrillModal();
+            }
+        }
+
+        window.addEventListener('keydown', e => {
+            if (e.key === 'Escape') closeDrillModal();
+        });
+
+        // Initial Load
+        loadMatrixData();
+    </script>
+</body>
+</html>

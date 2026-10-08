@@ -1,4 +1,5 @@
 import json
+from typing import Optional
 from fastapi import APIRouter, HTTPException, Query, Depends
 from sqlalchemy import text
 from sqlalchemy.orm import Session
@@ -366,6 +367,7 @@ def get_direction_products_by_size(
     token: str = Query(None),
     direction_id: int = Query(...),
     year: int = Query(2026),
+    category: Optional[str] = Query(None),  # round / prof / welded / sheet
     db: Session = Depends(get_db),
 ):
     verify_token(token)
@@ -374,7 +376,21 @@ def get_direction_products_by_size(
             text("SELECT * FROM get_direction_products_by_size(:did, :year)"),
             {"did": direction_id, "year": year},
         ).fetchall()
-        return {"status": "ok", "year": year, "data": [dict(r._mapping) for r in rows]}
+        
+        items = []
+        for r in rows:
+            d = dict(r._mapping)
+            if category and d.get("product_category") != category:
+                continue
+            items.append(d)
+            
+        return {
+            "status": "ok",
+            "year": year,
+            "category": category,
+            "count": len(items),
+            "data": items,
+        }
     except Exception as e:
         logger.error(f"Ошибка get_direction_products_by_size: {e}")
         raise HTTPException(status_code=500, detail=str(e))

@@ -140,6 +140,15 @@ async def product_analytics_page(request: Request, token: str = Query(None)):
             return HTMLResponse(content=f.read())
     raise HTTPException(status_code=404, detail="Страница товарного анализа не найдена")
 
+@router.get("/client-size-matrix", response_class=HTMLResponse)
+async def client_size_matrix_page(request: Request, token: str = Query(None)):
+    verify_token(token)
+    filepath = find_file("client-size-matrix.html", get_search_dirs())
+    if filepath:
+        with open(filepath, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    raise HTTPException(status_code=404, detail="Сторінка матриці розмірів клієнта не знайдена")
+
 @router.get("/product-recommendations", response_class=HTMLResponse)
 async def product_recommendations_page(request: Request, token: str = Query(None)):
     verify_token(token)

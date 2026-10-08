@@ -257,6 +257,7 @@
             background: #f1f5f9;
             border-radius: 10px;
             margin-bottom: 16px;
+            flex-wrap: wrap;
         }
         .matrix-toggle-btn {
             padding: 8px 16px;
@@ -754,8 +755,10 @@
                 </div>
             </div>
             <div class="matrix-type-toggle">
-                <button class="matrix-toggle-btn active" id="btn-matrix-round" onclick="switchMatrixType('round', this)">🟢 Круглі</button>
-                <button class="matrix-toggle-btn" id="btn-matrix-prof" onclick="switchMatrixType('prof', this)">🟦 Профільні</button>
+                <button class="matrix-toggle-btn active" id="btn-matrix-round" onclick="switchMatrixType('round', this)">🟢 Круглі (Ø × t)</button>
+                <button class="matrix-toggle-btn" id="btn-matrix-prof" onclick="switchMatrixType('prof', this)">🟦 Профільні (A×B × S)</button>
+                <button class="matrix-toggle-btn" id="btn-matrix-welded" onclick="switchMatrixType('welded', this)">🔥 Сварні (Ø × t)</button>
+                <button class="matrix-toggle-btn" id="btn-matrix-sheet" onclick="switchMatrixType('sheet', this)">📄 Лист (s × Ш×Д)</button>
             </div>
             <div class="size-matrix-wrap" id="size-matrix-container">
                 <div class="state-container"><div class="spinner"></div><div style="margin-top:8px;">Завантаження матриці...</div></div>
@@ -1180,7 +1183,7 @@
     }
 
     // ─── SIZE MATRIX ───
-    let currentMatrixType = 'round'; // 'round' | 'prof'
+    let currentMatrixType = 'round'; // 'round' | 'prof' | 'welded' | 'sheet'
 
     function switchMatrixType(type, btn) {
         currentMatrixType = type;
@@ -1188,7 +1191,7 @@
         if (btn) {
             btn.classList.add('active');
         } else {
-            const el = document.getElementById(type === 'prof' ? 'btn-matrix-prof' : 'btn-matrix-round');
+            const el = document.getElementById(`btn-matrix-${type}`);
             if (el) el.classList.add('active');
         }
         renderSizeMatrix(sizeMatrixData);
@@ -1207,7 +1210,7 @@
                 sizeMatrixData = json.data;
                 renderSizeMatrix(json.data);
             } else {
-                container.innerHTML = `<div class="state-container">Немає даних за розмірами за ${currentYear} год</div>`;
+                container.innerHTML = `<div class="state-container">Немає даних за розмірами за ${currentYear} рік</div>`;
                 if (counterEl) counterEl.innerHTML = '';
             }
         } catch (e) {
@@ -1222,22 +1225,53 @@
         const counterEl = document.getElementById('matrix-counter-container');
         if (!container) return;
 
-        const isProf = currentMatrixType === 'prof';
-        const filtered = sizeMatrixData.filter(x => isProf ? !!x.is_prof : !x.is_prof);
+        const filtered = sizeMatrixData.filter(x => {
+            if (currentMatrixType === 'round') return x.product_category === 'round';
+            if (currentMatrixType === 'prof') return x.product_category === 'prof';
+            if (currentMatrixType === 'welded') return x.product_category === 'welded';
+            if (currentMatrixType === 'sheet') return x.product_category === 'sheet';
+            return true;
+        });
+
+        const catNames = {
+            round: 'круглих безшовних труб',
+            prof: 'профільних труб',
+            welded: 'зварних труб',
+            sheet: 'листового прокату'
+        };
+        const catLabel = catNames[currentMatrixType] || 'обраної категорії';
 
         if (filtered.length === 0) {
             container.innerHTML = `<div style="padding:40px;text-align:center;color:var(--text-muted);">
-                Немає даних для ${isProf ? 'профільних' : 'круглих'} труб за ${currentYear} рік
+                Немає даних для ${catLabel} за ${currentYear} рік
             </div>`;
             if (counterEl) counterEl.innerHTML = '';
             return;
         }
 
-        // Ключи строк и колонок
-        let rows, cols, getRowKey, getColKey;
+        // Ключі рядків та колонок
+        let rows, cols, getRowKey, getColKey, rowLabel, colLabel, colPrefix;
 
-        if (isProf) {
-            // Профильные: A×B × S
+        if (currentMatrixType === 'sheet') {
+            // Лист: рядки = товщина s (wall), колонки = розкрій Ш×Д (prof_w × prof_h)
+            rowLabel = 'Товщина s (мм)';
+            colLabel = 'Розкрій Ш×Д (мм)';
+            colPrefix = '';
+            rows = [...new Set(filtered.map(x => x.wall))].filter(w => w != null).sort((a, b) => a - b);
+            cols = [...new Set(filtered.map(x => `${x.prof_w || 0}×${x.prof_h || 0}`))]
+                .sort((a, b) => {
+                    const [a1, a2] = a.split('×').map(Number);
+                    const [b1, b2] = b.split('×').map(Number);
+                    if (a1 !== b1) return a1 - b1;
+                    return a2 - b2;
+                });
+            getRowKey = x => x.wall;
+            getColKey = x => `${x.prof_w || 0}×${x.prof_h || 0}`;
+        } else if (currentMatrixType === 'prof') {
+            // Профільні: рядки = A×B, колонки = стінка S
+            rowLabel = 'Перетин A×B (мм)';
+            colLabel = 'Стінка S (мм)';
+            colPrefix = 'S=';
             rows = [...new Set(filtered.map(x => `${x.prof_w || 0}×${x.prof_h || 0}`))]
                 .sort((a, b) => {
                     const [a1, a2] = a.split('×').map(Number);
@@ -1254,14 +1288,17 @@
             getRowKey = x => `${x.prof_w || 0}×${x.prof_h || 0}`;
             getColKey = x => x.wall;
         } else {
-            // Круглые: Ø × t
+            // Круглі (round) та Сварні (welded): рядки = Ø, колонки = t
+            rowLabel = 'Ø (мм)';
+            colLabel = 't (мм)';
+            colPrefix = 't=';
             rows = [...new Set(filtered.map(x => x.diameter))].filter(d => d != null).sort((a, b) => a - b);
             cols = [...new Set(filtered.map(x => x.wall))].filter(w => w != null).sort((a, b) => a - b);
             getRowKey = x => x.diameter;
             getColKey = x => x.wall;
         }
 
-        // Индексация данных
+        // Індексація даних
         const cellMap = {};
         filtered.forEach(x => {
             const r = getRowKey(x);
@@ -1274,7 +1311,7 @@
             cellMap[r][c].clients = Math.max(cellMap[r][c].clients, parseInt(x.clients_count) || 0);
         });
 
-        // Максимум выручки для heatmap
+        // Максимум виручки для heatmap
         let maxRev = 0;
         Object.values(cellMap).forEach(row => {
             Object.values(row).forEach(cell => {
@@ -1283,13 +1320,13 @@
         });
         if (maxRev === 0) maxRev = 1;
 
-        // HTML таблицы
-        const rowLabel = isProf ? 'Перетин A×B (мм)' : 'Ø (мм)';
-        const colLabel = 't (мм)';
-
+        // HTML таблиці
         let html = `<table class="size-matrix">`;
         html += `<thead><tr><th style="min-width:140px;">${rowLabel} \\ ${colLabel}</th>`;
-        cols.forEach(c => { html += `<th>t=${c}</th>`; });
+        cols.forEach(c => { 
+            const headerText = colPrefix ? `${colPrefix}${c}` : c;
+            html += `<th>${headerText}</th>`; 
+        });
         html += `<th class="matrix-total-col">РАЗОМ</th></tr></thead><tbody>`;
 
         let activeCells = 0;
@@ -1306,10 +1343,19 @@
                     rowTotal += cell.revenue;
                     rowQty += cell.quantity;
                     const heat = Math.min(5, Math.ceil((cell.revenue / maxRev) * 5));
-                    const sizeKey = isProf
-                        ? `prof_${String(r).replace('×', 'x')}x${c}`
-                        : `round_${r}x${c}`;
-                    const displayLabel = isProf ? `${r} × ${c} мм` : `Ø${r} × t${c} мм`;
+                    
+                    let sizeKey, displayLabel;
+                    if (currentMatrixType === 'sheet') {
+                        sizeKey = `sheet_${r}x${String(c).replace('×', 'x')}`;
+                        displayLabel = `s${r} × ${c} мм`;
+                    } else if (currentMatrixType === 'prof') {
+                        sizeKey = `prof_${String(r).replace('×', 'x')}x${c}`;
+                        displayLabel = `${r} × ${c} мм`;
+                    } else {
+                        // round or welded
+                        sizeKey = `round_${r}x${c}`;
+                        displayLabel = `Ø${r} × t${c} мм`;
+                    }
 
                     rowCellsHtml += `<td class="size-cell size-cell-heat-${heat}"
                         onclick="openSizeDrilldown('${sizeKey}', '${displayLabel}')"
@@ -1334,7 +1380,7 @@
             }
         });
 
-        // Колонка ИТОГО по столбцам (Footer)
+        // Колонка РАЗОМ по стовпцях (Footer)
         html += `</tbody><tfoot><tr class="matrix-footer"><td class="matrix-row-label">РАЗОМ</td>`;
         let grandTotal = 0;
         let grandQty = 0;
@@ -1363,9 +1409,21 @@
         container.innerHTML = html;
 
         if (counterEl) {
+            let rowUnitName, colUnitName;
+            if (currentMatrixType === 'sheet') {
+                rowUnitName = 'товщин';
+                colUnitName = 'розкроїв';
+            } else if (currentMatrixType === 'prof') {
+                rowUnitName = 'перетинів';
+                colUnitName = 'товщин';
+            } else {
+                rowUnitName = 'діаметрів';
+                colUnitName = 'товщин';
+            }
+
             counterEl.innerHTML = `<div class="matrix-counter">
-                📊 Унікальних ${isProf ? 'перетинів' : 'діаметрів'}: <b>${rows.length}</b> &nbsp;•&nbsp; 
-                товщин: <b>${cols.length}</b> &nbsp;•&nbsp; 
+                📊 Унікальних ${rowUnitName}: <b>${rows.length}</b> &nbsp;•&nbsp; 
+                ${colUnitName}: <b>${cols.length}</b> &nbsp;•&nbsp; 
                 активних осередків продажу: <b>${activeCells}</b>
             </div>`;
         }
@@ -1379,7 +1437,7 @@
         const body = document.getElementById('modal-body');
 
         let sizeKey, displayTitle;
-        if (typeof arg1 === 'string' && (arg1.startsWith('round_') || arg1.startsWith('prof_'))) {
+        if (typeof arg1 === 'string' && (arg1.startsWith('round_') || arg1.startsWith('prof_') || arg1.startsWith('sheet_') || arg1.startsWith('welded_'))) {
             sizeKey = arg1;
             displayTitle = arg2 || sizeKey;
         } else {

@@ -125,14 +125,44 @@
             outline: none;
         }
 
-        /* Tabs Navigation */
-        .tabs {
+        /* Tabs Navigation & Header Wrap */
+        .tabs-header-wrap {
             display: flex;
-            gap: 10px;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
             margin-bottom: 20px;
             border-bottom: 1px solid var(--border);
             padding-bottom: 8px;
+            flex-wrap: wrap;
+        }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 0;
+            border-bottom: none;
+            padding-bottom: 0;
             overflow-x: auto;
+        }
+        .diversity-matrix-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 16px;
+            background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+            color: #ffffff !important;
+            font-size: 13.5px;
+            font-weight: 700;
+            border-radius: 10px;
+            text-decoration: none;
+            box-shadow: 0 2px 6px rgba(79, 70, 229, 0.25);
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        .diversity-matrix-btn:hover {
+            background: linear-gradient(135deg, #4338ca 0%, #2563eb 100%);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35);
+            transform: translateY(-1px);
         }
 
         .tab-btn {
@@ -684,20 +714,29 @@
             </div>
         </div>
 
-        <!-- TABS -->
-        <div class="tabs">
-            <button class="tab-btn active" onclick="openTab('tab-sizes', this)">
-                <i class="fa-solid fa-ruler-combined"></i> 📏 Всі розміри труб (Drill-down)
-            </button>
-            <button class="tab-btn" onclick="openTab('tab-portfolio', this)">
-                <i class="fa-solid fa-chart-pie"></i> 📊 ABC-аналіз номенклатури
-            </button>
-            <button class="tab-btn" onclick="openTab('tab-yoy', this)">
-                <i class="fa-solid fa-arrows-split-up-and-left"></i> 🔄 Динаміка 2026 vs 2025
-            </button>
-            <button class="tab-btn" onclick="openTab('tab-ml', this)">
-                <i class="fa-solid fa-wand-magic-sparkles"></i> 🤖 ML-Рекомендації
-            </button>
+        <!-- TABS & ACTIONS -->
+        <div class="tabs-header-wrap">
+            <div class="tabs">
+                <button class="tab-btn active" onclick="openTab('tab-sizes', this)">
+                    <i class="fa-solid fa-ruler-combined"></i> 📏 Всі розміри труб (Drill-down)
+                </button>
+                <button class="tab-btn" onclick="openTab('tab-portfolio', this)">
+                    <i class="fa-solid fa-chart-pie"></i> 📊 ABC-аналіз номенклатури
+                </button>
+                <button class="tab-btn" onclick="openTab('tab-yoy', this)">
+                    <i class="fa-solid fa-arrows-split-up-and-left"></i> 🔄 Динаміка 2026 vs 2025
+                </button>
+                <button class="tab-btn" onclick="openTab('tab-ml', this)">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> 🤖 ML-Рекомендації
+                </button>
+            </div>
+            <div class="tabs-actions">
+                <a id="btn-diversity-matrix" href="#" class="diversity-matrix-btn" title="Перейти до повної матриці розмірів клієнта">
+                    <i class="fa-solid fa-table-cells"></i>
+                    <span>Індекс різноманіття (<span id="diversity-btn-count">4450</span>)</span>
+                    <i class="fa-solid fa-arrow-right" style="font-size:11px; margin-left:2px; opacity:0.85;"></i>
+                </a>
+            </div>
         </div>
 
         <!-- TAB 1: SIZES WITH DRILLDOWN (MAIN UNIFIED TABLE) -->
@@ -1042,8 +1081,32 @@
             }
         }
 
+        function updateDiversityMatrixBtn() {
+            const btn = document.getElementById('btn-diversity-matrix');
+            if (btn) {
+                btn.href = `/client-size-matrix?token=${TOKEN}&code=${CLIENT_CODE}&year=${YEAR}`;
+            }
+        }
+        updateDiversityMatrixBtn();
+
+        (async function loadDiversityAssortmentCount() {
+            try {
+                const res = await fetch(`/api/analytics/company-assortment?token=${TOKEN}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    const el = document.getElementById('diversity-btn-count');
+                    if (el && data.count) {
+                        el.textContent = data.count;
+                    }
+                }
+            } catch(e) {
+                console.warn('[ASSORTMENT] error:', e);
+            }
+        })();
+
         function onYearChange() {
             YEAR = document.getElementById('year-select').value;
+            updateDiversityMatrixBtn();
             loadSizes();
             // Обновляем YoY, если вкладка активна
             const activeTabEl = document.querySelector('.tab-content.active');

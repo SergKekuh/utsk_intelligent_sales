@@ -17,7 +17,8 @@ from .api import (
     profile_pipes,
     classification_audit,
     recommendation_detail,
-    recommendations_overview
+    recommendations_overview,
+    client_size_matrix
 )
 
 app = FastAPI(title="UTSK Intelligent Sales API", version="1.0.0")
@@ -42,3 +43,4 @@ app.include_router(profile_pipes.router)
 app.include_router(classification_audit.router)
 app.include_router(recommendation_detail.router)
 app.include_router(recommendations_overview.router)
+app.include_router(client_size_matrix.router)
