@@ -1,6 +1,6 @@
 import os
 from fastapi import APIRouter, HTTPException, Query, Request, Depends
-from fastapi.responses import HTMLResponse, Response
+from fastapi.responses import HTMLResponse, Response, RedirectResponse
 from ..deps import verify_token, find_file
 from ..config import FRONTEND_DIR, PROJECT_DIR, ROOT_DIR
 
@@ -140,14 +140,57 @@ async def product_analytics_page(request: Request, token: str = Query(None)):
             return HTMLResponse(content=f.read())
     raise HTTPException(status_code=404, detail="Страница товарного анализа не найдена")
 
-@router.get("/client-size-matrix", response_class=HTMLResponse)
-async def client_size_matrix_page(request: Request, token: str = Query(None)):
+@router.get("/size-matrix", response_class=HTMLResponse)
+async def size_matrix_page(request: Request, token: str = Query(None)):
     verify_token(token)
-    filepath = find_file("client-size-matrix.html", get_search_dirs())
+    filepath = find_file("size-matrix.html", get_search_dirs())
     if filepath:
         with open(filepath, "r", encoding="utf-8") as f:
             return HTMLResponse(content=f.read())
-    raise HTTPException(status_code=404, detail="Сторінка матриці розмірів клієнта не знайдена")
+    raise HTTPException(status_code=404, detail="Сторінка матриці розмірів не знайдена")
+
+@router.get("/client-size-matrix")
+async def client_size_matrix_redirect(
+    request: Request, 
+    code: str = Query(None), 
+    client_code: str = Query(None),
+    year: int = Query(2026),
+    token: str = Query(None),
+):
+    target_code = code or client_code
+    url = f"/size-matrix?token={token or 'utsk2026'}&year={year}&from=client"
+    if target_code:
+        url += f"&code={target_code}"
+    return RedirectResponse(url=url, status_code=302)
+
+@router.get("/billet-detail", response_class=HTMLResponse)
+async def billet_detail_page(request: Request, token: str = Query(None)):
+    verify_token(token)
+    filepath = find_file("billet-detail.html", get_search_dirs())
+    if filepath:
+        with open(filepath, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    raise HTTPException(status_code=404, detail="Сторінка розрахунку заготовки не знайдена")
+
+@router.get("/size-detail", response_class=HTMLResponse)
+async def size_detail_page(request: Request, token: str = Query(None)):
+    verify_token(token)
+    filepath = find_file("size-detail.html", get_search_dirs())
+    if filepath:
+        with open(filepath, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    raise HTTPException(status_code=404, detail="Сторінка типорозміру не знайдена")
+
+@router.get("/diversity-index")
+async def diversity_index_redirect(
+    request: Request, 
+    year: int = Query(2026),
+    token: str = Query(None),
+):
+    return RedirectResponse(
+        url=f"/size-matrix?token={token or 'utsk2026'}&year={year}&from=dashboard",
+        status_code=302,
+    )
 
 @router.get("/product-recommendations", response_class=HTMLResponse)
 async def product_recommendations_page(request: Request, token: str = Query(None)):
@@ -211,6 +254,16 @@ async def abc_structure_page(request: Request, token: str = Query(None)):
         with open(filepath, "r", encoding="utf-8") as f:
             return HTMLResponse(content=f.read())
     raise HTTPException(status_code=404, detail="Страница ABC структуры не найдена")
+
+
+@router.get("/abc-analysis", response_class=HTMLResponse)
+async def abc_analysis_page(request: Request, token: str = Query("utsk2026")):
+    verify_token(token)
+    filepath = find_file("abc-analysis.html", get_search_dirs())
+    if filepath:
+        with open(filepath, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    raise HTTPException(status_code=404, detail="Страница ABC-анализа не найдена")
 
 @router.get("/new-clients-analytics", response_class=HTMLResponse)
 async def new_clients_analytics_page(request: Request, token: str = Query(None)):

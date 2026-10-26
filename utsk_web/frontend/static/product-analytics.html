@@ -731,7 +731,7 @@
                 </button>
             </div>
             <div class="tabs-actions">
-                <a id="btn-diversity-matrix" href="#" class="diversity-matrix-btn" title="Перейти до повної матриці розмірів клієнта">
+                <a id="btn-diversity-matrix" href="#" class="diversity-matrix-btn" title="Перейти до повного каталогу номенклатури">
                     <i class="fa-solid fa-table-cells"></i>
                     <span>Індекс різноманіття (<span id="diversity-btn-count">4450</span>)</span>
                     <i class="fa-solid fa-arrow-right" style="font-size:11px; margin-left:2px; opacity:0.85;"></i>
@@ -1084,7 +1084,7 @@
         function updateDiversityMatrixBtn() {
             const btn = document.getElementById('btn-diversity-matrix');
             if (btn) {
-                btn.href = `/client-size-matrix?token=${TOKEN}&code=${CLIENT_CODE}&year=${YEAR}`;
+                btn.href = `/size-matrix?token=${TOKEN}&code=${CLIENT_CODE}&year=${YEAR}&from=client`;
             }
         }
         updateDiversityMatrixBtn();

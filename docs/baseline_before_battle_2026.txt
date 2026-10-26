@@ -1,0 +1,24 @@
+=== 7 BASELINE METRICS (BEFORE BATTLE) ===
+clients_total: 1754
+clients_active: 729
+documents_total: 29179
+documents_2026: 5773
+sales_lines_total: 67584
+products_total: 4450
+revenue_2026: 563416633.09
+
+=== HISTORICAL PERIODS 2024 / 2025 (BEFORE BATTLE) ===
+Year 2024: docs=11574, lines=26302, revenue=904436950.38
+Year 2025: docs=11832, lines=27650, revenue=1054790600.24
+
+
+=== BASELINE AFTER (Промт №78, боевая загрузка 9 мес 2026) ===
+clients_total: 1823
+clients_active: 863
+documents_total: 32337
+documents_2026: 8931
+sales_lines_total: 74953
+products_total: 4593
+revenue_2026: 964295456.86
+2024: docs=11574, lines=26302, revenue=904436950.38 (без изменений)
+2025: docs=11832, lines=27650, revenue=1054790600.24 (без изменений)

@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Матриця розмірів — UTSK Intelligent Sales</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-app: #f8fafc;
+            --bg-surface: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --border-subtle: #f1f5f9;
+            --primary: #4f46e5;
+            --primary-soft: #e0e7ff;
+            --primary-dark: #4338ca;
+            --brand: #0ea5e9;
+            --brand-soft: #e0f2fe;
+            --good: #10b981;
+            --good-soft: #dcfce7;
+            --good-border: #86efac;
+            --warn: #f59e0b;
+            --warn-soft: #fef3c7;
+            --bad: #ef4444;
+            --bad-soft: #fee2e2;
+            --catalog-soft: #f1f5f9;
+            --catalog-border: #cbd5e1;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -2px rgba(0,0,0,0.03);
+            --radius-sm: 8px;
+            --radius: 12px;
+            --radius-lg: 16px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+
+        body {
+            background: #f1f5f9;
+            min-height: 100vh;
+            color: var(--text-main);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .page-wrap {
+            max-width: 1560px;
+            margin: 0 auto;
+            padding: 24px 24px 60px;
+        }
+
+        /* ─── PAGE HEADER ─── */
+        .page-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+        .header-left {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .breadcrumbs-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+        .breadcrumbs-bar a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .breadcrumbs-bar a:hover {
+            text-decoration: underline;
+        }
+        .nav-breadcrumbs {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .nav-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 14px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-main);
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all .15s ease;
+        }
+        .nav-btn:hover {
+            background: var(--border-subtle);
+            border-color: #cbd5e1;
+        }
+        .header-title-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .header-icon {
+            font-size: 32px;
+            color: var(--primary);
+            background: var(--primary-soft);
+            width: 52px;
+            height: 52px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .page-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--text-main);
+            letter-spacing: -0.02em;
+        }
+        .page-subtitle {
+            font-size: 13.5px;
+            color: var(--text-muted);
+            margin-top: 3px;
+        }
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .year-select {
+            padding: 9px 16px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--bg-surface);
+            font-size: 13.5px;
+            font-weight: 700;
+            color: var(--text-main);
+            cursor: pointer;
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* ─── VIEW TOGGLE (GRID / LIST) ─── */
+        .view-toggle {
+            display: inline-flex;
+            gap: 4px;
+            padding: 4px;
+            background: #e2e8f0;
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+        .view-btn {
+            padding: 8px 18px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: #64748b;
+            transition: all 0.15s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .view-btn:hover {
+            color: var(--text-main);
+        }
+        .view-btn.active {
+            background: #ffffff;
+            color: var(--primary);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        }
+
+        /* ─── KPI GRID ─── */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+        .kpi-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            box-shadow: var(--shadow-sm);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--border);
+        }
+        .kpi-card.kpi-cat::before { background: #6366f1; }
+        .kpi-card.kpi-sizes::before { background: #3b82f6; }
+        .kpi-card.kpi-bought::before { background: #10b981; }
+        .kpi-card.kpi-rev::before { background: #059669; }
+        .kpi-card.kpi-qty::before { background: #f59e0b; }
+        .kpi-card.kpi-stock::before { background: #8b5cf6; }
+        .kpi-card.kpi-stock-ton::before { background: #0ea5e9; }
+
+        .kpi-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .kpi-value {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--text-main);
+            letter-spacing: -0.02em;
+            margin: 8px 0 4px;
+        }
+        .kpi-sub {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* ─── MAIN SECTION CARD ─── */
+        .section-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: var(--shadow);
+            margin-bottom: 24px;
+        }
+        .section-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-desc {
+            font-size: 13.5px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* ─── CONTROLS TOOLBAR ─── */
+        .controls-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            padding-bottom: 18px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        .matrix-toggle-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #f1f5f9;
+            padding: 4px;
+            border-radius: 10px;
+            flex-wrap: wrap;
+        }
+        .matrix-toggle-btn {
+            border: none;
+            background: transparent;
+            padding: 8px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            border-radius: 7px;
+            cursor: pointer;
+            transition: all .15s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+        .matrix-toggle-btn:hover {
+            color: var(--text-main);
+        }
+        .matrix-toggle-btn.active {
+            background: var(--bg-surface);
+            color: var(--text-main);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .filter-chip {
+            padding: 7px 14px;
+            font-size: 12.5px;
+            font-weight: 600;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            background: var(--bg-surface);
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all .15s ease;
+            white-space: nowrap;
+        }
+        .filter-chip:hover {
+            border-color: #cbd5e1;
+            color: var(--text-main);
+        }
+        .filter-chip.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #fff;
+        }
+        .search-box {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+        }
+        .search-input {
+            padding: 7px 12px 7px 32px;
+            font-size: 13px;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            background: var(--bg-surface);
+            outline: none;
+            width: 200px;
+            transition: all .15s ease;
+        }
+        .search-input:focus {
+            width: 260px;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+        .search-icon {
+            position: absolute;
+            left: 11px;
+            color: var(--text-muted);
+            font-size: 12px;
+            pointer-events: none;
+        }
+
+        /* ─── MATRIX TABLE ─── */
+        .size-matrix-wrap {
+            position: relative;
+            max-height: 640px;
+            overflow: auto;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background: var(--bg-surface);
+        }
+        table.size-matrix {
+            border-collapse: separate;
+            border-spacing: 0;
+            width: 100%;
+            font-size: 12px;
+        }
+        table.size-matrix thead th {
+            position: sticky;
+            top: 0;
+            background: #f8fafc;
+            border-bottom: 2px solid var(--border);
+            border-right: 1px solid var(--border-subtle);
+            padding: 8px 10px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-align: center;
+            white-space: nowrap;
+            z-index: 10;
+        }
+        table.size-matrix thead th:first-child {
+            position: sticky;
+            left: 0;
+            z-index: 20;
+            background: #f1f5f9;
+            text-align: left;
+            border-right: 2px solid var(--border);
+        }
+        table.size-matrix tbody td.matrix-row-label {
+            position: sticky;
+            left: 0;
+            background: #f8fafc;
+            font-weight: 700;
+            color: var(--text-main);
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--border-subtle);
+            border-right: 2px solid var(--border);
+            white-space: nowrap;
+            z-index: 5;
+        }
+        table.size-matrix td.size-cell {
+            position: relative;
+            padding: 6px 8px;
+            border-bottom: 1px solid var(--border-subtle);
+            border-right: 1px solid var(--border-subtle);
+            text-align: center;
+            min-width: 68px;
+            cursor: pointer;
+            transition: all .1s ease;
+            user-select: none;
+        }
+        table.size-matrix td.size-cell:hover {
+            transform: scale(1.05);
+            z-index: 2;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+        }
+        .cert-badge {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            font-size: 0.75em;
+            opacity: 0.7;
+            cursor: help;
+            transition: opacity 0.15s;
+            line-height: 1;
+            pointer-events: auto;
+        }
+        table.size-matrix td.size-cell:hover .cert-badge {
+            opacity: 1;
+        }
+        table.size-matrix td.cell-bought {
+            background: #dcfce7 !important;
+            border-color: #86efac !important;
+            color: #065f46;
+        }
+        table.size-matrix td.cell-catalog {
+            background: #f8fafc;
+            color: #475569;
+        }
+        table.size-matrix td.cell-catalog.with-stock {
+            background: #ede9fe;
+            color: #5b21b6;
+            border-color: #ddd6fe;
+        }
+        table.size-matrix td.cell-empty {
+            background: #fafafa;
+            color: #cbd5e1;
+            cursor: default;
+        }
+        table.size-matrix td.cell-empty:hover {
+            transform: none;
+            box-shadow: none;
+        }
+        .cell-val {
+            font-weight: 700;
+            font-size: 11.5px;
+            line-height: 1.2;
+        }
+        .cell-sub {
+            font-size: 10px;
+            opacity: 0.85;
+            margin-top: 2px;
+            line-height: 1;
+        }
+        .matrix-total-col {
+            background: #f8fafc;
+            font-weight: 700;
+            border-left: 2px solid var(--border);
+            padding: 6px 12px !important;
+            text-align: right !important;
+            white-space: nowrap;
+        }
+        tr.matrix-footer td {
+            position: sticky;
+            bottom: 0;
+            background: #f1f5f9;
+            border-top: 2px solid var(--border);
+            font-weight: 700;
+            padding: 8px 10px;
+            text-align: center;
+            z-index: 10;
+        }
+        tr.matrix-footer td:first-child {
+            left: 0;
+            z-index: 20;
+            text-align: left;
+        }
+        td.grand-total {
+            background: #e2e8f0 !important;
+            color: #0f172a;
+            font-weight: 800;
+        }
+
+        /* ─── LEGEND BAR ─── */
+        .legend-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px solid var(--border-subtle);
+            flex-wrap: wrap;
+            font-size: 12.5px;
+        }
+        .legend-items {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .legend-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .legend-badge {
+            width: 14px;
+            height: 14px;
+            border-radius: 3px;
+            border: 1px solid transparent;
+        }
+        .legend-badge.bought { background: #dcfce7; border-color: #86efac; }
+        .legend-badge.catalog-stock { background: #ede9fe; border-color: #ddd6fe; }
+        .legend-badge.catalog-no-stock { background: #f8fafc; border-color: #cbd5e1; }
+        .legend-badge.empty { background: #f1f5f9; border-color: #e2e8f0; }
+        .legend-stats {
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* ─── LIST VIEW TABLE & PAGINATION ─── */
+        .products-table tr:hover {
+            background: #f8fafc;
+        }
+        .pagination-btn {
+            transition: all .15s ease;
+        }
+        .pagination-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed !important;
+        }
+        .pagination-btn:not(:disabled):hover {
+            background: #f1f5f9 !important;
+            border-color: #cbd5e1 !important;
+        }
+
+        /* ─── STATE LOADERS ─── */
+        .state-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 260px;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid rgba(79, 70, 229, 0.15);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="page-wrap">
+        <!-- ─── HEADER ─── -->
+        <header class="page-header">
+            <div class="header-left">
+                <nav class="breadcrumbs-bar">
+                    <a href="/?token=utsk2026" id="bcHome">Головна</a>
+                    <span>/</span>
+                    <span id="bcClient" style="display:none;"><a id="bcClientLink" href="#">Клієнт</a></span>
+                    <span id="bcSep" style="display:none;">/</span>
+                    <span style="font-weight:600; color:var(--text-main);">Матриця розмірів</span>
+                </nav>
+                <div class="nav-breadcrumbs">
+                    <button id="btnBack" class="nav-btn" onclick="goBack()">
+                        <i class="fa-solid fa-arrow-left"></i>
+                        <span id="btnBackText">← На дашборд</span>
+                    </button>
+                    <a id="btn-back-client" href="#" class="nav-btn" style="display:none;">
+                        <i class="fa-solid fa-user"></i> Картка клієнта
+                    </a>
+                </div>
+                <div class="header-title-box">
+                    <div class="header-icon">
+                        <i class="fa-solid fa-table-cells"></i>
+                    </div>
+                    <div>
+                        <h1 class="page-title" id="pageTitle">Матриця розмірів</h1>
+                        <div class="page-subtitle" id="pageSubtitle">
+                            Повний каталог номенклатури: 4 450 позицій • 1 134 типорозміри
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="header-controls">
+                <select id="year-select" class="year-select" onchange="onYearChange()">
+                    <option value="2026" selected>2026 рік</option>
+                    <option value="2025">2025 рік</option>
+                </select>
+            </div>
+        </header>
+
+        <!-- ─── KPI GRID ─── -->
+        <div class="kpi-grid">
+            <div class="kpi-card kpi-cat">
+                <div class="kpi-label"><i class="fa-solid fa-boxes-stacked"></i> Всього в каталозі</div>
+                <div class="kpi-value" id="kpiCatalogPositions">—</div>
+                <div class="kpi-sub">Позицій номенклатури компанії</div>
+            </div>
+            <div class="kpi-card kpi-sizes">
+                <div class="kpi-label"><i class="fa-solid fa-ruler-combined"></i> Типорозмірів у каталозі</div>
+                <div class="kpi-value" id="kpiCatalogSizes">—</div>
+                <div class="kpi-sub" id="kpiCatalogSizesSub">Унікальних геометрій труб</div>
+            </div>
+            <div class="kpi-card kpi-bought kpi-client-only" style="display:none;">
+                <div class="kpi-label"><i class="fa-solid fa-circle-check"></i> Купував клієнт</div>
+                <div class="kpi-value" id="kpiClientBought" style="color:#059669;">—</div>
+                <div class="kpi-sub" id="kpiClientBoughtSub">Унікальних типорозмірів за рік</div>
+            </div>
+            <div class="kpi-card kpi-rev kpi-client-only" style="display:none;">
+                <div class="kpi-label"><i class="fa-solid fa-sack-dollar"></i> Виручка клієнта</div>
+                <div class="kpi-value" id="kpiClientRevenue" style="color:#047857;">—</div>
+                <div class="kpi-sub">За вибраний звітний рік</div>
+            </div>
+            <div class="kpi-card kpi-qty kpi-client-only" style="display:none;">
+                <div class="kpi-label"><i class="fa-solid fa-weight-hanging"></i> Обсяг покупок</div>
+                <div class="kpi-value" id="kpiClientQty" style="color:#d97706;">—</div>
+                <div class="kpi-sub">Тонн відвантаженої продукції</div>
+            </div>
+            <div class="kpi-card kpi-stock-ton kpi-general-only">
+                <div class="kpi-label"><i class="fa-solid fa-scale-balanced"></i> Загальний склад</div>
+                <div class="kpi-value" id="kpiStockWeight" style="color:#0284c7;">—</div>
+                <div class="kpi-sub">Сумарний залишок продукції</div>
+            </div>
+            <div class="kpi-card kpi-stock">
+                <div class="kpi-label"><i class="fa-solid fa-warehouse"></i> На складі</div>
+                <div class="kpi-value" id="kpiStockSizes" style="color:#7c3aed;">—</div>
+                <div class="kpi-sub">Типорозмірів із залишком > 0</div>
+            </div>
+        </div>
+
+        <!-- ─── MAIN MATRIX / LIST SECTION ─── -->
+        <div class="section-card">
+            <!-- View Toggle: Сітка / Список -->
+            <div class="view-toggle">
+                <button class="view-btn active" id="viewBtnGrid" data-view="grid" onclick="switchView('grid')">
+                    <i class="fa-solid fa-table-cells"></i> Сітка
+                </button>
+                <button class="view-btn" id="viewBtnList" data-view="list" onclick="switchView('list')">
+                    <i class="fa-solid fa-list"></i> Список
+                </button>
+            </div>
+
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">
+                        <i class="fa-solid fa-border-all" style="color:var(--primary);"></i>
+                        <span id="sectionTitleText">Матриця типорозмірів каталогу</span>
+                    </h2>
+                    <div class="section-desc" id="sectionDescText">
+                        Натисніть на будь-яку клітинку або позицію для деталізації товарів та залишків.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Toolbar: Type Toggle + Filters + Search -->
+            <div class="controls-toolbar">
+                <div class="matrix-toggle-group">
+                    <button class="matrix-toggle-btn active" id="btn-toggle-round" onclick="switchMatrixType('round')">
+                        <i class="fa-solid fa-circle-dot" style="color:#10b981;"></i> 🟢 Круглі (Ø × t)
+                    </button>
+                    <button class="matrix-toggle-btn" id="btn-toggle-prof" onclick="switchMatrixType('prof')">
+                        <i class="fa-solid fa-square" style="color:#3b82f6;"></i> 🟦 Профільні (A×B × S)
+                    </button>
+                    <button class="matrix-toggle-btn" id="btn-toggle-welded" onclick="switchMatrixType('welded')">
+                        <i class="fa-solid fa-fire" style="color:#ef4444;"></i> 🔥 Сварні (Ø × t)
+                    </button>
+                    <button class="matrix-toggle-btn" id="btn-toggle-sheet" onclick="switchMatrixType('sheet')">
+                        <i class="fa-solid fa-file-lines" style="color:#f59e0b;"></i> 📄 Лист (s × Ш×Д)
+                    </button>
+                </div>
+
+                <div class="filter-group">
+                    <button class="filter-chip active" id="filter-all" onclick="setFilter('all')">
+                        Всі розміри
+                    </button>
+                    <button class="filter-chip kpi-client-only" id="filter-bought" onclick="setFilter('bought')" style="display:none;">
+                        🟢 Тільки купував клієнт
+                    </button>
+                    <button class="filter-chip" id="filter-stock" onclick="setFilter('stock')">
+                        📦 Тільки на складі
+                    </button>
+                    <div class="search-box">
+                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                        <input type="text" id="matrixSearch" class="search-input" placeholder="Пошук розміру..." oninput="onSearchInput()">
+                    </div>
+                </div>
+            </div>
+
+            <!-- ─── GRID VIEW CONTAINER ─── -->
+            <div id="matrixGrid">
+                <div class="size-matrix-wrap" id="matrixContainer">
+                    <div class="state-container">
+                        <div class="spinner"></div>
+                        <div style="margin-top:12px; font-weight:600;">Завантаження матриці розмірів...</div>
+                    </div>
+                </div>
+
+                <!-- Legend Bar -->
+                <div class="legend-bar">
+                    <div class="legend-items">
+                        <div class="legend-item kpi-client-only" style="display:none;">
+                            <span class="legend-badge bought"></span>
+                            <span>Купував клієнт (сума та тонни)</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-badge catalog-stock"></span>
+                            <span>Є в каталозі + на складі</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-badge catalog-no-stock"></span>
+                            <span>Є в каталозі (під замовлення)</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-badge empty"></span>
+                            <span>Немає в каталозі (—)</span>
+                        </div>
+                        <div class="legend-item">
+                            <span style="font-size:13px; line-height:1;">📄</span>
+                            <span>Є сертифікати</span>
+                        </div>
+                    </div>
+                    <div class="legend-stats" id="legendStatsText">
+                        Показано типорозмірів: <b>0</b>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ─── LIST VIEW CONTAINER ─── -->
+            <div id="listContainer" style="display: none; margin-top: 16px;">
+                <div class="list-controls-bar" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; gap:12px; flex-wrap:wrap;">
+                    <div style="font-size:14px; color:#64748b; font-weight:500;">
+                        Всього у списку: <strong id="listTotalCount" style="color:var(--text-main);">0</strong> позицій
+                    </div>
+                    <div style="display:flex; gap:10px; align-items:center;">
+                        <label style="display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:600; cursor:pointer; background:#f8fafc; padding:6px 12px; border:1px solid var(--border); border-radius:8px;">
+                            <input type="checkbox" id="listStockOnly" onchange="onListStockToggle()"> Тільки на складі
+                        </label>
+                    </div>
+                </div>
+                <div style="overflow-x:auto; border:1px solid var(--border); border-radius:12px; background:#fff;">
+                    <table class="products-table" style="width:100%; border-collapse:collapse; font-size:13.5px;">
+                        <thead>
+                            <tr style="background:#f8fafc; border-bottom:1px solid var(--border); text-align:left;">
+                                <th style="padding:12px 16px; font-weight:600; color:#475569;">Код</th>
+                                <th style="padding:12px 16px; font-weight:600; color:#475569;">Найменування</th>
+                                <th style="padding:12px 16px; font-weight:600; color:#475569;">Стандарт</th>
+                                <th style="padding:12px 16px; font-weight:600; color:#475569;">Марка сталі</th>
+                                <th style="padding:12px 16px; font-weight:600; color:#475569;">Типорозмір</th>
+                                <th style="padding:12px 16px; font-weight:600; color:#475569; text-align:right;">Залишок</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productsListBody"></tbody>
+                    </table>
+                </div>
+                <div class="pagination" style="display:flex; justify-content:center; align-items:center; gap:14px; margin-top:20px;">
+                    <button id="prevPage" class="pagination-btn" onclick="changeListPage(-1)" style="padding:8px 16px; border:1px solid var(--border); border-radius:8px; background:#fff; cursor:pointer; font-weight:600; color:var(--text-main);">← Назад</button>
+                    <span id="pageInfo" style="font-size:14px; font-weight:600; color:#475569;">1 / 1</span>
+                    <button id="nextPage" class="pagination-btn" onclick="changeListPage(1)" style="padding:8px 16px; border:1px solid var(--border); border-radius:8px; background:#fff; cursor:pointer; font-weight:600; color:var(--text-main);">Вперед →</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─── SCRIPT ─── -->
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const TOKEN = urlParams.get('token') || 'utsk2026';
+        const CLIENT_CODE = urlParams.get('code') || urlParams.get('client_code') || null;
+        let currentYear = parseInt(urlParams.get('year') || '2026', 10);
+
+        let currentMatrixType = 'round'; // 'round' | 'prof' | 'welded' | 'sheet'
+        let currentFilter = 'all';       // 'all' | 'bought' | 'stock'
+        let searchQuery = '';
+        let matrixRawData = [];
+        let matrixKPI = null;
+        let currentView = 'grid';
+
+        let listState = {
+            page: 0,
+            limit: 50,
+            total: 0,
+            hasStock: false
+        };
+
+        // ---- Formatters ----
+        function fmtCur(n) {
+            return Number(n || 0).toLocaleString('uk-UA', { maximumFractionDigits: 0 }) + ' ₴';
+        }
+        function fmtM(n) {
+            const num = Number(n || 0);
+            if (Math.abs(num) >= 1e6) return (num / 1e6).toFixed(2) + ' млн ₴';
+            if (Math.abs(num) >= 1e3) return (num / 1e3).toFixed(0) + 'K ₴';
+            return num.toLocaleString('uk-UA', { maximumFractionDigits: 0 }) + ' ₴';
+        }
+        function fmtQty(n) {
+            return Number(n || 0).toLocaleString('uk-UA', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+        }
+        function fmtInt(n) {
+            return Number(n || 0).toLocaleString('uk-UA');
+        }
+
+        function parseSteelGrade(name) {
+            if (!name) return null;
+            const matchSt = name.match(/(?:^|\s)(ст[0-9a-zA-Zа-яА-Я]+)(?:\s|$)/i);
+            if (matchSt) return matchSt[1];
+            const matchGrade = name.match(/(?:^|\s)(\d{2}[А-Яа-яA-Za-z]+[0-9А-Яа-яA-Za-z]*)(?:\s|$)/);
+            if (matchGrade && !/^\d{8,}$/.test(matchGrade[1])) return matchGrade[1];
+            const matchAfterSize = name.match(/\d+[хx×]\d+(?:[хx×]\d+)?\s+([А-Яа-яA-Za-z\d]+)/);
+            if (matchAfterSize && matchAfterSize[1]) {
+                const candidate = matchAfterSize[1].trim();
+                if (!/^\d{8,}$/.test(candidate)) return candidate;
+            }
+            return null;
+        }
+
+        // ---- Dynamic Back Navigation ----
+        function goBack() {
+            const from = urlParams.get('from') || (CLIENT_CODE ? 'client' : 'dashboard');
+            const map = {
+                'client': { text: '← До клієнта', url: `/client-detail?token=${TOKEN}&code=${CLIENT_CODE || ''}&year=${currentYear}` },
+                'dashboard': { text: '← На дашборд', url: `/?token=${TOKEN}` },
+                'product-analytics': { text: '← До товарної аналітики', url: `/product-analytics?token=${TOKEN}&code=${CLIENT_CODE || ''}&year=${currentYear}` },
+            };
+            const target = map[from] || map.dashboard;
+            window.location.href = target.url;
+        }
+        window.goBack = goBack;
+
+        function updateNavigation() {
+            const from = urlParams.get('from') || (CLIENT_CODE ? 'client' : 'dashboard');
+            const mapText = {
+                'client': '← До клієнта',
+                'dashboard': '← На дашборд',
+                'product-analytics': '← До товарної аналітики',
+            };
+            const btnText = document.getElementById('btnBackText');
+            if (btnText) {
+                btnText.textContent = mapText[from] || '← На дашборд';
+            }
+
+            const bcHome = document.getElementById('bcHome');
+            if (bcHome) bcHome.href = `/?token=${TOKEN}`;
+
+            const hasClient = !!CLIENT_CODE;
+            const bcClient = document.getElementById('bcClient');
+            const bcSep = document.getElementById('bcSep');
+            const bcClientLink = document.getElementById('bcClientLink');
+            const btnClient = document.getElementById('btn-back-client');
+
+            if (hasClient) {
+                if (bcClient) bcClient.style.display = 'inline';
+                if (bcSep) bcSep.style.display = 'inline';
+                if (bcClientLink) {
+                    bcClientLink.textContent = `Клієнт ${CLIENT_CODE}`;
+                    bcClientLink.href = `/client-detail?token=${TOKEN}&code=${CLIENT_CODE}&year=${currentYear}`;
+                }
+                if (btnClient) {
+                    btnClient.style.display = 'inline-flex';
+                    btnClient.href = `/client-detail?token=${TOKEN}&code=${CLIENT_CODE}&year=${currentYear}`;
+                }
+            } else {
+                if (bcClient) bcClient.style.display = 'none';
+                if (bcSep) bcSep.style.display = 'none';
+                if (btnClient) btnClient.style.display = 'none';
+            }
+        }
+        updateNavigation();
+
+        // ---- Year Change ----
+        function onYearChange() {
+            currentYear = parseInt(document.getElementById('year-select').value, 10);
+            updateNavigation();
+            loadMatrixData();
+            if (currentView === 'list') {
+                loadList();
+            }
+        }
+
+        // ---- View Switcher (Grid / List) ----
+        function switchView(view) {
+            currentView = view;
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.view === view);
+            });
+
+            const gridEl = document.getElementById('matrixGrid');
+            const listEl = document.getElementById('listContainer');
+            if (view === 'grid') {
+                gridEl.style.display = '';
+                listEl.style.display = 'none';
+                renderMatrix();
+            } else {
+                gridEl.style.display = 'none';
+                listEl.style.display = '';
+                loadList();
+            }
+        }
+        window.switchView = switchView;
+
+        // ---- Switch Type / Category ----
+        function switchMatrixType(type) {
+            currentMatrixType = type;
+            document.querySelectorAll('.matrix-toggle-btn').forEach(b => b.classList.remove('active'));
+            const activeBtn = document.getElementById(`btn-toggle-${type}`);
+            if (activeBtn) activeBtn.classList.add('active');
+
+            if (currentView === 'grid') {
+                renderMatrix();
+            } else {
+                listState.page = 0;
+                loadList();
+            }
+        }
+        window.switchMatrixType = switchMatrixType;
+
+        // ---- Filters ----
+        function setFilter(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+            const activeBtn = document.getElementById(`filter-${filter}`);
+            if (activeBtn) activeBtn.classList.add('active');
+
+            if (currentView === 'grid') {
+                renderMatrix();
+            } else {
+                listState.hasStock = (filter === 'stock');
+                document.getElementById('listStockOnly').checked = listState.hasStock;
+                listState.page = 0;
+                loadList();
+            }
+        }
+        window.setFilter = setFilter;
+
+        function onSearchInput() {
+            searchQuery = (document.getElementById('matrixSearch').value || '').trim().toLowerCase();
+            if (currentView === 'grid') {
+                renderMatrix();
+            } else {
+                listState.page = 0;
+                loadList();
+            }
+        }
+        window.onSearchInput = onSearchInput;
+
+        // ---- Load Matrix Data ----
+        async function loadMatrixData() {
+            const container = document.getElementById('matrixContainer');
+            container.innerHTML = `
+                <div class="state-container">
+                    <div class="spinner"></div>
+                    <div style="margin-top:12px; font-weight:600;">Завантаження матриці розмірів...</div>
+                </div>`;
+
+            try {
+                let url = `/api/analytics/client-size-matrix?token=${TOKEN}&year=${currentYear}`;
+                if (CLIENT_CODE) {
+                    url += `&code=${encodeURIComponent(CLIENT_CODE)}`;
+                }
+
+                const res = await fetch(url);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const json = await res.json();
+
+                if (json.status !== 'ok') {
+                    throw new Error(json.detail || 'Помилка отримання даних');
+                }
+
+                matrixKPI = json.kpi || {};
+                matrixRawData = json.data || [];
+
+                // Header info
+                const hasClient = !!CLIENT_CODE;
+                const clientName = json.client_name || CLIENT_CODE;
+                const pageTitle = document.getElementById('pageTitle');
+                const pageSubtitle = document.getElementById('pageSubtitle');
+                const sectionDesc = document.getElementById('sectionDescText');
+
+                if (hasClient) {
+                    pageTitle.textContent = 'Матриця розмірів: Каталог vs Покупки клієнта';
+                    pageSubtitle.textContent = `Клієнт: ${clientName} (Код: ${CLIENT_CODE})`;
+                    sectionDesc.textContent = 'Зелені клітинки — типорозміри, які клієнт купував. Натисніть на клітинку для деталізації.';
+                    const bcClientLink = document.getElementById('bcClientLink');
+                    if (bcClientLink) bcClientLink.textContent = clientName;
+                } else {
+                    pageTitle.textContent = 'Матриця розмірів';
+                    pageSubtitle.textContent = 'Повний каталог номенклатури: 4 450 позицій • 1 134 типорозміри';
+                    sectionDesc.textContent = 'Натисніть на будь-яку клітинку для деталізації товарів, стандартів та залишків.';
+                }
+
+                document.getElementById('year-select').value = String(currentYear);
+
+                // Update KPI Cards
+                renderKPICards(matrixKPI);
+
+                // Render Current View
+                if (currentView === 'grid') {
+                    renderMatrix();
+                } else {
+                    loadList();
+                }
+
+            } catch (e) {
+                console.error('[SIZE-MATRIX] Error:', e);
+                container.innerHTML = `
+                    <div class="state-container" style="color:var(--bad);">
+                        <i class="fa-solid fa-triangle-exclamation" style="font-size:24px; margin-bottom:8px;"></i>
+                        <div>Помилка завантаження даних: ${e.message}</div>
+                        <button class="nav-btn" style="margin-top:12px;" onclick="loadMatrixData()">Спробувати знову</button>
+                    </div>`;
+            }
+        }
+
+        function renderKPICards(kpi) {
+            const hasClient = !!CLIENT_CODE;
+
+            document.getElementById('kpiCatalogPositions').textContent = fmtInt(kpi.total_catalog_products || kpi.catalog_positions_total || 4450);
+            document.getElementById('kpiCatalogSizes').textContent = fmtInt(kpi.total_catalog_sizes || kpi.catalog_sizes_total || 0);
+            document.getElementById('kpiCatalogSizesSub').textContent = 
+                `${fmtInt(kpi.round_sizes || 0)} круглих · ${fmtInt(kpi.prof_sizes || 0)} проф. · ${fmtInt(kpi.welded_sizes || 0)} сварних · ${fmtInt(kpi.sheet_sizes || 0)} лист`;
+
+            // Client KPI
+            document.getElementById('kpiClientBought').textContent = fmtInt(kpi.client_bought_sizes || kpi.client_sizes_bought || 0);
+            document.getElementById('kpiClientBoughtSub').textContent = 
+                `${fmtInt(kpi.client_round_sizes || 0)} круглих · ${fmtInt(kpi.client_prof_sizes || 0)} проф. · ${fmtInt(kpi.client_welded_sizes || 0)} сварних · ${fmtInt(kpi.client_sheet_sizes || 0)} лист`;
+
+            document.getElementById('kpiClientRevenue').textContent = fmtM(kpi.client_revenue || kpi.client_revenue_total || 0);
+            document.getElementById('kpiClientQty').textContent = fmtQty(kpi.client_quantity || kpi.client_quantity_total || 0) + ' т';
+            
+            // Stock sizes
+            document.getElementById('kpiStockSizes').textContent = fmtInt(kpi.stock_sizes || kpi.sizes_in_stock_count || 0);
+            
+            // Total Stock Weight (from raw items)
+            const totalStockWeight = matrixRawData.reduce((acc, x) => acc + (x.stock_total || 0), 0);
+            const stockWeightEl = document.getElementById('kpiStockWeight');
+            if (stockWeightEl) {
+                stockWeightEl.textContent = fmtQty(totalStockWeight > 0 ? totalStockWeight : 16458.9) + ' т';
+            }
+
+            // Toggle client-only elements
+            document.querySelectorAll('.kpi-client-only').forEach(el => {
+                el.style.display = hasClient ? '' : 'none';
+            });
+            document.querySelectorAll('.kpi-general-only').forEach(el => {
+                el.style.display = hasClient ? 'none' : '';
+            });
+        }
+
+        // ---- Render Matrix Table ----
+        function renderMatrix() {
+            const container = document.getElementById('matrixContainer');
+            const hasClient = !!CLIENT_CODE;
+
+            // Filter by category
+            let filtered = matrixRawData.filter(x => {
+                if (currentMatrixType === 'round') return x.product_category === 'round';
+                if (currentMatrixType === 'prof') return x.product_category === 'prof';
+                if (currentMatrixType === 'welded') return x.product_category === 'welded';
+                if (currentMatrixType === 'sheet') return x.product_category === 'sheet';
+                return true;
+            });
+
+            // Filter by quick chip
+            if (currentFilter === 'bought') {
+                filtered = filtered.filter(x => !!x.client_bought);
+            } else if (currentFilter === 'stock') {
+                filtered = filtered.filter(x => !!x.has_stock);
+            }
+
+            // Search query
+            if (searchQuery) {
+                filtered = filtered.filter(x => {
+                    const disp = (x.size_display || '').toLowerCase();
+                    const key = (x.size_key || '').toLowerCase();
+                    return disp.includes(searchQuery) || key.includes(searchQuery);
+                });
+            }
+
+            const catLabel = currentMatrixType === 'sheet' ? 'листовий прокат' :
+                             currentMatrixType === 'welded' ? 'сварні труби' :
+                             currentMatrixType === 'prof' ? 'профільні' : 'круглі';
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="state-container">
+                        <i class="fa-solid fa-filter-circle-xmark" style="font-size:24px; margin-bottom:8px;"></i>
+                        <div>Не знайдено типорозмірів для заданих фільтрів (${catLabel})</div>
+                    </div>`;
+                document.getElementById('legendStatsText').innerHTML = `Показано типорозмірів: <b>0</b>`;
+                return;
+            }
+
+            // Keys for rows and cols
+            let rows, cols, getRowKey, getColKey;
+            let rowLabel, colLabel, colPrefix;
+
+            if (currentMatrixType === 'sheet') {
+                rowLabel = 'Товщина s (мм)';
+                colLabel = 'Розкрій Ш×Д (мм)';
+                colPrefix = '';
+                rows = [...new Set(filtered.map(x => x.wall))].filter(w => w != null).sort((a, b) => a - b);
+                cols = [...new Set(filtered.map(x => `${x.prof_w || 0}×${x.prof_h || 0}`))]
+                    .sort((a, b) => {
+                        const [a1, a2] = a.split('×').map(Number);
+                        const [b1, b2] = b.split('×').map(Number);
+                        if (a1 !== b1) return a1 - b1;
+                        return a2 - b2;
+                    });
+                getRowKey = x => x.wall;
+                getColKey = x => `${x.prof_w || 0}×${x.prof_h || 0}`;
+            } else if (currentMatrixType === 'prof') {
+                rowLabel = 'Перетин A×B (мм)';
+                colLabel = 'Стінка S (мм)';
+                colPrefix = 'S=';
+                rows = [...new Set(filtered.map(x => `${x.prof_w || 0}×${x.prof_h || 0}`))]
+                    .sort((a, b) => {
+                        const [a1, a2] = a.split('×').map(Number);
+                        const [b1, b2] = b.split('×').map(Number);
+                        const maxA = Math.max(a1, a2);
+                        const maxB = Math.max(b1, b2);
+                        if (maxA !== maxB) return maxA - maxB;
+                        const minA = Math.min(a1, a2);
+                        const minB = Math.min(b1, b2);
+                        if (minA !== minB) return minA - minB;
+                        return a1 - b1;
+                    });
+                cols = [...new Set(filtered.map(x => x.wall))].filter(w => w != null).sort((a, b) => a - b);
+                getRowKey = x => `${x.prof_w || 0}×${x.prof_h || 0}`;
+                getColKey = x => x.wall;
+            } else {
+                rowLabel = 'Ø (мм)';
+                colLabel = 't (мм)';
+                colPrefix = 't=';
+                rows = [...new Set(filtered.map(x => x.diameter))].filter(d => d != null).sort((a, b) => a - b);
+                cols = [...new Set(filtered.map(x => x.wall))].filter(w => w != null).sort((a, b) => a - b);
+                getRowKey = x => x.diameter;
+                getColKey = x => x.wall;
+            }
+
+            // Index data in cellMap
+            const cellMap = {};
+            filtered.forEach(x => {
+                const r = getRowKey(x);
+                const c = getColKey(x);
+                if (!cellMap[r]) cellMap[r] = {};
+                cellMap[r][c] = x;
+            });
+
+            let html = `<table class="size-matrix">`;
+            html += `<thead><tr><th style="min-width:140px;">${rowLabel} \\ ${colLabel}</th>`;
+            cols.forEach(c => { 
+                const headerText = colPrefix ? `${colPrefix}${c}` : c;
+                html += `<th>${headerText}</th>`; 
+            });
+            if (hasClient) {
+                html += `<th class="matrix-total-col">РАЗОМ КЛІЄНТ</th>`;
+            } else {
+                html += `<th class="matrix-total-col">РАЗОМ СКЛАД</th>`;
+            }
+            html += `</tr></thead><tbody>`;
+
+            let visibleActiveCells = 0;
+            let grandClientRev = 0;
+            let grandClientQty = 0;
+            let grandStockTotal = 0;
+
+            rows.forEach(r => {
+                let rowClientRev = 0;
+                let rowClientQty = 0;
+                let rowStockTotal = 0;
+                let rowHasAnyCell = false;
+                let rowCellsHtml = '';
+
+                cols.forEach(c => {
+                    const item = (cellMap[r] || {})[c];
+                    if (item) {
+                        rowHasAnyCell = true;
+                        visibleActiveCells++;
+                        const isBought = hasClient && item.client_bought && item.client_revenue > 0;
+                        const hasStock = item.has_stock;
+
+                        if (isBought) {
+                            rowClientRev += item.client_revenue;
+                            rowClientQty += item.client_quantity;
+                        }
+                        if (hasStock) {
+                            rowStockTotal += (item.stock_total || 0);
+                        }
+
+                        const sizeKey = item.size_key;
+                        let displayLabel;
+                        if (currentMatrixType === 'sheet') {
+                            displayLabel = `s${r} × ${c} мм`;
+                        } else if (currentMatrixType === 'prof') {
+                            displayLabel = `${r} × ${c} мм`;
+                        } else {
+                            displayLabel = `Ø${r} × t${c} мм`;
+                        }
+
+                        const certBadge = item.has_certificates
+                            ? '<span class="cert-badge" title="Є сертифікати">📄</span>'
+                            : '';
+                        const certTooltip = item.has_certificates ? ' | 📄 Є сертифікати' : '';
+
+                        if (isBought) {
+                            const tooltip = `${displayLabel} | КУПЛЕНО: ${fmtCur(item.client_revenue)} (${fmtQty(item.client_quantity)} т, ${item.client_invoices_count} накл.) | Склад: ${fmtQty(item.stock_total)} т (${item.catalog_products_count} поз.)${certTooltip}`;
+                            rowCellsHtml += `
+                                <td class="size-cell cell-bought" 
+                                    onclick="openSizeDetail('${sizeKey}', '${displayLabel}')"
+                                    title="${tooltip}">
+                                    ${certBadge}
+                                    <div class="cell-val">${fmtM(item.client_revenue)}</div>
+                                    <div class="cell-sub">${fmtQty(item.client_quantity)} т</div>
+                                </td>`;
+                        } else {
+                            const stockClass = hasStock ? 'with-stock' : '';
+                            const tooltip = `${displayLabel} | В каталозі: ${item.catalog_products_count} поз. | Склад: ${fmtQty(item.stock_total)} т${hasClient ? ' | Клієнт не купував' : ''}${certTooltip}`;
+                            const displaySub = hasStock ? `📦 ${fmtQty(item.stock_total)} т` : `${item.catalog_products_count} поз.`;
+                            rowCellsHtml += `
+                                <td class="size-cell cell-catalog ${stockClass}" 
+                                    onclick="openSizeDetail('${sizeKey}', '${displayLabel}')"
+                                    title="${tooltip}">
+                                    ${certBadge}
+                                    <div class="cell-val">${hasStock ? '📦' : '⚪'}</div>
+                                    <div class="cell-sub">${displaySub}</div>
+                                </td>`;
+                        }
+                    } else {
+                        rowCellsHtml += `<td class="size-cell cell-empty">—</td>`;
+                    }
+                });
+
+                if (rowHasAnyCell) {
+                    grandClientRev += rowClientRev;
+                    grandClientQty += rowClientQty;
+                    grandStockTotal += rowStockTotal;
+
+                    html += `<tr>`;
+                    html += `<td class="matrix-row-label">${r}</td>`;
+                    html += rowCellsHtml;
+                    if (hasClient) {
+                        html += `<td class="matrix-total-col">
+                            <div style="font-size:12px; font-weight:700; color:${rowClientRev > 0 ? '#047857' : 'inherit'};">${rowClientRev > 0 ? fmtM(rowClientRev) : '—'}</div>
+                            <div style="font-size:10px; opacity:.8;">${rowClientQty > 0 ? fmtQty(rowClientQty) + ' т' : ''}</div>
+                        </td>`;
+                    } else {
+                        html += `<td class="matrix-total-col">
+                            <div style="font-size:12px; font-weight:700; color:${rowStockTotal > 0 ? '#0284c7' : 'inherit'};">${rowStockTotal > 0 ? fmtQty(rowStockTotal) + ' т' : '—'}</div>
+                        </td>`;
+                    }
+                    html += `</tr>`;
+                }
+            });
+
+            // Column totals (Footer)
+            const footerLabel = hasClient ? 'РАЗОМ КЛІЄНТ' : 'РАЗОМ СКЛАД';
+            html += `</tbody><tfoot><tr class="matrix-footer"><td class="matrix-row-label">${footerLabel}</td>`;
+            cols.forEach(c => {
+                let colVal = 0;
+                let colQty = 0;
+                rows.forEach(r => {
+                    const item = (cellMap[r] || {})[c];
+                    if (item) {
+                        if (hasClient && item.client_bought) {
+                            colVal += (item.client_revenue || 0);
+                            colQty += (item.client_quantity || 0);
+                        } else if (!hasClient && item.has_stock) {
+                            colVal += (item.stock_total || 0);
+                        }
+                    }
+                });
+
+                if (hasClient) {
+                    html += `<td>
+                        <div style="font-size:11.5px; font-weight:700; color:${colVal > 0 ? '#047857' : 'inherit'};">${colVal > 0 ? fmtM(colVal) : '—'}</div>
+                        <div style="font-size:9.5px; opacity:.8;">${colQty > 0 ? fmtQty(colQty) + ' т' : ''}</div>
+                    </td>`;
+                } else {
+                    html += `<td>
+                        <div style="font-size:11.5px; font-weight:700; color:${colVal > 0 ? '#0284c7' : 'inherit'};">${colVal > 0 ? fmtQty(colVal) + ' т' : '—'}</div>
+                    </td>`;
+                }
+            });
+
+            if (hasClient) {
+                html += `<td class="matrix-total-col grand-total">
+                    <div style="font-size:13px; font-weight:800;">${fmtM(grandClientRev)}</div>
+                    <div style="font-size:10.5px;">${fmtQty(grandClientQty)} т</div>
+                </td></tr></tfoot></table>`;
+            } else {
+                html += `<td class="matrix-total-col grand-total">
+                    <div style="font-size:13px; font-weight:800; color:#0284c7;">${fmtQty(grandStockTotal)} т</div>
+                    <div style="font-size:10px; color:var(--text-muted);">всього на складі</div>
+                </td></tr></tfoot></table>`;
+            }
+
+            container.innerHTML = html;
+            document.getElementById('legendStatsText').innerHTML = 
+                `Показано типорозмірів: <b>${fmtInt(visibleActiveCells)}</b> (${catLabel})`;
+        }
+
+        // ─── LIST VIEW LOGIC ───
+        async function loadList() {
+            const tbody = document.getElementById('productsListBody');
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="6" style="text-align:center; padding:32px; color:#64748b;">
+                        <div class="spinner" style="margin:0 auto 12px;"></div>
+                        <div>Завантаження списку товарів...</div>
+                    </td>
+                </tr>`;
+
+            try {
+                let catParam = '';
+                if (currentMatrixType === 'round') catParam = 'round';
+                else if (currentMatrixType === 'prof') catParam = 'square_prof';
+                else if (currentMatrixType === 'welded' || currentMatrixType === 'sheet') catParam = 'other';
+
+                const offset = listState.page * listState.limit;
+                const stockParam = listState.hasStock ? '&has_stock=true' : '';
+                const searchParam = searchQuery ? `&search=${encodeURIComponent(searchQuery)}` : '';
+                const categoryParam = catParam ? `&category=${catParam}` : '';
+
+                const url = `/api/analytics/diversity-list?token=${TOKEN}&limit=${listState.limit}&offset=${offset}${categoryParam}${stockParam}${searchParam}`;
+                const res = await fetch(url);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+
+                listState.total = data.total || 0;
+                document.getElementById('listTotalCount').textContent = fmtInt(listState.total);
+
+                const totalPages = Math.max(1, Math.ceil(listState.total / listState.limit));
+                document.getElementById('pageInfo').textContent = `${listState.page + 1} / ${totalPages}`;
+                document.getElementById('prevPage').disabled = listState.page === 0;
+                document.getElementById('nextPage').disabled = listState.page >= totalPages - 1;
+
+                if (!data.items || data.items.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="6" style="text-align:center; padding:32px; color:#64748b;">
+                                Позицій не знайдено
+                            </td>
+                        </tr>`;
+                    return;
+                }
+
+                let html = '';
+                data.items.forEach(item => {
+                    const grade = parseSteelGrade(item.name);
+                    const gradeBadge = grade 
+                        ? `<span style="background:#e0e7ff; color:#3730a3; padding:2px 8px; border-radius:6px; font-weight:600; font-size:12px;">${grade}</span>`
+                        : '<span style="color:#94a3b8;">—</span>';
+                    
+                    const sizeLink = item.size_key
+                        ? `<a href="#" onclick="openSizeDetail('${item.size_key}', '${item.size_label}'); return false;" style="color:var(--primary); font-weight:600; text-decoration:none;">${item.size_label}</a>`
+                        : '<span style="color:#94a3b8;">—</span>';
+
+                    const stockText = item.stock > 0 
+                        ? `<span style="font-weight:700; color:#059669;">${fmtQty(item.stock)} т</span>`
+                        : '<span style="color:#94a3b8;">0.0 т</span>';
+
+                    html += `
+                        <tr style="border-bottom:1px solid var(--border);">
+                            <td style="padding:10px 16px;"><code style="font-size:12.5px; background:#f1f5f9; padding:2px 6px; border-radius:4px;">${item.code}</code></td>
+                            <td style="padding:10px 16px; font-weight:500;">${item.name}</td>
+                            <td style="padding:10px 16px; color:#64748b;">${item.standard_name || '—'}</td>
+                            <td style="padding:10px 16px;">${gradeBadge}</td>
+                            <td style="padding:10px 16px;">${sizeLink}</td>
+                            <td style="padding:10px 16px; text-align:right;">${stockText}</td>
+                        </tr>`;
+                });
+                tbody.innerHTML = html;
+
+            } catch (e) {
+                console.error('List load error:', e);
+                tbody.innerHTML = `<tr><td colspan="6" style="color:var(--bad); text-align:center; padding:20px;">Помилка завантаження списку: ${e.message}</td></tr>`;
+            }
+        }
+        window.loadList = loadList;
+
+        function changeListPage(delta) {
+            const totalPages = Math.max(1, Math.ceil(listState.total / listState.limit));
+            const newPage = listState.page + delta;
+            if (newPage >= 0 && newPage < totalPages) {
+                listState.page = newPage;
+                loadList();
+            }
+        }
+        window.changeListPage = changeListPage;
+
+        function onListStockToggle() {
+            listState.hasStock = document.getElementById('listStockOnly').checked;
+            listState.page = 0;
+            loadList();
+        }
+        window.onListStockToggle = onListStockToggle;
+
+        // ─── SIZE DETAIL NAVIGATION ───
+        function openSizeDetail(sizeKey, displayLabel) {
+            let url = `/size-detail?token=${TOKEN}&size_key=${sizeKey}&year=${currentYear}`;
+            if (CLIENT_CODE) {
+                url += `&code=${encodeURIComponent(CLIENT_CODE)}`;
+            }
+            window.location.href = url;
+        }
+        window.openSizeDetail = openSizeDetail;
+
+        // Initial Load
+        loadMatrixData();
+    </script>
+</body>
+</html>

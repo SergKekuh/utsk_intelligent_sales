@@ -90,6 +90,22 @@
             background: var(--border-subtle);
             border-color: #cbd5e1;
         }
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            background: var(--primary, #2563eb);
+            color: #fff;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: background 0.15s ease;
+        }
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
         .header-title-box {
             display: flex;
             align-items: center;
@@ -492,111 +508,6 @@
             color: var(--text-muted);
         }
 
-        /* ─── MODAL DRILL-DOWN ─── */
-        .modal-backdrop {
-            position: fixed;
-            inset: 0;
-            background: rgba(15, 23, 42, 0.65);
-            backdrop-filter: blur(4px);
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            animation: fadeIn .15s ease-out;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        .modal-box {
-            background: #ffffff;
-            border-radius: 16px;
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
-            max-width: 900px;
-            width: 100%;
-            max-height: 85vh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            border: 1px solid var(--border);
-        }
-        .modal-header {
-            padding: 18px 24px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: #f8fafc;
-        }
-        .modal-title {
-            font-size: 17px;
-            font-weight: 700;
-            color: var(--text-main);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 18px;
-            color: var(--text-muted);
-            cursor: pointer;
-            padding: 6px;
-            border-radius: 6px;
-            line-height: 1;
-        }
-        .modal-close:hover { background: #e2e8f0; color: var(--text-main); }
-        .modal-body {
-            padding: 20px 24px;
-            overflow-y: auto;
-            flex: 1;
-        }
-        .modal-footer {
-            padding: 14px 24px;
-            border-top: 1px solid var(--border);
-            background: #f8fafc;
-            display: flex;
-            justify-content: flex-end;
-        }
-
-        /* Drilldown Table */
-        .drill-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
-        }
-        .drill-table th {
-            background: #f8fafc;
-            font-weight: 700;
-            text-align: left;
-            padding: 9px 12px;
-            border-bottom: 2px solid var(--border);
-            color: var(--text-muted);
-            font-size: 12px;
-            text-transform: uppercase;
-        }
-        .drill-table td {
-            padding: 10px 12px;
-            border-bottom: 1px solid var(--border-subtle);
-            color: var(--text-main);
-        }
-        .drill-table tr:hover { background: #f8fafc; }
-
-        .badge-status {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 3px 9px;
-            border-radius: 12px;
-            font-size: 11.5px;
-            font-weight: 700;
-        }
-        .badge-bought { background: #dcfce7; color: #15803d; }
-        .badge-avail { background: #e0f2fe; color: #0284c7; }
-        .badge-nostock { background: #f1f5f9; color: #64748b; }
-
         /* States */
         .state-container {
             padding: 50px 20px;
@@ -761,30 +672,6 @@
                 <div class="legend-stats" id="legendStatsText">
                     Показано типорозмірів: <b>0</b>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ─── DRILL-DOWN MODAL ─── -->
-    <div id="drillModal" class="modal-backdrop" style="display:none;" onclick="handleModalBackdropClick(event)">
-        <div class="modal-box" onclick="event.stopPropagation()">
-            <div class="modal-header">
-                <div class="modal-title">
-                    <i class="fa-solid fa-box-open" style="color:var(--primary);"></i>
-                    <span id="modalTitle">Деталізація типорозміру</span>
-                </div>
-                <button class="modal-close" onclick="closeDrillModal()" title="Закрити (Esc)">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-            <div class="modal-body" id="modalBody">
-                <div class="state-container">
-                    <div class="spinner"></div>
-                    <div style="margin-top:8px;">Завантаження товарів...</div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="nav-btn" onclick="closeDrillModal()">Закрити</button>
             </div>
         </div>
     </div>
@@ -1073,7 +960,7 @@
                             const tooltip = `${displayLabel} | КУПЛЕНО: ${fmtCur(item.client_revenue)} (${fmtQty(item.client_quantity)} т, ${item.client_invoices_count} накл.) | Склад: ${fmtQty(item.stock_total)} т (${item.catalog_products_count} поз.)`;
                             rowCellsHtml += `
                                 <td class="size-cell cell-bought" 
-                                    onclick="openDrillModal('${sizeKey}', '${displayLabel}')"
+                                    onclick="openSizeDetail('${sizeKey}', '${displayLabel}')"
                                     title="${tooltip}">
                                     <div class="cell-val">${fmtM(item.client_revenue)}</div>
                                     <div class="cell-sub">${fmtQty(item.client_quantity)} т</div>
@@ -1085,7 +972,7 @@
                             const displaySub = hasStock ? `📦 ${fmtQty(item.stock_total)} т` : `${item.catalog_products_count} поз.`;
                             rowCellsHtml += `
                                 <td class="size-cell cell-catalog ${stockClass}" 
-                                    onclick="openDrillModal('${sizeKey}', '${displayLabel}')"
+                                    onclick="openSizeDetail('${sizeKey}', '${displayLabel}')"
                                     title="${tooltip}">
                                     <div class="cell-val">${hasStock ? '📦' : '⚪'}</div>
                                     <div class="cell-sub">${displaySub}</div>
@@ -1139,116 +1026,12 @@
                 `Показано типорозмірів: <b>${fmtInt(visibleActiveCells)}</b> (${catLabel})`;
         }
 
-        // ─── DRILL-DOWN MODAL ───
-        async function openDrillModal(sizeKey, displayLabel) {
-            const modal = document.getElementById('drillModal');
-            const titleEl = document.getElementById('modalTitle');
-            const bodyEl = document.getElementById('modalBody');
-
-            titleEl.textContent = `Товари типорозміру: ${displayLabel}`;
-            bodyEl.innerHTML = `
-                <div class="state-container">
-                    <div class="spinner"></div>
-                    <div style="margin-top:10px;">Завантаження списку товарів (ДСТУ / ГОСТ / Марка сталі)...</div>
-                </div>`;
-            modal.style.display = 'flex';
-
-            try {
-                const res = await fetch(`/api/client-products-by-size/${CLIENT_CODE}/${sizeKey}?token=${TOKEN}&year=${currentYear}`);
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                const data = await res.json();
-
-                if (!data.items || data.items.length === 0) {
-                    bodyEl.innerHTML = `<div class="state-container">У каталозі немає зареєстрованих товарів для цього типорозміру</div>`;
-                    return;
-                }
-
-                const purchased = data.items.filter(x => x.is_purchased);
-                const notPurchased = data.items.filter(x => !x.is_purchased);
-
-                let html = `
-                    <div style="display:flex; justify-content:space-between; align-items:center; gap:16px; margin-bottom:14px; flex-wrap:wrap;">
-                        <div style="font-size:13px; color:var(--text-muted);">
-                            Всього в каталозі: <b style="color:var(--text-main);">${data.items.length}</b> поз. | 
-                            Куплено клієнтом: <b style="color:#059669;">${purchased.length}</b> поз.
-                        </div>
-                        <div style="font-size:12.5px;">
-                            <span class="badge-status badge-bought">Куплено</span>
-                            <span class="badge-status badge-avail" style="margin-left:6px;">На складі</span>
-                        </div>
-                    </div>
-
-                    <table class="drill-table">
-                        <thead>
-                            <tr>
-                                <th>Код</th>
-                                <th>Найменування продукції</th>
-                                <th>Стандарт</th>
-                                <th style="text-align:right;">Склад</th>
-                                <th style="text-align:center;">Статус клієнта</th>
-                                <th style="text-align:right;">Куплено</th>
-                                <th style="text-align:right;">Сума</th>
-                            </tr>
-                        </thead>
-                        <tbody>`;
-
-                data.items.forEach(p => {
-                    const isBought = !!p.is_purchased;
-                    const stock = parseFloat(p.stock_balance) || 0;
-                    const qty = parseFloat(p.quantity) || 0;
-                    const rev = parseFloat(p.revenue) || 0;
-
-                    let statusBadge = '';
-                    if (isBought) {
-                        statusBadge = `<span class="badge-status badge-bought"><i class="fa-solid fa-check"></i> Куплено</span>`;
-                    } else if (stock > 0) {
-                        statusBadge = `<span class="badge-status badge-avail"><i class="fa-solid fa-box"></i> На складі</span>`;
-                    } else {
-                        statusBadge = `<span class="badge-status badge-nostock">Під замовлення</span>`;
-                    }
-
-                    html += `
-                        <tr style="${isBought ? 'background:#f0fdf4;' : ''}">
-                            <td style="font-family:monospace; font-weight:600; color:var(--text-muted);">${p.product_code}</td>
-                            <td style="font-weight:600;">${p.product_name}</td>
-                            <td style="color:var(--text-muted); font-size:12px;">${p.standard || '—'}</td>
-                            <td style="text-align:right; font-weight:${stock > 0 ? '700' : '400'}; color:${stock > 0 ? 'var(--text-main)' : 'var(--text-muted)'};">
-                                ${stock > 0 ? fmtQty(stock) + ' т' : '0 т'}
-                            </td>
-                            <td style="text-align:center;">${statusBadge}</td>
-                            <td style="text-align:right; font-weight:600; color:${qty > 0 ? '#047857' : 'inherit'};">
-                                ${qty > 0 ? fmtQty(qty) + ' т' : '—'}
-                            </td>
-                            <td style="text-align:right; font-weight:700; color:${rev > 0 ? '#047857' : 'inherit'};">
-                                ${rev > 0 ? fmtCur(rev) : '—'}
-                            </td>
-                        </tr>`;
-                });
-
-                html += `</tbody></table>`;
-                bodyEl.innerHTML = html;
-
-            } catch (err) {
-                bodyEl.innerHTML = `
-                    <div class="state-container" style="color:var(--bad);">
-                        <i class="fa-solid fa-circle-exclamation"></i> Помилка завантаження товарів: ${err.message}
-                    </div>`;
-            }
+        // ─── SIZE DETAIL NAVIGATION ───
+        function openSizeDetail(sizeKey, displayLabel) {
+            const url = `/size-detail?token=${TOKEN}&code=${CLIENT_CODE}&size_key=${sizeKey}&year=${currentYear}`;
+            window.location.href = url;
         }
-
-        function closeDrillModal() {
-            document.getElementById('drillModal').style.display = 'none';
-        }
-
-        function handleModalBackdropClick(e) {
-            if (e.target.id === 'drillModal') {
-                closeDrillModal();
-            }
-        }
-
-        window.addEventListener('keydown', e => {
-            if (e.key === 'Escape') closeDrillModal();
-        });
+        window.openSizeDetail = openSizeDetail;
 
         // Initial Load
         loadMatrixData();

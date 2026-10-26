@@ -1,0 +1,1590 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UTSK — ABC-аналіз клієнтів (2011–2026)</title>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --border-color: #e2e8f0;
+            --border-hover: #cbd5e1;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --text-light: #94a3b8;
+            
+            --primary: #2563eb;
+            --primary-light: #eff6ff;
+            --primary-dark: #1d4ed8;
+            
+            --success: #10b981;
+            --success-light: #ecfdf5;
+            --warning: #f59e0b;
+            --warning-light: #fffbeb;
+            --danger: #ef4444;
+            --purple: #8b5cf6;
+            --purple-light: #f5f3ff;
+            --indigo: #6366f1;
+
+            /* ABC Category colors */
+            --cat-a1: #1d4ed8;
+            --cat-a2: #2563eb;
+            --cat-a3: #3b82f6;
+            --cat-b1: #059669;
+            --cat-b2: #10b981;
+            --cat-c1: #d97706;
+            --cat-c2: #94a3b8;
+
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+            --shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 24px;
+        }
+
+        .container {
+            max-width: 1480px;
+            margin: 0 auto;
+        }
+
+        /* Top Header */
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            background: var(--bg-card);
+            padding: 20px 24px;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .brand-block h1 {
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-subtitle {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .badge-version {
+            background: #e0f2fe;
+            color: #0369a1;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1px solid #bae6fd;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+
+        .btn-secondary {
+            background: #ffffff;
+            color: var(--text-main);
+            border-color: var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: #f1f5f9;
+            border-color: var(--border-hover);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #ffffff;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        /* Global Control Filter Bar */
+        .filter-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 16px 20px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .filter-label {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+        }
+
+        .pill-toggle {
+            display: inline-flex;
+            background: #f1f5f9;
+            padding: 4px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+        }
+
+        .pill-btn {
+            background: transparent;
+            border: none;
+            padding: 6px 14px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .pill-btn.active {
+            background: #ffffff;
+            color: var(--primary);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Top 3-Year Bento Side-by-Side Cards */
+        .bento-overview {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .overview-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            box-shadow: var(--shadow-card);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .overview-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .overview-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--border-color);
+        }
+
+        .overview-card.year-2026::before { background: linear-gradient(90deg, #2563eb, #60a5fa); }
+        .overview-card.year-2025::before { background: linear-gradient(90deg, #10b981, #34d399); }
+        .overview-card.year-2024::before { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+
+        .card-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .year-tag {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .period-tag {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 6px;
+            background: #f1f5f9;
+            color: var(--text-muted);
+        }
+
+        .card-main-val {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--text-main);
+            letter-spacing: -0.02em;
+            margin-bottom: 4px;
+        }
+
+        .card-sub-val {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 14px;
+        }
+
+        .metric-mini-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            padding-top: 14px;
+            border-top: 1px dashed var(--border-color);
+        }
+
+        .mini-stat {
+            background: #f8fafc;
+            padding: 8px 10px;
+            border-radius: var(--radius-sm);
+        }
+
+        .mini-stat-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-bottom: 2px;
+        }
+
+        .mini-stat-value {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        /* Navigation Tabs */
+        .tabs-nav {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 4px;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            padding: 10px 18px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-muted);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-main);
+            background: #f1f5f9;
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        /* Tab Content Panes */
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        /* Tables & Bento Cards */
+        .table-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: var(--shadow-card);
+            margin-bottom: 24px;
+        }
+
+        .table-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+        }
+
+        .table-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+        }
+
+        table.abc-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: left;
+        }
+
+        table.abc-table thead th {
+            background: #f8fafc;
+            color: var(--text-muted);
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border-color);
+            white-space: nowrap;
+        }
+
+        table.abc-table thead th.year-col-header {
+            text-align: center;
+            border-left: 2px solid var(--border-color);
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--text-main);
+            background: #f1f5f9;
+        }
+
+        table.abc-table tbody td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-main);
+            white-space: nowrap;
+        }
+
+        table.abc-table tbody tr:hover td {
+            background-color: #f8fafc;
+        }
+
+        table.abc-table tbody tr.row-total td {
+            background: #f8fafc;
+            font-weight: 800;
+            border-top: 2px solid var(--border-color);
+            border-bottom: none;
+            color: var(--primary-dark);
+        }
+
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+
+        .cat-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 24px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 800;
+            color: #ffffff;
+        }
+
+        .cat-a1 { background: var(--cat-a1); }
+        .cat-a2 { background: var(--cat-a2); }
+        .cat-a3 { background: var(--cat-a3); }
+        .cat-b1 { background: var(--cat-b1); }
+        .cat-b2 { background: var(--cat-b2); }
+        .cat-c1 { background: var(--cat-c1); }
+        .cat-c2 { background: var(--cat-c2); }
+
+        .share-bar-cell {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        .mini-progress {
+            width: 48px;
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 3px;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .mini-progress-fill {
+            height: 100%;
+            border-radius: 3px;
+        }
+
+        .border-left-divider {
+            border-left: 2px solid var(--border-color);
+        }
+
+        /* Charts Grid */
+        .charts-grid-2 {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .charts-grid-equal {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .chart-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            box-shadow: var(--shadow-card);
+            position: relative;
+        }
+
+        .chart-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .chart-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .chart-canvas-wrapper {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+
+        /* Info Alert Callout */
+        .info-callout {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: var(--radius-md);
+            padding: 14px 18px;
+            margin-top: 18px;
+            font-size: 12px;
+            color: #166534;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Modal Settings */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal-box {
+            background: #ffffff;
+            border-radius: var(--radius-lg);
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-body {
+            padding: 20px;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .modal-footer {
+            padding: 14px 20px;
+            background: #f8fafc;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        @media (max-width: 1100px) {
+            .bento-overview { grid-template-columns: 1fr; }
+            .charts-grid-2 { grid-template-columns: 1fr; }
+            .charts-grid-equal { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <!-- ====== 1. ШАПКА СТРАНИЦЫ ====== -->
+    <header class="page-header">
+        <div class="brand-block">
+            <h1>📊 ABC-аналіз клієнтів (2011–2026)</h1>
+            <div class="brand-subtitle">
+                ЮТСК | ТОВ «Південтрансбудкомплект» &bull; Like-for-Like (LFL) ретроспектива та перерахунок дефлятора
+            </div>
+        </div>
+        <div class="header-actions">
+            <span class="badge-version">Калібрування Excel 2026 (База 2.94)</span>
+            <button class="btn btn-secondary" onclick="exportTableToCSV()">📥 Експорт CSV</button>
+            <a href="/?token=utsk2026" class="btn btn-secondary">← На дашборд</a>
+        </div>
+    </header>
+
+    <!-- ====== 2. ПАНЕЛЬ ФИЛЬТРОВ И НАСТРОЕК ====== -->
+    <section class="filter-panel">
+        <!-- Горизонт анализа -->
+        <div class="filter-group">
+            <span class="filter-label">Горизонт:</span>
+            <div class="pill-toggle">
+                <button class="pill-btn active" id="btn-horizon-3y" onclick="setHorizon('3y')">3 роки (2024–2026)</button>
+                <button class="pill-btn" id="btn-horizon-all" onclick="setHorizon('all')">Усі роки (2011–2026)</button>
+            </div>
+        </div>
+
+        <!-- Переключатель периодов LFL -->
+        <div class="filter-group">
+            <span class="filter-label">Період (LFL):</span>
+            <div class="pill-toggle">
+                <button class="pill-btn" id="btn-period-6m" onclick="setPeriod('6m')">6 міс (01.01–30.06)</button>
+                <button class="pill-btn active" id="btn-period-9m" onclick="setPeriod('9m')">9 міс (01.01–30.09)</button>
+                <button class="pill-btn" id="btn-period-12m" onclick="setPeriod('12m')">12 міс (Повний рік)</button>
+            </div>
+        </div>
+
+        <!-- Режим отображения цен -->
+        <div class="filter-group">
+            <span class="filter-label">Режим цін:</span>
+            <div class="pill-toggle">
+                <button class="pill-btn active" id="btn-price-fact" onclick="setPriceMode('fact')">Факт (грн)</button>
+                <button class="pill-btn" id="btn-price-comp" onclick="setPriceMode('comp')">Порівнянні ціни</button>
+                <button class="pill-btn" id="btn-price-both" onclick="setPriceMode('both')">Обидва стовпці</button>
+            </div>
+        </div>
+
+        <button class="btn btn-primary" onclick="refreshAnalysisData()">🔄 Оновити</button>
+    </section>
+
+    <!-- ====== 3. BENTO-БЛОК СРАВНЕНИЯ 3-Х ЛЕТ (SIDE-BY-SIDE) ====== -->
+    <section class="bento-overview" id="bento-overview-cards">
+        <!-- Карточка 2026 -->
+        <div class="overview-card year-2026">
+            <div class="card-meta">
+                <span class="year-tag">2026</span>
+                <span class="period-tag" id="tag-period-2026">9 міс (Факт)</span>
+            </div>
+            <div class="card-main-val" id="kpi-rev-2026">—</div>
+            <div class="card-sub-val" id="kpi-comp-2026">Порівнянно: —</div>
+            <div class="metric-mini-grid">
+                <div class="mini-stat">
+                    <div class="mini-stat-label">Споживачів</div>
+                    <div class="mini-stat-value" id="kpi-clients-2026">—</div>
+                </div>
+                <div class="mini-stat">
+                    <div class="mini-stat-label" id="kpi-core-label-2026">Ядро A1..A3</div>
+                    <div class="mini-stat-value" id="kpi-core-2026">—</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Карточка 2025 -->
+        <div class="overview-card year-2025">
+            <div class="card-meta">
+                <span class="year-tag">2025</span>
+                <span class="period-tag" id="tag-period-2025">9 міс (LFL)</span>
+            </div>
+            <div class="card-main-val" id="kpi-rev-2025">—</div>
+            <div class="card-sub-val" id="kpi-comp-2025">Порівнянно: —</div>
+            <div class="metric-mini-grid">
+                <div class="mini-stat">
+                    <div class="mini-stat-label">Споживачів</div>
+                    <div class="mini-stat-value" id="kpi-clients-2025">—</div>
+                </div>
+                <div class="mini-stat">
+                    <div class="mini-stat-label">YoY до 2026</div>
+                    <div class="mini-stat-value" id="kpi-yoy-2025" style="color: var(--success); font-weight: 800;">—</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Карточка 2024 -->
+        <div class="overview-card year-2024">
+            <div class="card-meta">
+                <span class="year-tag">2024</span>
+                <span class="period-tag" id="tag-period-2024">9 міс (LFL)</span>
+            </div>
+            <div class="card-main-val" id="kpi-rev-2024">—</div>
+            <div class="card-sub-val" id="kpi-comp-2024">Порівнянно: —</div>
+            <div class="metric-mini-grid">
+                <div class="mini-stat">
+                    <div class="mini-stat-label">Споживачів</div>
+                    <div class="mini-stat-value" id="kpi-clients-2024">—</div>
+                </div>
+                <div class="mini-stat">
+                    <div class="mini-stat-label">База 2024</div>
+                    <div class="mini-stat-value" id="kpi-base-2024">—</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====== 4. НАВИГАЦИОННЫЕ ВКЛАДКИ ====== -->
+    <nav class="tabs-nav">
+        <button class="tab-btn active" onclick="switchTab('tab-summary')">📊 Зведений ABC-аналіз</button>
+        <button class="tab-btn" onclick="switchTab('tab-charts')">📈 Динаміка категорій</button>
+        <button class="tab-btn" onclick="switchTab('tab-industries')">🏗️ Галузевий розріз</button>
+        <button class="tab-btn" onclick="switchTab('tab-thresholds')">⚙️ Довідник меж та дефляторів</button>
+    </nav>
+
+    <!-- ====== ВКЛАДКА 1: СВОДНЫЙ ABC-АНАЛИЗ (КАНОНИЧЕСКАЯ ТАБЛИЦА) ====== -->
+    <div class="tab-pane active" id="tab-summary">
+        <div class="table-card">
+            <div class="table-card-header">
+                <div class="table-title">
+                    <span>📋 Порівняльна таблиця категорій A1…C2</span>
+                    <span id="table-period-badge" style="font-size: 11px; padding: 3px 8px; background: #e2e8f0; border-radius: 4px; color: var(--text-muted);">
+                        Зріз: 9 місяців (01.01–30.09)
+                    </span>
+                </div>
+                <span style="font-size: 12px; color: var(--text-muted);">Сортування: від преміум-сегментів до дрібних</span>
+            </div>
+
+            <div class="table-responsive">
+                <table class="abc-table" id="main-abc-table">
+                    <thead>
+                        <tr id="table-header-years">
+                            <!-- Генерируется динамически через renderTable() -->
+                        </tr>
+                        <tr id="table-header-subcols">
+                            <!-- Генерируется динамически -->
+                        </tr>
+                    </thead>
+                    <tbody id="table-abc-body">
+                        <!-- Строки A1..C2 и Итого -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="info-callout">
+                <span>💡</span>
+                <div id="info-callout-text">
+                    <strong>Контрольна верифікація (PostgreSQL):</strong> Завантаження даних з БД...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====== ВКЛАДКА 2: ГРАФИКИ И ВИЗУАЛИЗАЦИЯ ====== -->
+    <div class="tab-pane" id="tab-charts">
+        <div class="charts-grid-2">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <span class="chart-title">📊 Динаміка структури виручки за категоріями A1…C2</span>
+                    <span style="font-size: 11px; color: var(--text-muted);">Стекова діаграма (млн ₴)</span>
+                </div>
+                <div class="chart-canvas-wrapper">
+                    <canvas id="chart-stacked-revenue"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-header">
+                    <span class="chart-title">🍩 Частки категорій у виручці (2026)</span>
+                </div>
+                <div class="chart-canvas-wrapper">
+                    <canvas id="chart-donut-revenue"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="charts-grid-equal">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <span class="chart-title">👥 Розподіл кількості клієнтів за категоріями</span>
+                </div>
+                <div class="chart-canvas-wrapper">
+                    <canvas id="chart-donut-clients"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-header">
+                    <span class="chart-title">⚖️ Порівняння номінальної виручки та обсягу в цінах 2026 р.</span>
+                </div>
+                <div class="chart-canvas-wrapper">
+                    <canvas id="chart-compare-deflator"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====== ВКЛАДКА 3: ОТРАСЛЕВОЙ СРЕЗ (ЛИСТ 2 EXCEL) ====== -->
+    <div class="tab-pane" id="tab-industries">
+        <div class="table-card">
+            <div class="table-card-header">
+                <div class="table-title">🏗️ Галузевий розріз продажів металопрокату</div>
+                <span style="font-size: 12px; color: var(--text-muted);">Дані зі зведеної матриці галузей та напрямків діяльності</span>
+            </div>
+
+            <div class="charts-grid-2" id="industry-charts-grid" style="margin-bottom: 24px;">
+                <div class="chart-card" style="border: none; padding: 0; box-shadow: none;">
+                    <div class="chart-canvas-wrapper" style="height: 280px;">
+                        <canvas id="chart-industry-bar"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card" style="border: none; padding: 0; box-shadow: none;">
+                    <div class="chart-canvas-wrapper" style="height: 280px;">
+                        <canvas id="chart-industry-donut"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="abc-table">
+                    <thead>
+                        <tr>
+                            <th>Галузева категорія</th>
+                            <th class="text-right">Виручка (факт, грн)</th>
+                            <th class="text-right">Порівнянно (грн)</th>
+                            <th class="text-right">Клієнтів</th>
+                            <th class="text-right">Частка в обороті (%)</th>
+                            <th class="text-right">Середній чек на фірму</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-industry-body">
+                        <!-- Заполняется JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====== ВКЛАДКА 4: СПРАВОЧНИК ГРАНИЦ И ДЕФЛЯТОРОВ ====== -->
+    <div class="tab-pane" id="tab-thresholds">
+        <div class="table-card">
+            <div class="table-card-header">
+                <div class="table-title">⚙️ Довідник порогів категорій `abc_thresholds`</div>
+                <button class="btn btn-secondary" onclick="openThresholdModal()">+ Калібрувати пороги</button>
+            </div>
+            
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
+                Пороги калібруються у національній валюті (₴) для кожного календарного року з урахуванням фактичних темпів інфляції цін металопрокату.
+            </p>
+
+            <div class="table-responsive">
+                <table class="abc-table">
+                    <thead>
+                        <tr>
+                            <th>Рік</th>
+                            <th>Категорія</th>
+                            <th class="text-right">Нижня межа (min)</th>
+                            <th class="text-right">Верхня межа (max)</th>
+                            <th class="text-right">Індекс цін (дефлятор)</th>
+                            <th>Статус калібрування</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-thresholds-body">
+                        <!-- Заполняется JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ====== МОДАЛЬНОЕ ОКНО КАЛИБРОВКИ ====== -->
+<div class="modal-overlay" id="threshold-modal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3 style="font-size: 15px; font-weight: 700;">⚙️ Калібрування порогів ABC та індексів цін</h3>
+            <button style="border: none; background: transparent; font-size: 18px; cursor: pointer;" onclick="closeThresholdModal()">✕</button>
+        </div>
+        <div class="modal-body">
+            <div style="margin-bottom: 14px;">
+                <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 6px;">Рік застосування:</label>
+                <input type="number" id="inp-modal-year" value="2026" style="width: 100%; padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 6px;">
+            </div>
+            <div style="margin-bottom: 14px;">
+                <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 6px;">Дефлятор цін (Базовий індекс):</label>
+                <input type="number" step="0.01" id="inp-modal-index" value="2.94" style="width: 100%; padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 6px;">
+            </div>
+            <div style="font-size: 12px; color: var(--text-muted);">
+                * Внесені зміни автоматично оновлять формулу перерахунку у таблиці `abc_thresholds`.
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeThresholdModal()">Скасувати</button>
+            <button class="btn btn-primary" onclick="saveThresholds()">Зберегти зміни</button>
+        </div>
+    </div>
+</div>
+
+<script>
+/**
+ * --------------------------------------------------------------------------
+ * ЖИВЫЕ ДАННЫЕ БД POSTGRESQL И СИСТЕМА УПРАВЛЕНИЯ ABC-АНАЛИЗОМ
+ * --------------------------------------------------------------------------
+ */
+const TOKEN = "utsk2026";
+
+// Текущее состояние страницы
+let appState = {
+    year: 2026,
+    horizon: '3y',     // '3y' | 'all'
+    period: '9m',      // '6m' | '9m' | '12m'
+    priceMode: 'fact', // 'fact' | 'comp' | 'both'
+    charts: {}
+};
+
+// Глобальная переменная с реальными данными из API PostgreSQL (MOCK_DATASET удален)
+let liveData = null;
+
+/**
+ * --------------------------------------------------------------------------
+ * ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ФОРМАТИРОВАНИЯ
+ * --------------------------------------------------------------------------
+ */
+function formatMoney(amount) {
+    if (amount === null || amount === undefined) return '0 ₴';
+    return Math.round(amount).toLocaleString('uk-UA') + ' ₴';
+}
+
+function formatMln(amount) {
+    if (!amount) return '0.00 млн ₴';
+    return (amount / 1000000).toFixed(2) + ' млн ₴';
+}
+
+function formatNum(num) {
+    if (!num) return '0';
+    return Number(num).toLocaleString('uk-UA');
+}
+
+/**
+ * --------------------------------------------------------------------------
+ * ЗАГРУЗКА ДАННЫХ ИЗ API POSTGRESQL
+ * --------------------------------------------------------------------------
+ */
+async function loadDataFromAPI(year = appState.year, period = appState.period) {
+    try {
+        const url = `/api/abc-analysis?year=${year}&period=${period}&price_mode=${appState.priceMode}&token=${TOKEN}`;
+        const resp = await fetch(url);
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const json = await resp.json();
+        if (json.status === "ok") {
+            liveData = json;
+            renderBentoOverview(liveData);
+            renderTable(liveData);
+            renderCharts(liveData);
+            renderIndustries(liveData);
+            renderThresholds(liveData);
+        }
+    } catch (e) {
+        console.error("Помилка завантаження даних з API /api/abc-analysis:", e);
+        const tbody = document.getElementById('table-abc-body');
+        if (tbody) {
+            tbody.innerHTML = '<tr><td colspan="14" class="text-center">Немає даних для відображення</td></tr>';
+        }
+    }
+}
+
+/**
+ * --------------------------------------------------------------------------
+ * ИНИЦИАЛИЗАЦИЯ И РЕНДЕРИНГ СТРАНИЦЫ
+ * --------------------------------------------------------------------------
+ */
+document.addEventListener("DOMContentLoaded", function () {
+    updatePeriodBadge();
+    loadDataFromAPI(appState.year, appState.period);
+});
+
+// Переключение горизонта (3 года / Все годы)
+function setHorizon(val) {
+    appState.horizon = val;
+    document.getElementById('btn-horizon-3y').classList.toggle('active', val === '3y');
+    document.getElementById('btn-horizon-all').classList.toggle('active', val === 'all');
+    loadDataFromAPI(appState.year, appState.period);
+}
+
+// Переключение периода Like-for-Like (6m, 9m, 12m)
+function setPeriod(p) {
+    appState.period = p;
+    document.getElementById('btn-period-6m').classList.toggle('active', p === '6m');
+    document.getElementById('btn-period-9m').classList.toggle('active', p === '9m');
+    document.getElementById('btn-period-12m').classList.toggle('active', p === '12m');
+
+    updatePeriodBadge();
+    loadDataFromAPI(appState.year, p);
+}
+
+// Переключение режима цен
+function setPriceMode(mode) {
+    appState.priceMode = mode;
+    document.getElementById('btn-price-fact').classList.toggle('active', mode === 'fact');
+    document.getElementById('btn-price-comp').classList.toggle('active', mode === 'comp');
+    document.getElementById('btn-price-both').classList.toggle('active', mode === 'both');
+    if (liveData) {
+        renderTable(liveData);
+    } else {
+        loadDataFromAPI(appState.year, appState.period);
+    }
+}
+
+function updatePeriodBadge() {
+    const labels = {
+        '6m': 'Зріз: 6 місяців (01.01–30.06)',
+        '9m': 'Зріз: 9 місяців (01.01–30.09) [Базовий]',
+        '12m': 'Зріз: 12 місяців (Повний календарний рік)'
+    };
+    const shortLabels = {
+        '6m': '6 міс',
+        '9m': '9 міс',
+        '12m': '12 міс'
+    };
+    const pShort = shortLabels[appState.period] || appState.period;
+    document.getElementById('table-period-badge').innerText = labels[appState.period];
+    document.getElementById('tag-period-2026').innerText = appState.period === '12m' ? 'YTD / Доступно в БД' : pShort + ' (Факт)';
+    document.getElementById('tag-period-2025').innerText = pShort + ' (LFL)';
+    document.getElementById('tag-period-2024').innerText = pShort + ' (LFL)';
+}
+
+/**
+ * Рендеринг верхних Bento-карточек
+ */
+function renderBentoOverview(data = liveData) {
+    if (!data || !data.years_data) return;
+    const curDataset = data.years_data;
+
+    const revByYear = {};
+    const idxByYear = {};
+
+    ['2026', '2025', '2024'].forEach(year => {
+        const yData = curDataset[year] || { price_index: 1.0, categories: [] };
+        let totalRev = 0;
+        let totalClients = 0;
+        let coreRev = 0;
+        let coreClients = 0;
+
+        yData.categories.forEach(c => {
+            totalRev += c.sum;
+            totalClients += c.count;
+            if (['A1', 'A2', 'A3'].includes(c.cat)) {
+                coreRev += c.sum;
+                coreClients += c.count;
+            }
+        });
+
+        revByYear[year] = totalRev;
+        idxByYear[year] = yData.price_index;
+
+        const compRev = Math.round(totalRev / yData.price_index);
+        const coreShare = totalRev > 0 ? ((coreRev / totalRev) * 100).toFixed(1) : 0;
+
+        document.getElementById(`kpi-rev-${year}`).innerText = formatMln(totalRev);
+        document.getElementById(`kpi-comp-${year}`).innerText = `Порівнянно: ${formatMln(compRev)} (Індекс ${yData.price_index.toFixed(2)})`;
+        document.getElementById(`kpi-clients-${year}`).innerText = `${formatNum(totalClients)} контрагентів`;
+
+        if (year === '2026') {
+            const coreLabelEl = document.getElementById('kpi-core-label-2026');
+            if (coreLabelEl) coreLabelEl.innerText = `Ядро A1..A3 (${coreClients} ф.)`;
+            document.getElementById('kpi-core-2026').innerText = `${formatMln(coreRev)} (${coreShare}%)`;
+        }
+    });
+
+    const yoyEl = document.getElementById('kpi-yoy-2025');
+    if (yoyEl) {
+        if (revByYear['2025'] > 0) {
+            const diffPct = (((revByYear['2026'] - revByYear['2025']) / revByYear['2025']) * 100).toFixed(1);
+            const sign = diffPct > 0 ? '+' : '';
+            yoyEl.innerText = `${sign}${diffPct}% (факт)`;
+            yoyEl.style.color = diffPct >= 0 ? 'var(--success)' : 'var(--danger)';
+        } else {
+            yoyEl.innerText = 'Немає даних';
+        }
+    }
+
+    const base24El = document.getElementById('kpi-base-2024');
+    if (base24El && idxByYear['2024'] > 0) {
+        const inflPct = (((idxByYear['2025'] - idxByYear['2024']) / idxByYear['2024']) * 100).toFixed(1);
+        const sign = inflPct > 0 ? '+' : '';
+        base24El.innerText = `Індекс ${sign}${inflPct}% до 2025`;
+    }
+}
+
+/**
+ * Рендеринг канонической таблицы ABC
+ */
+function renderTable(data = liveData) {
+    if (!data || !data.years_data) return;
+    const curDataset = data.years_data;
+    const years = appState.horizon === '3y' ? ['2026', '2025', '2024'] : ['2026', '2025', '2024'];
+
+    // Формирование шапки
+    const headRowYears = document.getElementById('table-header-years');
+    const headRowSub = document.getElementById('table-header-subcols');
+
+    let htmlYears = '<th rowspan="2" style="width: 50px;">Код</th><th rowspan="2" style="min-width: 140px;">Категорія</th>';
+    let htmlSub = '';
+
+    years.forEach(y => {
+        let colsSpan = 3;
+        if (appState.priceMode === 'both') colsSpan = 4;
+
+        const idx = (curDataset[y] ? curDataset[y].price_index : 1.0).toFixed(2);
+        htmlYears += `<th colspan="${colsSpan}" class="year-col-header">${y} рік (Індекс ${idx})</th>`;
+
+        if (appState.priceMode === 'fact') {
+            htmlSub += '<th class="text-right border-left-divider">Виручка факт (₴)</th>';
+        } else if (appState.priceMode === 'comp') {
+            htmlSub += '<th class="text-right border-left-divider">Порівнянно (₴)</th>';
+        } else {
+            htmlSub += '<th class="text-right border-left-divider">Факт (₴)</th>';
+            htmlSub += '<th class="text-right">Порівнянно (₴)</th>';
+        }
+        htmlSub += '<th class="text-right">Клієнтів</th>';
+        htmlSub += '<th class="text-right">Частка %</th>';
+    });
+
+    headRowYears.innerHTML = htmlYears;
+    headRowSub.innerHTML = htmlSub;
+
+    // Рассчитываем итоговые суммы для каждого года для процентов
+    const totalsByYear = {};
+    years.forEach(y => {
+        let s = 0, c = 0;
+        const yObj = curDataset[y] || { price_index: 1.0, categories: [] };
+        yObj.categories.forEach(cat => {
+            s += cat.sum;
+            c += cat.count;
+        });
+        totalsByYear[y] = { sum: s, count: c, compSum: s / yObj.price_index };
+    });
+
+    // Формирование строк A1..C2
+    const tbody = document.getElementById('table-abc-body');
+    const categoriesList = ['A1', 'A2', 'A3', 'B1', 'B2', 'C1', 'C2'];
+    let rowsHtml = '';
+
+    categoriesList.forEach(catCode => {
+        rowsHtml += `<tr>
+            <td><span class="cat-badge cat-${catCode.toLowerCase()}">${catCode}</span></td>
+            <td><strong>${getCatDescription(catCode)}</strong></td>`;
+
+        years.forEach(y => {
+            const yObj = curDataset[y] || { price_index: 1.0, categories: [] };
+            const rowData = yObj.categories.find(c => c.cat === catCode) || { sum: 0, count: 0 };
+            const compSum = rowData.sum / yObj.price_index;
+            const revShare = totalsByYear[y].sum > 0 ? ((rowData.sum / totalsByYear[y].sum) * 100).toFixed(1) : '0.0';
+
+            // Цвет прогресс-бара
+            const barColor = getCatColor(catCode);
+
+            if (appState.priceMode === 'fact') {
+                rowsHtml += `<td class="text-right border-left-divider" style="font-weight: 600;">${formatMoney(rowData.sum)}</td>`;
+            } else if (appState.priceMode === 'comp') {
+                rowsHtml += `<td class="text-right border-left-divider" style="font-weight: 600; color: var(--primary);">${formatMoney(compSum)}</td>`;
+            } else {
+                rowsHtml += `<td class="text-right border-left-divider">${formatMoney(rowData.sum)}</td>`;
+                rowsHtml += `<td class="text-right" style="color: var(--primary);">${formatMoney(compSum)}</td>`;
+            }
+
+            rowsHtml += `<td class="text-right">${formatNum(rowData.count)}</td>`;
+            rowsHtml += `<td class="text-right">
+                <div class="share-bar-cell">
+                    <span>${revShare}%</span>
+                    <div class="mini-progress">
+                        <div class="mini-progress-fill" style="width: ${Math.min(revShare * 2, 100)}%; background: ${barColor};"></div>
+                    </div>
+                </div>
+            </td>`;
+        });
+
+        rowsHtml += `</tr>`;
+    });
+
+    // Строка УСЬОГО
+    rowsHtml += `<tr class="row-total">
+        <td>∑</td>
+        <td>УСЬОГО</td>`;
+
+    years.forEach(y => {
+        const t = totalsByYear[y];
+        if (appState.priceMode === 'fact') {
+            rowsHtml += `<td class="text-right border-left-divider">${formatMoney(t.sum)}</td>`;
+        } else if (appState.priceMode === 'comp') {
+            rowsHtml += `<td class="text-right border-left-divider">${formatMoney(t.compSum)}</td>`;
+        } else {
+            rowsHtml += `<td class="text-right border-left-divider">${formatMoney(t.sum)}</td>`;
+            rowsHtml += `<td class="text-right">${formatMoney(t.compSum)}</td>`;
+        }
+        rowsHtml += `<td class="text-right">${formatNum(t.count)}</td>`;
+        rowsHtml += `<td class="text-right">100.0%</td>`;
+    });
+
+    rowsHtml += `</tr>`;
+    tbody.innerHTML = rowsHtml;
+
+    // Обновляем информационный блок реальными цифрами из БД
+    const calloutEl = document.getElementById('info-callout-text');
+    if (calloutEl && curDataset['2026']) {
+        const a1Row = curDataset['2026'].categories.find(c => c.cat === 'A1') || { sum: 0, count: 0 };
+        const t26 = totalsByYear['2026'] || { sum: 0, count: 0 };
+        calloutEl.innerHTML = `<strong>Дані PostgreSQL (активні клієнти 2026, зріз ${appState.period}):</strong> категорія <strong>A1</strong> становить <strong>${formatMoney(a1Row.sum)}</strong> (${formatNum(a1Row.count)} фірм), а загальний обсяг продажів активних клієнтів — <strong>${formatMoney(t26.sum)}</strong> (${formatNum(t26.count)} контрагентів).`;
+    }
+}
+
+function getCatDescription(code) {
+    const map = {
+        'A1': 'A1 (≥ 3 млн ₴)',
+        'A2': 'A2 (2–3 млн ₴)',
+        'A3': 'A3 (1.5–2 млн ₴)',
+        'B1': 'B1 (1–1.5 млн ₴)',
+        'B2': 'B2 (500 тис–1 млн ₴)',
+        'C1': 'C1 (150–500 тис ₴)',
+        'C2': 'C2 (0–150 тис ₴)'
+    };
+    return map[code] || code;
+}
+
+function getCatColor(code) {
+    const map = {
+        'A1': '#1d4ed8', 'A2': '#2563eb', 'A3': '#3b82f6',
+        'B1': '#059669', 'B2': '#10b981',
+        'C1': '#d97706', 'C2': '#94a3b8'
+    };
+    return map[code] || '#64748b';
+}
+
+/**
+ * --------------------------------------------------------------------------
+ * ГРАФИКИ CHART.JS
+ * --------------------------------------------------------------------------
+ */
+function renderCharts(data = liveData) {
+    if (!data || !data.years_data) return;
+    const curDataset = data.years_data;
+    const categoriesList = ['A1', 'A2', 'A3', 'B1', 'B2', 'C1', 'C2'];
+    const years = ['2024', '2025', '2026'];
+
+    // 1. Stacked Bar Chart: Динамика выручки по категориям
+    const ctxStacked = document.getElementById('chart-stacked-revenue').getContext('2d');
+    if (appState.charts.stacked) appState.charts.stacked.destroy();
+
+    const datasetsStacked = categoriesList.map(cat => {
+        return {
+            label: cat,
+            data: years.map(y => {
+                const yObj = curDataset[y] || { categories: [] };
+                const item = yObj.categories.find(c => c.cat === cat);
+                return item ? Math.round(item.sum / 1000000) : 0;
+            }),
+            backgroundColor: getCatColor(cat)
+        };
+    });
+
+    appState.charts.stacked = new Chart(ctxStacked, {
+        type: 'bar',
+        data: {
+            labels: years.map(y => `${y} (${appState.period})`),
+            datasets: datasetsStacked
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { stacked: true },
+                y: {
+                    stacked: true,
+                    ticks: {
+                        callback: val => val + 'M ₴'
+                    }
+                }
+            },
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+
+    // 2. Donut: Структура выручки 2026
+    const ctxDonutRev = document.getElementById('chart-donut-revenue').getContext('2d');
+    if (appState.charts.donutRev) appState.charts.donutRev.destroy();
+
+    const rev2026 = (curDataset['2026'] && curDataset['2026'].categories) ? curDataset['2026'].categories : [];
+    appState.charts.donutRev = new Chart(ctxDonutRev, {
+        type: 'doughnut',
+        data: {
+            labels: rev2026.map(c => c.cat),
+            datasets: [{
+                data: rev2026.map(c => c.sum),
+                backgroundColor: rev2026.map(c => getCatColor(c.cat))
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'right' }
+            }
+        }
+    });
+
+    // 3. Donut: Структура клиентов 2026
+    const ctxDonutCli = document.getElementById('chart-donut-clients').getContext('2d');
+    if (appState.charts.donutCli) appState.charts.donutCli.destroy();
+
+    appState.charts.donutCli = new Chart(ctxDonutCli, {
+        type: 'doughnut',
+        data: {
+            labels: rev2026.map(c => c.cat),
+            datasets: [{
+                data: rev2026.map(c => c.count),
+                backgroundColor: rev2026.map(c => getCatColor(c.cat))
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'right' }
+            }
+        }
+    });
+
+    // 4. Bar: Сравнение Номинала и Сопоставимых цен
+    const ctxComp = document.getElementById('chart-compare-deflator').getContext('2d');
+    if (appState.charts.compare) appState.charts.compare.destroy();
+
+    const factSums = years.map(y => {
+        const yObj = curDataset[y] || { categories: [] };
+        return yObj.categories.reduce((acc, c) => acc + c.sum, 0) / 1000000;
+    });
+
+    const compSums = years.map(y => {
+        const yObj = curDataset[y] || { price_index: 1.0, categories: [] };
+        const fact = yObj.categories.reduce((acc, c) => acc + c.sum, 0);
+        return (fact / yObj.price_index) / 1000000;
+    });
+
+    appState.charts.compare = new Chart(ctxComp, {
+        type: 'bar',
+        data: {
+            labels: years,
+            datasets: [
+                {
+                    label: 'Номінальна виручка (факт, млн ₴)',
+                    data: factSums,
+                    backgroundColor: '#3b82f6'
+                },
+                {
+                    label: 'У порівнянних цінах (дефлятор, млн ₴)',
+                    data: compSums,
+                    backgroundColor: '#10b981'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+}
+
+/**
+ * --------------------------------------------------------------------------
+ * ГАЛУЗЕВИЙ РОЗРІЗ (ВКЛАДКА 3)
+ * --------------------------------------------------------------------------
+ */
+function renderIndustries(data = liveData) {
+    const tbody = document.getElementById('table-industry-body');
+    const chartsContainer = document.getElementById('industry-charts-grid');
+    const industries = (data && Array.isArray(data.industries)) ? data.industries : [];
+
+    if (appState.charts.indBar) {
+        appState.charts.indBar.destroy();
+        appState.charts.indBar = null;
+    }
+    if (appState.charts.indDonut) {
+        appState.charts.indDonut.destroy();
+        appState.charts.indDonut = null;
+    }
+
+    if (!industries.length) {
+        if (chartsContainer) chartsContainer.style.display = 'none';
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center">Немає даних для відображення</td></tr>';
+        return;
+    }
+
+    if (chartsContainer) chartsContainer.style.display = '';
+
+    const totalRev = (data && data.total_industries_sum) ? data.total_industries_sum : industries.reduce((acc, i) => acc + i.sum, 0);
+    const totalClients = (data && data.total_industries_clients) ? data.total_industries_clients : industries.reduce((acc, i) => acc + i.clients, 0);
+    const deflator = (data && data.price_index) ? data.price_index : 2.9400;
+
+    let html = '';
+    industries.forEach(ind => {
+        const compSum = ind.sum / deflator;
+        const share = totalRev > 0 ? ((ind.sum / totalRev) * 100).toFixed(1) : '0.0';
+        const avgCheck = ind.avg_check !== undefined ? ind.avg_check : (ind.clients > 0 ? ind.sum / ind.clients : 0);
+        const iconPrefix = ind.icon ? `${ind.icon} ` : '';
+
+        html += `<tr>
+            <td><strong>${iconPrefix}${ind.name}</strong></td>
+            <td class="text-right">${formatMoney(ind.sum)}</td>
+            <td class="text-right" style="color: var(--primary);">${formatMoney(compSum)}</td>
+            <td class="text-right">${formatNum(ind.clients)}</td>
+            <td class="text-right"><strong>${share}%</strong></td>
+            <td class="text-right">${formatMoney(avgCheck)}</td>
+        </tr>`;
+    });
+
+    const totalCompSum = totalRev / deflator;
+    const totalAvgCheck = totalClients > 0 ? totalRev / totalClients : 0;
+    html += `<tr class="row-total">
+        <td>∑ УСЬОГО</td>
+        <td class="text-right">${formatMoney(totalRev)}</td>
+        <td class="text-right">${formatMoney(totalCompSum)}</td>
+        <td class="text-right">${formatNum(totalClients)}</td>
+        <td class="text-right">100.0%</td>
+        <td class="text-right">${formatMoney(totalAvgCheck)}</td>
+    </tr>`;
+
+    tbody.innerHTML = html;
+
+    const palette = [
+        '#2563eb', '#10b981', '#f59e0b', '#8b5cf6', '#06b6d4',
+        '#ec4899', '#14b8a6', '#f97316', '#6366f1', '#84cc16',
+        '#0ea5e9', '#a855f7', '#eab308', '#64748b'
+    ];
+
+    const ctxBar = document.getElementById('chart-industry-bar').getContext('2d');
+    appState.charts.indBar = new Chart(ctxBar, {
+        type: 'bar',
+        data: {
+            labels: industries.map(i => i.name),
+            datasets: [{
+                label: 'Виручка (млн ₴)',
+                data: industries.map(i => Number((i.sum / 1000000).toFixed(2))),
+                backgroundColor: '#2563eb'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    const ctxDonut = document.getElementById('chart-industry-donut').getContext('2d');
+    appState.charts.indDonut = new Chart(ctxDonut, {
+        type: 'doughnut',
+        data: {
+            labels: industries.map(i => i.name),
+            datasets: [{
+                data: industries.map(i => i.sum),
+                backgroundColor: industries.map((_, idx) => palette[idx % palette.length])
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'right' } }
+        }
+    });
+}
+
+/**
+ * --------------------------------------------------------------------------
+ * СПРАВОЧНИК ПОРОГОВ (ВКЛАДКА 4)
+ * --------------------------------------------------------------------------
+ */
+function renderThresholds(data = liveData) {
+    const tbody = document.getElementById('table-thresholds-body');
+    const thresholds = (data && Array.isArray(data.thresholds)) ? data.thresholds : [];
+
+    if (!thresholds.length) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center">Немає даних для відображення</td></tr>';
+        return;
+    }
+
+    let html = '';
+    thresholds.forEach(t => {
+        const minStr = formatMoney(t.min);
+        const maxStr = t.max ? formatMoney(t.max) : 'Без обмежень (∞)';
+
+        html += `<tr>
+            <td><strong>${t.year}</strong></td>
+            <td><span class="cat-badge cat-${t.category.toLowerCase()}">${t.category}</span></td>
+            <td class="text-right">${minStr}</td>
+            <td class="text-right">${maxStr}</td>
+            <td class="text-right"><strong>${Number(t.index).toFixed(4)}</strong></td>
+            <td><span style="color: var(--success); font-weight: 600;">✓ Таблиця abc_thresholds</span></td>
+        </tr>`;
+    });
+
+    tbody.innerHTML = html;
+}
+
+/**
+ * --------------------------------------------------------------------------
+ * ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК
+ * --------------------------------------------------------------------------
+ */
+function switchTab(tabId) {
+    document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+    document.getElementById(tabId).classList.add('active');
+    if (typeof event !== 'undefined' && event && event.currentTarget) {
+        event.currentTarget.classList.add('active');
+    }
+
+    // Если открыли графики — вызываем resize для Chart.js
+    if (tabId === 'tab-charts' || tabId === 'tab-industries') {
+        window.dispatchEvent(new Event('resize'));
+    }
+}
+
+/**
+ * --------------------------------------------------------------------------
+ * ЭКСПОРТ В CSV
+ * --------------------------------------------------------------------------
+ */
+function exportTableToCSV() {
+    if (!liveData || !liveData.years_data) return;
+    const curDataset = liveData.years_data;
+    let csv = `Категорія;Виручка 2026 (грн);Клієнтів 2026;Виручка 2025 (грн);Клієнтів 2025;Виручка 2024 (грн);Клієнтів 2024\n`;
+
+    const categoriesList = ['A1', 'A2', 'A3', 'B1', 'B2', 'C1', 'C2'];
+    categoriesList.forEach(c => {
+        const row26 = (curDataset['2026']?.categories || []).find(x => x.cat === c) || { sum: 0, count: 0 };
+        const row25 = (curDataset['2025']?.categories || []).find(x => x.cat === c) || { sum: 0, count: 0 };
+        const row24 = (curDataset['2024']?.categories || []).find(x => x.cat === c) || { sum: 0, count: 0 };
+
+        csv += `${c};${row26.sum};${row26.count};${row25.sum};${row25.count};${row24.sum};${row24.count}\n`;
+    });
+
+    const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.setAttribute("download", `UTSK_ABC_Analysis_${appState.period}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+/**
+ * --------------------------------------------------------------------------
+ * РАБОТА С МОДАЛЬНЫМ ОКНОМ
+ * --------------------------------------------------------------------------
+ */
+function openThresholdModal() {
+    document.getElementById('threshold-modal').classList.add('show');
+}
+
+function closeThresholdModal() {
+    document.getElementById('threshold-modal').classList.remove('show');
+}
+
+async function saveThresholds() {
+    const yearVal = parseInt(document.getElementById('inp-modal-year').value, 10);
+    const indexVal = parseFloat(document.getElementById('inp-modal-index').value);
+    try {
+        const resp = await fetch(`/api/abc-analysis/thresholds?token=${TOKEN}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ year: yearVal, price_index: indexVal })
+        });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        closeThresholdModal();
+        await loadDataFromAPI(appState.year, appState.period);
+    } catch (e) {
+        console.error("Помилка збереження порогів:", e);
+    }
+}
+
+/**
+ * --------------------------------------------------------------------------
+ * СИНХРОНИЗАЦИЯ С СЕРВЕРОМ FASTAPI
+ * --------------------------------------------------------------------------
+ */
+async function refreshAnalysisData() {
+    await loadDataFromAPI(appState.year, appState.period);
+}
+</script>
+
+</body>
+</html>

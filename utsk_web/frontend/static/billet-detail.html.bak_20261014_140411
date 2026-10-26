@@ -1,0 +1,1254 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UTSK — Розрахунок профілювання заготовки (ВНІТІ)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --primary-soft: #eff6ff;
+            --primary-border: #bfdbfe;
+            --bg-app: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --border-light: #f1f5f9;
+            --success: #16a34a;
+            --success-soft: #dcfce7;
+            --success-border: #86efac;
+            --danger: #dc2626;
+            --danger-soft: #fee2e2;
+            --danger-border: #fca5a5;
+            --warning: #f59e0b;
+            --warning-soft: #fef3c7;
+            --warning-border: #fcd34d;
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius: 16px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.05);
+            --shadow-lg: 0 10px 25px -5px rgba(0,0,0,0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background: var(--bg-app);
+            color: var(--text-main);
+            line-height: 1.5;
+            padding: 24px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* ─── Breadcrumbs & Header ─── */
+        .breadcrumbs {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13.5px;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+        }
+
+        .breadcrumbs a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.15s;
+        }
+
+        .breadcrumbs a:hover {
+            color: var(--primary);
+        }
+
+        .breadcrumbs .sep {
+            color: #cbd5e1;
+            font-size: 11px;
+        }
+
+        .breadcrumbs .current {
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .top-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-card);
+            padding: 22px 28px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 24px;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .header-title-area {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .header-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            background: var(--primary-soft);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            border: 1px solid var(--primary-border);
+            flex-shrink: 0;
+        }
+
+        .header-text h1 {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .header-meta {
+            font-size: 13.5px;
+            color: var(--text-muted);
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #f1f5f9;
+            color: var(--text-main);
+            text-decoration: none;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 13.5px;
+            transition: all 0.2s ease;
+            border: 1px solid var(--border);
+        }
+
+        .back-btn:hover {
+            background: #e2e8f0;
+            transform: translateX(-2px);
+        }
+
+        /* ─── Cards & Sections ─── */
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .card-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-title i {
+            color: var(--primary);
+            font-size: 18px;
+        }
+
+        .card-subtitle {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* ─── KPI Grids ─── */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+        }
+
+        .kpi-card {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 16px 18px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.15s ease, border-color 0.15s ease;
+        }
+
+        .kpi-card:hover {
+            border-color: #cbd5e1;
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .kpi-value {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--text-main);
+            font-family: 'JetBrains Mono', monospace;
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+        }
+
+        .kpi-unit {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-muted);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .kpi-footer {
+            margin-top: 8px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* ─── Badges ─── */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: var(--success-soft);
+            color: var(--success);
+            border: 1px solid var(--success-border);
+        }
+
+        .badge-danger {
+            background: var(--danger-soft);
+            color: var(--danger);
+            border: 1px solid var(--danger-border);
+        }
+
+        .badge-warning {
+            background: var(--warning-soft);
+            color: #b45309;
+            border: 1px solid var(--warning-border);
+        }
+
+        .badge-neutral {
+            background: #f1f5f9;
+            color: #475569;
+            border: 1px solid #cbd5e1;
+        }
+
+        .badge-primary {
+            background: var(--primary-soft);
+            color: var(--primary);
+            border: 1px solid var(--primary-border);
+        }
+
+        /* ─── Tabs ─── */
+        .tab-nav {
+            display: flex;
+            gap: 8px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            padding: 8px 18px;
+            border-radius: 8px;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-main);
+            background: #f1f5f9;
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            background: var(--primary-soft);
+            border-color: var(--primary-border);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* ─── Table ─── */
+        .table-responsive {
+            overflow-x: auto;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+        }
+
+        .sizes-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13.5px;
+            text-align: left;
+        }
+
+        .sizes-table th {
+            background: #f8fafc;
+            padding: 12px 16px;
+            font-weight: 600;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+
+        .sizes-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-light);
+            vertical-align: middle;
+            color: var(--text-main);
+        }
+
+        .sizes-table tbody tr {
+            transition: background 0.12s ease;
+        }
+
+        .sizes-table tbody tr:hover {
+            background: #f8fafc;
+            cursor: pointer;
+        }
+
+        .sizes-table tbody tr.row-selected {
+            background: #eff6ff !important;
+            border-left: 3px solid var(--primary);
+        }
+
+        .sizes-table tbody tr.row-highlight {
+            background: #ecfdf5 !important;
+            font-weight: 600;
+        }
+
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* ─── Tolerance Scheme Cards (Block 4) ─── */
+        .tolerance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .tolerance-card {
+            background: #f8fafc;
+            border: 1px dashed #cbd5e1;
+            border-radius: var(--radius-md);
+            padding: 18px;
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tolerance-card:hover {
+            border-color: var(--primary);
+            background: #ffffff;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .tolerance-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: #e2e8f0;
+            color: #475569;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .tolerance-card:hover .tolerance-icon {
+            background: var(--primary-soft);
+            color: var(--primary);
+        }
+
+        .tolerance-num {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .tolerance-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-main);
+            margin: 2px 0 4px;
+        }
+
+        .tolerance-status {
+            font-size: 11.5px;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* ─── Banner Alert ─── */
+        .alert-box {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 16px 20px;
+            border-radius: var(--radius-md);
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .alert-info {
+            background: #eff6ff;
+            color: #1e40af;
+            border: 1px solid #bfdbfe;
+        }
+
+        .alert-warning {
+            background: #fefce8;
+            color: #854d0e;
+            border: 1px solid #fef08a;
+        }
+
+        /* ─── State Container ─── */
+        .state-container {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+        }
+
+        .spinner {
+            width: 36px;
+            height: 36px;
+            border: 3px solid #e2e8f0;
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 12px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- ─── BREADCRUMBS ─── -->
+        <nav class="breadcrumbs">
+            <a href="/" id="navBreadcrumbHome"><i class="fa-solid fa-house"></i> Головна</a>
+            <span class="sep">/</span>
+            <a href="/client-size-matrix" id="navBreadcrumbMatrix">Матриця розмірів</a>
+            <span class="sep">/</span>
+            <span class="current">Розрахунок заготовки</span>
+        </nav>
+
+        <!-- ─── TOP HEADER ─── -->
+        <header class="top-header">
+            <div class="header-title-area">
+                <div class="header-icon">
+                    <i class="fa-solid fa-calculator"></i>
+                </div>
+                <div class="header-text">
+                    <h1>
+                        <span id="headerSizeTitle">Завантаження типорозміру...</span>
+                        <span id="badgeCategory" class="badge badge-neutral">...</span>
+                    </h1>
+                    <div class="header-meta">
+                        <span><i class="fa-solid fa-user-tie"></i> Клієнт: <b id="headerClientCode">—</b> <span id="headerClientName" style="color:var(--text-main); font-weight:500;"></span></span>
+                        <span><i class="fa-solid fa-calendar-day"></i> Рік: <b id="headerYear">2026</b></span>
+                        <span><i class="fa-solid fa-industry"></i> Методика: <b>ВНІТІ (ТУ У В.2.7-24.2-24238290-004:2015)</b></span>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <a href="#" id="btnBackMatrix" class="back-btn">
+                    <i class="fa-solid fa-arrow-left"></i> До матриці розмірів
+                </a>
+            </div>
+        </header>
+
+        <!-- ─── БЛОК 1: НАЯВНІСТЬ ТА ІСТОРІЯ ПРОДАЖІВ ─── -->
+        <section class="card" id="block1Container">
+            <div class="card-header">
+                <div>
+                    <h2 class="card-title">
+                        <i class="fa-solid fa-warehouse"></i> Блок 1: Наявність на складі та історія продажів
+                    </h2>
+                    <p class="card-subtitle">Інформація з матриці типорозмірів компанії та аналітики замовлень клієнта</p>
+                </div>
+                <div id="badgeStock" class="badge badge-neutral">Завантаження...</div>
+            </div>
+
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-label">Типорозмір заготовки</div>
+                    <div class="kpi-value" id="kpiSizeDisplay">—</div>
+                    <div class="kpi-footer">Кругла трубна заготовка</div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-label">Залишок на складі</div>
+                    <div class="kpi-value"><span id="kpiStockTotal">0.00</span> <span class="kpi-unit">т</span></div>
+                    <div class="kpi-footer">Поточний вільний залишок</div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-label">Обсяг закупівлі клієнта</div>
+                    <div class="kpi-value"><span id="kpiClientQty">0.00</span> <span class="kpi-unit">т</span></div>
+                    <div class="kpi-footer" id="kpiClientInvoicesCount">Замовлень: 0</div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-label">
+                        <span>Сума продажів клієнту</span>
+                        <span id="badgeClientBought" class="badge badge-neutral">—</span>
+                    </div>
+                    <div class="kpi-value" id="kpiClientRev">0 ₴</div>
+                    <div class="kpi-footer">Оборот за поточний рік</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ─── БЛОК 2: РОЗРАХУНОК ПРОФІЛЮВАННЯ (ВНІТІ) ─── -->
+        <section class="card" id="block2Container">
+            <div class="card-header">
+                <div>
+                    <h2 class="card-title">
+                        <i class="fa-solid fa-ruler-combined"></i> Блок 2: Базовий розрахунок: <span id="targetProfile">—</span>
+                    </h2>
+                    <p class="card-subtitle">Параметри деформації, радіуси скруглення кутів та коефіцієнт обтиснення для цільового квадратного профілю</p>
+                </div>
+                <div id="badgeFitsTu" class="badge badge-neutral">Очікування розрахунку...</div>
+            </div>
+
+            <div id="calcUnsupportedBox" style="display:none;" class="alert-box alert-warning">
+                <i class="fa-solid fa-triangle-exclamation" style="font-size:20px;"></i>
+                <div>
+                    <b>Розрахунок не підтримується для цього типорозміру:</b>
+                    <div id="calcUnsupportedReason" style="margin-top:2px;"></div>
+                </div>
+            </div>
+
+            <div id="calcSupportedBox">
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-label">Розрахунковий радіус (R розр)</div>
+                        <div class="kpi-value"><span id="kpiRCalc">—</span> <span class="kpi-unit">мм</span></div>
+                        <div class="kpi-footer">За формулою ВНІТІ для калібрування</div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-label">Виробничий радіус (R вир)</div>
+                        <div class="kpi-value"><span id="kpiRProd">—</span> <span class="kpi-unit">мм</span></div>
+                        <div class="kpi-footer">Заокруглений за стандартом ТУ</div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-label">Розрахунковий діаметр (D розр)</div>
+                        <div class="kpi-value"><span id="kpiDBillet">—</span> <span class="kpi-unit">мм</span></div>
+                        <div class="kpi-footer">Еквівалентний діаметр заготовки</div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-label">Фактичний коэф. обтиснення (k)</div>
+                        <div class="kpi-value"><span id="kpiKReal">—</span></div>
+                        <div class="kpi-footer">Діапазон ТУ: <b id="kpiKRange">—</b></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ─── БЛОК 3: МОЖЛИВІ РОЗМІРИ ПРОФІЛІВ ─── -->
+        <section class="card" id="block3Container">
+            <div class="card-header">
+                <div>
+                    <h2 class="card-title">
+                        <i class="fa-solid fa-shapes"></i> Блок 3: Можливі розміри профілів з даної заготовки
+                    </h2>
+                    <p class="card-subtitle">Перебір варіантів профілювання при постійній стінці заготовки. Клікніть на рядок для перегляду довідкових характеристик ТУ.</p>
+                </div>
+            </div>
+
+            <div class="tab-nav">
+                <button type="button" class="tab-btn active" id="tabSquareBtn" onclick="openTab(event, 'square')">
+                    <i class="fa-solid fa-vector-square"></i> Квадратні профілі (крок 1 мм)
+                    <span id="squareCountText" class="badge badge-neutral" style="margin-left:4px;">0</span>
+                </button>
+                <button type="button" class="tab-btn" id="tabRectBtn" onclick="openTab(event, 'rect')">
+                    <i class="fa-solid fa-rectangle-ad"></i> Прямокутні профілі (крок 5 мм)
+                    <span id="rectCountText" class="badge badge-neutral" style="margin-left:4px;">0</span>
+                </button>
+            </div>
+
+            <!-- Tab 1: Square Profiles -->
+            <div id="tabSquareContent" class="tab-content active">
+                <div class="table-responsive">
+                    <table class="sizes-table">
+                        <thead>
+                            <tr>
+                                <th>Розмір A × A (мм)</th>
+                                <th>Стінка s (мм)</th>
+                                <th>R розрах (мм)</th>
+                                <th>R виробн (мм)</th>
+                                <th>k дійсн</th>
+                                <th>Відхилення ΔD (мм)</th>
+                                <th style="text-align:center;">Відповідність ТУ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="squareTableBody">
+                            <tr><td colspan="7" class="state-container"><div class="spinner"></div>Розрахунок квадратних профілів...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tab 2: Rectangular Profiles -->
+            <div id="tabRectContent" class="tab-content">
+                <div class="table-responsive">
+                    <table class="sizes-table">
+                        <thead>
+                            <tr>
+                                <th>Розмір A × B (мм)</th>
+                                <th>Стінка s (мм)</th>
+                                <th>R розрах (мм)</th>
+                                <th>R виробн (мм)</th>
+                                <th>k дійсн</th>
+                                <th>Відхилення ΔD (мм)</th>
+                                <th style="text-align:center;">Відповідність ТУ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rectTableBody">
+                            <tr><td colspan="7" class="state-container"><div class="spinner"></div>Розрахунок прямокутних профілів...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ─── БЛОК 4: СХЕМИ ДОПУСКІВ ТА ГЕОМЕТРІЇ (ЗАГЛУШКА) ─── -->
+        <section class="card" id="block4Container">
+            <div class="card-header">
+                <div>
+                    <h2 class="card-title">
+                        <i class="fa-solid fa-compass-drafting"></i> Блок 4: Схеми геометричних параметрів та допусків
+                    </h2>
+                    <p class="card-subtitle">Контроль геометричних розмірів, граничних відхилень та форми профілю за ТУ</p>
+                </div>
+                <span class="badge badge-warning">
+                    <i class="fa-solid fa-code"></i> В розробці (Ітерація 4)
+                </span>
+            </div>
+
+            <div class="alert-box alert-info">
+                <i class="fa-solid fa-circle-info" style="font-size:20px;"></i>
+                <div>
+                    <b>Інтерактивні креслення та векторні схеми (SVG):</b>
+                    Схеми допусків, калібрів, кривизни та зміщення зварного шва будуть підключені в рамках наступного етапу (Ітерація 4).
+                </div>
+            </div>
+
+            <div class="tolerance-grid">
+                <div class="tolerance-card">
+                    <div class="tolerance-icon"><i class="fa-solid fa-ruler-combined"></i></div>
+                    <div>
+                        <div class="tolerance-num">Схема 1</div>
+                        <div class="tolerance-title">Схема вимірювань профілю</div>
+                        <div class="tolerance-status"><i class="fa-solid fa-clock"></i> В розробці (Ітерація 4)</div>
+                    </div>
+                </div>
+
+                <div class="tolerance-card">
+                    <div class="tolerance-icon"><i class="fa-solid fa-circle-notch"></i></div>
+                    <div>
+                        <div class="tolerance-num">Схема 2</div>
+                        <div class="tolerance-title">Скруглення — радіус R</div>
+                        <div class="tolerance-status"><i class="fa-solid fa-clock"></i> В розробці (Ітерація 4)</div>
+                    </div>
+                </div>
+
+                <div class="tolerance-card">
+                    <div class="tolerance-icon"><i class="fa-solid fa-compass"></i></div>
+                    <div>
+                        <div class="tolerance-num">Схема 3</div>
+                        <div class="tolerance-title">Перевірка радіуса — C1</div>
+                        <div class="tolerance-status"><i class="fa-solid fa-clock"></i> В розробці (Ітерація 4)</div>
+                    </div>
+                </div>
+
+                <div class="tolerance-card">
+                    <div class="tolerance-icon"><i class="fa-solid fa-chart-line"></i></div>
+                    <div>
+                        <div class="tolerance-num">Схема 4</div>
+                        <div class="tolerance-title">Площинність — стріла Δ</div>
+                        <div class="tolerance-status"><i class="fa-solid fa-clock"></i> В розробці (Ітерація 4)</div>
+                    </div>
+                </div>
+
+                <div class="tolerance-card">
+                    <div class="tolerance-icon"><i class="fa-solid fa-bezier-curve"></i></div>
+                    <div>
+                        <div class="tolerance-num">Схема 5</div>
+                        <div class="tolerance-title">Кривизна — v1 (на 1 м)</div>
+                        <div class="tolerance-status"><i class="fa-solid fa-clock"></i> В розробці (Ітерація 4)</div>
+                    </div>
+                </div>
+
+                <div class="tolerance-card">
+                    <div class="tolerance-icon"><i class="fa-solid fa-arrows-left-right"></i></div>
+                    <div>
+                        <div class="tolerance-num">Схема 6</div>
+                        <div class="tolerance-title">Загальна кривизна</div>
+                        <div class="tolerance-status"><i class="fa-solid fa-clock"></i> В розробці (Ітерація 4)</div>
+                    </div>
+                </div>
+
+                <div class="tolerance-card">
+                    <div class="tolerance-icon"><i class="fa-solid fa-crosshairs"></i></div>
+                    <div>
+                        <div class="tolerance-num">Схема 7</div>
+                        <div class="tolerance-title">Осі симетрії — Y-Y, Z-Z</div>
+                        <div class="tolerance-status"><i class="fa-solid fa-clock"></i> В розробці (Ітерація 4)</div>
+                    </div>
+                </div>
+
+                <div class="tolerance-card">
+                    <div class="tolerance-icon"><i class="fa-solid fa-bolt"></i></div>
+                    <div>
+                        <div class="tolerance-num">Схема 8</div>
+                        <div class="tolerance-title">Зварний шов — X1, X2</div>
+                        <div class="tolerance-status"><i class="fa-solid fa-clock"></i> В розробці (Ітерація 4)</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ─── БЛОК 5: ДОВІДКОВІ ВЕЛИЧИНИ (З ТУ) ─── -->
+        <section class="card" id="block5Container">
+            <div class="card-header">
+                <div>
+                    <h2 class="card-title">
+                        <i class="fa-solid fa-book-bookmark"></i> Блок 5: Довідкові геометричні величини (з каталогу ТУ)
+                    </h2>
+                    <p class="card-subtitle" id="block5Subtitle">Довідкові значення площі, моментів інерції та опору для обраного перерізу</p>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="sizes-table">
+                    <thead id="block5TableHead">
+                        <tr>
+                            <th>Стінка t (мм)</th>
+                            <th>Площа перерізу F (см²)</th>
+                            <th>Момент інерції Ix (см⁴)</th>
+                            <th>Момент опору Wx (см³)</th>
+                            <th>Маса 1 м довжини (кг)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="block5TableBody">
+                        <tr><td colspan="5" class="state-container" id="block5Empty"><div class="spinner"></div>Завантаження довідника ТУ...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <!-- ─── JAVASCRIPT ЛОГІКА ─── -->
+    <script>
+        // ─── URL Parameters ───
+        const urlParams = new URLSearchParams(window.location.search);
+        const TOKEN = urlParams.get('token') || 'utsk2026';
+        const CLIENT_CODE = urlParams.get('code') || urlParams.get('client_code') || '4501';
+        const SIZE_KEY = urlParams.get('size_key') || 'round_50x4';
+        const YEAR = parseInt(urlParams.get('year') || '2026', 10);
+
+        // State variables
+        let billetData = null;
+        let squareProfiles = [];
+        let rectProfiles = [];
+        let currentSelectedProfile = null;
+
+        // ─── Formatting Helpers ───
+        function fmtMoney(n) {
+            if (n === null || n === undefined || isNaN(n)) return '0 ₴';
+            return Number(n).toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ₴';
+        }
+
+        function fmtNum(n, digits = 2) {
+            if (n === null || n === undefined || isNaN(n)) return '—';
+            return Number(n).toLocaleString('uk-UA', { minimumFractionDigits: digits, maximumFractionDigits: digits });
+        }
+
+        function setText(id, text) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = text;
+        }
+
+        // ─── Tab Switching ───
+        function openTab(evt, tabName) {
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(tab => tab.classList.remove('active'));
+
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+
+            if (tabName === 'square') {
+                const squareContent = document.getElementById('tabSquareContent');
+                if (squareContent) squareContent.classList.add('active');
+                const btn = document.getElementById('tabSquareBtn');
+                if (btn) btn.classList.add('active');
+            } else if (tabName === 'rect') {
+                const rectContent = document.getElementById('tabRectContent');
+                if (rectContent) rectContent.classList.add('active');
+                const btn = document.getElementById('tabRectBtn');
+                if (btn) btn.classList.add('active');
+            }
+        }
+        window.openTab = openTab;
+
+        // ─── Initial Setup & Breadcrumbs ───
+        function initPageMeta() {
+            setText('headerClientCode', CLIENT_CODE);
+            setText('headerYear', YEAR.toString());
+
+            const backBtn = document.getElementById('btnBackMatrix');
+            if (backBtn) {
+                backBtn.href = `/client-size-matrix?token=${TOKEN}&code=${CLIENT_CODE}&year=${YEAR}`;
+            }
+
+            const breadcrumbMatrix = document.getElementById('navBreadcrumbMatrix');
+            if (breadcrumbMatrix) {
+                breadcrumbMatrix.href = `/client-size-matrix?token=${TOKEN}&code=${CLIENT_CODE}&year=${YEAR}`;
+            }
+
+            const breadcrumbHome = document.getElementById('navBreadcrumbHome');
+            if (breadcrumbHome) {
+                breadcrumbHome.href = `/?token=${TOKEN}`;
+            }
+
+            // Client Name fetch (async enhancement)
+            fetch(`/api/clients/detail/${CLIENT_CODE}?token=${TOKEN}`)
+                .then(r => r.ok ? r.json() : null)
+                .then(data => {
+                    if (data && data.client && data.client.name) {
+                        setText('headerClientName', `(${data.client.name})`);
+                    }
+                })
+                .catch(() => {});
+        }
+
+        // ─── Render Block 1 (Stock & Sales) ───
+        function renderBlock1(data) {
+            setText('headerSizeTitle', `Заготовка: ${data.size_display || SIZE_KEY}`);
+            setText('kpiSizeDisplay', data.size_display || SIZE_KEY);
+
+            // Category badge
+            const catBadge = document.getElementById('badgeCategory');
+            if (catBadge) {
+                if (data.product_category === 'round') {
+                    catBadge.textContent = 'Кругла заготовка';
+                    catBadge.className = 'badge badge-primary';
+                } else {
+                    catBadge.textContent = data.product_category || 'Інше';
+                    catBadge.className = 'badge badge-neutral';
+                }
+            }
+
+            // Stock
+            const stockTotal = data.stock ? data.stock.stock_total : 0;
+            const hasStock = data.stock ? data.stock.has_stock : false;
+            setText('kpiStockTotal', fmtNum(stockTotal, 2));
+
+            const badgeStock = document.getElementById('badgeStock');
+            if (badgeStock) {
+                if (hasStock && stockTotal > 0) {
+                    badgeStock.innerHTML = '<i class="fa-solid fa-circle-check"></i> Є на складі';
+                    badgeStock.className = 'badge badge-success';
+                } else {
+                    badgeStock.innerHTML = '<i class="fa-solid fa-circle-xmark"></i> Немає на складі';
+                    badgeStock.className = 'badge badge-neutral';
+                }
+            }
+
+            // Client purchases
+            const clientData = data.client || {};
+            setText('kpiClientQty', fmtNum(clientData.quantity || 0, 2));
+            setText('kpiClientRev', fmtMoney(clientData.revenue || 0));
+            setText('kpiClientInvoicesCount', `Рахунків: ${clientData.invoices_count || 0}`);
+
+            const badgeClientBought = document.getElementById('badgeClientBought');
+            if (badgeClientBought) {
+                if (clientData.bought) {
+                    badgeClientBought.textContent = 'Купував';
+                    badgeClientBought.className = 'badge badge-success';
+                } else {
+                    badgeClientBought.textContent = 'Не купував';
+                    badgeClientBought.className = 'badge badge-neutral';
+                }
+            }
+        }
+
+        // ─── Render Block 2 (VNITI Calculation) ───
+        function renderBlock2(calc, isSupported) {
+            const supportedBox = document.getElementById('calcSupportedBox');
+            const unsupportedBox = document.getElementById('calcUnsupportedBox');
+            const badgeFitsTu = document.getElementById('badgeFitsTu');
+
+            if (!isSupported || !calc || calc.supported === false) {
+                if (supportedBox) supportedBox.style.display = 'none';
+                if (unsupportedBox) {
+                    unsupportedBox.style.display = 'flex';
+                    setText('calcUnsupportedReason', (calc && calc.reason) || 'Розрахунок доступний тільки для круглої трубної заготовки.');
+                }
+                if (badgeFitsTu) {
+                    badgeFitsTu.textContent = 'Розрахунок не застосовується';
+                    badgeFitsTu.className = 'badge badge-neutral';
+                }
+                return;
+            }
+
+            if (supportedBox) supportedBox.style.display = 'block';
+            if (unsupportedBox) unsupportedBox.style.display = 'none';
+
+            if (calc && calc.target_profile) {
+                setText('targetProfile', calc.target_profile);
+            }
+
+            setText('kpiRCalc', fmtNum(calc.r_calc, 2));
+            setText('kpiRProd', fmtNum(calc.r_prod, 1));
+            setText('kpiDBillet', fmtNum(calc.d_billet, 2));
+            setText('kpiKReal', fmtNum(calc.k_real, 4));
+            setText('kpiKRange', `${fmtNum(calc.k_min, 3)} … ${fmtNum(calc.k_max, 3)}`);
+
+            if (badgeFitsTu) {
+                if (calc.fits_tu) {
+                    badgeFitsTu.innerHTML = '<i class="fa-solid fa-circle-check"></i> Відповідає нормам ТУ';
+                    badgeFitsTu.className = 'badge badge-success';
+                } else {
+                    badgeFitsTu.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Поза діапазоном ТУ';
+                    badgeFitsTu.className = 'badge badge-danger';
+                }
+            }
+        }
+
+        // ─── Render Block 3 Tables ───
+        function renderBlock3(squareList, rectList, wall) {
+            squareProfiles = squareList || [];
+            rectProfiles = rectList || [];
+
+            setText('squareCountText', squareProfiles.length.toString());
+            setText('rectCountText', rectProfiles.length.toString());
+
+            // 1. Square Table
+            const squareBody = document.getElementById('squareTableBody');
+            if (squareBody) {
+                if (squareProfiles.length === 0) {
+                    squareBody.innerHTML = `<tr><td colspan="7" class="state-container">Немає відповідних квадратних профілів у межах коефіцієнта обтиснення ТУ</td></tr>`;
+                } else {
+                    squareBody.innerHTML = squareProfiles.map((p, idx) => {
+                        const fitsBadge = p.fits_tu 
+                            ? `<span class="badge badge-success"><i class="fa-solid fa-check"></i> ТУ</span>` 
+                            : `<span class="badge badge-danger"><i class="fa-solid fa-xmark"></i> Поза ТУ</span>`;
+                        return `
+                            <tr id="sq-row-${idx}" onclick="selectProfile('square', ${p.a}, ${p.b || p.a}, 'sq-row-${idx}')">
+                                <td class="font-mono"><b>${p.a} × ${p.b || p.a}</b></td>
+                                <td class="font-mono">${fmtNum(wall, 1)}</td>
+                                <td class="font-mono">${fmtNum(p.r_calc, 2)}</td>
+                                <td class="font-mono">${fmtNum(p.r_prod, 1)}</td>
+                                <td class="font-mono">${fmtNum(p.k_real, 4)}</td>
+                                <td class="font-mono">${fmtNum(p.delta_diameter, 2)}</td>
+                                <td style="text-align:center;">${fitsBadge}</td>
+                            </tr>
+                        `;
+                    }).join('');
+                }
+            }
+
+            // 2. Rectangular Table
+            const rectBody = document.getElementById('rectTableBody');
+            if (rectBody) {
+                if (rectProfiles.length === 0) {
+                    rectBody.innerHTML = `<tr><td colspan="7" class="state-container">Немає відповідних прямокутних профілів у межах коефіцієнта обтиснення ТУ</td></tr>`;
+                } else {
+                    rectBody.innerHTML = rectProfiles.map((p, idx) => {
+                        const fitsBadge = p.fits_tu 
+                            ? `<span class="badge badge-success"><i class="fa-solid fa-check"></i> ТУ</span>` 
+                            : `<span class="badge badge-danger"><i class="fa-solid fa-xmark"></i> Поза ТУ</span>`;
+                        return `
+                            <tr id="rc-row-${idx}" onclick="selectProfile('rect', ${p.a}, ${p.b}, 'rc-row-${idx}')">
+                                <td class="font-mono"><b>${p.a} × ${p.b}</b></td>
+                                <td class="font-mono">${fmtNum(wall, 1)}</td>
+                                <td class="font-mono">${fmtNum(p.r_calc, 2)}</td>
+                                <td class="font-mono">${fmtNum(p.r_prod, 1)}</td>
+                                <td class="font-mono">${fmtNum(p.k_real, 4)}</td>
+                                <td class="font-mono">${fmtNum(p.delta_diameter, 2)}</td>
+                                <td style="text-align:center;">${fitsBadge}</td>
+                            </tr>
+                        `;
+                    }).join('');
+                }
+            }
+
+            // Auto-select initial profile for Block 5
+            if (squareProfiles.length > 0) {
+                selectProfile('square', squareProfiles[0].a, squareProfiles[0].b || squareProfiles[0].a, 'sq-row-0');
+            } else if (rectProfiles.length > 0) {
+                selectProfile('rect', rectProfiles[0].a, rectProfiles[0].b, 'rc-row-0');
+            } else {
+                renderBlock5Empty('Немає варіантів профілів для пошуку в каталозі ТУ');
+            }
+        }
+
+        // ─── Selection of Profile & Loading Block 5 ───
+        function selectProfile(shape, h, b, rowId) {
+            currentSelectedProfile = { shape, h, b };
+
+            // Highlight selected row in table
+            document.querySelectorAll('.sizes-table tbody tr').forEach(r => r.classList.remove('row-selected'));
+            const selectedRow = document.getElementById(rowId);
+            if (selectedRow) selectedRow.classList.add('row-selected');
+
+            loadTuLookup(shape, h, b);
+        }
+        window.selectProfile = selectProfile;
+
+        // ─── Render Block 5 (TU Reference Values) ───
+        async function loadTuLookup(shape, h, b) {
+            const bodyEl = document.getElementById('block5TableBody');
+            const headEl = document.getElementById('block5TableHead');
+            const subtitleEl = document.getElementById('block5Subtitle');
+
+            const isSquare = (shape === 'square' || h === b);
+            const sizeLabel = isSquare ? `${h} × ${h} мм` : `${h} × ${b} мм`;
+
+            if (subtitleEl) {
+                subtitleEl.innerHTML = `Довідкові характеристики за <b>ТУ У В.2.7-24.2-24238290-004:2015</b> для перерізу <b style="color:var(--primary);">${sizeLabel}</b>:`;
+            }
+
+            // Adjust table header for square vs rectangle
+            if (headEl) {
+                if (isSquare) {
+                    headEl.innerHTML = `
+                        <tr>
+                            <th>Стінка t (мм)</th>
+                            <th>Площа перерізу F (см²)</th>
+                            <th>Момент інерції Ix (см⁴)</th>
+                            <th>Момент опору Wx (см³)</th>
+                            <th>Маса 1 м (кг)</th>
+                            <th style="text-align:center;">Статус</th>
+                        </tr>
+                    `;
+                } else {
+                    headEl.innerHTML = `
+                        <tr>
+                            <th>Стінка t (мм)</th>
+                            <th>Площа перерізу F (см²)</th>
+                            <th>Ix (см⁴)</th>
+                            <th>Iy (см⁴)</th>
+                            <th>Wx (см³)</th>
+                            <th>Wy (см³)</th>
+                            <th>Маса 1 м (кг)</th>
+                            <th style="text-align:center;">Статус</th>
+                        </tr>
+                    `;
+                }
+            }
+
+            if (bodyEl) {
+                bodyEl.innerHTML = `<tr><td colspan="${isSquare ? 6 : 8}" class="state-container"><div class="spinner"></div>Пошук у каталозі ТУ...</td></tr>`;
+            }
+
+            try {
+                let url = `/api/analytics/vniti/tu-lookup?token=${TOKEN}&shape=${isSquare ? 'square' : 'rect'}&h=${h}`;
+                if (!isSquare && b) {
+                    url += `&b=${b}`;
+                }
+
+                const res = await fetch(url);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const resp = await res.json();
+                const items = resp.data || [];
+
+                if (items.length === 0) {
+                    if (bodyEl) {
+                        bodyEl.innerHTML = `<tr><td colspan="${isSquare ? 6 : 8}" class="state-container">Профіль ${sizeLabel} відсутній у каталозі ТУ У В.2.7-24.2-24238290-004:2015</td></tr>`;
+                    }
+                    return;
+                }
+
+                const currentWall = billetData ? billetData.wall : null;
+
+                if (bodyEl) {
+                    bodyEl.innerHTML = items.map(item => {
+                        const isCurrentWall = currentWall !== null && Math.abs(item.t - currentWall) < 0.05;
+                        const rowClass = isCurrentWall ? 'row-highlight' : '';
+                        const statusBadge = isCurrentWall 
+                            ? `<span class="badge badge-success"><i class="fa-solid fa-star"></i> Стінка заготовки</span>` 
+                            : `<span style="color:var(--text-muted); font-size:12px;">Стандарт ТУ</span>`;
+
+                        if (isSquare) {
+                            return `
+                                <tr class="${rowClass}">
+                                    <td class="font-mono"><b>${fmtNum(item.t, 1)}</b></td>
+                                    <td class="font-mono">${fmtNum(item.area_cm2, 2)}</td>
+                                    <td class="font-mono">${fmtNum(item.ix_cm4, 1)}</td>
+                                    <td class="font-mono">${fmtNum(item.wx_cm3, 1)}</td>
+                                    <td class="font-mono">${fmtNum(item.weight_m, 2)}</td>
+                                    <td style="text-align:center;">${statusBadge}</td>
+                                </tr>
+                            `;
+                        } else {
+                            return `
+                                <tr class="${rowClass}">
+                                    <td class="font-mono"><b>${fmtNum(item.t, 1)}</b></td>
+                                    <td class="font-mono">${fmtNum(item.area_cm2, 2)}</td>
+                                    <td class="font-mono">${fmtNum(item.ix_cm4, 1)}</td>
+                                    <td class="font-mono">${fmtNum(item.iy_cm4, 1)}</td>
+                                    <td class="font-mono">${fmtNum(item.wx_cm3, 1)}</td>
+                                    <td class="font-mono">${fmtNum(item.wy_cm3, 1)}</td>
+                                    <td class="font-mono">${fmtNum(item.weight_m, 2)}</td>
+                                    <td style="text-align:center;">${statusBadge}</td>
+                                </tr>
+                            `;
+                        }
+                    }).join('');
+                }
+            } catch (err) {
+                if (bodyEl) {
+                    bodyEl.innerHTML = `<tr><td colspan="${isSquare ? 6 : 8}" class="state-container" style="color:var(--danger);"><i class="fa-solid fa-triangle-exclamation"></i> Помилка завантаження даних ТУ: ${err.message}</td></tr>`;
+                }
+            }
+        }
+
+        function renderBlock5Empty(msg) {
+            const bodyEl = document.getElementById('block5TableBody');
+            if (bodyEl) {
+                bodyEl.innerHTML = `<tr><td colspan="6" class="state-container">${msg}</td></tr>`;
+            }
+        }
+
+        // ─── Main Controller Execution ───
+        document.addEventListener('DOMContentLoaded', async () => {
+            initPageMeta();
+
+            try {
+                // 1. Initial request for billet summary and profiling
+                const billetUrl = `/api/analytics/billet-detail?token=${TOKEN}&code=${CLIENT_CODE}&size_key=${SIZE_KEY}&year=${YEAR}`;
+                const resBillet = await fetch(billetUrl);
+                if (!resBillet.ok) throw new Error(`HTTP ${resBillet.status} при завантаженні заготовки`);
+                const billetJson = await resBillet.json();
+
+                billetData = billetJson.data;
+                renderBlock1(billetData);
+
+                const calc = billetData.calculation || {};
+                const isSupported = calc.supported !== false;
+                renderBlock2(calc, isSupported);
+
+                // 2. If supported, load square and rectangular candidates via enumerate
+                if (isSupported && billetData.diameter && billetData.wall) {
+                    const d = billetData.diameter;
+                    const s = billetData.wall;
+
+                    const [sqResp, rcResp] = await Promise.all([
+                        fetch(`/api/analytics/vniti/enumerate?token=${TOKEN}&diameter=${d}&wall=${s}&shape=square&step_mm=1.0`).then(r => r.json()),
+                        fetch(`/api/analytics/vniti/enumerate?token=${TOKEN}&diameter=${d}&wall=${s}&shape=rect&step_mm=5.0`).then(r => r.json())
+                    ]);
+
+                    renderBlock3(sqResp.data || [], rcResp.data || [], s);
+                } else {
+                    renderBlock3([], [], billetData.wall || 0);
+                }
+
+            } catch (err) {
+                console.error('Помилка завантаження сторінки /billet-detail:', err);
+                const block1 = document.getElementById('block1Container');
+                if (block1) {
+                    block1.innerHTML = `
+                        <div class="state-container" style="color:var(--danger);">
+                            <i class="fa-solid fa-circle-exclamation" style="font-size:24px; margin-bottom:8px;"></i>
+                            <div>Не вдалося завантажити дані для заготовки: ${err.message}</div>
+                        </div>
+                    `;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

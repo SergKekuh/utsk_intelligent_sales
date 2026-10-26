@@ -1,0 +1,18 @@
+=== 1. BASELINE 7 METRICS ===
+clients_total: 1754
+clients_active: 729
+documents_total: 29179
+documents_2026: 5773
+sales_lines_total: 67584
+products_total: 4450
+revenue_2026: 563416633.09
+
+=== 2. HISTORICAL PERIODS (2024, 2025) ===
+Year 2024: docs=11574, lines=26302, revenue=904436950.38
+Year 2025: docs=11832, lines=27650, revenue=1054790600.24
+
+=== 3. AFFECTED 2025 DOCUMENTS ===
+id=346865, doc_number=ЮГ000010497, date=2024-11-14, client_code=11386, total_amount=5788.50
+id=341498, doc_number=ЮГ000011912, date=2024-12-31, client_code=8814, total_amount=3780.00
+id=360812, doc_number=ЮГ000010497, date=2025-11-06, client_code=7357, total_amount=31500.00
+id=360134, doc_number=ЮГ000011912, date=2025-12-23, client_code=7191, total_amount=47068.00

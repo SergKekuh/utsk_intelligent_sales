@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Індекс різноманіття — UTSK Intelligent Sales</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --primary-soft: #eff6ff;
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --border-light: #f1f5f9;
+            --success: #16a34a;
+            --success-soft: #dcfce7;
+            --warning: #f59e0b;
+            --warning-soft: #fef3c7;
+            --danger: #dc2626;
+            --danger-soft: #fee2e2;
+            --radius: 16px;
+            --radius-sm: 8px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.5;
+            padding: 24px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* ─── Breadcrumbs ─── */
+        .breadcrumbs {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13.5px;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .breadcrumbs a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.15s;
+        }
+
+        .breadcrumbs a:hover {
+            color: var(--primary);
+        }
+
+        .breadcrumbs span.current {
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        /* ─── Page Header ─── */
+        .page-header {
+            margin-bottom: 24px;
+        }
+
+        .page-header h1 {
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .page-header .subtitle {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* ─── Cards base ─── */
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        /* ─── KPI Grid ─── */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 900px) {
+            .kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 500px) {
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .kpi-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .kpi-label {
+            font-size: 12.5px;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .kpi-value {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--text-main);
+            letter-spacing: -0.01em;
+        }
+
+        .kpi-hint {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* ─── Filters Section ─── */
+        .filters {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .search-box {
+            position: relative;
+            width: 100%;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 15px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 16px 12px 44px;
+            font-size: 14px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            outline: none;
+            background: #f8fafc;
+            color: var(--text-main);
+            transition: border-color 0.15s, background 0.15s;
+        }
+
+        .search-input:focus {
+            border-color: var(--primary);
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        .filter-controls-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .filter-buttons {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background: #f1f5f9;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 8px 16px;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .filter-btn:hover {
+            background: #e2e8f0;
+            color: var(--text-main);
+        }
+
+        .filter-btn.active {
+            background: var(--primary);
+            color: #ffffff;
+            border-color: var(--primary);
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+        }
+
+        .stock-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--text-main);
+            cursor: pointer;
+            user-select: none;
+            padding: 8px 14px;
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+        }
+
+        .stock-toggle input {
+            cursor: pointer;
+            accent-color: var(--primary);
+            width: 16px;
+            height: 16px;
+        }
+
+        .filter-info {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .filter-info b {
+            color: var(--text-main);
+        }
+
+        /* ─── Products Table ─── */
+        .table-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .table-card-header h2 {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .products-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13.5px;
+        }
+
+        .products-table th {
+            background: #f8fafc;
+            font-weight: 700;
+            text-align: left;
+            padding: 12px 14px;
+            border-bottom: 2px solid var(--border);
+            color: var(--text-muted);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            white-space: nowrap;
+        }
+
+        .products-table td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border-light);
+            color: var(--text-main);
+            vertical-align: middle;
+        }
+
+        .products-table tr:hover td {
+            background: #f8fafc;
+        }
+
+        .products-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .products-table code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            background: #f1f5f9;
+            padding: 3px 6px;
+            border-radius: 6px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .steel-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            background: #eff6ff;
+            color: var(--primary);
+            border: 1px solid #bfdbfe;
+            white-space: nowrap;
+        }
+
+        .size-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.15s;
+        }
+
+        .size-link:hover {
+            color: var(--primary-hover);
+            text-decoration: underline;
+        }
+
+        .category-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            border-radius: 9999px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .category-round { background: #dcfce7; color: #15803d; }
+        .category-square { background: #e0f2fe; color: #0369a1; }
+        .category-rect { background: #fef3c7; color: #b45309; }
+        .category-other { background: #f1f5f9; color: #64748b; }
+
+        /* ─── Pagination ─── */
+        .pagination {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .pagination-btn {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination-info {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        /* States */
+        .state-container {
+            padding: 60px 20px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 12px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Breadcrumbs -->
+        <nav class="breadcrumbs">
+            <a href="/">Головна</a>
+            <span>/</span>
+            <span class="current">Індекс різноманіття</span>
+        </nav>
+
+        <!-- Заголовок -->
+        <header class="page-header">
+            <h1>🌈 Індекс різноманіття каталогу</h1>
+            <p class="subtitle">Повний каталог номенклатури: 4 450 позицій трубного прокату</p>
+        </header>
+
+        <!-- KPI-шапка -->
+        <section class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label">Всього позицій</div>
+                <div class="kpi-value" id="kpiTotal">—</div>
+                <div class="kpi-hint">У каталозі компанії</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Категорії</div>
+                <div class="kpi-value" id="kpiCategories">—</div>
+                <div class="kpi-hint">Круглі / Квадратні / Прямокутні</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Загальний залишок</div>
+                <div class="kpi-value" id="kpiStock">—</div>
+                <div class="kpi-hint">Тонн на складі</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">З залишком</div>
+                <div class="kpi-value" id="kpiWithStock">—</div>
+                <div class="kpi-hint">Позицій на складі</div>
+            </div>
+        </section>
+
+        <!-- Фильтры -->
+        <section class="card filters">
+            <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="search" class="search-input" id="searchInput" placeholder="Пошук за назвою, розміром або маркою (наприклад, 140х10, ст20)...">
+            </div>
+            <div class="filter-controls-row">
+                <div class="filter-buttons" id="categoryFilters">
+                    <button class="filter-btn active" data-cat="">Всі</button>
+                    <button class="filter-btn" data-cat="round">Круглі</button>
+                    <button class="filter-btn" data-cat="square_prof">Квадратні</button>
+                    <button class="filter-btn" data-cat="rect_prof">Прямокутні</button>
+                </div>
+                <label class="stock-toggle">
+                    <input type="checkbox" id="onlyStock">
+                    <span>Тільки на складі</span>
+                </label>
+                <div class="filter-info">
+                    Показано: <b id="shownCount">0</b> з <b id="totalCount">0</b>
+                </div>
+            </div>
+        </section>
+
+        <!-- Таблица продуктов -->
+        <section class="card">
+            <div class="table-card-header">
+                <h2><i class="fa-solid fa-list-check" style="color:var(--primary);"></i> Всі позиції каталогу</h2>
+            </div>
+            <div class="table-container">
+                <table class="products-table">
+                    <thead>
+                        <tr>
+                            <th>Код</th>
+                            <th>Найменування</th>
+                            <th>Стандарт</th>
+                            <th>Марка сталі</th>
+                            <th>Типорозмір</th>
+                            <th style="text-align:right;">Залишок</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productsBody">
+                        <tr>
+                            <td colspan="6">
+                                <div class="state-container">
+                                    <div class="spinner"></div>
+                                    <div>Завантаження позицій каталогу...</div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="pagination">
+                <button id="prevPage" class="pagination-btn" disabled>← Назад</button>
+                <span id="pageInfo" class="pagination-info">1 / 1</span>
+                <button id="nextPage" class="pagination-btn" disabled>Вперед →</button>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const TOKEN = urlParams.get('token') || 'utsk2026';
+        let currentYear = parseInt(urlParams.get('year') || '2026', 10);
+        
+        let state = {
+            category: '',
+            hasStock: false,
+            search: '',
+            page: 0,
+            limit: 50,
+            total: 0,
+        };
+        
+        // Утилиты
+        function setText(id, value) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = value;
+        }
+        
+        function fmtNum(n, digits = 0) {
+            if (n == null || isNaN(n)) return '—';
+            return Number(n).toLocaleString('uk-UA', { 
+                minimumFractionDigits: digits, 
+                maximumFractionDigits: digits 
+            });
+        }
+        
+        function parseSteelGrade(name) {
+            if (!name) return null;
+            const matchSt = name.match(/(?:^|\s)(ст[0-9a-zA-Zа-яА-Я]+)(?:\s|$)/i);
+            if (matchSt) return matchSt[1];
+            const matchGrade = name.match(/(?:^|\s)(\d{2}[А-Яа-яA-Za-z]+[0-9А-Яа-яA-Za-z]*)(?:\s|$)/);
+            if (matchGrade && !/^\d{8,}$/.test(matchGrade[1])) return matchGrade[1];
+            const matchAfterSize = name.match(/\d+[хx×]\d+(?:[хx×]\d+)?\s+([А-Яа-яA-Za-z\d]+)/);
+            if (matchAfterSize && matchAfterSize[1]) {
+                const candidate = matchAfterSize[1].trim();
+                if (!/^\d{8,}$/.test(candidate)) return candidate;
+            }
+            return null;
+        }
+        
+        // Загрузка KPI
+        async function loadKPI() {
+            try {
+                const res = await fetch(`/api/analytics/diversity-kpi?token=${TOKEN}&year=${currentYear}`);
+                const json = await res.json();
+                const d = json.data;
+                setText('kpiTotal', fmtNum(d.total_products));
+                setText('kpiCategories', `${fmtNum(d.by_category.round)} / ${fmtNum(d.by_category.square_prof)} / ${fmtNum(d.by_category.rect_prof)}`);
+                setText('kpiStock', fmtNum(d.total_stock, 1) + ' т');
+                setText('kpiWithStock', fmtNum(d.with_stock));
+            } catch (e) {
+                console.error('[loadKPI]', e);
+            }
+        }
+        
+        // Загрузка списка
+        async function loadList() {
+            try {
+                const params = new URLSearchParams({
+                    token: TOKEN,
+                    year: currentYear,
+                    limit: state.limit,
+                    offset: state.page * state.limit,
+                });
+                if (state.category) params.set('category', state.category);
+                if (state.hasStock) params.set('has_stock', 'true');
+                if (state.search) params.set('search', state.search);
+                
+                const res = await fetch(`/api/analytics/diversity-list?${params}`);
+                const json = await res.json();
+                
+                state.total = json.total || 0;
+                renderProducts(json.data || []);
+                updatePagination();
+            } catch (e) {
+                console.error('[loadList]', e);
+                const tbody = document.getElementById('productsBody');
+                if (tbody) {
+                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--danger); padding:30px;">Помилка завантаження даних: ${e.message}</td></tr>`;
+                }
+            }
+        }
+        
+        function formatSize(p) {
+            if (p.category === 'round' && p.diameter && p.wall) {
+                return `Ø${p.diameter} × ${p.wall} мм`;
+            }
+            if (p.category === 'square_prof' && p.profile_width && p.profile_height && p.wall) {
+                return `${p.profile_width} × ${p.profile_height} × ${p.wall} мм`;
+            }
+            if (p.category === 'rect_prof' && p.profile_width && p.profile_height && p.wall) {
+                return `${p.profile_width} × ${p.profile_height} × ${p.wall} мм`;
+            }
+            return '—';
+        }
+        
+        function renderProducts(products) {
+            const tbody = document.getElementById('productsBody');
+            setText('shownCount', products.length);
+            setText('totalCount', state.total);
+            
+            if (!products.length) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:40px; color:var(--text-muted);">Товари за обраними фільтрами не знайдені</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = products.map(p => {
+                const steel = p.material_grade || parseSteelGrade(p.name);
+                const size = formatSize(p);
+                const sizeLink = p.size_key 
+                    ? `<a href="/size-detail?token=${TOKEN}&size_key=${p.size_key}&year=${currentYear}" class="size-link">${size} <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:10px;"></i></a>`
+                    : size;
+                
+                return `
+                    <tr>
+                        <td><code>${p.code}</code></td>
+                        <td style="font-weight:600;">${p.name}</td>
+                        <td style="color:var(--text-muted); font-size:12.5px;">${p.standard_name || '—'}</td>
+                        <td>${steel ? `<span class="steel-badge">${steel}</span>` : '—'}</td>
+                        <td>${sizeLink}</td>
+                        <td style="text-align:right; font-weight:${p.stock_balance > 0 ? '700' : '400'}; color:${p.stock_balance > 0 ? 'var(--text-main)' : 'var(--text-muted)'};">
+                            ${p.stock_balance > 0 ? fmtNum(p.stock_balance, 2) + ' т' : '—'}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+        
+        function updatePagination() {
+            const totalPages = Math.ceil(state.total / state.limit);
+            const currentPage = state.total === 0 ? 0 : state.page + 1;
+            const maxPages = Math.max(1, totalPages);
+            setText('pageInfo', `${currentPage} / ${maxPages}`);
+            document.getElementById('prevPage').disabled = state.page === 0;
+            document.getElementById('nextPage').disabled = state.page >= totalPages - 1 || state.total === 0;
+        }
+        
+        // Обработчики
+        let searchDebounce = null;
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            clearTimeout(searchDebounce);
+            searchDebounce = setTimeout(() => {
+                state.search = e.target.value.trim();
+                state.page = 0;
+                loadList();
+            }, 250);
+        });
+
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                state.category = btn.dataset.cat;
+                state.page = 0;
+                loadList();
+            });
+        });
+
+        document.getElementById('onlyStock').addEventListener('change', (e) => {
+            state.hasStock = e.target.checked;
+            state.page = 0;
+            loadList();
+        });
+
+        document.getElementById('prevPage').addEventListener('click', () => {
+            if (state.page > 0) { 
+                state.page--; 
+                loadList(); 
+            }
+        });
+
+        document.getElementById('nextPage').addEventListener('click', () => {
+            const totalPages = Math.ceil(state.total / state.limit);
+            if (state.page < totalPages - 1) {
+                state.page++;
+                loadList();
+            }
+        });
+        
+        // Запуск
+        document.addEventListener('DOMContentLoaded', () => {
+            loadKPI();
+            loadList();
+        });
+    </script>
+</body>
+</html>

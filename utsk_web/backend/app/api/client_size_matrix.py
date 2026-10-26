@@ -28,17 +28,17 @@ def get_client_size_matrix_api(
     Поддерживает фильтрацию по категории: round, prof, welded, sheet.
     """
     verify_token(token)
-    target_code = code or client_code
-    if not target_code:
-        raise HTTPException(status_code=400, detail="Параметр 'code' або 'client_code' обов'язковий")
+    target_code = code or client_code  # Може бути None — загальна матриця
+    client_name = None
 
     try:
-        # Название клиента
-        client_row = db.execute(
-            text("SELECT name FROM clients WHERE code = :code"),
-            {"code": target_code},
-        ).fetchone()
-        client_name = client_row[0] if client_row and client_row[0] else target_code
+        if target_code:
+            # Назва клієнта
+            client_row = db.execute(
+                text("SELECT name FROM clients WHERE code = :code"),
+                {"code": target_code},
+            ).fetchone()
+            client_name = client_row[0] if client_row and client_row[0] else target_code
 
         # 1. Получаем KPI (14 полей)
         kpi_row = db.execute(
@@ -84,6 +84,78 @@ def get_client_size_matrix_api(
             {"code": target_code, "y": year},
         ).mappings().all()
 
+        # 3. Получаем size_key типоразмеров, у которых хотя бы один товар имеет сертификаты
+        raw_cur = db.connection().connection.cursor()
+        raw_cur.execute("""
+            WITH cert_products AS (
+                SELECT DISTINCT product_code FROM product_certificate_links
+                UNION
+                SELECT DISTINCT product_code FROM product_certificates WHERE product_code IS NOT NULL
+            ),
+            pipe_certs AS (
+                SELECT
+                    CASE
+                        WHEN p.name ~* 'сварн|электросварн|електрозварн|ГОСТ 10704|ГОСТ 10705|ГОСТ 20295'
+                            THEN 'welded_' || ppa.diameter::TEXT || 'x' || ppa.wall::TEXT
+                        WHEN ppa.is_prof AND ppa.prof_w IS NOT NULL AND ppa.prof_h IS NOT NULL AND ppa.wall IS NOT NULL
+                            THEN 'prof_' || ppa.prof_w::TEXT || 'x' || ppa.prof_h::TEXT || 'x' || ppa.wall::TEXT
+                        WHEN NOT ppa.is_prof AND ppa.diameter IS NOT NULL AND ppa.wall IS NOT NULL
+                            THEN 'round_' || ppa.diameter::TEXT || 'x' || ppa.wall::TEXT
+                        ELSE NULL
+                    END AS size_key
+                FROM products p
+                JOIN cert_products cp ON cp.product_code = p.code
+                CROSS JOIN LATERAL parse_pipe_attributes(p.name) ppa
+                WHERE COALESCE(p.is_service, FALSE) = FALSE
+                  AND (
+                      (NOT ppa.is_prof AND ppa.diameter IS NOT NULL AND ppa.wall IS NOT NULL)
+                      OR (ppa.is_prof AND ppa.prof_w IS NOT NULL AND ppa.prof_h IS NOT NULL AND ppa.wall IS NOT NULL)
+                  )
+                  AND p.name !~* 'лист|ДСТУ 8540|ГОСТ 19903|ЛСТ'
+            ),
+            sheet_certs AS (
+                SELECT
+                    'sheet_' || sh.wall::TEXT || 'x' || sh.prof_w::TEXT || 'x' || sh.prof_h::TEXT AS size_key
+                FROM products p
+                JOIN cert_products cp ON cp.product_code = p.code
+                CROSS JOIN LATERAL (
+                    SELECT
+                        CASE 
+                            WHEN m3 IS NOT NULL THEN replace(m3[1], ',', '.')::numeric
+                            WHEN m1 IS NOT NULL THEN replace(m1[1], ',', '.')::numeric
+                            WHEN m2 IS NOT NULL THEN replace(m2[1], ',', '.')::numeric
+                            ELSE NULL
+                        END AS wall,
+                        CASE 
+                            WHEN m3 IS NOT NULL THEN replace(m3[2], ',', '.')::numeric
+                            WHEN m2 IS NOT NULL THEN replace(m2[1], ',', '.')::numeric
+                            ELSE 1500::numeric
+                        END AS prof_w,
+                        CASE 
+                            WHEN m3 IS NOT NULL THEN replace(m3[3], ',', '.')::numeric
+                            WHEN m2 IS NOT NULL THEN replace(m2[2], ',', '.')::numeric
+                            ELSE 6000::numeric
+                        END AS prof_h
+                    FROM (
+                        SELECT
+                            regexp_match(p.name, '(\\d+(?:[.,]\\d+)?)\\s*[xх×*]\\s*(\\d+(?:[.,]\\d+)?)\\s*[xх×*]\\s*(\\d+(?:[.,]\\d+)?)') as m3,
+                            regexp_match(p.name, '(\\d+(?:[.,]\\d+)?)\\s*[xх×*]\\s*(\\d+(?:[.,]\\d+)?)') as m2,
+                            regexp_match(p.name, '(?i)(?:б-|б\\s+|г/к\\s*|лист\\s+)(\\d+(?:[.,]\\d+)?)\\s*(?:мм)?') as m1
+                    ) sub
+                ) sh
+                WHERE COALESCE(p.is_service, FALSE) = FALSE
+                  AND (p.name ~* 'лист|ДСТУ 8540|ГОСТ 19903|ЛСТ')
+                  AND p.name !~* 'машинко|корпус'
+                  AND sh.wall IS NOT NULL
+            )
+            SELECT DISTINCT size_key FROM pipe_certs WHERE size_key IS NOT NULL
+            UNION
+            SELECT DISTINCT size_key FROM sheet_certs WHERE size_key IS NOT NULL
+        """)
+        cert_size_rows = raw_cur.fetchall()
+        raw_cur.close()
+        cert_size_keys = {row[0] for row in cert_size_rows if row[0]}
+
         items = []
         for r in matrix_rows:
             cat = r.get("product_category")
@@ -91,8 +163,9 @@ def get_client_size_matrix_api(
             if category and cat != category:
                 continue
 
+            s_key = r["size_key"]
             items.append({
-                "size_key": r["size_key"],
+                "size_key": s_key,
                 "size_display": r["size_display"],
                 "is_prof": bool(r["is_prof"]),
                 "product_category": cat,
@@ -103,6 +176,7 @@ def get_client_size_matrix_api(
                 "catalog_products_count": int(r["catalog_products_count"] or 0),
                 "stock_total": float(r["stock_total"] or 0),
                 "has_stock": bool(r["has_stock"]),
+                "has_certificates": s_key in cert_size_keys,
                 "client_bought": bool(r["client_bought"]),
                 "client_revenue": float(r["client_revenue"] or 0),
                 "client_quantity": float(r["client_quantity"] or 0),
@@ -137,16 +211,16 @@ def get_client_size_matrix_kpi_api(
     Легковесный эндпоинт для получения сводных 14 KPI матрицы клиента.
     """
     verify_token(token)
-    target_code = code or client_code
-    if not target_code:
-        raise HTTPException(status_code=400, detail="Параметр 'code' або 'client_code' обов'язковий")
+    target_code = code or client_code  # Може бути None
+    client_name = None
 
     try:
-        client_row = db.execute(
-            text("SELECT name FROM clients WHERE code = :code"),
-            {"code": target_code},
-        ).fetchone()
-        client_name = client_row[0] if client_row and client_row[0] else target_code
+        if target_code:
+            client_row = db.execute(
+                text("SELECT name FROM clients WHERE code = :code"),
+                {"code": target_code},
+            ).fetchone()
+            client_name = client_row[0] if client_row and client_row[0] else target_code
 
         row = db.execute(
             text("SELECT * FROM get_client_size_matrix_kpi(:code, :y)"),
