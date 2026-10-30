@@ -1,0 +1,193 @@
+/* ─── ПРЕМИУМ ТАБЛИЦА (стиль Сравнительной таблицы) ─── */
+.premium-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 15.5px;
+    color: #1e293b;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+/* Заголовки */
+.premium-table thead th {
+    background: #f8fafc;
+    padding: 14px 19px;
+    font-weight: 600;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #64748b;
+    border-bottom: 1px solid #e2e8f0;
+    text-align: left;
+}
+.premium-table thead th.text-right { text-align: right; }
+
+/* Ячейки */
+.premium-table tbody td {
+    padding: 14px 19px;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+}
+.premium-table tbody tr:last-child td {
+    border-bottom: none;
+}
+.premium-table tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+/* Числа (выравнивание) */
+.premium-table .num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+}
+.premium-table .num-muted {
+    color: #64748b;
+    font-weight: 400;
+    font-size: 14px;
+}
+
+/* Цветные бейджи категорий */
+.badge-cat {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 38px;
+    height: 28px;
+    padding: 0 10px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 13px;
+    color: #fff;
+}
+.badge-A { background-color: #2563eb; } /* Синий */
+.badge-B { background-color: #10b981; } /* Зеленый */
+.badge-C { background-color: #f59e0b; } /* Оранжевый */
+.badge-C2 { background-color: #64748b; } /* Серый для C2 */
+
+/* Полоска прогресса для доли % */
+.share-bar-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 80px;
+    justify-content: flex-end;
+}
+.share-bar-track {
+    width: 60px;
+    height: 8px;
+    background: #e2e8f0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+.share-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+}
+.share-bar-fill.bg-A { background-color: #2563eb; }
+.share-bar-fill.bg-B { background-color: #10b981; }
+.share-bar-fill.bg-C { background-color: #f59e0b; }
+.share-bar-fill.bg-C2 { background-color: #64748b; }
+
+/* Футер (Итого) */
+.premium-table tfoot td {
+    background: #f1f5f9;
+    padding: 16px 19px;
+    font-weight: 700;
+    font-size: 15.5px;
+    border-top: 2px solid #e2e8f0;
+}
+
+/* Сноска под таблицей */
+.table-legend {
+    margin-top: 16px;
+    padding: 14px 19px;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 8px;
+    font-size: 13.5px;
+    color: #166534;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* ─── Стили для модального окна (Промт №102, №103) ─── */
+.abc-modal-overlay {
+    display: none; /* Скрыто по умолчанию */
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(15, 23, 42, 0.6); /* Темный полупрозрачный фон */
+    backdrop-filter: blur(4px);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+}
+
+.abc-modal-overlay.active {
+    display: flex;
+    opacity: 1;
+}
+
+.abc-modal-content {
+    background: #fff;
+    border-radius: 16px;
+    width: 96%;
+    max-width: 1440px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    transform: translateY(20px);
+    transition: transform 0.2s ease-in-out;
+}
+
+.abc-modal-overlay.active .abc-modal-content {
+    transform: translateY(0);
+}
+
+.abc-modal-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.abc-modal-title {
+    font-size: 19px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+}
+
+.abc-modal-close {
+    background: #f1f5f9;
+    border: none;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 20px;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+}
+
+.abc-modal-close:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+}
+
+.abc-modal-body {
+    padding: 24px;
+    overflow-y: auto; /* Скролл, если таблица длинная */
+}

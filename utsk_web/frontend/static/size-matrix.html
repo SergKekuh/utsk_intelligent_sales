@@ -6,6 +6,7 @@
     <title>Матриця розмірів — UTSK Intelligent Sales</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/premium-tables.css">
     <style>
         :root {
             --bg-app: #f8fafc;
@@ -776,16 +777,16 @@
                         </label>
                     </div>
                 </div>
-                <div style="overflow-x:auto; border:1px solid var(--border); border-radius:12px; background:#fff;">
-                    <table class="products-table" style="width:100%; border-collapse:collapse; font-size:13.5px;">
+                <div style="overflow-x:auto;">
+                    <table class="products-table premium-table">
                         <thead>
-                            <tr style="background:#f8fafc; border-bottom:1px solid var(--border); text-align:left;">
-                                <th style="padding:12px 16px; font-weight:600; color:#475569;">Код</th>
-                                <th style="padding:12px 16px; font-weight:600; color:#475569;">Найменування</th>
-                                <th style="padding:12px 16px; font-weight:600; color:#475569;">Стандарт</th>
-                                <th style="padding:12px 16px; font-weight:600; color:#475569;">Марка сталі</th>
-                                <th style="padding:12px 16px; font-weight:600; color:#475569;">Типорозмір</th>
-                                <th style="padding:12px 16px; font-weight:600; color:#475569; text-align:right;">Залишок</th>
+                            <tr>
+                                <th>Код</th>
+                                <th>Найменування</th>
+                                <th>Стандарт</th>
+                                <th>Марка сталі</th>
+                                <th>Типорозмір</th>
+                                <th class="text-right">Залишок</th>
                             </tr>
                         </thead>
                         <tbody id="productsListBody"></tbody>
@@ -1398,13 +1399,13 @@
                         : '<span style="color:#94a3b8;">0.0 т</span>';
 
                     html += `
-                        <tr style="border-bottom:1px solid var(--border);">
-                            <td style="padding:10px 16px;"><code style="font-size:12.5px; background:#f1f5f9; padding:2px 6px; border-radius:4px;">${item.code}</code></td>
-                            <td style="padding:10px 16px; font-weight:500;">${item.name}</td>
-                            <td style="padding:10px 16px; color:#64748b;">${item.standard_name || '—'}</td>
-                            <td style="padding:10px 16px;">${gradeBadge}</td>
-                            <td style="padding:10px 16px;">${sizeLink}</td>
-                            <td style="padding:10px 16px; text-align:right;">${stockText}</td>
+                        <tr>
+                            <td><code style="font-size:12.5px; background:#f1f5f9; padding:2px 6px; border-radius:4px; font-weight:600;">${item.code}</code></td>
+                            <td style="font-weight:500;">${item.name}</td>
+                            <td style="color:#64748b;">${item.standard_name || '—'}</td>
+                            <td>${gradeBadge}</td>
+                            <td>${sizeLink}</td>
+                            <td class="num">${stockText}</td>
                         </tr>`;
                 });
                 tbody.innerHTML = html;

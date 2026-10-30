@@ -245,6 +245,98 @@ def get_abc_analysis(
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@router.get("/api/abc-analysis/details")
+def get_abc_year_details(
+    year: int = Query(2026, ge=2011, le=2030),
+    token: str = Query("utsk2026"),
+    db: Session = Depends(get_db),
+):
+    """
+    Drill-down по місяцях для року (Промт №94).
+
+    Помісячні виручка / документи / клієнти рахуються на тій самій базі, що й ABC
+    (клієнти з client_year_activity.is_active; для 2026 ще й is_active_current),
+    але без порога 1000 грн (він діє лише на сумі за період).
+    Категорії A1..C2 для місяця N — накопичувальна (YTD) класифікація за місяці 1..N,
+    тобто _compute_year_abc(year, N); summary 6m/9m/12m = ті самі цифри, що в картках.
+    Місяці без даних повертаються з нулями та has_data=false.
+    """
+    verify_token(token)
+    try:
+        rows = db.execute(
+            text("""
+                SELECT
+                    EXTRACT(MONTH FROM d.invoice_date)::int AS month,
+                    COUNT(DISTINCT d.id) AS docs,
+                    COUNT(DISTINCT d.client_code) AS clients,
+                    COALESCE(ROUND(SUM(sl.amount), 2), 0) AS revenue
+                FROM documents d
+                LEFT JOIN sales_lines sl ON sl.document_id = d.id
+                JOIN clients c ON c.code = d.client_code
+                JOIN client_year_activity cya
+                    ON cya.client_code = c.code
+                   AND cya.sales_year = :year
+                   AND cya.is_active = TRUE
+                WHERE EXTRACT(YEAR FROM d.invoice_date) = :year
+                  AND (:year != 2026 OR c.is_active_current = TRUE)
+                GROUP BY 1
+            """),
+            {"year": year},
+        ).mappings().all()
+        by_month = {int(r["month"]): r for r in rows}
+
+        months = []
+        cumulative = {}
+        for m in range(1, 13):
+            r = by_month.get(m)
+            has_data = bool(r and int(r["docs"] or 0) > 0)
+            categories = {}
+            if has_data:
+                cum = _compute_year_abc(db, year, m)
+                cumulative[m] = cum
+                categories = {c["cat"]: c["count"] for c in cum["categories"]}
+            months.append({
+                "month": m,
+                "has_data": has_data,
+                "revenue": float(r["revenue"] or 0) if r else 0,
+                "docs": int(r["docs"] or 0) if r else 0,
+                "clients": int(r["clients"] or 0) if r else 0,
+                "categories": categories,
+            })
+
+        period_data = {n: (cumulative.get(n) or _compute_year_abc(db, year, n)) for n in (6, 9, 12)}
+
+        summary = {}
+        for n, cum in period_data.items():
+            summary[f"{n}m"] = {
+                "revenue": cum["total_sum"],
+                "clients": cum["total_clients"],
+                "docs": sum(x["docs"] for x in months if x["month"] <= n),
+            }
+
+        # Промт №97: категорії × періоди 6/9/12 (виручка та кількість клієнтів у категорії)
+        categories = []
+        for code in CAT_ORDER:
+            item = {"name": code, "label": CAT_NAMES.get(code, code)}
+            for n, cum in period_data.items():
+                c = next((x for x in cum["categories"] if x["cat"] == code), None)
+                item[f"rev_{n}m"] = c["sum"] if c else 0.0
+                item[f"cnt_{n}m"] = c["count"] if c else 0
+            categories.append(item)
+
+        return {
+            "status": "ok",
+            "year": year,
+            "months_with_data": [x["month"] for x in months if x["has_data"]],
+            "months": months,
+            "summary": summary,
+            "categories": categories,
+        }
+    except Exception as e:
+        logger.error(f"Ошибка get_abc_year_details: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 class ThresholdUpdatePayload(BaseModel):
     year: int
     price_index: float

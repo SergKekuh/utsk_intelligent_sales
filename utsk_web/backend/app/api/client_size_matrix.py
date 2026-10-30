@@ -88,9 +88,13 @@ def get_client_size_matrix_api(
         raw_cur = db.connection().connection.cursor()
         raw_cur.execute("""
             WITH cert_products AS (
-                SELECT DISTINCT product_code FROM product_certificate_links
-                UNION
-                SELECT DISTINCT product_code FROM product_certificates WHERE product_code IS NOT NULL
+                -- Актуальна схема: certs_registry / cert_product_links -> product_sales_registry
+                -- (старі product_certificates / product_certificate_links перейменовані в *_archive)
+                SELECT DISTINCT ltrim(psr.product_code, '0') AS product_code
+                FROM cert_product_links cpl
+                JOIN product_sales_registry psr ON psr.id = cpl.sale_id
+                WHERE psr.product_code IS NOT NULL
+                  AND cpl.is_verified = TRUE
             ),
             pipe_certs AS (
                 SELECT

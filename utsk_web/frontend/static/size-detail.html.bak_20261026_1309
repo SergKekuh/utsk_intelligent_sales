@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Типорозмір — UTSK Intelligent Sales</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --primary-soft: #eff6ff;
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --border-light: #f1f5f9;
+            --success: #16a34a;
+            --success-soft: #dcfce7;
+            --warning: #f59e0b;
+            --warning-soft: #fef3c7;
+            --danger: #dc2626;
+            --danger-soft: #fee2e2;
+            --radius: 16px;
+            --radius-sm: 8px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.5;
+            padding: 24px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* ─── Breadcrumbs ─── */
+        .breadcrumbs {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13.5px;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .breadcrumbs a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.15s;
+        }
+
+        .breadcrumbs a:hover {
+            color: var(--primary);
+        }
+
+        .breadcrumbs span#bcSize {
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        /* ─── Card base ─── */
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        /* ─── Header Card ─── */
+        .header-card {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .header-title-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .header-title h1 {
+            font-size: 26px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: var(--text-main);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 12.5px;
+            font-weight: 600;
+            background: var(--primary-soft);
+            color: var(--primary);
+            border: 1px solid #bfdbfe;
+        }
+
+        .badge-prof {
+            background: #f0fdf4;
+            color: #15803d;
+            border-color: #bbf7d0;
+        }
+
+        /* ─── KPI Grid ─── */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        @media (max-width: 900px) {
+            .kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 500px) {
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .kpi-card {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .kpi-label {
+            font-size: 12.5px;
+            color: var(--text-muted);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .kpi-value {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-top: 4px;
+        }
+
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--primary);
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 14px;
+            padding: 10px 18px;
+            border-radius: 10px;
+            text-decoration: none;
+            transition: background 0.15s, transform 0.15s;
+            box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #ffffff;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            font-size: 13px;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .btn-outline:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* ─── Tabs Card ─── */
+        .tabs-card {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tabs-nav {
+            display: flex;
+            gap: 10px;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 12px;
+            margin-bottom: 24px;
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            background: #f1f5f9;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px 16px;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover {
+            background: #e2e8f0;
+            color: var(--text-main);
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: #ffffff;
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.22);
+        }
+
+        .tab-btn__code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11.5px;
+            padding: 2px 6px;
+            border-radius: 6px;
+            background: rgba(0,0,0,0.06);
+            color: inherit;
+        }
+
+        .tab-btn.active .tab-btn__code {
+            background: rgba(255,255,255,0.22);
+            color: #ffffff;
+        }
+
+        /* ─── Tabs Content Layout ─── */
+        .tab-layout-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 900px) {
+            .tab-layout-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .section-block {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .section-block:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-block h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .info-table tr td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-light);
+            font-size: 13.5px;
+        }
+
+        .info-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .info-table td:first-child {
+            font-weight: 600;
+            color: var(--text-muted);
+            width: 160px;
+        }
+
+        .info-table td:last-child {
+            font-weight: 500;
+            color: var(--text-main);
+        }
+
+        .info-table td.code-cell {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 3px 10px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-bought {
+            background: var(--success-soft);
+            color: var(--success);
+            border: 1px solid #86efac;
+        }
+
+        .status-notbought {
+            background: #f1f5f9;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+        }
+
+        .empty-block {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 16px 18px;
+            background: #f8fafc;
+            border: 1px dashed var(--border);
+            border-radius: 10px;
+            color: var(--text-muted);
+            font-size: 13.5px;
+            margin-bottom: 12px;
+        }
+
+        .empty-block:last-child {
+            margin-bottom: 0;
+        }
+
+        .empty-block-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .empty-block i {
+            font-size: 18px;
+            color: #94a3b8;
+        }
+
+        .activity-filters {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            margin-bottom: 12px;
+        }
+
+        .activity-filters label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .activity-filters select {
+            padding: 4px 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-main);
+            background: #ffffff;
+            cursor: pointer;
+        }
+
+        .state-container {
+            padding: 48px 24px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 12px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Breadcrumbs -->
+        <nav class="breadcrumbs">
+            <a href="/">Головна</a>
+            <span>/</span>
+            <a href="/size-matrix" id="bcMatrix">Матриця розмірів</a>
+            <span>/</span>
+            <a href="/client-detail" id="bcClient">Клієнт</a>
+            <span>/</span>
+            <span id="bcSize">—</span>
+        </nav>
+
+        <!-- Шапка (агрегаты) -->
+        <section class="card header-card">
+            <div class="header-title-row">
+                <div class="header-title">
+                    <h1 id="sizeTitle">—</h1>
+                    <span class="badge" id="categoryBadge">—</span>
+                </div>
+                <div class="header-actions">
+                    <a id="vnitiBtn" class="btn-primary" href="#" style="display: none;">
+                        📐 Розрахунок профілювання (ВНІТІ)
+                    </a>
+                </div>
+            </div>
+            
+            <div class="kpi-grid kpi-grid--4">
+                <div class="kpi-card">
+                    <div class="kpi-label">Розмір</div>
+                    <div class="kpi-value" id="kpiSize">—</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Стандарти</div>
+                    <div class="kpi-value" id="kpiStandards">—</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Залишки на складі</div>
+                    <div class="kpi-value" id="kpiStock">—</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Куплено клієнтом</div>
+                    <div class="kpi-value" id="kpiClient">—</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Вкладки по продуктам -->
+        <section class="card tabs-card">
+            <div class="tabs-nav" id="tabsNav">
+                <!-- JS-рендер вкладок -->
+            </div>
+            
+            <div class="tabs-content" id="tabsContent">
+                <!-- JS-рендер содержимого активной вкладки -->
+                <div class="state-container">
+                    <div class="spinner"></div>
+                    <div>Завантаження даних типорозміру...</div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // ═══ Глобальные переменные ═══
+        const urlParams = new URLSearchParams(window.location.search);
+        const TOKEN = urlParams.get('token') || 'utsk2026';
+        const CLIENT_CODE = urlParams.get('code') || urlParams.get('client_code') || '4501';
+        const SIZE_KEY = urlParams.get('size_key') || 'round_140x10';
+        let currentYear = parseInt(urlParams.get('year') || '2026', 10);
+        
+        let productsData = [];
+        let currentTabIndex = 0;
+        
+        // ═══ Утилиты ═══
+        function setText(id, value) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = value;
+            else console.warn(`[setText] #${id} не знайдено`);
+        }
+        
+        function fmtNum(n, digits = 2) {
+            if (n == null || isNaN(n)) return '—';
+            return Number(n).toLocaleString('uk-UA', { 
+                minimumFractionDigits: digits, 
+                maximumFractionDigits: digits 
+            });
+        }
+        
+        function fmtMoney(n) {
+            if (n == null || isNaN(n) || n === 0) return '—';
+            return fmtNum(n, 2) + ' ₴';
+        }
+
+        // ═══ Парсинг марки стали ═══
+        function parseSteelGrade(name) {
+            if (!name) return null;
+            // 1. Поиск стXX (ст20, ст45, ст09Г2С, стQ345B и т.п.)
+            const matchSt = name.match(/(?:^|\s)(ст[0-9a-zA-Zа-яА-Я]+)(?:\s|$)/i);
+            if (matchSt) return matchSt[1];
+
+            // 2. Поиск марки по паттерну 09Г2С, 12Х18Н10Т, 40Х и т.п.
+            const matchGrade = name.match(/(?:^|\s)(\d{2}[А-Яа-яA-Za-z]+[0-9А-Яа-яA-Za-z]*)(?:\s|$)/);
+            if (matchGrade && !/^\d{8,}$/.test(matchGrade[1])) return matchGrade[1];
+
+            // 3. После размера
+            const matchAfterSize = name.match(/\d+[хx×]\d+(?:[хx×]\d+)?\s+([А-Яа-яA-Za-z\d]+)/);
+            if (matchAfterSize && matchAfterSize[1]) {
+                const candidate = matchAfterSize[1].trim();
+                if (!/^\d{8,}$/.test(candidate)) return candidate;
+            }
+
+            return null;
+        }
+        
+        // ═══ Загрузка данных ═══
+        async function loadData() {
+            try {
+                // 1. Шапка — billet-detail
+                const res1 = await fetch(
+                    `/api/analytics/billet-detail?token=${TOKEN}&code=${CLIENT_CODE}&size_key=${SIZE_KEY}&year=${currentYear}`
+                );
+                if (!res1.ok) throw new Error(`HTTP ${res1.status}`);
+                const data1 = await res1.json();
+                
+                if (!data1.data) {
+                    document.body.innerHTML = '<div class="container"><p>Типорозмір не знайдено.</p></div>';
+                    return;
+                }
+                
+                // 2. Продукты — client-products-by-size
+                const res2 = await fetch(
+                    `/api/client-products-by-size/${CLIENT_CODE}/${SIZE_KEY}?token=${TOKEN}&year=${currentYear}`
+                );
+                if (!res2.ok) throw new Error(`HTTP ${res2.status}`);
+                const data2 = await res2.json();
+                productsData = data2.items || data2.data || data2.products || [];
+                
+                renderHeader(data1.data);
+                renderTabs(productsData);
+                
+            } catch (e) {
+                console.error('[loadData]', e);
+                const content = document.getElementById('tabsContent');
+                if (content) {
+                    content.innerHTML = `
+                        <div class="state-container" style="color:var(--danger);">
+                            <i class="fa-solid fa-circle-exclamation" style="font-size:24px; margin-bottom:8px;"></i>
+                            <div>Помилка завантаження даних типорозміру: ${e.message}</div>
+                        </div>`;
+                }
+            }
+        }
+        
+        // ═══ Рендер шапки ═══
+        function renderHeader(data) {
+            setText('sizeTitle', data.size_display || SIZE_KEY);
+            setText('bcSize', data.size_display || SIZE_KEY);
+            
+            // Breadcrumbs
+            const bcMatrix = document.getElementById('bcMatrix');
+            if (bcMatrix) bcMatrix.href = `/size-matrix?token=${TOKEN}&code=${CLIENT_CODE}&year=${currentYear}&from=client`;
+            
+            const bcClient = document.getElementById('bcClient');
+            if (bcClient) bcClient.href = `/client-detail?token=${TOKEN}&code=${CLIENT_CODE}&year=${currentYear}`;
+            
+            // KPI
+            setText('kpiSize', data.size_display || '—');
+            setText('kpiStandards', `${productsData.length} поз.`);
+            setText('kpiStock', `${fmtNum(data.stock?.stock_total)} т`);
+            setText('kpiClient', data.client?.bought 
+                ? `${fmtNum(data.client.quantity)} т` 
+                : 'Не купував');
+            
+            // Категория
+            const categoryBadge = document.getElementById('categoryBadge');
+            if (categoryBadge) {
+                const cat = data.product_category || (SIZE_KEY.startsWith('round_') ? 'round' : 'prof');
+                const labels = { 
+                    round: 'Кругла', 
+                    prof: 'Профільна', 
+                    welded: 'Зварна', 
+                    sheet: 'Лист' 
+                };
+                categoryBadge.textContent = labels[cat] || cat;
+                if (cat === 'prof') {
+                    categoryBadge.className = 'badge badge-prof';
+                } else {
+                    categoryBadge.className = 'badge';
+                }
+            }
+            
+            // Кнопка ВНІТІ (только для round)
+            const vnitiBtn = document.getElementById('vnitiBtn');
+            if (vnitiBtn) {
+                if (SIZE_KEY.startsWith('round_')) {
+                    vnitiBtn.style.display = 'inline-flex';
+                    vnitiBtn.href = `/billet-detail?token=${TOKEN}&code=${CLIENT_CODE}&size_key=${SIZE_KEY}&year=${currentYear}`;
+                } else {
+                    vnitiBtn.style.display = 'none';
+                }
+            }
+        }
+        
+        // ═══ Рендер вкладок ═══
+        function renderTabs(products) {
+            const nav = document.getElementById('tabsNav');
+            const content = document.getElementById('tabsContent');
+            
+            if (!products.length) {
+                nav.innerHTML = '<p class="empty" style="color:var(--text-muted); padding:10px;">Продукти для цього типорозміру не знайдені в каталозі.</p>';
+                content.innerHTML = '<div class="state-container">У каталозі немає зареєстрованих товарів</div>';
+                return;
+            }
+            
+            if (currentTabIndex >= products.length) {
+                currentTabIndex = 0;
+            }
+
+            nav.innerHTML = products.map((p, i) => {
+                const code = p.product_code || p.code || '';
+                const standard = p.standard || p.standard_name || 'Без стандарту';
+                return `
+                    <button class="tab-btn ${i === currentTabIndex ? 'active' : ''}" 
+                            onclick="switchTab(${i})"
+                            data-index="${i}">
+                        <span>${standard}</span>
+                        ${code ? `<span class="tab-btn__code">${code}</span>` : ''}
+                    </button>
+                `;
+            }).join('');
+            
+            renderTabContent(products[currentTabIndex]);
+        }
+        
+        function switchTab(index) {
+            currentTabIndex = index;
+            
+            document.querySelectorAll('.tab-btn').forEach((btn, i) => {
+                btn.classList.toggle('active', i === index);
+            });
+            
+            if (productsData[index]) {
+                renderTabContent(productsData[index]);
+            }
+        }
+        window.switchTab = switchTab;
+        
+        function renderTabContent(product) {
+            const content = document.getElementById('tabsContent');
+            if (!content || !product) return;
+            
+            const code = product.product_code || product.code || '—';
+            const name = product.product_name || product.name || '—';
+            const standard = product.standard || product.standard_name || '—';
+            const steelGrade = parseSteelGrade(name);
+            const stock = product.stock_balance != null ? product.stock_balance : (product.stock != null ? product.stock : 0);
+            const isBought = product.is_purchased != null ? !!product.is_purchased : !!product.client_bought;
+            
+            content.innerHTML = `
+                <div class="tab-layout-grid">
+                    <!-- Левая колонка: Инфо + Документация -->
+                    <div class="col-left">
+                        <!-- Инфо о продукте -->
+                        <div class="section-block product-info">
+                            <h3><i class="fa-solid fa-circle-info" style="color:var(--primary);"></i> Інформація про продукт</h3>
+                            <table class="info-table">
+                                <tr><td>Код товару</td><td class="code-cell">${code}</td></tr>
+                                <tr><td>Найменування</td><td style="font-weight:600;">${name}</td></tr>
+                                <tr><td>Стандарт</td><td>${standard}</td></tr>
+                                <tr><td>Марка сталі</td><td style="font-weight:700; color:var(--primary);">${steelGrade || '—'}</td></tr>
+                                <tr><td>Залишок на складі</td><td><b>${fmtNum(stock)}</b> т</td></tr>
+                                <tr>
+                                    <td>Статус у клієнта</td>
+                                    <td>
+                                        ${isBought 
+                                            ? '<span class="status-badge status-bought"><i class="fa-solid fa-check"></i> Куплено</span>' 
+                                            : '<span class="status-badge status-notbought">Не купував</span>'}
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        
+                        <!-- Документация -->
+                        <div class="section-block product-docs" id="certificates-section">
+                            <h3><i class="fa-solid fa-book" style="color:var(--primary);"></i> 📄 Документація (сертифікати)</h3>
+                            <div id="certs-list" style="display:flex; flex-direction:column; gap:10px; max-height:360px; overflow-y:auto;">
+                                <div class="empty-block">
+                                    <div class="empty-block-left">
+                                        <i class="fa-solid fa-spinner fa-spin" style="color:var(--primary);"></i>
+                                        <span>Завантаження сертифікатів...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Правая колонка: Спецификация + Активность -->
+                    <div class="col-right">
+                        <!-- Спецификация -->
+                        <div class="section-block product-spec">
+                            <h3><i class="fa-solid fa-table-list" style="color:var(--primary);"></i> Специфікація</h3>
+                            <div class="empty-block">
+                                <div class="empty-block-left">
+                                    <i class="fa-solid fa-flask" style="color:#8b5cf6;"></i>
+                                    <span>Хімічний склад, механічні властивості — не заповнено</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- График активности -->
+                        <div class="section-block product-activity">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                                <h3 style="margin-bottom:0;"><i class="fa-solid fa-chart-line" style="color:var(--primary);"></i> Графік активності</h3>
+                                <div class="activity-filters" style="margin-bottom:0;">
+                                    <label>Рік:
+                                        <select id="activityYear" onchange="changeYear(this.value)">
+                                            <option value="2024" ${currentYear === 2024 ? 'selected' : ''}>2024</option>
+                                            <option value="2025" ${currentYear === 2025 ? 'selected' : ''}>2025</option>
+                                            <option value="2026" ${currentYear === 2026 ? 'selected' : ''}>2026</option>
+                                        </select>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="empty-block">
+                                <div class="empty-block-left">
+                                    <i class="fa-solid fa-chart-column"></i>
+                                    <span>Графік активності — у розробці (Етап 2)</span>
+                                </div>
+                            </div>
+                            <div class="empty-block">
+                                <div class="empty-block-left">
+                                    <i class="fa-solid fa-industry"></i>
+                                    <span>Топ галузей — у розробці (Етап 2)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            if (code && code !== '—') {
+                loadCerts(code);
+            }
+        }
+
+        // ═══ Загрузка сертификатов для товара ═══
+        async function loadCerts(productCode) {
+            const box = document.getElementById('certs-list');
+            if (!box) return;
+            box.innerHTML = `
+                <div class="empty-block">
+                    <div class="empty-block-left">
+                        <i class="fa-solid fa-spinner fa-spin" style="color:var(--primary);"></i>
+                        <span>Завантаження...</span>
+                    </div>
+                </div>`;
+
+            try {
+                const r = await fetch(`/api/certificates?product_code=${encodeURIComponent(productCode)}&limit=50`);
+                if (!r.ok) throw new Error(`HTTP ${r.status}`);
+                const data = await r.json();
+
+                if (!data.items || data.items.length === 0) {
+                    box.innerHTML = `
+                        <div class="empty-block">
+                            <div class="empty-block-left">
+                                <i class="fa-solid fa-file-pdf" style="color:#94a3b8;"></i>
+                                <span>Сертифікатів для цього товару (${productCode}) не знайдено</span>
+                            </div>
+                        </div>`;
+                    return;
+                }
+
+                box.innerHTML = data.items.map(c => `
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 14px; background:#ffffff; border:1px solid var(--border); border-radius:10px;">
+                        <div style="min-width:0;">
+                            <div style="font-weight:700; font-size:14px; color:var(--text-main);">
+                                <i class="fa-solid fa-file-pdf" style="color:#ef4444; margin-right:6px;"></i>
+                                № ${c.cert_number || '—'}
+                            </div>
+                            <div style="font-size:12.5px; color:var(--text-muted); margin-top:2px;">
+                                ${c.cert_date || '—'} · ${c.organization || '—'}
+                            </div>
+                            ${c.product_info ? `<div style="font-size:11.5px; color:#64748b; margin-top:4px;">${c.product_info}</div>` : ''}
+                        </div>
+                        <a href="/api/certificates/${encodeURIComponent(c.file_name)}"
+                           target="_blank"
+                           class="btn-primary"
+                           style="padding:6px 14px; font-size:13px; white-space:nowrap;">
+                            PDF
+                        </a>
+                    </div>
+                `).join('');
+            } catch (e) {
+                box.innerHTML = `
+                    <div class="empty-block" style="color:var(--danger);">
+                        <div class="empty-block-left">
+                            <i class="fa-solid fa-circle-exclamation" style="color:var(--danger);"></i>
+                            <span>Помилка: ${e.message}</span>
+                        </div>
+                    </div>`;
+            }
+        }
+        window.loadCerts = loadCerts;
+        
+        // ═══ Смена года ═══
+        function changeYear(year) {
+            currentYear = parseInt(year, 10);
+            const url = new URL(window.location);
+            url.searchParams.set('year', year);
+            window.history.replaceState({}, '', url);
+            loadData();
+        }
+        window.changeYear = changeYear;
+        
+        // ═══ Запуск ═══
+        document.addEventListener('DOMContentLoaded', loadData);
+    </script>
+</body>
+</html>

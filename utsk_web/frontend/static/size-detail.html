@@ -738,7 +738,7 @@
                         </div>
                         
                         <!-- Документация -->
-                        <div class="section-block product-docs" id="certificates-section">
+                        <div class="section-block product-docs" id="certificates-section" style="display: none;">
                             <h3><i class="fa-solid fa-book" style="color:var(--primary);"></i> 📄 Документація (сертифікати)</h3>
                             <div id="certs-list" style="display:flex; flex-direction:column; gap:10px; max-height:360px; overflow-y:auto;">
                                 <div class="empty-block">
@@ -796,9 +796,97 @@
             `;
 
             if (code && code !== '—') {
-                loadCerts(code);
+                // loadCerts(code); // Відключено до отримання точних даних з 1С
             }
         }
+
+        /* ═══ Сертифікати: відкриття PDF з обробкою 410 ═══ */
+
+        /**
+         * Відкриває PDF сертифіката. Якщо файлу немає (pdf_exists=false або 410) —
+         * показує toast замість відкриття битої вкладки.
+         */
+        async function openCertificate(filename, cert) {
+            // 1. Якщо об'єкт уже знає, що файлу немає — не смикаємо API
+            if (cert && cert.pdf_exists === false) {
+                showMissingCertToast(cert);
+                return;
+            }
+
+            try {
+                // 2. HEAD-запит: швидко перевіряємо статус без завантаження всього PDF
+                const resp = await fetch(`/api/certificates/${encodeURIComponent(filename)}`, {
+                    method: 'HEAD',
+                });
+
+                if (resp.status === 200) {
+                    window.open(`/api/certificates/${encodeURIComponent(filename)}`, '_blank');
+                } else if (resp.status === 410) {
+                    const data = await resp.json().catch(() => ({}));
+                    showMissingCertToast(data.detail || cert || { cert_number: filename });
+                } else if (resp.status === 404) {
+                    showToast('Сертифікат не знайдено в реєстрі', 'error');
+                } else {
+                    showToast(`Помилка завантаження: HTTP ${resp.status}`, 'error');
+                }
+            } catch (err) {
+                showToast("Помилка з'єднання з сервером", 'error');
+            }
+        }
+        window.openCertificate = openCertificate;
+
+        /**
+         * Toast: «PDF-файл ще не завантажено».
+         */
+        function showMissingCertToast(cert) {
+            const certNum  = cert.cert_number || '—';
+            const certDate = cert.cert_date   || '—';
+            const msg = `<b>Сертифікат ${certNum}</b> (від ${certDate}).<br>PDF-файл ще не завантажено в архів.<br>Зверніться до адміністратора.`;
+            showToast(msg, 'warning', 8000);
+        }
+        window.showMissingCertToast = showMissingCertToast;
+
+        /**
+         * Універсальний toast (нативний, без бібліотек).
+         * type: 'info' | 'warning' | 'error'
+         */
+        function showToast(htmlMessage, type = 'info', duration = 4000) {
+            let container = document.getElementById('toast-container');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toast-container';
+                container.style.cssText =
+                    'position:fixed;top:20px;right:20px;z-index:9999;' +
+                    'display:flex;flex-direction:column;gap:10px;pointer-events:none;';
+                document.body.appendChild(container);
+            }
+            const colors = { info: '#0d6efd', warning: '#f59e0b', error: '#dc3545' };
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                background:${colors[type] || colors.info}; color:#fff;
+                padding:14px 20px; border-radius:10px; max-width:420px;
+                box-shadow:0 6px 20px rgba(0,0,0,.25); font-size:13.5px;
+                line-height:1.45; pointer-events:auto;
+                animation: toastIn .25s ease-out;
+            `;
+            toast.innerHTML = htmlMessage;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity .3s';
+                setTimeout(() => toast.remove(), 300);
+            }, duration);
+        }
+        window.showToast = showToast;
+
+        /* Анімація появи toast */
+        (() => {
+            if (document.getElementById('toast-style')) return;
+            const s = document.createElement('style');
+            s.id = 'toast-style';
+            s.textContent = '@keyframes toastIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:none}}';
+            document.head.appendChild(s);
+        })();
 
         // ═══ Загрузка сертификатов для товара ═══
         async function loadCerts(productCode) {
@@ -828,11 +916,17 @@
                     return;
                 }
 
-                box.innerHTML = data.items.map(c => `
+                box.innerHTML = data.items.map(c => {
+                    const pdfExists = c.pdf_exists !== false;
+                    const btnLabel  = pdfExists ? 'PDF' : 'PDF відсутній';
+                    const btnStyle  = pdfExists
+                        ? 'padding:6px 14px; font-size:13px; white-space:nowrap;'
+                        : 'padding:6px 14px; font-size:13px; white-space:nowrap; opacity:.55; cursor:not-allowed;';
+                    return `
                     <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 14px; background:#ffffff; border:1px solid var(--border); border-radius:10px;">
                         <div style="min-width:0;">
                             <div style="font-weight:700; font-size:14px; color:var(--text-main);">
-                                <i class="fa-solid fa-file-pdf" style="color:#ef4444; margin-right:6px;"></i>
+                                <i class="fa-solid fa-file-pdf" style="color:${pdfExists ? '#ef4444' : '#94a3b8'}; margin-right:6px;"></i>
                                 № ${c.cert_number || '—'}
                             </div>
                             <div style="font-size:12.5px; color:var(--text-muted); margin-top:2px;">
@@ -840,14 +934,15 @@
                             </div>
                             ${c.product_info ? `<div style="font-size:11.5px; color:#64748b; margin-top:4px;">${c.product_info}</div>` : ''}
                         </div>
-                        <a href="/api/certificates/${encodeURIComponent(c.file_name)}"
-                           target="_blank"
-                           class="btn-primary"
-                           style="padding:6px 14px; font-size:13px; white-space:nowrap;">
-                            PDF
-                        </a>
+                        <button type="button"
+                                class="btn-primary"
+                                style="${btnStyle}"
+                                onclick='openCertificate(${JSON.stringify(c.file_name)}, ${JSON.stringify({cert_number: c.cert_number, cert_date: c.cert_date, pdf_exists: c.pdf_exists})})'>
+                            ${btnLabel}
+                        </button>
                     </div>
-                `).join('');
+                    `;
+                }).join('');
             } catch (e) {
                 box.innerHTML = `
                     <div class="empty-block" style="color:var(--danger);">

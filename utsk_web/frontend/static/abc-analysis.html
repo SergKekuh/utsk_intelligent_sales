@@ -6,6 +6,7 @@
     <title>UTSK — ABC-аналіз клієнтів (2011–2026)</title>
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="/static/css/premium-tables.css?v=103">
     <style>
         :root {
             --bg-body: #f8fafc;
@@ -580,6 +581,47 @@
             .charts-grid-2 { grid-template-columns: 1fr; }
             .charts-grid-equal { grid-template-columns: 1fr; }
         }
+
+        /* Drill-down по категоріях та періодах (Промти №94, №97, №99) */
+        #year-details-wrap > div { margin-bottom: 24px; }
+        .year-details-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 16px 20px;
+            box-shadow: var(--shadow-card);
+        }
+        .abc-details-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+        .abc-details-table th, .abc-details-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            text-align: left;
+            font-size: 13.5px;
+        }
+        .abc-details-table th { background: #f8fafc; font-weight: 600; }
+        /* Числові колонки вирівнюємо вправо для зручності читання */
+        .abc-details-table td:nth-child(2),
+        .abc-details-table td:nth-child(3),
+        .abc-details-table td:nth-child(4),
+        .abc-details-table th:nth-child(2),
+        .abc-details-table th:nth-child(3),
+        .abc-details-table th:nth-child(4) {
+            text-align: right;
+        }
+        .abc-btn {
+            padding: 6px 16px;
+            border: 1px solid var(--border-color);
+            background: #fff;
+            color: var(--text-main);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.15s;
+        }
+        .abc-btn:hover { background: #f8fafc; }
+        .abc-btn.reset { color: #dc3545; border-color: #dc3545; }
+        .abc-btn.reset:hover { background: #fef2f2; }
     </style>
 </head>
 <body>
@@ -638,7 +680,7 @@
     <!-- ====== 3. BENTO-БЛОК СРАВНЕНИЯ 3-Х ЛЕТ (SIDE-BY-SIDE) ====== -->
     <section class="bento-overview" id="bento-overview-cards">
         <!-- Карточка 2026 -->
-        <div class="overview-card year-2026">
+        <div class="overview-card year-2026" onclick="toggleYearDetails(2026)" style="cursor:pointer;" title="Клік — деталізація по місяцях">
             <div class="card-meta">
                 <span class="year-tag">2026</span>
                 <span class="period-tag" id="tag-period-2026">9 міс (Факт)</span>
@@ -658,7 +700,7 @@
         </div>
 
         <!-- Карточка 2025 -->
-        <div class="overview-card year-2025">
+        <div class="overview-card year-2025" onclick="toggleYearDetails(2025)" style="cursor:pointer;" title="Клік — деталізація по місяцях">
             <div class="card-meta">
                 <span class="year-tag">2025</span>
                 <span class="period-tag" id="tag-period-2025">9 міс (LFL)</span>
@@ -678,7 +720,7 @@
         </div>
 
         <!-- Карточка 2024 -->
-        <div class="overview-card year-2024">
+        <div class="overview-card year-2024" onclick="toggleYearDetails(2024)" style="cursor:pointer;" title="Клік — деталізація по місяцях">
             <div class="card-meta">
                 <span class="year-tag">2024</span>
                 <span class="period-tag" id="tag-period-2024">9 міс (LFL)</span>
@@ -697,6 +739,8 @@
             </div>
         </div>
     </section>
+
+    <!-- Drill-down по категоріях та періодах (Промт №102: виведено в модальне вікно #abc-modal) -->
 
     <!-- ====== 4. НАВИГАЦИОННЫЕ ВКЛАДКИ ====== -->
     <nav class="tabs-nav">
@@ -956,6 +1000,170 @@ async function loadDataFromAPI(year = appState.year, period = appState.period) {
             tbody.innerHTML = '<tr><td colspan="14" class="text-center">Немає даних для відображення</td></tr>';
         }
     }
+}
+
+/**
+ * --------------------------------------------------------------------------
+ * DRILL-DOWN ПО МІСЯЦЯХ (клік по картці року) — Промти №94, №102
+ * --------------------------------------------------------------------------
+ */
+const MONTH_NAMES_UA = ['Січень','Лютий','Березень','Квітень','Травень','Червень','Липень','Серпень','Вересень','Жовтень','Листопад','Грудень'];
+
+// Глобальна змінна для кешу, щоб не вантажити одне й те саме двічі
+const abcDataCache = {};
+
+async function toggleYearDetails(year) {
+    const modal = document.getElementById('abc-modal');
+    const title = document.getElementById('abc-modal-title');
+    const body = document.getElementById('abc-modal-body');
+
+    if (!modal || !title || !body) return;
+
+    // Налаштовуємо заголовок
+    title.textContent = `${year} — Порівняння категорій за періодами`;
+    
+    // Показуємо модалку та індикатор завантаження
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden'; // Блокуємо скрол сторінки
+    body.innerHTML = '<div style="text-align:center; padding: 40px; color: #64748b;">Завантаження даних...</div>';
+
+    // Якщо дані вже завантажені — рендеримо одразу
+    if (abcDataCache[year]) {
+        body.innerHTML = renderYearDetails(abcDataCache[year]);
+        return;
+    }
+
+    // Інакше — йдемо в API
+    try {
+        const resp = await fetch(`/api/abc-analysis/details?token=${TOKEN}&year=${year}`);
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        
+        const data = await resp.json();
+        abcDataCache[year] = data; // Зберігаємо в кеш
+        
+        body.innerHTML = renderYearDetails(data);
+    } catch (err) {
+        body.innerHTML = `<div style="color:#dc3545; padding:20px;">Помилка завантаження: ${err.message}</div>`;
+    }
+}
+
+function closeAbcModal(event) {
+    // Якщо клікнули по фону (не по контенту) або викликали з кнопки
+    if (event && event.target !== event.currentTarget && event.type === 'click') {
+        return;
+    }
+    
+    const modal = document.getElementById('abc-modal');
+    if (modal) {
+        modal.classList.remove('active');
+    }
+    document.body.style.overflow = ''; // Повертаємо скрол
+}
+
+// Закриття по клавіші Escape
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeAbcModal();
+});
+
+function renderYearDetails(data) {
+    const categories = data.categories || [];
+
+    // Функція для визначення кольору бейджа та прогрес-бару за категорією
+    const getCatColor = (name) => {
+        if (name.startsWith('A')) return 'A';
+        if (name.startsWith('B')) return 'B';
+        return name === 'C2' ? 'C2' : 'C';
+    };
+
+    // Підсумкові суми по періодах
+    const total6 = categories.reduce((sum, c) => sum + (c.rev_6m || 0), 0);
+    const totalCnt6 = categories.reduce((sum, c) => sum + (c.cnt_6m || 0), 0);
+    const total9 = categories.reduce((sum, c) => sum + (c.rev_9m || 0), 0);
+    const totalCnt9 = categories.reduce((sum, c) => sum + (c.cnt_9m || 0), 0);
+    const total12 = categories.reduce((sum, c) => sum + (c.rev_12m || 0), 0);
+    const totalCnt12 = categories.reduce((sum, c) => sum + (c.cnt_12m || 0), 0);
+
+    const rows = categories.map(cat => {
+        const color = getCatColor(cat.name);
+        const sharePct = total6 > 0 ? ((cat.rev_6m / total6) * 100).toFixed(1) : '0.0';
+        const barWidth = Math.min(parseFloat(sharePct) * 2.5, 100);
+
+        return `
+        <tr>
+            <td><span class="badge-cat badge-${color}">${cat.name}</span></td>
+            <td style="font-weight: 500; color: #334155;">Категорія ${cat.name}</td>
+            <!-- Колонки 12 місяців -->
+            <td class="num">${cat.rev_12m ? Math.round(cat.rev_12m).toLocaleString('uk-UA') : '—'} ₴</td>
+            <td class="num num-muted">${formatNum(cat.cnt_12m)}</td>
+            <!-- Колонки 9 місяців -->
+            <td class="num">${cat.rev_9m ? Math.round(cat.rev_9m).toLocaleString('uk-UA') : '—'} ₴</td>
+            <td class="num num-muted">${formatNum(cat.cnt_9m)}</td>
+            <!-- Колонки 6 місяців -->
+            <td class="num">${cat.rev_6m ? Math.round(cat.rev_6m).toLocaleString('uk-UA') : '—'} ₴</td>
+            <td class="num num-muted">${formatNum(cat.cnt_6m)}</td>
+            <!-- Частка (6м) -->
+            <td class="num">
+                <div class="share-bar-container">
+                    <span style="min-width: 44px; font-size: 14px; font-weight: 600;">${sharePct}%</span>
+                    <div class="share-bar-track">
+                        <div class="share-bar-fill bg-${color}" style="width: ${barWidth}%;"></div>
+                    </div>
+                </div>
+            </td>
+        </tr>
+        `;
+    }).join('');
+
+    const last = (data.months_with_data || []).slice(-1)[0] || 0;
+    const legendText = last > 0 && last < 12
+        ? `Дані з PostgreSQL за ${data.year} рік доступні до місяця «${MONTH_NAMES_UA[last - 1]}» — періоди довші за ${last} міс. збігаються з фактом на сьогодні.`
+        : `Дані з PostgreSQL за ${data.year} рік. Порівняння періодів 12/9/6 місяців.`;
+
+    return `
+        <table class="premium-table">
+            <thead>
+                <tr>
+                    <th style="width: 60px;">Код</th>
+                    <th style="min-width: 140px;">Категорія</th>
+                    <th class="text-right">Виручка 12 міс (₴)</th>
+                    <th class="text-right">Клієнтів</th>
+                    <th class="text-right">Виручка 9 міс (₴)</th>
+                    <th class="text-right">Клієнтів</th>
+                    <th class="text-right">Виручка 6 міс (₴)</th>
+                    <th class="text-right">Клієнтів</th>
+                    <th class="text-right">Частка (6м)</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${rows}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="2">Усього</td>
+                    <!-- 12 місяців -->
+                    <td class="num">${Math.round(total12).toLocaleString('uk-UA')} ₴</td>
+                    <td class="num">${formatNum(totalCnt12)}</td>
+                    <!-- 9 місяців -->
+                    <td class="num">${Math.round(total9).toLocaleString('uk-UA')} ₴</td>
+                    <td class="num">${formatNum(totalCnt9)}</td>
+                    <!-- 6 місяців -->
+                    <td class="num">${Math.round(total6).toLocaleString('uk-UA')} ₴</td>
+                    <td class="num">${formatNum(totalCnt6)}</td>
+                    <!-- Частка -->
+                    <td class="num">100%</td>
+                </tr>
+            </tfoot>
+        </table>
+        
+        <div class="table-legend">
+            <span>💡</span> ${legendText}
+        </div>
+    `;
+}
+
+// «Скинути»: закрити модальне вікно
+function resetAbcView() {
+    closeAbcModal();
 }
 
 /**
@@ -1585,6 +1793,19 @@ async function refreshAnalysisData() {
     await loadDataFromAPI(appState.year, appState.period);
 }
 </script>
+
+<!-- Модальне вікно для ABC-аналізу (Промт №102) -->
+<div id="abc-modal" class="abc-modal-overlay" onclick="closeAbcModal(event)">
+    <div class="abc-modal-content" onclick="event.stopPropagation()">
+        <div class="abc-modal-header">
+            <h3 class="abc-modal-title" id="abc-modal-title">Деталі</h3>
+            <button class="abc-modal-close" onclick="closeAbcModal()">&times;</button>
+        </div>
+        <div class="abc-modal-body" id="abc-modal-body">
+            <!-- Сюди буде рендеритися таблиця -->
+        </div>
+    </div>
+</div>
 
 </body>
 </html>
